@@ -12,14 +12,12 @@ class NBQuery:
         self.sex = sex
 
 
-@app.get("/subjects/")
-async def get_subjects(query: NBQuery = Depends(NBQuery)):
-    if query.sex in ["male", "female"]:
+@app.get("/query/")
+async def get_query(query: NBQuery = Depends(NBQuery)):
+    if query.sex in ["male", "female", None]:
         response = await crud.get(query.sex)
-        return response
+        return response.json()
 
     raise HTTPException(
         status_code=422, detail=f"{query.sex} is not a valid sex"
     )
-
-    # return {"Neurobagel": "Hello world!"}
