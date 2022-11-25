@@ -32,6 +32,7 @@ CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL]
 
 
 def create_query(
+    # TODO: does sex need to have " " around it?
     age: tuple = (None, None),
     sex: str = None,
     image_modal: str = None,
@@ -59,7 +60,7 @@ def create_query(
         )
     if sex is not None and not sex == "":
         # select_str += f' ?{GENDER_VAR}'
-        subject_level_filters += "\n" + f'FILTER (?{SEX.var} = "{sex}").'
+        subject_level_filters += "\n" + f"FILTER (?{SEX.var} = {sex})."
 
     if diagnosis is not None and not diagnosis == "" and not control:
         # select_str += ' ?diagnosis'
