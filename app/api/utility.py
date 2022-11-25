@@ -2,7 +2,7 @@ from collections import namedtuple
 
 # For the request
 DOG_ROOT = "http://206.12.99.17"
-DOG_DB = "parkinson_data"
+DOG_DB = "test_data"
 DOG_PORT = 5820
 QUERY_URL = f"{DOG_ROOT}:{DOG_PORT}/{DOG_DB}/query"
 QUERY_HEADER = {
