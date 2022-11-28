@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi import Query
 from app.api import crud
-import json
 
 app = FastAPI()
 
@@ -17,7 +16,7 @@ class NBQuery:
 async def get_query(query: NBQuery = Depends(NBQuery)):
     if query.sex in ["male", "female", None]:
         response = await crud.get(query.sex)
-        results = json.loads(response.content.decode("utf-8"))
+        results = response.json()
         return [
             {k: v["value"] for k, v in res.items()}
             for res in results["results"]["bindings"]
