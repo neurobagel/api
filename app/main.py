@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi import Query
-from app.api import crud
+import uvicorn
+from .api import crud
 
 app = FastAPI()
 
@@ -25,3 +26,7 @@ async def get_query(query: NBQuery = Depends(NBQuery)):
     raise HTTPException(
         status_code=422, detail=f"{query.sex} is not a valid sex"
     )
+
+
+if __name__ == "__main__":
+    uvicorn.run("app.main:app", port=8000, reload=True)

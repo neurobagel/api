@@ -1,4 +1,4 @@
-import app.api.utility as util
+from . import utility as util
 import os
 import httpx
 
