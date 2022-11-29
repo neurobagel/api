@@ -1,3 +1,5 @@
+"""Contains constants for Stardog graph connection and a utility function for writing the SPARQL query."""
+
 from collections import namedtuple
 
 # For the request
@@ -32,7 +34,6 @@ CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL]
 
 
 def create_query(
-    # TODO: does sex need to have " " around it? YES
     age: tuple = (None, None),
     sex: str = None,
     image_modal: str = None,
@@ -41,6 +42,30 @@ def create_query(
     control: bool = None,
     num_sessions: int = None,
 ) -> str:
+    """Creates a SPARQL query using a query template and adds filters to the query using the input parameters.
+
+    Parameters
+    ----------
+    age : tuple, optional
+        Subjects' age (upper bound, lower bound), by default (None, None).
+    sex : str, optional
+        Subjects' sex, by default None.
+    image_modal : str, optional
+        Subjects' imaging modality, by default None.
+    diagnosis : str, optional
+        Subjects' diagnosis, by default None.
+    tool : str, optional
+        Tool, by default None.
+    control : bool, optional
+        Whether the subject was part of the control group, by default None.
+    num_sessions : int, optional
+        Subjects' number of scanning sessions, by default None.
+
+    Returns
+    -------
+    str
+        The SPARQL query.
+    """
     subject_level_filters = ""
     if (
         isinstance(age, tuple)
