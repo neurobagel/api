@@ -1,37 +1,24 @@
 """Define path operations for API."""
 
-from fastapi import FastAPI, Depends, HTTPException
-from fastapi import Query
+from fastapi import FastAPI, Depends
 import uvicorn
 from .api import crud
+from .api.models import NBQuery
 
 app = FastAPI()
 
 
-class NBQuery:
-    """Dependency for API that stores the query parameters to be accepted and validated."""
-
-    def __init__(
-        self, sex: str = Query(default=None, min_length=4, max_length=6)
-    ):
-        self.sex = sex
-
-
-@app.get("/query/")
+@app.get("/query/", tags=["query"])
 async def get_query(query: NBQuery = Depends(NBQuery)):
     """When a GET request is sent, return list of dicts corresponding to subject-level metadata."""
-    if query.sex in ["male", "female", None]:
-        response = await crud.get(query.sex)
-        results = response.json()
-        return [
-            {k: v["value"] for k, v in res.items()}
-            for res in results["results"]["bindings"]
-        ]
-
-    raise HTTPException(
-        status_code=422, detail=f"{query.sex} is not a valid sex"
-    )
+    response = await crud.get(query.sex.value)
+    results = response.json()
+    return [
+        {k: v["value"] for k, v in res.items()}
+        for res in results["results"]["bindings"]
+    ]
 
 
+# Automatically start uvicorn server on execution of main.py
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", port=8000, reload=True)
+    uvicorn.run("app.main:app", port=8000)
