@@ -11,7 +11,6 @@ app = FastAPI()
 @app.get("/query/", tags=["query"])
 async def get_query(query: QueryModel = Depends(QueryModel)):
     """When a GET request is sent, return list of dicts corresponding to subject-level metadata."""
-    # print(type(query.sex))
     response = await crud.get(query.sex)
     results = response.json()
     return [

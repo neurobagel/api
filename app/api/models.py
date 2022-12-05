@@ -3,6 +3,6 @@ from typing import Literal
 
 
 class QueryModel(BaseModel):
-    sex: Literal[
-        "male", "female", "other"
-    ] = None  # Field(["male", "female", "others"])
+    """Data model and dependency for API that stores the query parameters to be accepted and validated."""
+
+    sex: Literal["male", "female", "other"] = None
