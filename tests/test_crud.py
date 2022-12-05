@@ -4,6 +4,7 @@
 def test_get_input(test_app):
     """Given a valid sex string, returns a 200 status code."""
     response = test_app.get("/query/?sex=female")
+    assert response.json() != []
     assert response.status_code == 200
 
 
