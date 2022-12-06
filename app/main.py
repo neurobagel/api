@@ -14,7 +14,7 @@ app = FastAPI()
 async def auth_check():
     if os.environ.get("USER") is None or os.environ.get("PASSWORD") is None:
         raise RuntimeError(
-            "The application was launched and could not find the USER and / or PASSWORD environment variable. Will shut down now."
+            "The application was launched but could not find the USER and / or PASSWORD environment variables."
         )
 
 

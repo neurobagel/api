@@ -1,3 +1,5 @@
+import pytest
+
 """Test API to query subjects from the Stardog graph who match user-specified criteria."""
 
 
@@ -19,3 +21,24 @@ def test_get_all(test_app):
     response = test_app.get("/query/")
     assert response.status_code == 200
     assert response.json() != []
+
+
+def test_starting_app_without_environment_vars_fails(test_app, monkeypatch):
+    monkeypatch.delenv("USER", raising=False)
+    monkeypatch.delenv("PASSWORD", raising=False)
+
+    with pytest.raises(RuntimeError) as e_info:
+        with test_app:
+            pass
+    assert (
+        "could not find the USER and / or PASSWORD environment variables"
+        in str(e_info.value)
+    )
+
+
+def test_app_with_invalid_environment_vars(test_app, monkeypatch):
+    monkeypatch.setenv("USER", "something")
+    monkeypatch.setenv("PASSWORD", "cool")
+
+    response = test_app.get("/query/")
+    assert response.status_code == 401
