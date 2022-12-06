@@ -1,1 +1,1 @@
-# Cohort Query Tool
+# Bagel API
