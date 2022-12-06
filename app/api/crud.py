@@ -1,7 +1,10 @@
 """CRUD functions called by path operations."""
-from . import utility as util
 import os
+
 import httpx
+from fastapi import HTTPException
+
+from . import utility as util
 
 
 async def get(sex: str):
@@ -27,5 +30,8 @@ async def get(sex: str):
             os.environ.get("USER"), os.environ.get("PASSWORD")
         ),
     )
+
+    if response.status_code == 401:
+        raise HTTPException(status_code=401, detail="Unauthorized request")
 
     return response
