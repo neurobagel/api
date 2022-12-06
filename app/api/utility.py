@@ -1,4 +1,4 @@
-"""Contains constants for Stardog graph connection and a utility function for writing the SPARQL query."""
+"""Constants for Stardog graph connection and utility functions for writing the SPARQL query."""
 
 from collections import namedtuple
 

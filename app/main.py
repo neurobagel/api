@@ -1,4 +1,4 @@
-"""Define path operations for API."""
+"""Main app."""
 
 import os
 
@@ -12,6 +12,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def auth_check():
+    """Checks whether USER and PASSWORD environment variables are set."""
     if os.environ.get("USER") is None or os.environ.get("PASSWORD") is None:
         raise RuntimeError(
             "The application was launched but could not find the USER and / or PASSWORD environment variables."

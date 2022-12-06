@@ -34,4 +34,9 @@ async def get(sex: str):
     if response.status_code == 401:
         raise HTTPException(status_code=401, detail="Unauthorized request")
 
-    return response
+    results = response.json()
+
+    return [
+        {k: v["value"] for k, v in res.items()}
+        for res in results["results"]["bindings"]
+    ]
