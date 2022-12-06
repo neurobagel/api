@@ -32,7 +32,9 @@ async def get(sex: str):
     )
 
     if response.status_code == 401:
-        raise HTTPException(status_code=401, detail="Unauthorized request")
+        raise HTTPException(
+            status_code=response.status_code, detail="Unauthorized request"
+        )
 
     results = response.json()
 

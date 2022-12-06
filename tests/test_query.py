@@ -1,5 +1,6 @@
 """Test API to query subjects from the Stardog graph who match user-specified criteria."""
 
+import httpx
 import pytest
 
 from app.api import crud
@@ -24,6 +25,10 @@ def test_app_with_invalid_environment_vars(test_app, monkeypatch):
     monkeypatch.setenv("USER", "something")
     monkeypatch.setenv("PASSWORD", "cool")
 
+    def mock_httpx_post(**kwargs):
+        return httpx.Response(status_code=401)
+
+    monkeypatch.setattr(httpx, "post", mock_httpx_post)
     response = test_app.get("/query/")
     assert response.status_code == 401
 
