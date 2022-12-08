@@ -69,7 +69,9 @@ def test_get_all(test_app, monkeypatch):
     assert response.json() != []
 
 
-def test_get_input(test_app, monkeypatch):
+# TODO: Add "other" as a parameter value once >=1 instance of this value exists in the graph (otherwise first assertion fails)
+@pytest.mark.parametrize("valid_sex", ["male", "female"])
+def test_get_input(test_app, valid_sex, monkeypatch):
     """Given a valid sex string, returns a 200 status code and a non-empty list of results."""
     test_data = [
         {
@@ -100,7 +102,7 @@ def test_get_input(test_app, monkeypatch):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
-    response = test_app.get("/query/?sex=female")
+    response = test_app.get(f"/query/?sex={valid_sex}")
     assert response.json() != []
     assert response.status_code == 200
 
