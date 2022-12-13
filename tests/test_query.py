@@ -119,3 +119,26 @@ def test_get_age(
     response = test_app.get(f"/query/?{age_min_keyval}&{age_max_keyval}")
     assert response.status_code == 200
     assert response.json() != []
+
+
+@pytest.mark.parametrize(
+    "invalid_age_min, invalid_age_max",
+    [
+        ("forty", "fifty"),
+        (33, 21),
+        (-42.5, -40),
+    ],
+)
+def test_get_invalid_age(
+    test_data, test_app, invalid_age_min, invalid_age_max, monkeypatch
+):
+    """Given a valid min age and max age, returns a 200 status code and a non-empty list of results."""
+
+    async def mock_get(age_min, age_max, sex):
+        return None
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"/query/?age_min={invalid_age_min}&age_max={invalid_age_max}"
+    )
+    assert response.status_code == 422
