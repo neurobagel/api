@@ -33,15 +33,16 @@ CONTROL = Domain("nidm:Control", "nidm:isSubjectGroup")
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL]
 
 
-def create_query(
-    sex: str = None,
-) -> str:
-    """Creates a SPARQL query using a query template and adds filters to the query using the input parameters.
+def create_query(age: tuple = (None, None), sex: str = None) -> str:
+    """
+    Creates a SPARQL query using a query template and adds filters to the query using the input parameters.
 
     Parameters
     ----------
+    age : tuple, optional
+        Minimum and maximum age of subject, by default (None, None).
     sex : str, optional
-        Subjects' sex, by default None.
+        Subject sex, by default None.
 
     Returns
     -------
@@ -49,11 +50,28 @@ def create_query(
         The SPARQL query.
     """
     subject_level_filters = ""
-    session_level_filters = ""
+
+    if (
+        isinstance(age, tuple)
+        and not age == (None, None)
+        and not age == ("", "")
+    ):
+        # TODO: revisit this and replace this solution with one that just doesn't add the filter condition.
+        age = tuple(
+            (
+                default_val if age_val is None else age_val
+                for age_val, default_val in zip(age, [0, 100])
+            )
+        )
+        subject_level_filters += (
+            "\n" + f"FILTER (?{AGE.var} > {age[0]} && ?{AGE.var} < {age[1]})."
+        )
 
     if sex is not None and not sex == "":
         # select_str += f' ?{GENDER_VAR}'
         subject_level_filters += "\n" + f"FILTER (?{SEX.var} = '{sex}')."
+
+    session_level_filters = ""
 
     query_template = f"""
     {DEFAULT_CONTEXT}
