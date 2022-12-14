@@ -11,6 +11,6 @@ router = APIRouter(prefix="/query", tags=["query"])
 @router.get("/")
 async def get_query(query: QueryModel = Depends(QueryModel)):
     """When a GET request is sent, return list of dicts corresponding to subject-level metadata."""
-    response = await crud.get(query.sex)
+    response = await crud.get(query.age_min, query.age_max, query.sex)
 
     return response

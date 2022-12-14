@@ -6,6 +6,36 @@ import pytest
 from app.api import crud
 
 
+@pytest.fixture
+def test_data():
+    """Create toy data for two subjects for testing."""
+    data = [
+        {
+            "number_session": "test1",
+            "modality": "test1",
+            "subject": "test1",
+            "sub_id": "test1",
+            "sex": "test1",
+            "diagnosis": "test1",
+            "dataset_name": "test1",
+            "dataset": "test1",
+            "age": "test1",
+        },
+        {
+            "number_session": "test2",
+            "modality": "test2",
+            "subject": "test2",
+            "sub_id": "test2",
+            "sex": "test2",
+            "diagnosis": "test2",
+            "dataset_name": "test2",
+            "dataset": "test2",
+            "age": "test2",
+        },
+    ]
+    return data
+
+
 def test_start_app_without_environment_vars_fails(test_app, monkeypatch):
     """Given non-existing USER and PASSWORD environment variables, raises an informative RuntimeError."""
     monkeypatch.delenv("USER", raising=False)
@@ -33,34 +63,10 @@ def test_app_with_invalid_environment_vars(test_app, monkeypatch):
     assert response.status_code == 401
 
 
-def test_get_all(test_app, monkeypatch):
+def test_get_all(test_data, test_app, monkeypatch):
     """Given no input for the sex parameter, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
-    test_data = [
-        {
-            "number_session": "test1",
-            "modality": "test1",
-            "subject": "test1",
-            "sub_id": "test1",
-            "sex": "test1",
-            "diagnosis": "test1",
-            "dataset_name": "test1",
-            "dataset": "test1",
-            "age": "test1",
-        },
-        {
-            "number_session": "test2",
-            "modality": "test2",
-            "subject": "test2",
-            "sub_id": "test2",
-            "sex": "test2",
-            "diagnosis": "test2",
-            "dataset_name": "test2",
-            "dataset": "test2",
-            "age": "test2",
-        },
-    ]
 
-    async def mock_get(sex):
+    async def mock_get(age_min, age_max, sex):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -70,48 +76,85 @@ def test_get_all(test_app, monkeypatch):
 
 
 @pytest.mark.parametrize("valid_sex", ["male", "female", "other"])
-def test_get_input(test_app, valid_sex, monkeypatch):
+def test_get_valid_sex(test_data, test_app, valid_sex, monkeypatch):
     """Given a valid sex string, returns a 200 status code and a non-empty list of results."""
-    test_data = [
-        {
-            "number_session": "test1",
-            "modality": "test1",
-            "subject": "test1",
-            "sub_id": "test1",
-            "sex": "test1",
-            "diagnosis": "test1",
-            "dataset_name": "test1",
-            "dataset": "test1",
-            "age": "test1",
-        },
-        {
-            "number_session": "test2",
-            "modality": "test2",
-            "subject": "test2",
-            "sub_id": "test2",
-            "sex": "test2",
-            "diagnosis": "test2",
-            "dataset_name": "test2",
-            "dataset": "test2",
-            "age": "test2",
-        },
-    ]
 
-    async def mock_get(sex):
+    async def mock_get(age_min, age_max, sex):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(f"/query/?sex={valid_sex}")
-    assert response.json() != []
     assert response.status_code == 200
+    assert response.json() != []
 
 
-def test_get_invalid_input(test_app, monkeypatch):
+def test_get_invalid_sex(test_app, monkeypatch):
     """Given an invalid sex string (i.e., anything other than ["male", "female", None]), returns a 422 status code."""
 
-    async def mock_get(sex):
+    async def mock_get(age_min, age_max, sex):
         return None
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get("/query/?sex=apple")
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "valid_age_min, valid_age_max",
+    [(30.5, 60), (23, 23)],
+)
+def test_get_valid_age_range(
+    test_data, test_app, valid_age_min, valid_age_max, monkeypatch
+):
+    """Given a valid age range, returns a 200 status code and a non-empty list of results."""
+
+    async def mock_get(age_min, age_max, sex):
+        return test_data
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"/query/?age_min={valid_age_min}&age_max={valid_age_max}"
+    )
+    assert response.status_code == 200
+    assert response.json() != []
+
+
+@pytest.mark.parametrize(
+    "age_keyval",
+    ["age_min=20.75", "age_max=50"],
+)
+def test_get_valid_age_single_bound(
+    test_data, test_app, age_keyval, monkeypatch
+):
+    """Given only a valid lower/upper age bound, returns a 200 status code and a non-empty list of results."""
+
+    async def mock_get(age_min, age_max, sex):
+        return test_data
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(f"/query/?{age_keyval}")
+    assert response.status_code == 200
+    assert response.json() != []
+
+
+@pytest.mark.parametrize(
+    "invalid_age_min, invalid_age_max",
+    [
+        ("forty", "fifty"),
+        (33, 21),
+        (-42.5, -40),
+    ],
+)
+def test_get_invalid_age(
+    test_data, test_app, invalid_age_min, invalid_age_max, monkeypatch
+):
+    """Given an invalid age range, returns a 422 status code."""
+
+    async def mock_get(age_min, age_max, sex):
+        return None
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"/query/?age_min={invalid_age_min}&age_max={invalid_age_max}"
+    )
     assert response.status_code == 422
