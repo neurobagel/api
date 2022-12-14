@@ -76,7 +76,7 @@ def test_get_all(test_data, test_app, monkeypatch):
 
 
 @pytest.mark.parametrize("valid_sex", ["male", "female", "other"])
-def test_get_sex(test_data, test_app, valid_sex, monkeypatch):
+def test_get_valid_sex(test_data, test_app, valid_sex, monkeypatch):
     """Given a valid sex string, returns a 200 status code and a non-empty list of results."""
 
     async def mock_get(age_min, age_max, sex):
@@ -100,23 +100,39 @@ def test_get_invalid_sex(test_app, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "age_min_keyval, age_max_keyval",
-    [
-        ("age_min=30.5", "age_max=60"),
-        ("age_min=20.75", None),
-        (None, "age_max=50"),
-    ],
+    "valid_age_min, valid_age_max",
+    [(30.5, 60), (23, 23)],
 )
-def test_get_age(
-    test_data, test_app, age_min_keyval, age_max_keyval, monkeypatch
+def test_get_valid_age_range(
+    test_data, test_app, valid_age_min, valid_age_max, monkeypatch
 ):
-    """Given a valid min age and max age, returns a 200 status code and a non-empty list of results."""
+    """Given a valid age range, returns a 200 status code and a non-empty list of results."""
 
     async def mock_get(age_min, age_max, sex):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
-    response = test_app.get(f"/query/?{age_min_keyval}&{age_max_keyval}")
+    response = test_app.get(
+        f"/query/?age_min={valid_age_min}&age_max={valid_age_max}"
+    )
+    assert response.status_code == 200
+    assert response.json() != []
+
+
+@pytest.mark.parametrize(
+    "age_keyval",
+    ["age_min=20.75", "age_max=50"],
+)
+def test_get_valid_age_single_bound(
+    test_data, test_app, age_keyval, monkeypatch
+):
+    """Given only a valid lower/upper age bound, returns a 200 status code and a non-empty list of results."""
+
+    async def mock_get(age_min, age_max, sex):
+        return test_data
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(f"/query/?{age_keyval}")
     assert response.status_code == 200
     assert response.json() != []
 
@@ -132,7 +148,7 @@ def test_get_age(
 def test_get_invalid_age(
     test_data, test_app, invalid_age_min, invalid_age_max, monkeypatch
 ):
-    """Given a valid min age and max age, returns a 200 status code and a non-empty list of results."""
+    """Given an invalid age range, returns a 422 status code."""
 
     async def mock_get(age_min, age_max, sex):
         return None
