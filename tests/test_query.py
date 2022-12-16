@@ -183,3 +183,20 @@ def test_get_valid_image_modal(
     response = test_app.get(f"/query/?image_modal={valid_image_modal}")
     assert response.status_code == 200
     assert response.json() != []
+
+
+@pytest.mark.parametrize(
+    "invalid_image_modal",
+    ["diffusion weighted", "eeg", "Flow weghed", "T1weighted", "apple"],
+)
+def test_get_invalid_image_modal(
+    test_data, test_app, invalid_image_modal, monkeypatch
+):
+    "Given an invalid image modality, returns a 422 status code."
+
+    async def mock_get(age_min, age_max, sex, image_modal):
+        return test_data
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(f"query/?image_modal={invalid_image_modal}")
+    assert response.status_code == 422
