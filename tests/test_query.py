@@ -158,3 +158,28 @@ def test_get_invalid_age(
         f"/query/?age_min={invalid_age_min}&age_max={invalid_age_max}"
     )
     assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "valid_image_modal",
+    [
+        "All",
+        "Diffusion weighted",
+        "EEG",
+        "Flow weighted",
+        "T1 weighted",
+        "T2 weighted",
+    ],
+)
+def test_get_valid_image_modal(
+    test_data, test_app, valid_image_modal, monkeypatch
+):
+    "Given a valid image modality, returns a 200 status code and a non-empty list of results."
+
+    async def mock_get(age_min, age_max, sex, image_modal):
+        return test_data
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(f"/query/?image_modal={valid_image_modal}")
+    assert response.status_code == 200
+    assert response.json() != []
