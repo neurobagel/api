@@ -39,9 +39,11 @@ async def get(age_min: float, age_max: float, sex: str, image_modal: str):
         ),
     )
 
-    if response.status_code == 401:
+    try:
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
         raise HTTPException(
-            status_code=response.status_code, detail="Unauthorized request"
+            status_code=exc.response.status_code, detail=exc.response.text
         )
 
     results = response.json()
