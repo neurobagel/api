@@ -4,9 +4,7 @@ from typing import Literal
 
 from fastapi import Query
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel, root_validator
-
-from .utility import IMAGE_MODAL_CHOICES
+from pydantic import BaseModel, constr, root_validator
 
 
 class QueryModel(BaseModel):
@@ -15,7 +13,7 @@ class QueryModel(BaseModel):
     age_min: float = Query(default=None, ge=0)
     age_max: float = Query(default=None, ge=0)
     sex: Literal["male", "female", "other"] = None
-    image_modal: Literal[tuple(IMAGE_MODAL_CHOICES.keys())] = None
+    image_modal: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
 
     @root_validator()
     def check_agemax_ge_agemin(cls, values):

@@ -32,16 +32,6 @@ CONTROL = Domain("nidm:Control", "nidm:isSubjectGroup")
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL]
 
-# Query choices
-IMAGE_MODAL_CHOICES = {
-    "All": None,
-    "Diffusion weighted": "nidm:DiffusionWeighted",
-    "EEG": "nidm:EEG",
-    "Flow weighted": "nidm:FlowWeighted",
-    "T1 weighted": "nidm:T1Weighted",
-    "T2 weighted": "nidm:T2Weighted",
-}
-
 
 def create_query(
     age: tuple = (None, None), sex: str = None, image_modal: str = None
@@ -71,23 +61,22 @@ def create_query(
         if age[1] is not None:
             subject_level_filters += "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
 
-    if sex is not None and not sex == "":
+    if sex is not None:
         # select_str += f' ?{GENDER_VAR}'
         subject_level_filters += "\n" + f"FILTER (?{SEX.var} = '{sex}')."
 
     session_level_filters = ""
 
-    if image_modal is not None and image_modal != "All":
+    if image_modal is not None:
         session_level_filters += (
-            "\n"
-            + f"FILTER (?{IMAGE_MODAL.var} = {IMAGE_MODAL_CHOICES[image_modal]})."
+            "\n" + f"FILTER (?{IMAGE_MODAL.var} = {image_modal})."
         )
 
     query_template = f"""
     {DEFAULT_CONTEXT}
 
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
-    ?diagnosis ?modality ?number_session
+    ?diagnosis ?image_modal ?number_session
     WHERE {{
     ?dataset a bg:Dataset;
              bg:label ?dataset_name;
@@ -98,14 +87,14 @@ def create_query(
             bg:age ?age;
             bg:sex ?sex;
             bg:diagnosis ?diagnosis;
-            bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?modality.
+            bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?image_modal.
 
     {{
     SELECT ?subject (count(distinct ?session) as ?number_session)
     WHERE {{
         ?subject a bg:Subject;
                  bg:hasSession ?session.
-        ?session bg:hasAcquisition/bg:hasContrastType ?modality.
+        ?session bg:hasAcquisition/bg:hasContrastType ?image_modal.
         {session_level_filters}
 
     }} GROUP BY ?subject
