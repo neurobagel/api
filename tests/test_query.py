@@ -67,7 +67,9 @@ def test_app_with_invalid_environment_vars(test_app, monkeypatch):
 def test_get_all(test_data, test_app, monkeypatch):
     """Given no input for the sex parameter, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -80,7 +82,9 @@ def test_get_all(test_data, test_app, monkeypatch):
 def test_get_valid_sex(test_data, test_app, valid_sex, monkeypatch):
     """Given a valid sex string, returns a 200 status code and a non-empty list of results."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -92,7 +96,9 @@ def test_get_valid_sex(test_data, test_app, valid_sex, monkeypatch):
 def test_get_invalid_sex(test_app, monkeypatch):
     """Given an invalid sex string (i.e., anything other than ["male", "female", None]), returns a 422 status code."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         return None
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -109,7 +115,9 @@ def test_get_valid_age_range(
 ):
     """Given a valid age range, returns a 200 status code and a non-empty list of results."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -129,7 +137,9 @@ def test_get_valid_age_single_bound(
 ):
     """Given only a valid lower/upper age bound, returns a 200 status code and a non-empty list of results."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -151,7 +161,9 @@ def test_get_invalid_age(
 ):
     """Given an invalid age range, returns a 422 status code."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         return None
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -176,7 +188,9 @@ def test_get_valid_available_image_modal(
 ):
     """Given a valid and available image modality, returns a 200 status code and a non-empty list of results."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -196,7 +210,9 @@ def test_get_valid_unavailable_image_modal(
 ):
     """Given a valid, pre-defined, and unavailable image modality, returns a 200 status code and an empty list of results."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         return []
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -215,7 +231,9 @@ def test_get_invalid_image_modal(
 ):
     """Given an invalid image modality, returns a 422 status code."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -232,7 +250,9 @@ def test_get_undefined_prefix_image_modal(
 ):
     """Given a valid and undefined prefix image modality, returns a 500 status code."""
 
-    async def mock_get(age_min, age_max, sex, image_modal):
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
         raise HTTPException(500)
 
     monkeypatch.setattr(crud, "get", mock_get)
