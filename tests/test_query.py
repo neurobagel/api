@@ -161,42 +161,46 @@ def test_get_invalid_age(
 
 
 @pytest.mark.parametrize(
-    "valid_image_modal",
+    "valid_available_image_modal",
     [
-        "All",
-        "Diffusion weighted",
-        "EEG",
-        "Flow weighted",
-        "T1 weighted",
-        "T2 weighted",
+        "nidm:DiffusionWeighted",
+        "nidm:EEG",
+        "nidm:FlowWeighted",
+        "nidm:T1Weighted",
+        "nidm:T2Weighted",
     ],
 )
-def test_get_valid_image_modal(
-    test_data, test_app, valid_image_modal, monkeypatch
+def test_get_valid_available_image_modal(
+    test_data, test_app, valid_available_image_modal, monkeypatch
 ):
-    "Given a valid image modality, returns a 200 status code and a non-empty list of results."
+    """Given a valid and available image modality, returns a 200 status code and a non-empty list of results."""
 
     async def mock_get(age_min, age_max, sex, image_modal):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
-    response = test_app.get(f"/query/?image_modal={valid_image_modal}")
+    response = test_app.get(
+        f"/query/?image_modal={valid_available_image_modal}"
+    )
     assert response.status_code == 200
     assert response.json() != []
 
 
 @pytest.mark.parametrize(
-    "invalid_image_modal",
-    ["diffusion weighted", "eeg", "Flow weghed", "T1weighted", "apple"],
+    "valid_unavailable_image_modal",
+    ["nidm:Flair", "owl:sameAs", "nidm:Floweghed", "snomed:something"],
 )
-def test_get_invalid_image_modal(
-    test_data, test_app, invalid_image_modal, monkeypatch
+def test_get_valid_unavailable_image_modal(
+    test_app, valid_unavailable_image_modal, monkeypatch
 ):
-    "Given an invalid image modality, returns a 422 status code."
+    """Given a valid but unavailable image modality, returns a 200 status code and an empty list of results."""
 
     async def mock_get(age_min, age_max, sex, image_modal):
-        return test_data
+        return []
 
     monkeypatch.setattr(crud, "get", mock_get)
-    response = test_app.get(f"query/?image_modal={invalid_image_modal}")
-    assert response.status_code == 422
+    response = test_app.get(
+        f"query/?image_modal={valid_unavailable_image_modal}"
+    )
+    assert response.status_code == 200
+    assert response.json() == []
