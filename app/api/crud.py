@@ -39,11 +39,10 @@ async def get(age_min: float, age_max: float, sex: str, image_modal: str):
         ),
     )
 
-    try:
-        response.raise_for_status()
-    except httpx.HTTPError as exc:
+    if not response.is_success:
         raise HTTPException(
-            status_code=exc.response.status_code, detail=exc.response.text
+            status_code=response.status_code,
+            detail=f"{response.reason_phrase}: {response.text}",
         )
 
     results = response.json()
