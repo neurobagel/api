@@ -2,6 +2,7 @@
 
 import httpx
 import pytest
+from fastapi import HTTPException
 
 from app.api import crud
 
@@ -173,7 +174,7 @@ def test_get_invalid_age(
 def test_get_valid_available_image_modal(
     test_data, test_app, valid_available_image_modal, monkeypatch
 ):
-    """Given a valid available image modality, returns a 200 status code and a non-empty list of results."""
+    """Given a valid and available image modality, returns a 200 status code and a non-empty list of results."""
 
     async def mock_get(age_min, age_max, sex, image_modal):
         return test_data
@@ -188,7 +189,7 @@ def test_get_valid_available_image_modal(
 
 @pytest.mark.parametrize(
     "valid_unavailable_image_modal",
-    ["nidm:Flair", "owl:sameAs", "nidm:Floweghed", "snomed:something"],
+    ["nidm:Flair", "owl:sameAs", "bg:FlowWeighted", "snomed:something"],
 )
 def test_get_valid_unavailable_image_modal(
     test_app, valid_unavailable_image_modal, monkeypatch
@@ -200,7 +201,7 @@ def test_get_valid_unavailable_image_modal(
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        f"query/?image_modal={valid_unavailable_image_modal}"
+        f"/query/?image_modal={valid_unavailable_image_modal}"
     )
     assert response.status_code == 200
     assert response.json() == []
@@ -218,5 +219,24 @@ def test_get_invalid_image_modal(
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
-    response = test_app.get(f"query/?image_modal={invalid_image_modal}")
+    response = test_app.get(f"/query/?image_modal={invalid_image_modal}")
     assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "undefined_prefix_image_modal",
+    ["dbo:abstract", "sex:apple", "something:cool"],
+)
+def test_get_undefined_prefix_image_modal(
+    test_app, undefined_prefix_image_modal, monkeypatch
+):
+    """Given a valid and undefined prefix image modality, returns a 500 status code."""
+
+    async def mock_get(age_min, age_max, sex, image_modal):
+        raise HTTPException(500)
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"/query/?image_modal={undefined_prefix_image_modal}"
+    )
+    assert response.status_code == 500
