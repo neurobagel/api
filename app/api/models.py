@@ -13,6 +13,8 @@ class QueryModel(BaseModel):
     age_min: float = Query(default=None, ge=0)
     age_max: float = Query(default=None, ge=0)
     sex: Literal["male", "female", "other"] = None
+    diagnosis: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
+    is_control: bool = None
     image_modal: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
 
     @root_validator()

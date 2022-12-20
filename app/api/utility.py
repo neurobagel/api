@@ -28,13 +28,19 @@ DIAGNOSIS = Domain("diagnosis", "bg:diagnosis")
 IMAGE_MODAL = Domain("image_modal", "bg:hasContrastType")
 TOOL = Domain("tool", "")
 PROJECT = Domain("project", "bg:hasSamples")
-CONTROL = Domain("nidm:Control", "nidm:isSubjectGroup")
+IS_CONTROL = Domain("nidm:Control", "nidm:isSubjectGroup")
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL]
 
+IS_CONTROL_TERM = "http://purl.obolibrary.org/obo/NCIT_C94342"
+
 
 def create_query(
-    age: tuple = (None, None), sex: str = None, image_modal: str = None
+    age: tuple = (None, None),
+    sex: str = None,
+    diagnosis: str = None,
+    is_control: bool = None,
+    image_modal: str = None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
@@ -45,7 +51,11 @@ def create_query(
         Minimum and maximum age of subject, by default (None, None).
     sex : str, optional
         Subject sex, by default None.
-    image_modal: str, optional
+    diagnosis : str, optional
+        Subject diagnosis, by default None.
+    is_control : bool, optional
+        Whether or not subject is a control, by default None.
+    image_modal : str, optional
         Imaging modality of subject scans, by default None.
 
     Returns
@@ -62,8 +72,22 @@ def create_query(
             subject_level_filters += "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
 
     if sex is not None:
-        # select_str += f' ?{GENDER_VAR}'
         subject_level_filters += "\n" + f"FILTER (?{SEX.var} = '{sex}')."
+
+    if diagnosis is not None:
+        subject_level_filters += (
+            "\n" + f"FILTER (?{DIAGNOSIS.var} = {diagnosis})."
+        )
+
+    if is_control is not None:
+        if is_control:
+            subject_level_filters += (
+                "\n" + f"FILTER (?{IS_CONTROL.var} = <{IS_CONTROL_TERM}>)."
+            )
+        else:
+            subject_level_filters += (
+                "\n" + f"FILTER (?{IS_CONTROL.var} != <{IS_CONTROL_TERM}>)."
+            )
 
     session_level_filters = ""
 
