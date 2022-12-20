@@ -4,15 +4,16 @@ from typing import Literal
 
 from fastapi import Query
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, constr, root_validator
 
 
 class QueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
-    sex: Literal["male", "female", "other"] = None
     age_min: float = Query(default=None, ge=0)
     age_max: float = Query(default=None, ge=0)
+    sex: Literal["male", "female", "other"] = None
+    image_modal: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
 
     @root_validator()
     def check_agemax_ge_agemin(cls, values):

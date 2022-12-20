@@ -2,6 +2,7 @@
 
 import httpx
 import pytest
+from fastapi import HTTPException
 
 from app.api import crud
 
@@ -66,7 +67,7 @@ def test_app_with_invalid_environment_vars(test_app, monkeypatch):
 def test_get_all(test_data, test_app, monkeypatch):
     """Given no input for the sex parameter, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
 
-    async def mock_get(age_min, age_max, sex):
+    async def mock_get(age_min, age_max, sex, image_modal):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -79,7 +80,7 @@ def test_get_all(test_data, test_app, monkeypatch):
 def test_get_valid_sex(test_data, test_app, valid_sex, monkeypatch):
     """Given a valid sex string, returns a 200 status code and a non-empty list of results."""
 
-    async def mock_get(age_min, age_max, sex):
+    async def mock_get(age_min, age_max, sex, image_modal):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -91,7 +92,7 @@ def test_get_valid_sex(test_data, test_app, valid_sex, monkeypatch):
 def test_get_invalid_sex(test_app, monkeypatch):
     """Given an invalid sex string (i.e., anything other than ["male", "female", None]), returns a 422 status code."""
 
-    async def mock_get(age_min, age_max, sex):
+    async def mock_get(age_min, age_max, sex, image_modal):
         return None
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -108,7 +109,7 @@ def test_get_valid_age_range(
 ):
     """Given a valid age range, returns a 200 status code and a non-empty list of results."""
 
-    async def mock_get(age_min, age_max, sex):
+    async def mock_get(age_min, age_max, sex, image_modal):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -128,7 +129,7 @@ def test_get_valid_age_single_bound(
 ):
     """Given only a valid lower/upper age bound, returns a 200 status code and a non-empty list of results."""
 
-    async def mock_get(age_min, age_max, sex):
+    async def mock_get(age_min, age_max, sex, image_modal):
         return test_data
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -150,7 +151,7 @@ def test_get_invalid_age(
 ):
     """Given an invalid age range, returns a 422 status code."""
 
-    async def mock_get(age_min, age_max, sex):
+    async def mock_get(age_min, age_max, sex, image_modal):
         return None
 
     monkeypatch.setattr(crud, "get", mock_get)
@@ -158,3 +159,84 @@ def test_get_invalid_age(
         f"/query/?age_min={invalid_age_min}&age_max={invalid_age_max}"
     )
     assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "valid_available_image_modal",
+    [
+        "nidm:DiffusionWeighted",
+        "nidm:EEG",
+        "nidm:FlowWeighted",
+        "nidm:T1Weighted",
+        "nidm:T2Weighted",
+    ],
+)
+def test_get_valid_available_image_modal(
+    test_data, test_app, valid_available_image_modal, monkeypatch
+):
+    """Given a valid and available image modality, returns a 200 status code and a non-empty list of results."""
+
+    async def mock_get(age_min, age_max, sex, image_modal):
+        return test_data
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"/query/?image_modal={valid_available_image_modal}"
+    )
+    assert response.status_code == 200
+    assert response.json() != []
+
+
+@pytest.mark.parametrize(
+    "valid_unavailable_image_modal",
+    ["nidm:Flair", "owl:sameAs", "bg:FlowWeighted", "snomed:something"],
+)
+def test_get_valid_unavailable_image_modal(
+    test_app, valid_unavailable_image_modal, monkeypatch
+):
+    """Given a valid, pre-defined, and unavailable image modality, returns a 200 status code and an empty list of results."""
+
+    async def mock_get(age_min, age_max, sex, image_modal):
+        return []
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"/query/?image_modal={valid_unavailable_image_modal}"
+    )
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+@pytest.mark.parametrize(
+    "invalid_image_modal", ["2nim:EEG", "apple", "some_thing:cool"]
+)
+def test_get_invalid_image_modal(
+    test_data, test_app, invalid_image_modal, monkeypatch
+):
+    """Given an invalid image modality, returns a 422 status code."""
+
+    async def mock_get(age_min, age_max, sex, image_modal):
+        return test_data
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(f"/query/?image_modal={invalid_image_modal}")
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "undefined_prefix_image_modal",
+    ["dbo:abstract", "sex:apple", "something:cool"],
+)
+def test_get_undefined_prefix_image_modal(
+    test_app, undefined_prefix_image_modal, monkeypatch
+):
+    """Given a valid and undefined prefix image modality, returns a 500 status code."""
+
+    async def mock_get(age_min, age_max, sex, image_modal):
+        raise HTTPException(500)
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"/query/?image_modal={undefined_prefix_image_modal}"
+    )
+    assert response.status_code == 500
