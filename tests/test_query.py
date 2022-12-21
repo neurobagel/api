@@ -315,3 +315,7 @@ def test_get_invalid_control_diagnosis_pair(test_app, monkeypatch):
         "/query/?diagnosis=snomed:35489007&is_control=True"
     )
     assert response.status_code == 422
+    assert (
+        "Subjects cannot both be healthy controls and have a diagnosis"
+        in response.text
+    )
