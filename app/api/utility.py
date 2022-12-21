@@ -65,11 +65,10 @@ def create_query(
     """
     subject_level_filters = ""
 
-    if isinstance(age, tuple):
-        if age[0] is not None:
-            subject_level_filters += "\n" + f"FILTER (?{AGE.var} >= {age[0]})."
-        if age[1] is not None:
-            subject_level_filters += "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
+    if age[0] is not None:
+        subject_level_filters += "\n" + f"FILTER (?{AGE.var} >= {age[0]})."
+    if age[1] is not None:
+        subject_level_filters += "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
 
     if sex is not None:
         subject_level_filters += "\n" + f"FILTER (?{SEX.var} = '{sex}')."
