@@ -261,6 +261,22 @@ def test_get_valid_diagnosis(
     assert response.json() != []
 
 
+@pytest.mark.parametrize(
+    "invalid_diagnosis", ["sn0med:35489007", "apple", ":123456"]
+)
+def test_get_invalid_diagnosis(test_app, invalid_diagnosis, monkeypatch):
+    """Given an invalid diagnosis, returns a 422 status code."""
+
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
+        return None
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(f"/query/?diagnosis={invalid_diagnosis}")
+    assert response.status_code == 422
+
+
 @pytest.mark.parametrize("valid_iscontrol", [True, False])
 def test_get_valid_iscontrol(
     test_app, mock_successful_get, valid_iscontrol, monkeypatch
@@ -271,3 +287,31 @@ def test_get_valid_iscontrol(
     response = test_app.get(f"/query/?is_control={valid_iscontrol}")
     assert response.status_code == 200
     assert response.json() != []
+
+
+def test_get_invalid_iscontrol(test_app, monkeypatch):
+    """Given a non-boolean is_control value, returns a 422 status code."""
+
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
+        return None
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get("/query/?is_control=apple")
+    assert response.status_code == 422
+
+
+def test_get_invalid_control_diagnosis_pair(test_app, monkeypatch):
+    """Given a non-default diagnosis value and is_control value of True, returns a 422 status code."""
+
+    async def mock_get(
+        age_min, age_max, sex, diagnosis, is_control, image_modal
+    ):
+        return None
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        "/query/?diagnosis=snomed:35489007&is_control=True"
+    )
+    assert response.status_code == 422
