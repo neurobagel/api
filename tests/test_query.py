@@ -245,3 +245,29 @@ def test_get_undefined_prefix_image_modal(
         f"/query/?image_modal={undefined_prefix_image_modal}"
     )
     assert response.status_code == 500
+
+
+@pytest.mark.parametrize(
+    "valid_diagnosis", ["snomed:35489007", "snomed:49049000"]
+)
+def test_get_valid_diagnosis(
+    test_app, mock_successful_get, valid_diagnosis, monkeypatch
+):
+    """Given a valid diagnosis, returns a 200 status code and a non-empty list of results."""
+
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get(f"/query/?diagnosis={valid_diagnosis}")
+    assert response.status_code == 200
+    assert response.json() != []
+
+
+@pytest.mark.parametrize("valid_iscontrol", [True, False])
+def test_get_valid_iscontrol(
+    test_app, mock_successful_get, valid_iscontrol, monkeypatch
+):
+    """Given a valid is_control value, returns a 200 status code and a non-empty list of results."""
+
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get(f"/query/?is_control={valid_iscontrol}")
+    assert response.status_code == 200
+    assert response.json() != []
