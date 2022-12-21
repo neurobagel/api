@@ -13,6 +13,8 @@ class QueryModel(BaseModel):
     age_min: float = Query(default=None, ge=0)
     age_max: float = Query(default=None, ge=0)
     sex: Literal["male", "female", "other"] = None
+    diagnosis: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
+    is_control: bool = None
     image_modal: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
 
     @root_validator()
@@ -31,5 +33,14 @@ class QueryModel(BaseModel):
             raise HTTPException(
                 status_code=422,
                 detail="'age_max' must be greater than or equal to 'age_min'",
+            )
+        return values
+
+    @root_validator
+    def check_exclusive_diagnosis_or_ctrl(cls, values):
+        if values["diagnosis"] is not None and values["is_control"]:
+            raise HTTPException(
+                status_code=422,
+                detail="Subjects cannot both be healthy controls and have a diagnosis.",
             )
         return values
