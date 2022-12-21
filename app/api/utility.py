@@ -15,7 +15,7 @@ QUERY_HEADER = {
 # SPARQL query context
 DEFAULT_CONTEXT = """
 PREFIX bg: <http://neurobagel.org/vocab/>
-PREFIX snomed: <http://neurobagel.org/snomed/>
+PREFIX snomed: <https://identifiers.org/snomedct:>
 PREFIX nidm: <http://purl.org/nidash/nidm#>
 """
 
@@ -28,7 +28,7 @@ DIAGNOSIS = Domain("diagnosis", "bg:diagnosis")
 IMAGE_MODAL = Domain("image_modal", "bg:hasContrastType")
 TOOL = Domain("tool", "")
 PROJECT = Domain("project", "bg:hasSamples")
-IS_CONTROL = Domain("nidm:Control", "nidm:isSubjectGroup")
+IS_CONTROL = Domain("subject_group", "bg:isSubjectGroup")
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL]
 
