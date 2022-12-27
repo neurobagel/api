@@ -275,6 +275,20 @@ def test_get_invalid_control_diagnosis_pair(test_app, monkeypatch):
     )
 
 
+@pytest.mark.parametrize("valid_min_num_sessions", [1, 2, 4, 7])
+def test_get_valid_sensible_min_num_sessions(
+    test_app, mock_successful_get, valid_min_num_sessions, monkeypatch
+):
+    """Given a valid and sensible minimum number of imaging sessions, returns a 200 status code and a non-empty list of results."""
+
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get(
+        f"/query/?min_num_sessions={valid_min_num_sessions}"
+    )
+    assert response.status_code == 200
+    assert response.json() != []
+
+
 @pytest.mark.parametrize(
     "valid_available_image_modal",
     [
