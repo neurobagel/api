@@ -13,6 +13,7 @@ async def get(
     sex: str,
     diagnosis: str,
     is_control: bool,
+    min_num_sessions: int,
     image_modal: str,
 ):
     """
@@ -30,6 +31,8 @@ async def get(
         Subject diagnosis.
     is_control : bool
         Whether or not subject is a control.
+    min_num_sessions : int
+        Subject minimum number of imaging sessions.
     image_modal : str
         Imaging modality of subject scans.
 
@@ -46,6 +49,7 @@ async def get(
             sex=sex,
             diagnosis=diagnosis,
             is_control=is_control,
+            min_num_sessions=min_num_sessions,
             image_modal=image_modal,
         ),
         headers=util.QUERY_HEADER,
