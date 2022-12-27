@@ -289,6 +289,26 @@ def test_get_valid_sensible_min_num_sessions(
     assert response.json() != []
 
 
+def test_get_valid_nonsensical_min_num_sessions(test_app, monkeypatch):
+    """Given a valid and snonsensical minimum number of imaging sessions, returns a 200 status code and an empty list of results."""
+
+    async def mock_get(
+        age_min,
+        age_max,
+        sex,
+        diagnosis,
+        is_control,
+        min_num_sessions,
+        image_modal,
+    ):
+        return []
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get("/query/?min_num_sessions=1000")
+    response.status_code = 200
+    response.json() == []
+
+
 @pytest.mark.parametrize(
     "valid_available_image_modal",
     [
