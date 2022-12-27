@@ -15,6 +15,7 @@ class QueryModel(BaseModel):
     sex: Literal["male", "female", "other"] = None
     diagnosis: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
     is_control: bool = None
+    min_num_sessions: int = Query(default=None, ge=1)
     image_modal: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
 
     @root_validator()
