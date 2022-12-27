@@ -309,6 +309,30 @@ def test_get_valid_nonsensical_min_num_sessions(test_app, monkeypatch):
     response.json() == []
 
 
+@pytest.mark.parametrize("invalid_min_num_sessions", [0, -3, "apple"])
+def test_get_invalid_min_num_sessions(
+    test_app, invalid_min_num_sessions, monkeypatch
+):
+    """Given an invalid minimum number of imaging sessions, returns a 422 status code."""
+
+    async def mock_get(
+        age_min,
+        age_max,
+        sex,
+        diagnosis,
+        is_control,
+        min_num_sessions,
+        image_modal,
+    ):
+        return None
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"/query/?min_num_sessions={invalid_min_num_sessions}"
+    )
+    response.status_code = 422
+
+
 @pytest.mark.parametrize(
     "valid_available_image_modal",
     [
