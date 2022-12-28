@@ -1,10 +1,9 @@
 """Data models."""
 
-from typing import Literal
-
 from fastapi import Query
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, constr, root_validator
+from typing_extensions import Literal
 
 
 class QueryModel(BaseModel):
