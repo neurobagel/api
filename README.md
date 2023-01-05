@@ -1,4 +1,3 @@
-[//]: <> (Do we need to include a section explaining the server connection whether that'd be McGill vpn or something else?)
 <div align="center">
 
 # Bagel API
@@ -12,7 +11,7 @@
         <img src="https://img.shields.io/coverallsCoverage/github/neurobagel/bagelapi?style=flat-square&color=8FBC8F">
     </a>
     <a href="https://www.python.org/">
-        <img src="https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-4682B4?style=flat-square" alt="Python">
+        <img src="https://img.shields.io/badge/python-3.10-4682B4?style=flat-square" alt="Python">
     </a>
     <a href="LICENSE">
         <img src="https://img.shields.io/github/license/neurobagel/bagelapi?color=CD5C5C&style=flat-square" alt="GitHub license">
