@@ -22,7 +22,7 @@ PREFIX nidm: <http://purl.org/nidash/nidm#>
 # Store domains in named tuples
 Domain = namedtuple("Domain", ["var", "pred"])
 # Core domains
-AGE = Domain("age", "bg:hasAge")
+AGE = Domain("age", "bg:age")
 SEX = Domain("sex", "bg:sex")
 DIAGNOSIS = Domain("diagnosis", "bg:diagnosis")
 IS_CONTROL = Domain("subject_group", "bg:isSubjectGroup")

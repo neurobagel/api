@@ -41,7 +41,7 @@ def test_data():
 def mock_successful_get(test_data):
     """Mock get function that returns non-empty query results."""
 
-    async def mock_ret(
+    async def mockreturn(
         age_min,
         age_max,
         sex,
@@ -52,7 +52,7 @@ def mock_successful_get(test_data):
     ):
         return test_data
 
-    return mock_ret
+    return mockreturn
 
 
 def test_start_app_without_environment_vars_fails(test_app, monkeypatch):
@@ -276,10 +276,10 @@ def test_get_invalid_control_diagnosis_pair(test_app, monkeypatch):
 
 
 @pytest.mark.parametrize("valid_min_num_sessions", [1, 2, 4, 7])
-def test_get_valid_sensible_min_num_sessions(
+def test_get_valid_min_num_sessions(
     test_app, mock_successful_get, valid_min_num_sessions, monkeypatch
 ):
-    """Given a valid and sensible minimum number of imaging sessions, returns a 200 status code and a non-empty list of results."""
+    """Given a valid minimum number of imaging sessions, returns a 200 status code and a non-empty list of results."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
@@ -287,26 +287,6 @@ def test_get_valid_sensible_min_num_sessions(
     )
     assert response.status_code == 200
     assert response.json() != []
-
-
-def test_get_valid_nonsensical_min_num_sessions(test_app, monkeypatch):
-    """Given a valid and snonsensical minimum number of imaging sessions, returns a 200 status code and an empty list of results."""
-
-    async def mock_get(
-        age_min,
-        age_max,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        image_modal,
-    ):
-        return []
-
-    monkeypatch.setattr(crud, "get", mock_get)
-    response = test_app.get("/query/?min_num_sessions=1000")
-    response.status_code = 200
-    response.json() == []
 
 
 @pytest.mark.parametrize("invalid_min_num_sessions", [0, -3, "apple"])
