@@ -22,13 +22,14 @@ PREFIX nidm: <http://purl.org/nidash/nidm#>
 # Store domains in named tuples
 Domain = namedtuple("Domain", ["var", "pred"])
 # Core domains
-AGE = Domain("age", "bg:hasAge")
+AGE = Domain("age", "bg:age")
 SEX = Domain("sex", "bg:sex")
 DIAGNOSIS = Domain("diagnosis", "bg:diagnosis")
+IS_CONTROL = Domain("subject_group", "bg:isSubjectGroup")
 IMAGE_MODAL = Domain("image_modal", "bg:hasContrastType")
 TOOL = Domain("tool", "")
 PROJECT = Domain("project", "bg:hasSamples")
-IS_CONTROL = Domain("subject_group", "bg:isSubjectGroup")
+
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL]
 
@@ -40,6 +41,7 @@ def create_query(
     sex: str = None,
     diagnosis: str = None,
     is_control: bool = None,
+    min_num_sessions: int = None,
     image_modal: str = None,
 ) -> str:
     """
@@ -55,6 +57,8 @@ def create_query(
         Subject diagnosis, by default None.
     is_control : bool, optional
         Whether or not subject is a control, by default None.
+    min_num_sessions : int, optional
+        Subject minimum number of imaging sessions, by default None.
     image_modal : str, optional
         Imaging modality of subject scans, by default None.
 
@@ -88,6 +92,11 @@ def create_query(
                 "\n" + f"FILTER (?{IS_CONTROL.var} != <{IS_CONTROL_TERM}>)."
             )
 
+    if min_num_sessions is not None:
+        subject_level_filters += (
+            "\n" + f"FILTER (?num_sessions >= {min_num_sessions})."
+        )
+
     session_level_filters = ""
 
     if image_modal is not None:
@@ -99,7 +108,7 @@ def create_query(
     {DEFAULT_CONTEXT}
 
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
-    ?diagnosis ?image_modal ?number_session
+    ?diagnosis ?image_modal ?num_sessions
     WHERE {{
     ?dataset a bg:Dataset;
              bg:label ?dataset_name;
@@ -113,7 +122,7 @@ def create_query(
             bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?image_modal.
 
     {{
-    SELECT ?subject (count(distinct ?session) as ?number_session)
+    SELECT ?subject (count(distinct ?session) as ?num_sessions)
     WHERE {{
         ?subject a bg:Subject;
                  bg:hasSession ?session.
