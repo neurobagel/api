@@ -48,6 +48,8 @@ class QueryModel(BaseModel):
 
 
 class AggDatasetResponse(BaseModel):
+    """Data model for query results aggregated at the dataset-level."""
+
     dataset: str = None
     dataset_name: str = None
     num_matching_subjects: int
