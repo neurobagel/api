@@ -107,6 +107,8 @@ def create_query(
     query_template = f"""
     {DEFAULT_CONTEXT}
 
+    SELECT ?dataset ?dataset_name ?sub_id
+    WHERE {{
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
     ?diagnosis ?image_modal ?num_sessions
     WHERE {{
@@ -133,6 +135,8 @@ def create_query(
     }}
 
     {subject_level_filters}
-}}"""
+}}
+}} GROUP BY ?dataset ?dataset_name ?sub_id
+"""
 
     return query_template
