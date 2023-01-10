@@ -2,9 +2,11 @@
 import os
 
 import httpx
+import pandas as pd
 from fastapi import HTTPException
 
 from . import utility as util
+from .models import AggDatasetResponse
 
 
 async def get(
@@ -66,7 +68,16 @@ async def get(
 
     results = response.json()
 
-    return [
+    # return results
+    results_dicts = [
         {k: v["value"] for k, v in res.items()}
         for res in results["results"]["bindings"]
     ]
+    results_df = pd.DataFrame(results_dicts)
+
+    # .squeeze() is needed below for case where results_dict contains a [{}] (GROUP BY behaviour)
+    response_obj = [
+        AggDatasetResponse(num_matching_subjects=results_df.squeeze().shape[0])
+    ]
+
+    return response_obj
