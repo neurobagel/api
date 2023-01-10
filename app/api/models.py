@@ -45,3 +45,9 @@ class QueryModel(BaseModel):
                 detail="Subjects cannot both be healthy controls and have a diagnosis.",
             )
         return values
+
+
+class AggDatasetResponse(BaseModel):
+    dataset: str = None
+    dataset_name: str = None
+    num_matching_subjects: int
