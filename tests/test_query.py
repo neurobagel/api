@@ -75,7 +75,7 @@ def test_get_all(test_app, mock_successful_get, monkeypatch):
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get("/query/")
     assert response.status_code == 200
-    assert response.json() != []
+    assert 0 not in [i["num_matching_subjects"] for i in response.json()]
 
 
 @pytest.mark.parametrize(
@@ -92,7 +92,7 @@ def test_get_valid_age_range(
         f"/query/?age_min={valid_age_min}&age_max={valid_age_max}"
     )
     assert response.status_code == 200
-    assert response.json() != []
+    assert 0 not in [i["num_matching_subjects"] for i in response.json()]
 
 
 @pytest.mark.parametrize(
@@ -107,7 +107,7 @@ def test_get_valid_age_single_bound(
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(f"/query/?{age_keyval}")
     assert response.status_code == 200
-    assert response.json() != []
+    assert 0 not in [i["num_matching_subjects"] for i in response.json()]
 
 
 @pytest.mark.parametrize(
@@ -148,7 +148,7 @@ def test_get_valid_sex(test_app, mock_successful_get, valid_sex, monkeypatch):
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(f"/query/?sex={valid_sex}")
     assert response.status_code == 200
-    assert response.json() != []
+    assert 0 not in [i["num_matching_subjects"] for i in response.json()]
 
 
 def test_get_invalid_sex(test_app, monkeypatch):
@@ -181,7 +181,7 @@ def test_get_valid_diagnosis(
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(f"/query/?diagnosis={valid_diagnosis}")
     assert response.status_code == 200
-    assert response.json() != []
+    assert 0 not in [i["num_matching_subjects"] for i in response.json()]
 
 
 @pytest.mark.parametrize(
@@ -215,7 +215,7 @@ def test_get_valid_iscontrol(
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(f"/query/?is_control={valid_iscontrol}")
     assert response.status_code == 200
-    assert response.json() != []
+    assert 0 not in [i["num_matching_subjects"] for i in response.json()]
 
 
 def test_get_invalid_iscontrol(test_app, monkeypatch):
@@ -273,7 +273,7 @@ def test_get_valid_min_num_sessions(
         f"/query/?min_num_sessions={valid_min_num_sessions}"
     )
     assert response.status_code == 200
-    assert response.json() != []
+    assert 0 not in [i["num_matching_subjects"] for i in response.json()]
 
 
 @pytest.mark.parametrize("invalid_min_num_sessions", [0, -3, "apple"])
@@ -320,7 +320,7 @@ def test_get_valid_available_image_modal(
         f"/query/?image_modal={valid_available_image_modal}"
     )
     assert response.status_code == 200
-    assert response.json() != []
+    assert 0 not in [i["num_matching_subjects"] for i in response.json()]
 
 
 @pytest.mark.parametrize(
