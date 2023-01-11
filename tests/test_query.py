@@ -330,7 +330,7 @@ def test_get_valid_available_image_modal(
 def test_get_valid_unavailable_image_modal(
     test_app, valid_unavailable_image_modal, monkeypatch
 ):
-    """Given a valid, pre-defined, and unavailable image modality, returns a 200 status code and an empty list of results."""
+    """Given a valid, pre-defined, and unavailable image modality, returns a 200 status code and 0 matching subjects."""
 
     async def mock_get(
         age_min,
