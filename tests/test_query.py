@@ -7,34 +7,21 @@ from fastapi import HTTPException
 from app.api import crud
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_data():
-    """Create toy data for two subjects for testing."""
-    data = [
+    """Create toy data for two datasets for testing."""
+    return [
         {
-            "number_session": "test1",
-            "modality": "test1",
-            "subject": "test1",
-            "sub_id": "test1",
-            "sex": "test1",
-            "diagnosis": "test1",
-            "dataset_name": "test1",
-            "dataset": "test1",
-            "age": "test1",
+            "dataset": "http://neurobagel.org/vocab/qpn",
+            "dataset_name": "QPN",
+            "num_matching_subjects": 50,
         },
         {
-            "number_session": "test2",
-            "modality": "test2",
-            "subject": "test2",
-            "sub_id": "test2",
-            "sex": "test2",
-            "diagnosis": "test2",
-            "dataset_name": "test2",
-            "dataset": "test2",
-            "age": "test2",
+            "dataset": "http://neurobagel.org/vocab/ppmi",
+            "dataset_name": "PPMI",
+            "num_matching_subjects": 40,
         },
     ]
-    return data
 
 
 @pytest.fixture
@@ -354,14 +341,16 @@ def test_get_valid_unavailable_image_modal(
         min_num_sessions,
         image_modal,
     ):
-        return []
+        return [
+            {"dataset": None, "dataset_name": None, "num_matching_subjects": 0}
+        ]
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
         f"/query/?image_modal={valid_unavailable_image_modal}"
     )
     assert response.status_code == 200
-    assert response.json() == []
+    assert response.json()[0]["num_matching_subjects"] == 0
 
 
 @pytest.mark.parametrize(
