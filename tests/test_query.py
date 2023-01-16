@@ -341,16 +341,17 @@ def test_get_valid_unavailable_image_modal(
         min_num_sessions,
         image_modal,
     ):
-        return [
-            {"dataset": None, "dataset_name": None, "num_matching_subjects": 0}
-        ]
+        return []
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
         f"/query/?image_modal={valid_unavailable_image_modal}"
     )
+
+    print(response.json())
+
     assert response.status_code == 200
-    assert response.json()[0]["num_matching_subjects"] == 0
+    assert response.json() == []
 
 
 @pytest.mark.parametrize(

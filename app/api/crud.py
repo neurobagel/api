@@ -68,34 +68,23 @@ async def get(
 
     results = response.json()
 
-    # return results
     results_dicts = [
         {k: v["value"] for k, v in res.items()}
         for res in results["results"]["bindings"]
     ]
     results_df = pd.DataFrame(results_dicts)
 
-    if results_df.empty:
-        response_obj = [
-            AggDatasetResponse(
-                num_matching_subjects=results_df.squeeze().shape[0]
+    response_obj = []
+    if not results_df.empty:
+        for (dataset, dataset_name), group in results_df.groupby(
+            by=["dataset", "dataset_name"]
+        ):
+            response_obj.append(
+                AggDatasetResponse(
+                    dataset=dataset,
+                    dataset_name=dataset_name,
+                    num_matching_subjects=group.shape[0],
+                )
             )
-        ]
-    else:
-        agg_dicts = (
-            results_df.groupby(by=["dataset", "dataset_name"])
-            .size()
-            .reset_index(name="num_subjects")
-            .sort_values(by="dataset_name")
-            .to_dict("records")
-        )
-        response_obj = [
-            AggDatasetResponse(
-                dataset=i["dataset"],
-                dataset_name=i["dataset_name"],
-                num_matching_subjects=i["num_subjects"],
-            )
-            for i in agg_dicts
-        ]
 
     return response_obj
