@@ -1,6 +1,7 @@
 """Constants for Stardog graph connection and utility functions for writing the SPARQL query."""
 
 from collections import namedtuple
+from typing import Optional
 
 # Request constants
 DOG_ROOT = "http://206.12.99.17"
@@ -37,12 +38,12 @@ IS_CONTROL_TERM = "http://purl.obolibrary.org/obo/NCIT_C94342"
 
 
 def create_query(
-    age: tuple = (None, None),
-    sex: str = None,
-    diagnosis: str = None,
-    is_control: bool = None,
-    min_num_sessions: int = None,
-    image_modal: str = None,
+    age: Optional[tuple] = (None, None),
+    sex: Optional[str] = None,
+    diagnosis: Optional[str] = None,
+    is_control: Optional[bool] = None,
+    min_num_sessions: Optional[int] = None,
+    image_modal: Optional[str] = None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
