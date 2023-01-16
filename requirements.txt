@@ -16,6 +16,7 @@ idna==3.4
 iniconfig==1.1.1
 nodeenv==1.7.0
 packaging==21.3
+pandas==1.5.2
 platformdirs==2.5.4
 pluggy==1.0.0
 pre-commit==2.20.0
