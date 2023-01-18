@@ -21,6 +21,7 @@ async def get_query(query: QueryModel = Depends(QueryModel)):
         query.is_control,
         query.min_num_sessions,
         query.image_modal,
+        query.assessment,
     )
 
     return response
