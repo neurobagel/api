@@ -36,8 +36,28 @@ def mock_successful_get(test_data):
         is_control,
         min_num_sessions,
         image_modal,
+        assessment,
     ):
         return test_data
+
+    return mockreturn
+
+
+@pytest.fixture
+def mock_invalid_get():
+    """Mock get function that does not return any response (for testing invalid parameter values)."""
+
+    async def mockreturn(
+        age_min,
+        age_max,
+        sex,
+        diagnosis,
+        is_control,
+        min_num_sessions,
+        image_modal,
+        assessment,
+    ):
+        return None
 
     return mockreturn
 
@@ -119,22 +139,11 @@ def test_get_valid_age_single_bound(
     ],
 )
 def test_get_invalid_age(
-    test_app, invalid_age_min, invalid_age_max, monkeypatch
+    test_app, mock_invalid_get, invalid_age_min, invalid_age_max, monkeypatch
 ):
     """Given an invalid age range, returns a 422 status code."""
 
-    async def mock_get(
-        age_min,
-        age_max,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        image_modal,
-    ):
-        return None
-
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get(
         f"/query/?age_min={invalid_age_min}&age_max={invalid_age_max}"
     )
@@ -151,21 +160,10 @@ def test_get_valid_sex(test_app, mock_successful_get, valid_sex, monkeypatch):
     assert response.json() != []
 
 
-def test_get_invalid_sex(test_app, monkeypatch):
+def test_get_invalid_sex(test_app, mock_invalid_get, monkeypatch):
     """Given an invalid sex string (i.e., anything other than ["male", "female", None]), returns a 422 status code."""
 
-    async def mock_get(
-        age_min,
-        age_max,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        image_modal,
-    ):
-        return None
-
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get("/query/?sex=apple")
     assert response.status_code == 422
 
@@ -187,21 +185,12 @@ def test_get_valid_diagnosis(
 @pytest.mark.parametrize(
     "invalid_diagnosis", ["sn0med:35489007", "apple", ":123456"]
 )
-def test_get_invalid_diagnosis(test_app, invalid_diagnosis, monkeypatch):
+def test_get_invalid_diagnosis(
+    test_app, mock_invalid_get, invalid_diagnosis, monkeypatch
+):
     """Given an invalid diagnosis, returns a 422 status code."""
 
-    async def mock_get(
-        age_min,
-        age_max,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        image_modal,
-    ):
-        return None
-
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get(f"/query/?diagnosis={invalid_diagnosis}")
     assert response.status_code == 422
 
@@ -218,40 +207,20 @@ def test_get_valid_iscontrol(
     assert response.json() != []
 
 
-def test_get_invalid_iscontrol(test_app, monkeypatch):
+def test_get_invalid_iscontrol(test_app, mock_invalid_get, monkeypatch):
     """Given a non-boolean is_control value, returns a 422 status code."""
 
-    async def mock_get(
-        age_min,
-        age_max,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        image_modal,
-    ):
-        return None
-
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get("/query/?is_control=apple")
     assert response.status_code == 422
 
 
-def test_get_invalid_control_diagnosis_pair(test_app, monkeypatch):
+def test_get_invalid_control_diagnosis_pair(
+    test_app, mock_invalid_get, monkeypatch
+):
     """Given a non-default diagnosis value and is_control value of True, returns a 422 status code."""
 
-    async def mock_get(
-        age_min,
-        age_max,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        image_modal,
-    ):
-        return None
-
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get(
         "/query/?diagnosis=snomed:35489007&is_control=True"
     )
@@ -278,22 +247,11 @@ def test_get_valid_min_num_sessions(
 
 @pytest.mark.parametrize("invalid_min_num_sessions", [0, -3, "apple"])
 def test_get_invalid_min_num_sessions(
-    test_app, invalid_min_num_sessions, monkeypatch
+    test_app, mock_invalid_get, invalid_min_num_sessions, monkeypatch
 ):
     """Given an invalid minimum number of imaging sessions, returns a 422 status code."""
 
-    async def mock_get(
-        age_min,
-        age_max,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        image_modal,
-    ):
-        return None
-
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get(
         f"/query/?min_num_sessions={invalid_min_num_sessions}"
     )
@@ -340,6 +298,7 @@ def test_get_valid_unavailable_image_modal(
         is_control,
         min_num_sessions,
         image_modal,
+        assessment,
     ):
         return []
 
@@ -355,21 +314,12 @@ def test_get_valid_unavailable_image_modal(
 @pytest.mark.parametrize(
     "invalid_image_modal", ["2nim:EEG", "apple", "some_thing:cool"]
 )
-def test_get_invalid_image_modal(test_app, invalid_image_modal, monkeypatch):
+def test_get_invalid_image_modal(
+    test_app, mock_invalid_get, invalid_image_modal, monkeypatch
+):
     """Given an invalid image modality, returns a 422 status code."""
 
-    async def mock_get(
-        age_min,
-        age_max,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        image_modal,
-    ):
-        return None
-
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get(f"/query/?image_modal={invalid_image_modal}")
     assert response.status_code == 422
 
@@ -391,6 +341,7 @@ def test_get_undefined_prefix_image_modal(
         is_control,
         min_num_sessions,
         image_modal,
+        assessment,
     ):
         raise HTTPException(500)
 
