@@ -17,6 +17,7 @@ class QueryModel(BaseModel):
     is_control: bool = None
     min_num_sessions: int = Query(default=None, ge=1)
     image_modal: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
+    assessment: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
 
     @root_validator()
     def check_agemax_ge_agemin(cls, values):
