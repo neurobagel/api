@@ -174,7 +174,7 @@ def test_get_invalid_sex(test_app, mock_invalid_get, monkeypatch):
 def test_get_valid_diagnosis(
     test_app, mock_successful_get, valid_diagnosis, monkeypatch
 ):
-    """Given a valid diagnosis, returns a 200 status code and a non-empty list results."""
+    """Given a valid diagnosis, returns a 200 status code and a non-empty list of results."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(f"/query/?diagnosis={valid_diagnosis}")
@@ -350,3 +350,25 @@ def test_get_undefined_prefix_image_modal(
         f"/query/?image_modal={undefined_prefix_image_modal}"
     )
     assert response.status_code == 500
+
+
+def test_get_valid_assessment(test_app, mock_successful_get, monkeypatch):
+    """Given a valid assessment, returns a 200 status code and a non-empty list of results."""
+
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get("/query/?assessment=bg:cogAtlas-1234")
+    assert response.status_code == 200
+    assert response.json() != []
+
+
+@pytest.mark.parametrize(
+    "invalid_assessment", ["bg01:cogAtlas-1234", "cogAtlas-1234"]
+)
+def test_get_invalid_assessment(
+    test_app, mock_invalid_get, invalid_assessment, monkeypatch
+):
+    """Given an invalid assessment, returns a 422 status code."""
+
+    monkeypatch.setattr(crud, "get", mock_invalid_get)
+    response = test_app.get(f"/query/?assessment={invalid_assessment}")
+    assert response.status_code == 422
