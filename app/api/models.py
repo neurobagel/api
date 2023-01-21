@@ -54,3 +54,4 @@ class AggDatasetResponse(BaseModel):
     dataset: str
     dataset_name: str
     num_matching_subjects: int
+    subject_file_paths: list
