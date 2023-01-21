@@ -27,8 +27,8 @@ AGE = Domain("age", "bg:age")
 SEX = Domain("sex", "bg:sex")
 DIAGNOSIS = Domain("diagnosis", "bg:diagnosis")
 IS_CONTROL = Domain("subject_group", "bg:isSubjectGroup")
-IMAGE_MODAL = Domain("image_modal", "bg:hasContrastType")
 ASSESSMENT = Domain("assessment", "bg:assessment")
+IMAGE_MODAL = Domain("image_modal", "bg:hasContrastType")
 PROJECT = Domain("project", "bg:hasSamples")
 
 
@@ -43,8 +43,8 @@ def create_query(
     diagnosis: Optional[str] = None,
     is_control: Optional[bool] = None,
     min_num_sessions: Optional[int] = None,
-    image_modal: Optional[str] = None,
     assessment: Optional[str] = None,
+    image_modal: Optional[str] = None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
@@ -61,10 +61,10 @@ def create_query(
         Whether or not subject is a control, by default None.
     min_num_sessions : int, optional
         Subject minimum number of imaging sessions, by default None.
-    image_modal : str, optional
-        Imaging modality of subject scans, by default None.
     assessment : str, optional
         Non-imaging assessment completed by subjects, by default None.
+    image_modal : str, optional
+        Imaging modality of subject scans, by default None.
 
     Returns
     -------
@@ -119,7 +119,7 @@ def create_query(
     SELECT ?dataset ?dataset_name ?sub_id
     WHERE {{
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
-    ?diagnosis ?image_modal ?num_sessions ?assessment
+    ?diagnosis ?num_sessions ?assessment ?image_modal
     WHERE {{
     ?dataset a bg:Dataset;
              bg:label ?dataset_name;
@@ -130,8 +130,8 @@ def create_query(
             bg:age ?age;
             bg:sex ?sex;
             bg:diagnosis ?diagnosis;
-            bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?image_modal;
-            bg:assessment ?assessment.
+            bg:assessment ?assessment;
+            bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?image_modal.
 
     {{
     SELECT ?subject (count(distinct ?session) as ?num_sessions)

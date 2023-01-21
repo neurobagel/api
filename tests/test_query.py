@@ -29,14 +29,14 @@ def mock_successful_get(test_data):
     """Mock get function that returns non-empty query results."""
 
     async def mockreturn(
-        age_min,
-        age_max,
+        min_age,
+        max_age,
         sex,
         diagnosis,
         is_control,
         min_num_sessions,
-        image_modal,
         assessment,
+        image_modal,
     ):
         return test_data
 
@@ -48,14 +48,14 @@ def mock_invalid_get():
     """Mock get function that does not return any response (for testing invalid parameter values)."""
 
     async def mockreturn(
-        age_min,
-        age_max,
+        min_age,
+        max_age,
         sex,
         diagnosis,
         is_control,
         min_num_sessions,
-        image_modal,
         assessment,
+        image_modal,
     ):
         return None
 
@@ -99,17 +99,17 @@ def test_get_all(test_app, mock_successful_get, monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "valid_age_min, valid_age_max",
+    "valid_min_age, valid_max_age",
     [(30.5, 60), (23, 23)],
 )
 def test_get_valid_age_range(
-    test_app, mock_successful_get, valid_age_min, valid_age_max, monkeypatch
+    test_app, mock_successful_get, valid_min_age, valid_max_age, monkeypatch
 ):
     """Given a valid age range, returns a 200 status code and a non-empty list of results."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        f"/query/?age_min={valid_age_min}&age_max={valid_age_max}"
+        f"/query/?min_age={valid_min_age}&max_age={valid_max_age}"
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -117,7 +117,7 @@ def test_get_valid_age_range(
 
 @pytest.mark.parametrize(
     "age_keyval",
-    ["age_min=20.75", "age_max=50"],
+    ["min_age=20.75", "max_age=50"],
 )
 def test_get_valid_age_single_bound(
     test_app, mock_successful_get, age_keyval, monkeypatch
@@ -131,7 +131,7 @@ def test_get_valid_age_single_bound(
 
 
 @pytest.mark.parametrize(
-    "invalid_age_min, invalid_age_max",
+    "invalid_min_age, invalid_max_age",
     [
         ("forty", "fifty"),
         (33, 21),
@@ -139,13 +139,13 @@ def test_get_valid_age_single_bound(
     ],
 )
 def test_get_invalid_age(
-    test_app, mock_invalid_get, invalid_age_min, invalid_age_max, monkeypatch
+    test_app, mock_invalid_get, invalid_min_age, invalid_max_age, monkeypatch
 ):
     """Given an invalid age range, returns a 422 status code."""
 
     monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get(
-        f"/query/?age_min={invalid_age_min}&age_max={invalid_age_max}"
+        f"/query/?min_age={invalid_min_age}&max_age={invalid_max_age}"
     )
     assert response.status_code == 422
 
@@ -258,6 +258,28 @@ def test_get_invalid_min_num_sessions(
     response.status_code = 422
 
 
+def test_get_valid_assessment(test_app, mock_successful_get, monkeypatch):
+    """Given a valid assessment, returns a 200 status code and a non-empty list of results."""
+
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get("/query/?assessment=bg:cogAtlas-1234")
+    assert response.status_code == 200
+    assert response.json() != []
+
+
+@pytest.mark.parametrize(
+    "invalid_assessment", ["bg01:cogAtlas-1234", "cogAtlas-1234"]
+)
+def test_get_invalid_assessment(
+    test_app, mock_invalid_get, invalid_assessment, monkeypatch
+):
+    """Given an invalid assessment, returns a 422 status code."""
+
+    monkeypatch.setattr(crud, "get", mock_invalid_get)
+    response = test_app.get(f"/query/?assessment={invalid_assessment}")
+    assert response.status_code == 422
+
+
 @pytest.mark.parametrize(
     "valid_available_image_modal",
     [
@@ -291,14 +313,14 @@ def test_get_valid_unavailable_image_modal(
     """Given a valid, pre-defined, and unavailable image modality, returns a 200 status code and an empty list of results."""
 
     async def mock_get(
-        age_min,
-        age_max,
+        min_age,
+        max_age,
         sex,
         diagnosis,
         is_control,
         min_num_sessions,
-        image_modal,
         assessment,
+        image_modal,
     ):
         return []
 
@@ -334,14 +356,14 @@ def test_get_undefined_prefix_image_modal(
     """Given a valid and undefined prefix image modality, returns a 500 status code."""
 
     async def mock_get(
-        age_min,
-        age_max,
+        min_age,
+        max_age,
         sex,
         diagnosis,
         is_control,
         min_num_sessions,
-        image_modal,
         assessment,
+        image_modal,
     ):
         raise HTTPException(500)
 
@@ -350,25 +372,3 @@ def test_get_undefined_prefix_image_modal(
         f"/query/?image_modal={undefined_prefix_image_modal}"
     )
     assert response.status_code == 500
-
-
-def test_get_valid_assessment(test_app, mock_successful_get, monkeypatch):
-    """Given a valid assessment, returns a 200 status code and a non-empty list of results."""
-
-    monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get("/query/?assessment=bg:cogAtlas-1234")
-    assert response.status_code == 200
-    assert response.json() != []
-
-
-@pytest.mark.parametrize(
-    "invalid_assessment", ["bg01:cogAtlas-1234", "cogAtlas-1234"]
-)
-def test_get_invalid_assessment(
-    test_app, mock_invalid_get, invalid_assessment, monkeypatch
-):
-    """Given an invalid assessment, returns a 422 status code."""
-
-    monkeypatch.setattr(crud, "get", mock_invalid_get)
-    response = test_app.get(f"/query/?assessment={invalid_assessment}")
-    assert response.status_code == 422
