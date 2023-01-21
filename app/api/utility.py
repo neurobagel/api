@@ -116,10 +116,10 @@ def create_query(
     query_template = f"""
     {DEFAULT_CONTEXT}
 
-    SELECT ?dataset ?dataset_name ?sub_id
+    SELECT ?dataset ?dataset_name ?sub_id ?file_path
     WHERE {{
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
-    ?diagnosis ?num_sessions ?assessment ?image_modal
+    ?diagnosis ?num_sessions ?assessment ?image_modal ?file_path
     WHERE {{
     ?dataset a bg:Dataset;
              bg:label ?dataset_name;
@@ -130,8 +130,11 @@ def create_query(
             bg:age ?age;
             bg:sex ?sex;
             bg:diagnosis ?diagnosis;
+            bg:hasSession ?session;
             bg:assessment ?assessment;
             bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?image_modal.
+
+    ?session bg:filePath ?file_path.
 
     {{
     SELECT ?subject (count(distinct ?session) as ?num_sessions)
@@ -146,7 +149,7 @@ def create_query(
 
     {subject_level_filters}
 }}
-}} GROUP BY ?dataset ?dataset_name ?sub_id
+}} GROUP BY ?dataset ?dataset_name ?sub_id ?file_path
 """
 
     return query_template
