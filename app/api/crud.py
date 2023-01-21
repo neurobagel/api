@@ -87,7 +87,8 @@ async def get(
                 AggDatasetResponse(
                     dataset=dataset,
                     dataset_name=dataset_name,
-                    num_matching_subjects=group.shape[0],
+                    num_matching_subjects=group["sub_id"].unique().shape[0],
+                    subject_file_paths=list(group["file_path"]),
                 )
             )
 
