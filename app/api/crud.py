@@ -89,6 +89,7 @@ async def get(
                     dataset_name=dataset_name,
                     num_matching_subjects=group["sub_id"].unique().shape[0],
                     subject_file_paths=list(group["file_path"]),
+                    image_modals=list(group["image_modal"].unique()),
                 )
             )
 
