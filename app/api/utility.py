@@ -116,7 +116,7 @@ def create_query(
     query_template = f"""
     {DEFAULT_CONTEXT}
 
-    SELECT ?dataset ?dataset_name ?sub_id ?file_path
+    SELECT ?dataset ?dataset_name ?sub_id ?file_path ?image_modal
     WHERE {{
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
     ?diagnosis ?num_sessions ?assessment ?image_modal ?file_path
@@ -149,7 +149,7 @@ def create_query(
 
     {subject_level_filters}
 }}
-}} GROUP BY ?dataset ?dataset_name ?sub_id ?file_path
+}} GROUP BY ?dataset ?dataset_name ?sub_id ?file_path ?image_modal
 """
 
     return query_template
