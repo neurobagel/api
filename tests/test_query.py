@@ -27,6 +27,10 @@ def test_data():
                 "/my/happy/path/sub-1155/to/session-02",
                 "/my/happy/path/sub-1196/to/session-02",
             ],
+            "image_modals": [
+                "http://purl.org/nidash/nidm#T1Weighted",
+                "http://purl.org/nidash/nidm#T2Weighted",
+            ],
         },
         {
             "dataset": "http://neurobagel.org/vocab/ppmi",
@@ -40,6 +44,10 @@ def test_data():
                 "/my/happy/path/sub-719349/to/session-01",
                 "/my/happy/path/sub-719369/to/session-01",
                 "/my/happy/path/sub-719526/to/session-01",
+            ],
+            "image_modals": [
+                "http://purl.org/nidash/nidm#FlowWeighted",
+                "http://purl.org/nidash/nidm#T1Weighted",
             ],
         },
     ]
