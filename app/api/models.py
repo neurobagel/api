@@ -10,19 +10,19 @@ from pydantic import BaseModel, constr, root_validator
 class QueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
-    age_min: float = Query(default=None, ge=0)
-    age_max: float = Query(default=None, ge=0)
+    min_age: float = Query(default=None, ge=0)
+    max_age: float = Query(default=None, ge=0)
     sex: Literal["male", "female", "other"] = None
     diagnosis: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
     is_control: bool = None
     min_num_sessions: int = Query(default=None, ge=1)
-    image_modal: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
     assessment: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
+    image_modal: constr(regex=r"^[a-zA-Z]+[:]\S+$") = None
 
     @root_validator()
-    def check_agemax_ge_agemin(cls, values):
+    def check_maxage_ge_minage(cls, values):
         """
-        If both age bounds have been set to values other than their defaults (None), ensure that age_max is >= age_min.
+        If both age bounds have been set to values other than their defaults (None), ensure that max_age is >= min_age.
         NOTE: HTTPException (and not ValueError) raised here to get around "Internal Server Error" raised by
         FastAPI when a validation error comes from a Pydantic validator inside a class dependency.
         See:
@@ -30,11 +30,11 @@ class QueryModel(BaseModel):
         https://github.com/tiangolo/fastapi/discussions/3426
         https://fastapi.tiangolo.com/tutorial/handling-errors/?h=validation#requestvalidationerror-vs-validationerror
         """
-        amin, amax = values["age_min"], values["age_max"]
-        if amin is not None and amax is not None and (amax < amin):
+        mina, maxa = values["min_age"], values["max_age"]
+        if mina is not None and maxa is not None and (maxa < mina):
             raise HTTPException(
                 status_code=422,
-                detail="'age_max' must be greater than or equal to 'age_min'",
+                detail="'max_age' must be greater than or equal to 'min_age'",
             )
         return values
 
@@ -54,3 +54,5 @@ class AggDatasetResponse(BaseModel):
     dataset: str
     dataset_name: str
     num_matching_subjects: int
+    subject_file_paths: list
+    image_modals: list
