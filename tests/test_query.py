@@ -14,18 +14,13 @@ def test_data():
         {
             "dataset": "http://neurobagel.org/vocab/qpn",
             "dataset_name": "QPN",
-            "num_matching_subjects": 50,
+            "num_matching_subjects": 5,
             "subject_file_paths": [
-                "/my/happy/path/sub-0653/to/session-02",
+                "/my/happy/path/sub-0051/to/session-01",
+                "/my/happy/path/sub-0653/to/session-01",
                 "/my/happy/path/sub-1063/to/session-01",
-                "/my/happy/path/sub-1113/to/session-02",
-                "/my/happy/path/sub-1170/to/session-02",
-                "/my/happy/path/sub-0051/to/session-02",
-                "/my/happy/path/sub-0090/to/session-02",
-                "/my/happy/path/sub-0309/to/session-02",
-                "/my/happy/path/sub-1057/to/session-02",
-                "/my/happy/path/sub-1155/to/session-02",
-                "/my/happy/path/sub-1196/to/session-02",
+                "/my/happy/path/sub-1113/to/session-01",
+                "/my/happy/path/sub-1170/to/session-01",
             ],
             "image_modals": [
                 "http://purl.org/nidash/nidm#T1Weighted",
@@ -35,15 +30,13 @@ def test_data():
         {
             "dataset": "http://neurobagel.org/vocab/ppmi",
             "dataset_name": "PPMI",
-            "num_matching_subjects": 40,
+            "num_matching_subjects": 3,
             "subject_file_paths": [
-                "/my/happy/path/sub-719341/to/session-01",
-                "/my/happy/path/sub-719536/to/session-01",
                 "/my/happy/path/sub-719238/to/session-01",
-                "/my/happy/path/sub-718318/to/session-01",
-                "/my/happy/path/sub-719349/to/session-01",
+                "/my/happy/path/sub-719341/to/session-01",
                 "/my/happy/path/sub-719369/to/session-01",
-                "/my/happy/path/sub-719526/to/session-01",
+                "/my/happy/path/sub-719238/to/session-02",
+                "/my/happy/path/sub-719341/to/session-02",
             ],
             "image_modals": [
                 "http://purl.org/nidash/nidm#FlowWeighted",
