@@ -1,13 +1,14 @@
 """Constants for Stardog graph connection and utility functions for writing the SPARQL query."""
 
+import os
 from collections import namedtuple
 from typing import Optional
 
 # Request constants
-DOG_ROOT = "http://206.12.99.17"
+DOG_ROOT = os.environ.get("DOG_ROOT", "206.12.99.17")
 DOG_DB = "test_data"
 DOG_PORT = 5820
-QUERY_URL = f"{DOG_ROOT}:{DOG_PORT}/{DOG_DB}/query"
+QUERY_URL = f"http://{DOG_ROOT}:{DOG_PORT}/{DOG_DB}/query"
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",
