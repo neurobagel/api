@@ -1,7 +1,4 @@
-<div align="center">
-
 # Bagel API
-
     
 <div>
     <a href="https://github.com/neurobagel/bagelapi/actions/workflows/test.yaml">
@@ -21,11 +18,11 @@
 
 Bagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [pydantic](https://docs.pydantic.dev/).
 
-[Getting started](#getting-started) |
-[Testing](#testing) |
-[License](#license)
+- [Quickstart](#quickstart)
+- [Local installation](#local-installation)
+- [Testing](#testing)
+- [License](#license)
 
-</div>
 
 ## Quickstart
 The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route.
@@ -34,17 +31,17 @@ Interactive documentation for the API is available at https://api.neurobagel.org
 
 Note: Currently, to access the API, you must be connected to the McGill network.
 
-## Local Installation
+## Local installation
 
-### Install Dependencies
+### Install dependencies
 
-You'll need to install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's venv package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
+You'll need to install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's `venv` package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
 
 ```bash
 $ pip install -r requirements.txt
 ```
 
-### Set the Environment Variables
+### Set the environment variables
 
 To run the API, at least two environment variables must be set, `USER` and `PASSWORD`. An optional third environment variable `DOG_ROOT` may be set to use a different IP address for the graph database.
 
