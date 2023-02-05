@@ -27,9 +27,16 @@ Bagel API is a REST API, developed in [Python](https://www.python.org/) using [F
 
 </div>
 
-## Getting Started
+## Quickstart
+The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route.
 
-### `Install Dependencies`
+Interactive documentation for the API is available at https://api.neurobagel.org/docs.
+
+Note: Currently, to access the API, you must be connected to the McGill network.
+
+## Local Installation
+
+### Install Dependencies
 
 You'll need to install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's venv package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
 
@@ -37,9 +44,9 @@ You'll need to install the dependencies outlined in the requirements.txt file. F
 $ pip install -r requirements.txt
 ```
 
-### `Set the Environment Variables`
+### Set the Environment Variables
 
-You'll need to set the environment variables (USER and PASSWORD) required to run the API.
+To run the API, at least two environment variables must be set, `USER` and `PASSWORD`. An optional third environment variable `DOG_ROOT` may be set to use a different IP address for the graph database.
 
 To set environment variables in macOS and Linux distributions use the following command:
 
@@ -59,7 +66,7 @@ $ set KEY=value
 $ set USER=someuser
 ```
 
-### `Launch the Bagel API`
+### Launch the Bagel API
 
 To launch the API make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
 
