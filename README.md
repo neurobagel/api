@@ -1,45 +1,52 @@
 <div align="center">
 
-# Bagel API
-
+# Neurobagel API
     
 <div>
-    <a href="https://github.com/neurobagel/bagelapi/actions/workflows/test.yaml">
-        <img src="https://img.shields.io/github/actions/workflow/status/neurobagel/bagelapi/test.yaml?color=BDB76B&label=test&style=flat-square">
+    <a href="https://github.com/neurobagel/api/actions/workflows/test.yaml">
+        <img src="https://img.shields.io/github/actions/workflow/status/neurobagel/api/test.yaml?color=BDB76B&label=test&style=flat-square">
     </a>
-    <a href="https://coveralls.io/github/neurobagel/bagelapi">
-        <img src="https://img.shields.io/coverallsCoverage/github/neurobagel/bagelapi?style=flat-square&color=8FBC8F">
+    <a href="https://coveralls.io/github/neurobagel/api">
+        <img src="https://img.shields.io/coverallsCoverage/github/neurobagel/api?style=flat-square&color=8FBC8F">
     </a>
     <a href="https://www.python.org/">
         <img src="https://img.shields.io/badge/python-3.10-4682B4?style=flat-square" alt="Python">
     </a>
     <a href="LICENSE">
-        <img src="https://img.shields.io/github/license/neurobagel/bagelapi?color=CD5C5C&style=flat-square" alt="GitHub license">
+        <img src="https://img.shields.io/github/license/neurobagel/api?color=CD5C5C&style=flat-square" alt="GitHub license">
     </a>
 </div>
 <br>
-
-Bagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [pydantic](https://docs.pydantic.dev/).
-
-[Getting started](#getting-started) |
-[Testing](#testing) |
-[License](#license)
-
 </div>
 
-## Getting Started
+The Neurobagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [pydantic](https://docs.pydantic.dev/).
 
-### `Install Dependencies`
+- [Quickstart](#quickstart)
+- [Local installation](#local-installation)
+- [Testing](#testing)
+- [License](#license)
 
-You'll need to install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's venv package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
+
+## Quickstart
+The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route (e.g., the URL for a query for only female participants would be https://api.neurobagel.org/query/?sex=female).
+
+Interactive documentation for the API is available at https://api.neurobagel.org/docs.
+
+Note: Currently, to access the API, you must be connected to the McGill network.
+
+## Local installation
+
+### Install dependencies
+
+You'll need to install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's `venv` package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
 
 ```bash
 $ pip install -r requirements.txt
 ```
 
-### `Set the Environment Variables`
+### Set the environment variables
 
-You'll need to set the environment variables (USER and PASSWORD) required to run the API.
+To run the API, at least two environment variables must be set, `USER` and `PASSWORD`. An optional third environment variable `DOG_ROOT` may be set to use a different IP address for the graph database.
 
 To set environment variables in macOS and Linux distributions use the following command:
 
@@ -59,7 +66,7 @@ $ set KEY=value
 $ set USER=someuser
 ```
 
-### `Launch the Bagel API`
+### Launch the API
 
 To launch the API make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
 
@@ -82,7 +89,7 @@ You can verify the API is running once you receive info messages similar to the 
 
 ## Testing
 
-Bagel API utilizes [Pytest](https://docs.pytest.org/en/7.2.x/) framework for testing.
+Neurobagel API utilizes [Pytest](https://docs.pytest.org/en/7.2.x/) framework for testing.
 
 To run the tests first make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
 
@@ -94,4 +101,4 @@ pytest tests
 
 ### License
 
-The Bagel API is released under the terms of the [MIT License](LICENSE)
+Neurobagel API is released under the terms of the [MIT License](LICENSE)
