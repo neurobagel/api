@@ -28,7 +28,7 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 
 
 ## Quickstart
-The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route e.g., `https://api.neurobagel.org/query/?sex=other`
+The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route (e.g., the URL for a query for only female participants would be https://api.neurobagel.org/query/?sex=female).
 
 Interactive documentation for the API is available at https://api.neurobagel.org/docs.
 
