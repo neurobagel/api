@@ -1,22 +1,25 @@
-# Bagel API
+<div align="center">
+
+# Neurobagel API
     
 <div>
-    <a href="https://github.com/neurobagel/bagelapi/actions/workflows/test.yaml">
-        <img src="https://img.shields.io/github/actions/workflow/status/neurobagel/bagelapi/test.yaml?color=BDB76B&label=test&style=flat-square">
+    <a href="https://github.com/neurobagel/api/actions/workflows/test.yaml">
+        <img src="https://img.shields.io/github/actions/workflow/status/neurobagel/api/test.yaml?color=BDB76B&label=test&style=flat-square">
     </a>
-    <a href="https://coveralls.io/github/neurobagel/bagelapi">
-        <img src="https://img.shields.io/coverallsCoverage/github/neurobagel/bagelapi?style=flat-square&color=8FBC8F">
+    <a href="https://coveralls.io/github/neurobagel/api">
+        <img src="https://img.shields.io/coverallsCoverage/github/neurobagel/api?style=flat-square&color=8FBC8F">
     </a>
     <a href="https://www.python.org/">
         <img src="https://img.shields.io/badge/python-3.10-4682B4?style=flat-square" alt="Python">
     </a>
     <a href="LICENSE">
-        <img src="https://img.shields.io/github/license/neurobagel/bagelapi?color=CD5C5C&style=flat-square" alt="GitHub license">
+        <img src="https://img.shields.io/github/license/neurobagel/api?color=CD5C5C&style=flat-square" alt="GitHub license">
     </a>
 </div>
 <br>
+</div>
 
-Bagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [pydantic](https://docs.pydantic.dev/).
+The Neurobagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [pydantic](https://docs.pydantic.dev/).
 
 - [Quickstart](#quickstart)
 - [Local installation](#local-installation)
@@ -25,7 +28,7 @@ Bagel API is a REST API, developed in [Python](https://www.python.org/) using [F
 
 
 ## Quickstart
-The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route.
+The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route e.g., `https://api.neurobagel.org/query/?sex=other`
 
 Interactive documentation for the API is available at https://api.neurobagel.org/docs.
 
@@ -63,7 +66,7 @@ $ set KEY=value
 $ set USER=someuser
 ```
 
-### Launch the Bagel API
+### Launch the API
 
 To launch the API make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
 
@@ -86,7 +89,7 @@ You can verify the API is running once you receive info messages similar to the 
 
 ## Testing
 
-Bagel API utilizes [Pytest](https://docs.pytest.org/en/7.2.x/) framework for testing.
+Neurobagel API utilizes [Pytest](https://docs.pytest.org/en/7.2.x/) framework for testing.
 
 To run the tests first make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
 
@@ -98,4 +101,4 @@ pytest tests
 
 ### License
 
-The Bagel API is released under the terms of the [MIT License](LICENSE)
+Neurobagel API is released under the terms of the [MIT License](LICENSE)
