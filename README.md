@@ -35,7 +35,7 @@ Interactive documentation for the API is available at https://api.neurobagel.org
 Note: Currently, to access the API, you must be connected to the McGill network.
 
 ## Local installation
-Clone the repository and follow the instrucitons below.
+Clone the repository and follow the instructions below.
 
 ### **Docker**
 Follow the [official documentation](https://docs.docker.com/get-docker/) for installing Docker. You can then run a Docker container for the API in two ways:
