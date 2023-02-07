@@ -35,7 +35,23 @@ Interactive documentation for the API is available at https://api.neurobagel.org
 Note: Currently, to access the API, you must be connected to the McGill network.
 
 ## Local installation
+Clone the repository and follow the instrucitons below.
 
+### **Docker**
+Follow the [official documentation](https://docs.docker.com/get-docker/) for installing Docker. You can then run a Docker container for the API in two ways:
+### Option 1: Pull the latest image from Docker Hub
+```bash
+docker pull neurobagel/api
+docker run --name api -p 8000:8000 --env USER=<value> --env PASSWORD=<value> neurobagel/api
+```
+### Option 2: Build the image locally using the Dockerfile
+```bash
+docker build -t neurobagel/api .
+docker run --name api -p 8000:8000 --env USER=<value> --env PASSWORD=<value> neurobagel/api
+```
+Note: In case you're connecting to the McGill network via VPN and you started the container before connecting to the VPN, make sure to configure your VPN client to allow local (LAN) access when using the VPN.
+
+### **Python**
 ### Install dependencies
 
 You'll need to install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's `venv` package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
