@@ -76,7 +76,7 @@ For either option, if you wish to also set `DOG_ROOT`, make sure to pass it to t
 NOTE: In case you're connecting to the McGill network via VPN and you started the container before connecting to the VPN, make sure to configure your VPN client to allow local (LAN) access when using the VPN.
 
 ### **Python**
-### Install dependencies
+#### Install dependencies
 
 After cloning the repository, install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's `venv` package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
 
@@ -84,7 +84,7 @@ After cloning the repository, install the dependencies outlined in the requireme
 $ pip install -r requirements.txt
 ```
 
-### Launch the API
+#### Launch the API
 
 To launch the API make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
 
