@@ -3,7 +3,7 @@ import os
 
 import httpx
 import pandas as pd
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 from . import utility as util
 from .models import AggDatasetResponse
@@ -47,22 +47,28 @@ async def get(
         Response of the POST request.
 
     """
-    response = httpx.post(
-        url=util.QUERY_URL,
-        content=util.create_query(
-            age=(min_age, max_age),
-            sex=sex,
-            diagnosis=diagnosis,
-            is_control=is_control,
-            min_num_sessions=min_num_sessions,
-            assessment=assessment,
-            image_modal=image_modal,
-        ),
-        headers=util.QUERY_HEADER,
-        auth=httpx.BasicAuth(
-            os.environ.get("USER"), os.environ.get("PASSWORD")
-        ),
-    )
+    try:
+        response = httpx.post(
+            url=util.QUERY_URL,
+            content=util.create_query(
+                age=(min_age, max_age),
+                sex=sex,
+                diagnosis=diagnosis,
+                is_control=is_control,
+                min_num_sessions=min_num_sessions,
+                assessment=assessment,
+                image_modal=image_modal,
+            ),
+            headers=util.QUERY_HEADER,
+            auth=httpx.BasicAuth(
+                os.environ.get("USER"), os.environ.get("PASSWORD")
+            ),
+        )
+    except httpx.ConnectTimeout as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Timed out while connecting to the server. Please confirm that you are connected to the McGill network and try again.",
+        ) from exc
 
     if not response.is_success:
         raise HTTPException(
