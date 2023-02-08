@@ -68,8 +68,8 @@ docker run --name api -p 8000:8000 --env USER --env PASSWORD neurobagel/api
 #### Option 2: Build the image using the Dockerfile
 After cloning the current repository, build the Docker image locally:
 ```bash
-docker build -t neurobagel/api .
-docker run --name api -p 8000:8000 --env USER --env PASSWORD neurobagel/api
+docker build -t <image_name> .
+docker run -d --name api -p 8000:8000 --env USER --env PASSWORD neurobagel/api
 ```
 For either option, if you wish to also set `DOG_ROOT`, make sure to pass it to the container in the `docker run` command using the `--env` flag.
 
