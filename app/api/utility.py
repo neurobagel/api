@@ -120,7 +120,7 @@ def create_query(
     SELECT ?dataset ?dataset_name ?sub_id ?file_path ?image_modal
     WHERE {{
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
-    ?diagnosis ?num_sessions ?assessment ?image_modal ?file_path
+    ?diagnosis ?subject_group ?num_sessions ?assessment ?image_modal ?file_path
     WHERE {{
     ?dataset a bg:Dataset;
              bg:label ?dataset_name;
@@ -131,6 +131,7 @@ def create_query(
             bg:age ?age;
             bg:sex ?sex;
             bg:diagnosis ?diagnosis;
+            bg:isSubjectGroup ?subject_group;
             bg:hasSession ?session;
             bg:assessment ?assessment;
             bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?image_modal.
