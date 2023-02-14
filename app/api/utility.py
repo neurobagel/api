@@ -131,8 +131,9 @@ def create_query(
             bg:hasSession ?session;
             bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?image_modal.
 
-    ?session bg:filePath ?file_path.
-
+    OPTIONAL {{
+        ?session bg:filePath ?file_path.
+    }}
     OPTIONAL {{
         ?subject bg:age ?age.
     }}
