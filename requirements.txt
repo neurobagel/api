@@ -15,6 +15,7 @@ identify==2.5.9
 idna==3.4
 iniconfig==1.1.1
 nodeenv==1.7.0
+orjson==3.8.6
 packaging==21.3
 pandas==1.5.2
 platformdirs==2.5.4
