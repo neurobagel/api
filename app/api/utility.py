@@ -120,7 +120,7 @@ def create_query(
     SELECT ?dataset ?dataset_name ?sub_id ?file_path ?image_modal
     WHERE {{
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
-    ?diagnosis ?num_sessions ?assessment ?image_modal ?file_path
+    ?diagnosis ?subject_group ?num_sessions ?assessment ?image_modal ?file_path
     WHERE {{
     ?dataset a bg:Dataset;
              bg:label ?dataset_name;
@@ -128,14 +128,27 @@ def create_query(
 
     ?subject a bg:Subject;
             bg:label ?sub_id;
-            bg:age ?age;
-            bg:sex ?sex;
-            bg:diagnosis ?diagnosis;
             bg:hasSession ?session;
-            bg:assessment ?assessment;
             bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?image_modal.
 
-    ?session bg:filePath ?file_path.
+    OPTIONAL {{
+        ?session bg:filePath ?file_path.
+    }}
+    OPTIONAL {{
+        ?subject bg:age ?age.
+    }}
+    OPTIONAL {{
+        ?subject bg:sex ?sex.
+    }}
+    OPTIONAL {{
+        ?subject bg:diagnosis ?diagnosis.
+    }}
+    OPTIONAL {{
+        ?subject bg:isSubjectGroup ?subject_group.
+    }}
+    OPTIONAL {{
+        ?subject bg:assessment ?assessment.
+    }}
 
     {{
     SELECT ?subject (count(distinct ?session) as ?num_sessions)

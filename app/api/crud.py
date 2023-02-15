@@ -94,7 +94,7 @@ async def get(
                     dataset=dataset,
                     dataset_name=dataset_name,
                     num_matching_subjects=group["sub_id"].nunique(),
-                    subject_file_paths=list(group["file_path"]),
+                    subject_file_paths=list(group["file_path"].dropna()),
                     image_modals=list(group["image_modal"].unique()),
                 )
             )
