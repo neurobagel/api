@@ -1,0 +1,19 @@
+version: 3.8
+
+services:
+  api:
+    image: "neurobagel/api:${API_TAG:-latest}"
+    command: |
+      uvicorn app.main:app --proxy-headers --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - USER="${USER}"
+      - PASSWORD="${PASSWORD}"
+      - DOG_ROOT="${DOG_ROOT:-graph}"
+  graph:
+    image: "stardog/stardog:${STARDOG_TAG:-7.7.3-java11-preview}"
+    volumes:
+      - "${STARDOG_ROOT:-~/stardog-home}:/var/opt/stardog"
+    ports:
+      - "5820:5820"
