@@ -23,6 +23,8 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 
 - [Quickstart](#quickstart)
 - [Local installation](#local-installation)
+    - [Docker](#docker)
+    - [Python](#python)
 - [Testing](#testing)
 - [License](#license)
 
@@ -37,45 +39,55 @@ NOTE: Currently, to access the API, you must be connected to the McGill network.
 ## Local installation
 
 ### Set the environment variables
-To run the API, at least two environment variables must be set, `USER` and `PASSWORD`. An optional third environment variable `DOG_ROOT` may be set to use a different IP address for the graph database.
-
-To set environment variables in macOS and Linux distributions:
-
+Create a `.env` file to house the environment variables used by the app. To run the API, at least two environment variables must be set, `USER` and `PASSWORD`.  
+The contents of a minimal `.env` file:
 ```bash
-$ export KEY=value
-
-# For example
-$ export USER=someuser
+USER=someuser
+PASSWORD=somepassword
 ```
 
-To set environment variables in Windows from CMD:
+An optional third environment variable `DOG_ROOT` may be set in `.env` to use a different IP address for the graph database.
 
-```bash
-$ set KEY=value
-
-# For example
-$ set USER=someuser
-```
-The below instructions for Docker and Python assume that you have already set `USER` and `PASSWORD` in your current environment.
+The below instructions for Docker and Python assume that you have at least set `USER` and `PASSWORD` in your current environment.
 
 ### Docker
-Follow the [official documentation](https://docs.docker.com/get-docker/) for installing Docker. You can then run a Docker container for the API in two ways:
-#### Option 1: Pull the latest image from Docker Hub
+First, [install docker](https://docs.docker.com/get-docker/).
+
+ You can then run a Docker container for the API in three ways:
+#### Option 1: Use the `docker-compose.yaml` file
+
+First, [install docker-compose](https://docs.docker.com/compose/install/).
+
+If needed, update your .env file with optional environment variables for the docker-compose configuration:
+- `API_TAG`: Tag for API Docker image (default: `latest`)
+- `DOG_ROOT`: container name or IP address for the graph database (default: `graph`)
+- `STARDOG_TAG`: Tag for Stardog Docker image (default: `7.7.3-java11-preview`)
+- `STARDOG_ROOT`: Path to directory on host machine containing a Stardog license file (default: `~/stardog-home`)
+
+Then spin up the containers using Docker Compose:
 ```bash
+docker compose up -d
+```
+
+#### Option 2: Use the latest image from Docker Hub
+```bash
+source .env # set your environment variables 
 docker pull neurobagel/api
 docker run --name api -p 8000:8000 --env USER --env PASSWORD neurobagel/api
 ```
-#### Option 2: Build the image using the Dockerfile
+#### Option 3: Build the image using the Dockerfile
 After cloning the current repository, build the Docker image locally:
 ```bash
+source .env # set your environment variables
 docker build -t <image_name> .
 docker run -d --name api -p 8000:8000 --env USER --env PASSWORD neurobagel/api
 ```
-For either option, if you wish to also set `DOG_ROOT`, make sure to pass it to the container in the `docker run` command using the `--env` flag.
+
+For Options 2 or 3, if you wish to also set `DOG_ROOT`, make sure to pass it to the container in the `docker run` command using the `--env` flag.
 
 NOTE: In case you're connecting to the McGill network via VPN and you started the container before connecting to the VPN, make sure to configure your VPN client to allow local (LAN) access when using the VPN.
 
-### **Python**
+### Python
 #### Install dependencies
 
 After cloning the repository, install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's `venv` package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
