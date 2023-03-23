@@ -3,8 +3,6 @@ version: 3.8
 services:
   api:
     image: "neurobagel/api:${API_TAG:-latest}"
-    command: |
-      uvicorn app.main:app --proxy-headers --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     environment:
