@@ -6,7 +6,7 @@ from fastapi import Query
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, constr, root_validator
 
-SPARQL_VAR_CONTROLLLED_NAMESPACE_REGEX = r"^[a-zA-Z]+[:]\S+$"
+CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
 
 
 class QueryModel(BaseModel):
@@ -15,11 +15,11 @@ class QueryModel(BaseModel):
     min_age: float = Query(default=None, ge=0)
     max_age: float = Query(default=None, ge=0)
     sex: Literal["male", "female", "other"] = None
-    diagnosis: constr(regex=SPARQL_VAR_CONTROLLLED_NAMESPACE_REGEX) = None
+    diagnosis: constr(regex=CONTROLLED_TERM_REGEX) = None
     is_control: bool = None
     min_num_sessions: int = Query(default=None, ge=1)
-    assessment: constr(regex=SPARQL_VAR_CONTROLLLED_NAMESPACE_REGEX) = None
-    image_modal: constr(regex=SPARQL_VAR_CONTROLLLED_NAMESPACE_REGEX) = None
+    assessment: constr(regex=CONTROLLED_TERM_REGEX) = None
+    image_modal: constr(regex=CONTROLLED_TERM_REGEX) = None
 
     @root_validator()
     def check_maxage_ge_minage(cls, values):
