@@ -39,16 +39,21 @@ NOTE: Currently, to access the API, you must be connected to the McGill network.
 ## Local installation
 
 ### Set the environment variables
-Create a `.env` file to house the environment variables used by the app. To run the API, at least two environment variables must be set, `USER` and `PASSWORD`.  
+Create a `.env` file to house the environment variables used by the app. To run the API, at least two environment variables must be set, `USERNAME` and `PASSWORD`.  
 The contents of a minimal `.env` file:
 ```bash
-USER=someuser
+USERNAME=someuser
 PASSWORD=somepassword
 ```
 
 An optional third environment variable `DOG_ROOT` may be set in `.env` to use a different IP address for the graph database.
 
-The below instructions for Docker and Python assume that you have at least set `USER` and `PASSWORD` in your current environment.
+To export all the variables in your `.env` file in one step, run the following:
+```bash
+export $(cat .env | xargs)
+```
+
+The below instructions for Docker and Python assume that you have at least set `USERNAME` and `PASSWORD` in your current environment.
 
 ### Docker
 First, [install docker](https://docs.docker.com/get-docker/).
@@ -64,6 +69,8 @@ If needed, update your .env file with optional environment variables for the doc
 - `STARDOG_TAG`: Tag for Stardog Docker image (default: `7.7.3-java11-preview`)
 - `STARDOG_ROOT`: Path to directory on host machine containing a Stardog license file (default: `~/stardog-home`)
 
+Note: To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), ensure that any variables defined in your `.env` file are not already set in your current shell environment with **different** values.
+
 Then spin up the containers using Docker Compose:
 ```bash
 docker compose up -d
@@ -73,14 +80,14 @@ docker compose up -d
 ```bash
 source .env # set your environment variables 
 docker pull neurobagel/api
-docker run --name api -p 8000:8000 --env USER --env PASSWORD neurobagel/api
+docker run -d --name api -p 8000:8000 --env USERNAME --env PASSWORD neurobagel/api
 ```
 #### Option 3: Build the image using the Dockerfile
 After cloning the current repository, build the Docker image locally:
 ```bash
 source .env # set your environment variables
 docker build -t <image_name> .
-docker run -d --name api -p 8000:8000 --env USER --env PASSWORD neurobagel/api
+docker run -d --name api -p 8000:8000 --env USERNAME --env PASSWORD neurobagel/api
 ```
 
 For Options 2 or 3, if you wish to also set `DOG_ROOT`, make sure to pass it to the container in the `docker run` command using the `--env` flag.

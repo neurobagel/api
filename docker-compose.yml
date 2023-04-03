@@ -6,9 +6,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - USER="${USER}"
-      - PASSWORD="${PASSWORD}"
-      - DOG_ROOT="${DOG_ROOT:-graph}"
+      USERNAME: ${USERNAME}
+      PASSWORD: ${PASSWORD}
+      DOG_ROOT: ${DOG_ROOT:-graph}
   graph:
     image: "stardog/stardog:${STARDOG_TAG:-7.7.3-java11-preview}"
     volumes:

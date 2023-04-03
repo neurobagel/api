@@ -61,7 +61,7 @@ async def get(
             ),
             headers=util.QUERY_HEADER,
             auth=httpx.BasicAuth(
-                os.environ.get("USER"), os.environ.get("PASSWORD")
+                os.environ.get("USERNAME"), os.environ.get("PASSWORD")
             ),
         )
     except httpx.ConnectTimeout as exc:
