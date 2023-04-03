@@ -124,6 +124,9 @@ INFO:     Application startup complete.
 ```
 You can verify the API is running once you receive info messages similar to the above in your terminal.
 
+### Troubleshooting
+If you get a 401 response to your API request with an `"Unauthorized: "` error message, your `USERNAME` and `PASSWORD` pair may be incorrect. Verify that these environment variables have been exported and/or have the correct values.
+
 ## Testing
 
 Neurobagel API utilizes [Pytest](https://docs.pytest.org/en/7.2.x/) framework for testing.
