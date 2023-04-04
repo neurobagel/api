@@ -46,7 +46,7 @@ USERNAME=someuser
 PASSWORD=somepassword
 ```
 
-An optional third environment variable `DOG_ROOT` may be set in `.env` to use a different IP address for the graph database.
+An optional third environment variable `GRAPH_ADDRESS` may be set in `.env` to use a different IP address for the graph database.
 
 To export all the variables in your `.env` file in one step, run the following:
 ```bash
@@ -65,7 +65,7 @@ First, [install docker-compose](https://docs.docker.com/compose/install/).
 
 If needed, update your .env file with optional environment variables for the docker-compose configuration:
 - `API_TAG`: Tag for API Docker image (default: `latest`)
-- `DOG_ROOT`: container name or IP address for the graph database (default: `graph`)
+- `GRAPH_ADDRESS`: container name or IP address for the graph database (default: `graph`)
 - `STARDOG_TAG`: Tag for Stardog Docker image (default: `7.7.3-java11-preview`)
 - `STARDOG_ROOT`: Path to directory on host machine containing a Stardog license file (default: `~/stardog-home`)
 
@@ -90,7 +90,7 @@ docker build -t <image_name> .
 docker run -d --name api -p 8000:8000 --env USERNAME --env PASSWORD neurobagel/api
 ```
 
-For Options 2 or 3, if you wish to also set `DOG_ROOT`, make sure to pass it to the container in the `docker run` command using the `--env` flag.
+For Options 2 or 3, if you wish to also set `GRAPH_ADDRESS`, make sure to pass it to the container in the `docker run` command using the `--env` flag.
 
 NOTE: In case you're connecting to the McGill network via VPN and you started the container before connecting to the VPN, make sure to configure your VPN client to allow local (LAN) access when using the VPN.
 

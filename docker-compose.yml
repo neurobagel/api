@@ -8,7 +8,7 @@ services:
     environment:
       USERNAME: ${USERNAME}
       PASSWORD: ${PASSWORD}
-      DOG_ROOT: ${DOG_ROOT:-graph}
+      GRAPH_ADDRESS: ${GRAPH_ADDRESS:-graph}
   graph:
     image: "stardog/stardog:${STARDOG_TAG:-7.7.3-java11-preview}"
     volumes:
