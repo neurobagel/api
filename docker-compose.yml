@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  api:
+    image: "neurobagel/api:${API_TAG:-latest}"
+    ports:
+      - "8000:8000"
+    environment:
+      USERNAME: ${USERNAME}
+      PASSWORD: ${PASSWORD}
+      GRAPH_ADDRESS: ${GRAPH_ADDRESS:-graph}
+  graph:
+    image: "stardog/stardog:${STARDOG_TAG:-7.7.3-java11-preview}"
+    volumes:
+      - "${STARDOG_ROOT:-~/stardog-home}:/var/opt/stardog"
+    ports:
+      - "5820:5820"

@@ -85,22 +85,22 @@ def mock_invalid_get():
 
 
 def test_start_app_without_environment_vars_fails(test_app, monkeypatch):
-    """Given non-existing USER and PASSWORD environment variables, raises an informative RuntimeError."""
-    monkeypatch.delenv("USER", raising=False)
+    """Given non-existing USERNAME and PASSWORD environment variables, raises an informative RuntimeError."""
+    monkeypatch.delenv("USERNAME", raising=False)
     monkeypatch.delenv("PASSWORD", raising=False)
 
     with pytest.raises(RuntimeError) as e_info:
         with test_app:
             pass
     assert (
-        "could not find the USER and / or PASSWORD environment variables"
+        "could not find the USERNAME and / or PASSWORD environment variables"
         in str(e_info.value)
     )
 
 
 def test_app_with_invalid_environment_vars(test_app, monkeypatch):
     """Given invalid environment variables, returns a 401 status code."""
-    monkeypatch.setenv("USER", "something")
+    monkeypatch.setenv("USERNAME", "something")
     monkeypatch.setenv("PASSWORD", "cool")
 
     def mock_httpx_post(**kwargs):

@@ -5,10 +5,10 @@ from collections import namedtuple
 from typing import Optional
 
 # Request constants
-DOG_ROOT = os.environ.get("DOG_ROOT", "206.12.99.17")
-DOG_DB = "test_data"
-DOG_PORT = 5820
-QUERY_URL = f"http://{DOG_ROOT}:{DOG_PORT}/{DOG_DB}/query"
+GRAPH_ADDRESS = os.environ.get("GRAPH_ADDRESS", "206.12.99.17")
+GRAPH_DB = "test_data"
+GRAPH_PORT = 5820
+QUERY_URL = f"http://{GRAPH_ADDRESS}:{GRAPH_PORT}/{GRAPH_DB}/query"
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",

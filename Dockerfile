@@ -11,5 +11,3 @@ COPY ./app /usr/src/app
 ENTRYPOINT ["uvicorn", "app.main:app", "--proxy-headers", "--host", "0.0.0.0"]
 
 CMD ["--port", "8000"]
-
-

@@ -23,6 +23,8 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 
 - [Quickstart](#quickstart)
 - [Local installation](#local-installation)
+    - [Docker](#docker)
+    - [Python](#python)
 - [Testing](#testing)
 - [License](#license)
 
@@ -35,47 +37,78 @@ Interactive documentation for the API is available at https://api.neurobagel.org
 NOTE: Currently, to access the API, you must be connected to the McGill network.
 
 ## Local installation
+The below instructions assume that you have a local instance of or access to a remotely hosted graph database to be queried. If this is not the case and you need to first build a graph from data, refer to the instructions for getting started locally with [Stardog Studio](https://docs.stardog.com/stardog-applications/dockerized_access#stardog-studio).
+
+### Clone the repo
+```bash
+git clone https://github.com/neurobagel/api.git
+```
 
 ### Set the environment variables
-To run the API, at least two environment variables must be set, `USER` and `PASSWORD`. An optional third environment variable `DOG_ROOT` may be set to use a different IP address for the graph database.
-
-To set environment variables in macOS and Linux distributions:
-
+Create a `.env` file in the root of the repository to house the environment variables used by the app. To run the API, at least two environment variables must be set, `USERNAME` and `PASSWORD`.  
+The contents of a minimal `.env` file:
 ```bash
-$ export KEY=value
-
-# For example
-$ export USER=someuser
+USERNAME=someuser
+PASSWORD=somepassword
 ```
 
-To set environment variables in Windows from CMD:
+An optional third environment variable `GRAPH_ADDRESS` may be set in `.env` to use a different IP address for the graph database.
 
+To export all the variables in your `.env` file in one step, run the following:
 ```bash
-$ set KEY=value
-
-# For example
-$ set USER=someuser
+export $(cat .env | xargs)
 ```
-The below instructions for Docker and Python assume that you have already set `USER` and `PASSWORD` in your current environment.
+
+The below instructions for Docker and Python assume that you have at least set `USERNAME` and `PASSWORD` in your current environment.
 
 ### Docker
-Follow the [official documentation](https://docs.docker.com/get-docker/) for installing Docker. You can then run a Docker container for the API in two ways:
-#### Option 1: Pull the latest image from Docker Hub
+First, [install docker](https://docs.docker.com/get-docker/).
+
+ You can then run a Docker container for the API in one of three ways:
+#### Option 1: Use the `docker-compose.yaml` file
+
+First, [install docker-compose](https://docs.docker.com/compose/install/).
+
+If needed, update your `.env` file with optional environment variables for the docker-compose configuration:
+- `API_TAG`: Tag for API Docker image (default: `latest`)
+- `GRAPH_ADDRESS`: container name or IP address for the graph database (default: `graph`)
+- `STARDOG_TAG`: Tag for Stardog Docker image (default: `7.7.3-java11-preview`)
+- `STARDOG_ROOT`: Path to directory on host machine containing a Stardog license file (default: `~/stardog-home`)
+
+NOTE: To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), ensure that any variables defined in your `.env` file are not already set in your current shell environment with **different** values.
+
+Use Docker Compose to spin up the containers by running the following in the repository root (where the `docker-compose.yml` file is):
 ```bash
-docker pull neurobagel/api
-docker run --name api -p 8000:8000 --env USER --env PASSWORD neurobagel/api
+docker compose up -d
 ```
-#### Option 2: Build the image using the Dockerfile
+
+#### Option 2: Use the latest image from Docker Hub
+```bash
+source .env # set your environment variables 
+docker pull neurobagel/api
+docker run -d --name api -p 8000:8000 --env USERNAME --env PASSWORD neurobagel/api
+```
+#### Option 3: Build the image using the Dockerfile
 After cloning the current repository, build the Docker image locally:
 ```bash
+source .env # set your environment variables
 docker build -t <image_name> .
-docker run -d --name api -p 8000:8000 --env USER --env PASSWORD neurobagel/api
+docker run -d --name api -p 8000:8000 --env USERNAME --env PASSWORD neurobagel/api
 ```
-For either option, if you wish to also set `DOG_ROOT`, make sure to pass it to the container in the `docker run` command using the `--env` flag.
+
+For Options 2 or 3, if you wish to also set `GRAPH_ADDRESS`, make sure to pass it to the container in the `docker run` command using the `--env` flag.
 
 NOTE: In case you're connecting to the McGill network via VPN and you started the container before connecting to the VPN, make sure to configure your VPN client to allow local (LAN) access when using the VPN.
 
-### **Python**
+#### Send a test query to the API
+By default, after running the above steps, the API should be served at localhost, http://127.0.0.1:8000/query, on the machine where you launched the Dockerized app. To check that the API is running and can access the knowledge graph as expected, you can navigate to the interactive API docs in your local browser (http://127.0.0.1:8000/docs) and enter a sample query, or send an HTTP request in your terminal using `curl`:
+``` bash
+# example: query for female subjects in graph 
+curl -L http://127.0.0.1:8000/query/?sex=female
+```
+The response should be a list of dictionaries containing info about datasets with participants matching the query.
+
+### Python
 #### Install dependencies
 
 After cloning the repository, install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's `venv` package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
@@ -104,6 +137,9 @@ INFO:     Application startup complete.
 ...
 ```
 You can verify the API is running once you receive info messages similar to the above in your terminal.
+
+### Troubleshooting
+If you get a 401 response to your API request with an `"Unauthorized: "` error message, your `USERNAME` and `PASSWORD` pair may be incorrect. Verify that these environment variables have been exported and/or have the correct values.
 
 ## Testing
 
