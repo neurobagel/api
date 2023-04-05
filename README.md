@@ -37,9 +37,15 @@ Interactive documentation for the API is available at https://api.neurobagel.org
 NOTE: Currently, to access the API, you must be connected to the McGill network.
 
 ## Local installation
+The below instructions assume that you have a local instance of or access to a remotely hosted graph database to be queried. If this is not the case and you need to first build a graph from data, refer to the instructions for getting started locally with [Stardog Studio](https://docs.stardog.com/stardog-applications/dockerized_access#stardog-studio).
+
+### Clone the repo
+```bash
+git clone https://github.com/neurobagel/api.git
+```
 
 ### Set the environment variables
-Create a `.env` file to house the environment variables used by the app. To run the API, at least two environment variables must be set, `USERNAME` and `PASSWORD`.  
+Create a `.env` file in the root of the repository to house the environment variables used by the app. To run the API, at least two environment variables must be set, `USERNAME` and `PASSWORD`.  
 The contents of a minimal `.env` file:
 ```bash
 USERNAME=someuser
@@ -58,20 +64,20 @@ The below instructions for Docker and Python assume that you have at least set `
 ### Docker
 First, [install docker](https://docs.docker.com/get-docker/).
 
- You can then run a Docker container for the API in three ways:
+ You can then run a Docker container for the API in one of three ways:
 #### Option 1: Use the `docker-compose.yaml` file
 
 First, [install docker-compose](https://docs.docker.com/compose/install/).
 
-If needed, update your .env file with optional environment variables for the docker-compose configuration:
+If needed, update your `.env` file with optional environment variables for the docker-compose configuration:
 - `API_TAG`: Tag for API Docker image (default: `latest`)
 - `GRAPH_ADDRESS`: container name or IP address for the graph database (default: `graph`)
 - `STARDOG_TAG`: Tag for Stardog Docker image (default: `7.7.3-java11-preview`)
 - `STARDOG_ROOT`: Path to directory on host machine containing a Stardog license file (default: `~/stardog-home`)
 
-Note: To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), ensure that any variables defined in your `.env` file are not already set in your current shell environment with **different** values.
+NOTE: To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), ensure that any variables defined in your `.env` file are not already set in your current shell environment with **different** values.
 
-Then spin up the containers using Docker Compose:
+Use Docker Compose to spin up the containers by running the following in the repository root (where the `docker-compose.yml` file is):
 ```bash
 docker compose up -d
 ```
@@ -93,6 +99,14 @@ docker run -d --name api -p 8000:8000 --env USERNAME --env PASSWORD neurobagel/a
 For Options 2 or 3, if you wish to also set `GRAPH_ADDRESS`, make sure to pass it to the container in the `docker run` command using the `--env` flag.
 
 NOTE: In case you're connecting to the McGill network via VPN and you started the container before connecting to the VPN, make sure to configure your VPN client to allow local (LAN) access when using the VPN.
+
+#### Send a test query to the API
+By default, after running the above steps, the API should be served at localhost, http://127.0.0.1:8000/query, on the machine where you launched the Dockerized app. To check that the API is running and can access the knowledge graph as expected, you can navigate to the interactive API docs in your local browser (http://127.0.0.1:8000/docs) and enter a sample query, or send an HTTP request in your terminal using `curl`:
+``` bash
+# example: query for female subjects in graph 
+curl -L http://127.0.0.1:8000/query/?sex=female
+```
+The response should be a list of dictionaries containing info about datasets with participants matching the query.
 
 ### Python
 #### Install dependencies
