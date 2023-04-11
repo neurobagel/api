@@ -72,6 +72,7 @@ First, [install docker-compose](https://docs.docker.com/compose/install/).
 If needed, update your `.env` file with optional environment variables for the docker-compose configuration:
 - `API_TAG`: Tag for API Docker image (default: `latest`)
 - `GRAPH_ADDRESS`: container name or IP address for the graph database (default: `graph`)
+- `GRAPH_DB`: name of existing graph database to query (default: `test_graph`)
 - `STARDOG_TAG`: Tag for Stardog Docker image (default: `7.7.3-java11-preview`)
 - `STARDOG_ROOT`: Path to directory on host machine containing a Stardog license file (default: `~/stardog-home`)
 

@@ -6,7 +6,7 @@ from typing import Optional
 
 # Request constants
 GRAPH_ADDRESS = os.environ.get("GRAPH_ADDRESS", "206.12.99.17")
-GRAPH_DB = "test_data"
+GRAPH_DB = os.environ.get("GRAPH_DB", "test_data")
 GRAPH_PORT = 5820
 QUERY_URL = f"http://{GRAPH_ADDRESS}:{GRAPH_PORT}/{GRAPH_DB}/query"
 QUERY_HEADER = {
