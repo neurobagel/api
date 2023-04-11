@@ -9,8 +9,9 @@ services:
       USERNAME: ${USERNAME}
       PASSWORD: ${PASSWORD}
       GRAPH_ADDRESS: ${GRAPH_ADDRESS:-graph}
+      GRAPH_DB: ${GRAPH_DB}
   graph:
-    image: "stardog/stardog:${STARDOG_TAG:-7.7.3-java11-preview}"
+    image: "stardog/stardog:${STARDOG_TAG:-8.2.2-java11-preview}"
     volumes:
       - "${STARDOG_ROOT:-~/stardog-home}:/var/opt/stardog"
     ports:
