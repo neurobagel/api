@@ -14,7 +14,7 @@ class QueryModel(BaseModel):
 
     min_age: float = Query(default=None, ge=0)
     max_age: float = Query(default=None, ge=0)
-    sex: Literal["male", "female", "other"] = None
+    sex: Literal["nb:Male", "nb:Female", "nb:OtherSex"] = None
     diagnosis: constr(regex=CONTROLLED_TERM_REGEX) = None
     is_control: bool = None
     min_num_sessions: int = Query(default=None, ge=1)
