@@ -30,7 +30,9 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 
 
 ## Quickstart
-The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route (e.g., the URL for a query for only female participants would be https://api.neurobagel.org/query/?sex=nb:Female).
+The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route.
+
+Example: **I want to query for only female participants in the graph.** The URL for such a query would be https://api.neurobagel.org/query/?sex=snomed:248152002, where `snomed:248152002` is a [controlled term from the SNOMED CT database](https://bioportal.bioontology.org/ontologies/SNOMEDCT?p=classes&conceptid=248152002) corresponding to female sex.
 
 Interactive documentation for the API is available at https://api.neurobagel.org/docs.
 
@@ -104,8 +106,8 @@ NOTE: In case you're connecting to the McGill network via VPN and you started th
 #### Send a test query to the API
 By default, after running the above steps, the API should be served at localhost, http://127.0.0.1:8000/query, on the machine where you launched the Dockerized app. To check that the API is running and can access the knowledge graph as expected, you can navigate to the interactive API docs in your local browser (http://127.0.0.1:8000/docs) and enter a sample query, or send an HTTP request in your terminal using `curl`:
 ``` bash
-# example: query for female subjects in graph 
-curl -L http://127.0.0.1:8000/query/?sex=nb:Female
+# example: query for female subjects in graph
+curl -L http://127.0.0.1:8000/query/?sex=snomed:248152002 
 ```
 The response should be a list of dictionaries containing info about datasets with participants matching the query.
 

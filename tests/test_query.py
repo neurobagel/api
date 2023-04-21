@@ -172,18 +172,20 @@ def test_get_invalid_age(
     assert response.status_code == 422
 
 
-@pytest.mark.parametrize("valid_sex", ["Male", "Female", "OtherSex"])
+@pytest.mark.parametrize(
+    "valid_sex", ["248153007", "248152002", "32570681000036106"]
+)
 def test_get_valid_sex(test_app, mock_successful_get, valid_sex, monkeypatch):
     """Given a valid sex string, returns a 200 status code and a non-empty list of results."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get(f"/query/?sex=nb:{valid_sex}")
+    response = test_app.get(f"/query/?sex=snomed:{valid_sex}")
     assert response.status_code == 200
     assert response.json() != []
 
 
 def test_get_invalid_sex(test_app, mock_invalid_get, monkeypatch):
-    """Given an invalid sex string (i.e., anything other than ["nb:Male", "nb:Female", "nb:OtherSex"]), returns a 422 status code."""
+    """Given an invalid sex string, returns a 422 status code."""
 
     monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get("/query/?sex=apple")
