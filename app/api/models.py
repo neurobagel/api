@@ -1,7 +1,5 @@
 """Data models."""
 
-from typing import Literal
-
 from fastapi import Query
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, constr, root_validator
@@ -14,7 +12,7 @@ class QueryModel(BaseModel):
 
     min_age: float = Query(default=None, ge=0)
     max_age: float = Query(default=None, ge=0)
-    sex: Literal["male", "female", "other"] = None
+    sex: constr(regex=CONTROLLED_TERM_REGEX) = None
     diagnosis: constr(regex=CONTROLLED_TERM_REGEX) = None
     is_control: bool = None
     min_num_sessions: int = Query(default=None, ge=1)

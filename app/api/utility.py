@@ -16,21 +16,23 @@ QUERY_HEADER = {
 
 # SPARQL query context
 DEFAULT_CONTEXT = """
-PREFIX bg: <http://neurobagel.org/vocab/>
-PREFIX snomed: <https://identifiers.org/snomedct:>
+PREFIX cogatlas: <https://www.cognitiveatlas.org/task/id/>
+PREFIX nb: <http://neurobagel.org/vocab/>
+PREFIX nbg: <http://neurobagel.org/graph/>
 PREFIX nidm: <http://purl.org/nidash/nidm#>
+PREFIX snomed: <http://purl.bioontology.org/ontology/SNOMEDCT/>
 """
 
 # Store domains in named tuples
 Domain = namedtuple("Domain", ["var", "pred"])
 # Core domains
-AGE = Domain("age", "bg:age")
-SEX = Domain("sex", "bg:sex")
-DIAGNOSIS = Domain("diagnosis", "bg:diagnosis")
-IS_CONTROL = Domain("subject_group", "bg:isSubjectGroup")
-ASSESSMENT = Domain("assessment", "bg:assessment")
-IMAGE_MODAL = Domain("image_modal", "bg:hasContrastType")
-PROJECT = Domain("project", "bg:hasSamples")
+AGE = Domain("age", "nb:hasAge")
+SEX = Domain("sex", "nb:hasSex")
+DIAGNOSIS = Domain("diagnosis", "nb:hasDiagnosis")
+IS_CONTROL = Domain("subject_group", "nb:isSubjectGroup")
+ASSESSMENT = Domain("assessment", "nb:hasAssessment")
+IMAGE_MODAL = Domain("image_modal", "nb:hasContrastType")
+PROJECT = Domain("project", "nb:hasSamples")
 
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
@@ -80,7 +82,7 @@ def create_query(
         subject_level_filters += "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
 
     if sex is not None:
-        subject_level_filters += "\n" + f"FILTER (?{SEX.var} = '{sex}')."
+        subject_level_filters += "\n" + f"FILTER (?{SEX.var} = {sex})."
 
     if diagnosis is not None:
         subject_level_filters += (
@@ -122,40 +124,40 @@ def create_query(
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
     ?diagnosis ?subject_group ?num_sessions ?assessment ?image_modal ?file_path
     WHERE {{
-    ?dataset a bg:Dataset;
-             bg:label ?dataset_name;
-             bg:hasSamples ?subject.
+    ?dataset a nb:Dataset;
+             nb:hasLabel ?dataset_name;
+             nb:hasSamples ?subject.
 
-    ?subject a bg:Subject;
-            bg:label ?sub_id;
-            bg:hasSession ?session;
-            bg:hasSession/bg:hasAcquisition/bg:hasContrastType ?image_modal.
+    ?subject a nb:Subject;
+            nb:hasLabel ?sub_id;
+            nb:hasSession ?session;
+            nb:hasSession/nb:hasAcquisition/nb:hasContrastType ?image_modal.
 
     OPTIONAL {{
-        ?session bg:filePath ?file_path.
+        ?session nb:hasFilePath ?file_path.
     }}
     OPTIONAL {{
-        ?subject bg:age ?age.
+        ?subject nb:hasAge ?age.
     }}
     OPTIONAL {{
-        ?subject bg:sex ?sex.
+        ?subject nb:hasSex ?sex.
     }}
     OPTIONAL {{
-        ?subject bg:diagnosis ?diagnosis.
+        ?subject nb:hasDiagnosis ?diagnosis.
     }}
     OPTIONAL {{
-        ?subject bg:isSubjectGroup ?subject_group.
+        ?subject nb:isSubjectGroup ?subject_group.
     }}
     OPTIONAL {{
-        ?subject bg:assessment ?assessment.
+        ?subject nb:hasAssessment ?assessment.
     }}
 
     {{
     SELECT ?subject (count(distinct ?session) as ?num_sessions)
     WHERE {{
-        ?subject a bg:Subject;
-                 bg:hasSession ?session.
-        ?session bg:hasAcquisition/bg:hasContrastType ?image_modal.
+        ?subject a nb:Subject;
+                 nb:hasSession ?session.
+        ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
         {session_level_filters}
 
     }} GROUP BY ?subject

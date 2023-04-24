@@ -172,7 +172,10 @@ def test_get_invalid_age(
     assert response.status_code == 422
 
 
-@pytest.mark.parametrize("valid_sex", ["male", "female", "other"])
+@pytest.mark.parametrize(
+    "valid_sex",
+    ["snomed:248153007", "snomed:248152002", "snomed:32570681000036106"],
+)
 def test_get_valid_sex(test_app, mock_successful_get, valid_sex, monkeypatch):
     """Given a valid sex string, returns a 200 status code and a non-empty list of results."""
 
@@ -183,7 +186,7 @@ def test_get_valid_sex(test_app, mock_successful_get, valid_sex, monkeypatch):
 
 
 def test_get_invalid_sex(test_app, mock_invalid_get, monkeypatch):
-    """Given an invalid sex string (i.e., anything other than ["male", "female", None]), returns a 422 status code."""
+    """Given an invalid sex string, returns a 422 status code."""
 
     monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get("/query/?sex=apple")
@@ -284,7 +287,7 @@ def test_get_valid_assessment(test_app, mock_successful_get, monkeypatch):
     """Given a valid assessment, returns a 200 status code and a non-empty list of results."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get("/query/?assessment=bg:cogAtlas-1234")
+    response = test_app.get("/query/?assessment=nb:cogAtlas-1234")
     assert response.status_code == 200
     assert response.json() != []
 
@@ -327,7 +330,7 @@ def test_get_valid_available_image_modal(
 
 @pytest.mark.parametrize(
     "valid_unavailable_image_modal",
-    ["nidm:Flair", "owl:sameAs", "bg:FlowWeighted", "snomed:something"],
+    ["nidm:Flair", "owl:sameAs", "nb:FlowWeighted", "snomed:something"],
 )
 def test_get_valid_unavailable_image_modal(
     test_app, valid_unavailable_image_modal, monkeypatch
