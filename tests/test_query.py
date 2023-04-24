@@ -15,7 +15,7 @@ def test_data():
             "dataset": "http://neurobagel.org/vocab/qpn",
             "dataset_name": "QPN",
             "num_matching_subjects": 5,
-            "subject_file_paths": [
+            "subject_data": [
                 "/my/happy/path/sub-0051/to/session-01",
                 "/my/happy/path/sub-0653/to/session-01",
                 "/my/happy/path/sub-1063/to/session-01",
@@ -31,7 +31,7 @@ def test_data():
             "dataset": "http://neurobagel.org/vocab/ppmi",
             "dataset_name": "PPMI",
             "num_matching_subjects": 3,
-            "subject_file_paths": [
+            "subject_data": [
                 "/my/happy/path/sub-719238/to/session-01",
                 "/my/happy/path/sub-719341/to/session-01",
                 "/my/happy/path/sub-719369/to/session-01",
