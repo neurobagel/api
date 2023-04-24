@@ -10,6 +10,7 @@ services:
       PASSWORD: ${PASSWORD}
       GRAPH_ADDRESS: ${GRAPH_ADDRESS:-graph}
       GRAPH_DB: ${GRAPH_DB}
+      RETURN_AGG: ${RETURN_AGG}
   graph:
     image: "stardog/stardog:${STARDOG_TAG:-8.2.2-java11-preview}"
     volumes:
