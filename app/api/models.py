@@ -48,11 +48,11 @@ class QueryModel(BaseModel):
         return values
 
 
-class AggDatasetResponse(BaseModel):
-    """Data model for query results aggregated at the dataset-level."""
+class CohortQueryResponse(BaseModel):
+    """Data model for query results for one matching dataset (i.e., a cohort)."""
 
     dataset: str
     dataset_name: str
     num_matching_subjects: int
-    subject_file_paths: list
+    subject_data: list
     image_modals: list

@@ -6,7 +6,27 @@ import pandas as pd
 from fastapi import HTTPException, status
 
 from . import utility as util
-from .models import AggDatasetResponse
+from .models import CohortQueryResponse
+
+# TODO: Environment variables can't be parsed as bool so this is a workaround but isn't ideal.
+# Another option is to switch this to a command-line argument, but that would require changing the
+# Dockerfile also since Uvicorn can't accept custom command-line args.
+RETURN_AGG = os.environ.get("RETURN_AGG", "True").lower() == "true"
+
+ATTRIBUTES_ORDER = [
+    "subject",
+    "sub_id",
+    "num_sessions",
+    "age",
+    "sex",
+    "diagnosis",
+    "subject_group",
+    "assessment",
+    "image_modal",
+    "file_path",
+    "dataset_name",
+    "dataset",
+]
 
 
 async def get(
@@ -51,6 +71,7 @@ async def get(
         response = httpx.post(
             url=util.QUERY_URL,
             content=util.create_query(
+                return_agg=RETURN_AGG,
                 age=(min_age, max_age),
                 sex=sex,
                 diagnosis=diagnosis,
@@ -82,19 +103,24 @@ async def get(
         {k: v["value"] for k, v in res.items()}
         for res in results["results"]["bindings"]
     ]
-    results_df = pd.DataFrame(results_dicts)
+    results_df = pd.DataFrame(results_dicts).reindex(columns=ATTRIBUTES_ORDER)
 
     response_obj = []
     if not results_df.empty:
         for (dataset, dataset_name), group in results_df.groupby(
             by=["dataset", "dataset_name"]
         ):
+            if RETURN_AGG:
+                subject_data = list(group["file_path"].dropna())
+            else:
+                subject_data = list(group.to_dict("records"))
+
             response_obj.append(
-                AggDatasetResponse(
+                CohortQueryResponse(
                     dataset=dataset,
                     dataset_name=dataset_name,
                     num_matching_subjects=group["sub_id"].nunique(),
-                    subject_file_paths=list(group["file_path"].dropna()),
+                    subject_data=subject_data,
                     image_modals=list(group["image_modal"].unique()),
                 )
             )

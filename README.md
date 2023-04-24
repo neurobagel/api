@@ -53,8 +53,9 @@ The contents of a minimal `.env` file:
 USERNAME=someuser
 PASSWORD=somepassword
 ```
-
-An optional third environment variable `GRAPH_ADDRESS` may be set in `.env` to use a different IP address for the graph database.
+Optional environment variables for the API may also be defined in `.env`:
+- `GRAPH_ADDRESS`: to use a different IP address for the graph database
+- `RETURN_AGG`: whether to return only dataset-level query results (including file paths) and exclude subject-level attributes. Should be one of [true, false], true by default.
 
 To export all the variables in your `.env` file in one step, run the following:
 ```bash
