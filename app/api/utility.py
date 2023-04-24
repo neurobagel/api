@@ -41,6 +41,7 @@ IS_CONTROL_TERM = "http://purl.obolibrary.org/obo/NCIT_C94342"
 
 
 def create_query(
+    return_agg: bool,
     age: Optional[tuple] = (None, None),
     sex: Optional[str] = None,
     diagnosis: Optional[str] = None,
@@ -54,6 +55,8 @@ def create_query(
 
     Parameters
     ----------
+    return_agg : bool
+        Whether to return only aggregate query results (and not subject-level attributes besides file paths).
     age : tuple, optional
         Minimum and maximum age of subject, by default (None, None).
     sex : str, optional
@@ -118,6 +121,7 @@ def create_query(
 
     query_template = f"""
     {DEFAULT_CONTEXT}
+    {"SELECT ?dataset ?dataset_name ?sub_id ?file_path ?image_modal WHERE {{{{" if return_agg else ""}
 
     SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
     ?diagnosis ?subject_group ?num_sessions ?assessment ?image_modal ?file_path
@@ -163,6 +167,7 @@ def create_query(
 
     {subject_level_filters}
 }}
+{"}}}} GROUP BY ?dataset ?dataset_name ?sub_id ?file_path ?image_modal" if return_agg else ""}
 """
 
     return query_template
