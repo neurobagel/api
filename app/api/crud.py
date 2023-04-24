@@ -6,7 +6,22 @@ import pandas as pd
 from fastapi import HTTPException, status
 
 from . import utility as util
-from .models import AggDatasetResponse
+from .models import CohortQueryResponse
+
+ATTRIBUTES_ORDER = [
+    "subject",
+    "sub_id",
+    "num_sessions",
+    "age",
+    "sex",
+    "diagnosis",
+    "subject_group",
+    "assessment",
+    "image_modal",
+    "file_path",
+    "dataset_name",
+    "dataset",
+]
 
 
 async def get(
@@ -82,7 +97,7 @@ async def get(
         {k: v["value"] for k, v in res.items()}
         for res in results["results"]["bindings"]
     ]
-    results_df = pd.DataFrame(results_dicts)
+    results_df = pd.DataFrame(results_dicts).reindex(columns=ATTRIBUTES_ORDER)
 
     response_obj = []
     if not results_df.empty:
@@ -90,11 +105,11 @@ async def get(
             by=["dataset", "dataset_name"]
         ):
             response_obj.append(
-                AggDatasetResponse(
+                CohortQueryResponse(
                     dataset=dataset,
                     dataset_name=dataset_name,
                     num_matching_subjects=group["sub_id"].nunique(),
-                    subject_file_paths=list(group["file_path"].dropna()),
+                    subject_data=list(group.to_dict("records")),
                     image_modals=list(group["image_modal"].unique()),
                 )
             )
