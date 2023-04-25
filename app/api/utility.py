@@ -119,55 +119,56 @@ def create_query(
             "\n" + f"FILTER (?{IMAGE_MODAL.var} = {image_modal})."
         )
 
-    query_template = f"""
-    {DEFAULT_CONTEXT}
-    {"SELECT ?dataset ?dataset_name ?sub_id ?file_path ?image_modal WHERE {{{{" if return_agg else ""}
+    all_attributes_query = f"""
+        SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
+        ?diagnosis ?subject_group ?num_sessions ?assessment ?image_modal ?file_path
+        WHERE {{
+            ?dataset a nb:Dataset;
+                    nb:hasLabel ?dataset_name;
+                    nb:hasSamples ?subject.
+            ?subject a nb:Subject;
+                    nb:hasLabel ?sub_id;
+                    nb:hasSession ?session;
+                    nb:hasSession/nb:hasAcquisition/nb:hasContrastType ?image_modal.
+            OPTIONAL {{
+                ?session nb:hasFilePath ?file_path.
+            }}
+            OPTIONAL {{
+                ?subject nb:hasAge ?age.
+            }}
+            OPTIONAL {{
+                ?subject nb:hasSex ?sex.
+            }}
+            OPTIONAL {{
+                ?subject nb:hasDiagnosis ?diagnosis.
+            }}
+            OPTIONAL {{
+                ?subject nb:isSubjectGroup ?subject_group.
+            }}
+            OPTIONAL {{
+                ?subject nb:hasAssessment ?assessment.
+            }}
+            {{
+                SELECT ?subject (count(distinct ?session) as ?num_sessions)
+                WHERE {{
+                    ?subject a nb:Subject;
+                            nb:hasSession ?session.
+                    ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                    {session_level_filters}
+                }} GROUP BY ?subject
+            }}
+            {subject_level_filters}
+        }}
+    """
 
-    SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
-    ?diagnosis ?subject_group ?num_sessions ?assessment ?image_modal ?file_path
-    WHERE {{
-    ?dataset a nb:Dataset;
-             nb:hasLabel ?dataset_name;
-             nb:hasSamples ?subject.
+    if not return_agg:
+        return "\n".join([DEFAULT_CONTEXT, all_attributes_query])
 
-    ?subject a nb:Subject;
-            nb:hasLabel ?sub_id;
-            nb:hasSession ?session;
-            nb:hasSession/nb:hasAcquisition/nb:hasContrastType ?image_modal.
-
-    OPTIONAL {{
-        ?session nb:hasFilePath ?file_path.
-    }}
-    OPTIONAL {{
-        ?subject nb:hasAge ?age.
-    }}
-    OPTIONAL {{
-        ?subject nb:hasSex ?sex.
-    }}
-    OPTIONAL {{
-        ?subject nb:hasDiagnosis ?diagnosis.
-    }}
-    OPTIONAL {{
-        ?subject nb:isSubjectGroup ?subject_group.
-    }}
-    OPTIONAL {{
-        ?subject nb:hasAssessment ?assessment.
-    }}
-
-    {{
-    SELECT ?subject (count(distinct ?session) as ?num_sessions)
-    WHERE {{
-        ?subject a nb:Subject;
-                 nb:hasSession ?session.
-        ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
-        {session_level_filters}
-
-    }} GROUP BY ?subject
-    }}
-
-    {subject_level_filters}
-}}
-{"}}}} GROUP BY ?dataset ?dataset_name ?sub_id ?file_path ?image_modal" if return_agg else ""}
-"""
-
-    return query_template
+    return "\n".join(
+        [
+            DEFAULT_CONTEXT,
+            "SELECT ?dataset ?dataset_name ?sub_id ?file_path ?image_modal WHERE {",
+            all_attributes_query,
+            "} GROUP BY ?dataset ?dataset_name ?sub_id ?file_path ?image_modal",
+        ]
+    )
