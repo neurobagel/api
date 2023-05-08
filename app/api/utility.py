@@ -119,7 +119,7 @@ def create_query(
             "\n" + f"FILTER (?{IMAGE_MODAL.var} = {image_modal})."
         )
 
-    all_attributes_query = f"""
+    query_string = f"""
         SELECT DISTINCT ?dataset ?dataset_name ?subject ?sub_id ?age ?sex
         ?diagnosis ?subject_group ?num_sessions ?assessment ?image_modal ?file_path
         WHERE {{
@@ -161,14 +161,13 @@ def create_query(
         }}
     """
 
-    if not return_agg:
-        return "\n".join([DEFAULT_CONTEXT, all_attributes_query])
+    # The query defined above will return all subject-level attributes from the graph. If RETURN_AGG variable has been set to true,
+    # wrap query in an aggregating statement so data returned from graph include only attributes needed for dataset-level aggregate metadata.
+    if return_agg:
+        query_string = f"""
+            SELECT ?dataset ?dataset_name ?sub_id ?file_path ?image_modal WHERE {{\n
+            {query_string}
+            \n}} GROUP BY ?dataset ?dataset_name ?sub_id ?file_path ?image_modal
+        """
 
-    return "\n".join(
-        [
-            DEFAULT_CONTEXT,
-            "SELECT ?dataset ?dataset_name ?sub_id ?file_path ?image_modal WHERE {",
-            all_attributes_query,
-            "} GROUP BY ?dataset ?dataset_name ?sub_id ?file_path ?image_modal",
-        ]
-    )
+    return "\n".join([DEFAULT_CONTEXT, query_string])
