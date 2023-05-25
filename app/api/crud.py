@@ -1,5 +1,7 @@
 """CRUD functions called by path operations."""
 
+import os
+
 import httpx
 import pandas as pd
 from fastapi import HTTPException, status
@@ -76,7 +78,8 @@ async def get(
             ),
             headers=util.QUERY_HEADER,
             auth=httpx.BasicAuth(
-                util.GRAPH_USERNAME.val, util.GRAPH_PASSWORD.val
+                os.environ.get(util.GRAPH_USERNAME.name),
+                os.environ.get(util.GRAPH_PASSWORD.name),
             ),
         )
     except httpx.ConnectTimeout as exc:
