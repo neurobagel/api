@@ -2,15 +2,15 @@ version: "3.8"
 
 services:
   api:
-    image: "neurobagel/api:${API_TAG:-latest}"
+    image: "neurobagel/api:${NB_API_TAG:-latest}"
     ports:
       - "8000:8000"
     environment:
-      USERNAME: ${USERNAME}
-      PASSWORD: ${PASSWORD}
-      GRAPH_ADDRESS: ${GRAPH_ADDRESS:-graph}
-      GRAPH_DB: ${GRAPH_DB}
-      RETURN_AGG: ${RETURN_AGG}
+      NB_GRAPH_USERNAME: ${NB_GRAPH_USERNAME}
+      NB_GRAPH_PASSWORD: ${NB_GRAPH_PASSWORD}
+      NB_GRAPH_ADDRESS: ${NB_GRAPH_ADDRESS:-graph}
+      NB_GRAPH_DB: ${NB_GRAPH_DB:-test_data}
+      NB_RETURN_AGG: ${NB_RETURN_AGG:-true}
   graph:
     image: "stardog/stardog:${STARDOG_TAG:-8.2.2-java11-preview}"
     volumes:
