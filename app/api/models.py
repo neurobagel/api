@@ -51,8 +51,9 @@ class QueryModel(BaseModel):
 class CohortQueryResponse(BaseModel):
     """Data model for query results for one matching dataset (i.e., a cohort)."""
 
-    dataset: str
     dataset_name: str
+    dataset_portal_uri: str
+    dataset_file_path: str
     num_matching_subjects: int
     subject_data: list
     image_modals: list
