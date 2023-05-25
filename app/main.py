@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 
+from .api import utility as util
 from .api.routers import query
 
 app = FastAPI(default_response_class=ORJSONResponse)
@@ -22,13 +23,13 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def auth_check():
-    """Checks whether USERNAME and PASSWORD environment variables are set."""
+    """Checks whether username and password environment variables are set."""
     if (
-        os.environ.get("USERNAME") is None
-        or os.environ.get("PASSWORD") is None
+        os.environ.get(util.GRAPH_USERNAME.name) is None
+        or os.environ.get(util.GRAPH_PASSWORD.name) is None
     ):
         raise RuntimeError(
-            "The application was launched but could not find the USERNAME and / or PASSWORD environment variables."
+            f"The application was launched but could not find the {util.GRAPH_USERNAME.name} and / or {util.GRAPH_PASSWORD.name} environment variables."
         )
 
 

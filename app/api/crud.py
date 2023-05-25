@@ -1,5 +1,4 @@
 """CRUD functions called by path operations."""
-import os
 
 import httpx
 import pandas as pd
@@ -7,11 +6,6 @@ from fastapi import HTTPException, status
 
 from . import utility as util
 from .models import CohortQueryResponse
-
-# TODO: Environment variables can't be parsed as bool so this is a workaround but isn't ideal.
-# Another option is to switch this to a command-line argument, but that would require changing the
-# Dockerfile also since Uvicorn can't accept custom command-line args.
-RETURN_AGG = os.environ.get("RETURN_AGG", "True").lower() == "true"
 
 ATTRIBUTES_ORDER = [
     "subject",
@@ -71,7 +65,7 @@ async def get(
         response = httpx.post(
             url=util.QUERY_URL,
             content=util.create_query(
-                return_agg=RETURN_AGG,
+                return_agg=util.RETURN_AGG.val,
                 age=(min_age, max_age),
                 sex=sex,
                 diagnosis=diagnosis,
@@ -82,7 +76,7 @@ async def get(
             ),
             headers=util.QUERY_HEADER,
             auth=httpx.BasicAuth(
-                os.environ.get("USERNAME"), os.environ.get("PASSWORD")
+                util.GRAPH_USERNAME.val, util.GRAPH_PASSWORD.val
             ),
         )
     except httpx.ConnectTimeout as exc:
@@ -110,7 +104,7 @@ async def get(
         for (dataset, dataset_name), group in results_df.groupby(
             by=["dataset", "dataset_name"]
         ):
-            if RETURN_AGG:
+            if util.RETURN_AGG.val:
                 subject_data = list(group["file_path"].dropna())
             else:
                 subject_data = list(group.to_dict("records"))

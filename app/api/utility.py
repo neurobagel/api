@@ -5,10 +5,26 @@ from collections import namedtuple
 from typing import Optional
 
 # Request constants
-GRAPH_ADDRESS = os.environ.get("GRAPH_ADDRESS", "206.12.99.17")
-GRAPH_DB = os.environ.get("GRAPH_DB", "test_data")
+EnvVar = namedtuple("EnvVar", ["name", "val"])
+GRAPH_USERNAME = EnvVar(
+    "NB_GRAPH_USERNAME", os.environ.get("NB_GRAPH_USERNAME")
+)
+GRAPH_PASSWORD = EnvVar(
+    "NB_GRAPH_PASSWORD", os.environ.get("NB_GRAPH_PASSWORD")
+)
+GRAPH_ADDRESS = EnvVar(
+    "NB_GRAPH_ADDRESS", os.environ.get("NB_GRAPH_ADDRESS", "206.12.99.17")
+)
+GRAPH_DB = EnvVar("NB_GRAPH_DB", os.environ.get("NB_GRAPH_DB", "test_data"))
+# TODO: Environment variables can't be parsed as bool so this is a workaround but isn't ideal.
+# Another option is to switch this to a command-line argument, but that would require changing the
+# Dockerfile also since Uvicorn can't accept custom command-line args.
+RETURN_AGG = EnvVar(
+    "NB_RETURN_AGG", os.environ.get("NB_RETURN_AGG", "True").lower() == "true"
+)
+
 GRAPH_PORT = 5820
-QUERY_URL = f"http://{GRAPH_ADDRESS}:{GRAPH_PORT}/{GRAPH_DB}/query"
+QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT}/{GRAPH_DB.val}/query"
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",
