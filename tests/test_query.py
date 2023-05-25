@@ -5,6 +5,7 @@ import pytest
 from fastapi import HTTPException
 
 from app.api import crud
+from app.api import utility as util
 
 
 @pytest.fixture()
@@ -85,23 +86,23 @@ def mock_invalid_get():
 
 
 def test_start_app_without_environment_vars_fails(test_app, monkeypatch):
-    """Given non-existing USERNAME and PASSWORD environment variables, raises an informative RuntimeError."""
-    monkeypatch.delenv("USERNAME", raising=False)
-    monkeypatch.delenv("PASSWORD", raising=False)
+    """Given non-existing username and password environment variables, raises an informative RuntimeError."""
+    monkeypatch.delenv(util.GRAPH_USERNAME.name, raising=False)
+    monkeypatch.delenv(util.GRAPH_PASSWORD.name, raising=False)
 
     with pytest.raises(RuntimeError) as e_info:
         with test_app:
             pass
     assert (
-        "could not find the USERNAME and / or PASSWORD environment variables"
+        f"could not find the {util.GRAPH_USERNAME.name} and / or {util.GRAPH_PASSWORD.name} environment variables"
         in str(e_info.value)
     )
 
 
 def test_app_with_invalid_environment_vars(test_app, monkeypatch):
     """Given invalid environment variables, returns a 401 status code."""
-    monkeypatch.setenv("USERNAME", "something")
-    monkeypatch.setenv("PASSWORD", "cool")
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "something")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "cool")
 
     def mock_httpx_post(**kwargs):
         return httpx.Response(status_code=401)
