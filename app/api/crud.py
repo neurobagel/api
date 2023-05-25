@@ -13,19 +13,24 @@ from .models import CohortQueryResponse
 # Dockerfile also since Uvicorn can't accept custom command-line args.
 RETURN_AGG = os.environ.get("RETURN_AGG", "True").lower() == "true"
 
+
+# Order that dataset and subject-level attributes should appear in the API JSON response.
+# This order is defined explicitly because when graph-returned results are transformed to a dataframe,
+# the default order of columns may be different than the order that variables are given in the SPARQL SELECT statement.
 ATTRIBUTES_ORDER = [
-    "subject",
     "sub_id",
     "num_sessions",
+    "session_id",
+    "session_file_path",
     "age",
     "sex",
     "diagnosis",
     "subject_group",
     "assessment",
     "image_modal",
-    "file_path",
     "dataset_name",
-    "dataset",
+    "dataset_portal_uri",
+    "dataset_file_path",
 ]
 
 
@@ -106,19 +111,41 @@ async def get(
     results_df = pd.DataFrame(results_dicts).reindex(columns=ATTRIBUTES_ORDER)
 
     response_obj = []
+    dataset_cols = ["dataset_name", "dataset_portal_uri", "dataset_file_path"]
     if not results_df.empty:
-        for (dataset, dataset_name), group in results_df.groupby(
-            by=["dataset", "dataset_name"]
-        ):
+        for (
+            dataset_name,
+            dataset_portal_uri,
+            dataset_file_path,
+        ), group in results_df.groupby(by=dataset_cols):
             if RETURN_AGG:
-                subject_data = list(group["file_path"].dropna())
+                subject_data = list(group["session_file_path"].dropna())
             else:
-                subject_data = list(group.to_dict("records"))
+                subject_data = (
+                    group.drop(dataset_cols, axis=1)
+                    .groupby(by=["sub_id", "session_id"])
+                    .agg(
+                        {
+                            "sub_id": "first",
+                            "session_id": "first",
+                            "num_sessions": "first",
+                            "age": "first",
+                            "sex": "first",
+                            "diagnosis": lambda x: list(set(x)),
+                            "subject_group": "first",
+                            "assessment": "first",
+                            "image_modal": lambda x: list(set(x)),
+                            "session_file_path": "first",
+                        }
+                    )
+                )
+                subject_data = list(subject_data.to_dict("records"))
 
             response_obj.append(
                 CohortQueryResponse(
-                    dataset=dataset,
                     dataset_name=dataset_name,
+                    dataset_portal_uri=dataset_portal_uri,
+                    dataset_file_path=dataset_file_path,
                     num_matching_subjects=group["sub_id"].nunique(),
                     subject_data=subject_data,
                     image_modals=list(group["image_modal"].unique()),
