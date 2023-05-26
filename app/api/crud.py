@@ -1,4 +1,5 @@
 """CRUD functions called by path operations."""
+
 import os
 
 import httpx
@@ -8,15 +9,9 @@ from fastapi import HTTPException, status
 from . import utility as util
 from .models import CohortQueryResponse
 
-# TODO: Environment variables can't be parsed as bool so this is a workaround but isn't ideal.
-# Another option is to switch this to a command-line argument, but that would require changing the
-# Dockerfile also since Uvicorn can't accept custom command-line args.
-RETURN_AGG = os.environ.get("RETURN_AGG", "True").lower() == "true"
-
-
 # Order that dataset and subject-level attributes should appear in the API JSON response.
 # This order is defined explicitly because when graph-returned results are transformed to a dataframe,
-# the default order of columns may be different than the order that variables are given in the SPARQL SELECT statement.
+# the default order of columns may be different than the order that variables are given in the SPARQL SELECT state
 ATTRIBUTES_ORDER = [
     "sub_id",
     "num_sessions",
@@ -76,7 +71,7 @@ async def get(
         response = httpx.post(
             url=util.QUERY_URL,
             content=util.create_query(
-                return_agg=RETURN_AGG,
+                return_agg=util.RETURN_AGG.val,
                 age=(min_age, max_age),
                 sex=sex,
                 diagnosis=diagnosis,
@@ -87,7 +82,8 @@ async def get(
             ),
             headers=util.QUERY_HEADER,
             auth=httpx.BasicAuth(
-                os.environ.get("USERNAME"), os.environ.get("PASSWORD")
+                os.environ.get(util.GRAPH_USERNAME.name),
+                os.environ.get(util.GRAPH_PASSWORD.name),
             ),
         )
     except httpx.ConnectTimeout as exc:
@@ -118,7 +114,7 @@ async def get(
             dataset_portal_uri,
             dataset_file_path,
         ), group in results_df.groupby(by=dataset_cols):
-            if RETURN_AGG:
+            if util.RETURN_AGG.val:
                 subject_data = list(group["session_file_path"].dropna())
             else:
                 subject_data = (
