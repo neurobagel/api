@@ -114,7 +114,7 @@ async def get(
             dataset_portal_uri,
             dataset_file_path,
         ), group in results_df.groupby(by=dataset_cols):
-            if RETURN_AGG:
+            if util.RETURN_AGG.val:
                 subject_data = list(group["session_file_path"].dropna())
             else:
                 subject_data = (
