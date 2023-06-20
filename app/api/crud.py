@@ -24,6 +24,7 @@ ATTRIBUTES_ORDER = [
     "assessment",
     "image_modal",
     "dataset_name",
+    "dataset_uuid",
     "dataset_portal_uri",
 ]
 
@@ -106,9 +107,10 @@ async def get(
     results_df = pd.DataFrame(results_dicts).reindex(columns=ATTRIBUTES_ORDER)
 
     response_obj = []
-    dataset_cols = ["dataset_name", "dataset_portal_uri"]
+    dataset_cols = ["dataset_uuid", "dataset_name", "dataset_portal_uri"]
     if not results_df.empty:
         for (
+            dataset_uuid,
             dataset_name,
             dataset_portal_uri,
         ), group in results_df.groupby(by=dataset_cols):
@@ -137,6 +139,7 @@ async def get(
 
             response_obj.append(
                 CohortQueryResponse(
+                    dataset_uuid=dataset_uuid,
                     dataset_name=dataset_name,
                     dataset_portal_uri=dataset_portal_uri,
                     num_matching_subjects=group["sub_id"].nunique(),

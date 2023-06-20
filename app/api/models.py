@@ -51,6 +51,8 @@ class QueryModel(BaseModel):
 class CohortQueryResponse(BaseModel):
     """Data model for query results for one matching dataset (i.e., a cohort)."""
 
+    dataset_uuid: str
+    # dataset_file_path: str  # TODO: Revisit this field once we have datasets without imaging info/sessions.
     dataset_name: str
     dataset_portal_uri: str
     num_matching_subjects: int
