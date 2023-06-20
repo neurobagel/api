@@ -141,13 +141,15 @@ def create_query(
         WHERE {{
             ?dataset_uuid a nb:Dataset;
                     nb:hasLabel ?dataset_name;
-                    nb:hasPortalURI ?dataset_portal_uri;
                     nb:hasSamples ?subject.
             ?subject a nb:Subject;
                     nb:hasLabel ?sub_id;
                     nb:hasSession ?session;
                     nb:hasSession/nb:hasAcquisition/nb:hasContrastType ?image_modal.
             ?session nb:hasLabel ?session_id.
+            OPTIONAL {{
+                ?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.
+            }}
             OPTIONAL {{
                 ?session nb:hasFilePath ?session_file_path.
             }}
