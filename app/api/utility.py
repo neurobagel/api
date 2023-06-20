@@ -136,13 +136,12 @@ def create_query(
         )
 
     query_string = f"""
-        SELECT DISTINCT ?dataset_name ?dataset_portal_uri ?dataset_file_path ?sub_id ?age ?sex
+        SELECT DISTINCT ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
         ?diagnosis ?subject_group ?num_sessions ?session_id ?assessment ?image_modal ?session_file_path
         WHERE {{
             ?dataset a nb:Dataset;
                     nb:hasLabel ?dataset_name;
                     nb:hasPortalURI ?dataset_portal_uri;
-                    nb:hasFilePath ?dataset_file_path;
                     nb:hasSamples ?subject.
             ?subject a nb:Subject;
                     nb:hasLabel ?sub_id;
@@ -184,9 +183,9 @@ def create_query(
     # wrap query in an aggregating statement so data returned from graph include only attributes needed for dataset-level aggregate metadata.
     if return_agg:
         query_string = f"""
-            SELECT ?dataset_name ?dataset_portal_uri ?dataset_file_path ?sub_id ?session_file_path ?image_modal WHERE {{\n
+            SELECT ?dataset_name ?dataset_portal_uri ?sub_id ?session_file_path ?image_modal WHERE {{\n
             {query_string}
-            \n}} GROUP BY ?dataset_name ?dataset_portal_uri ?dataset_file_path ?sub_id ?session_file_path ?image_modal
+            \n}} GROUP BY ?dataset_name ?dataset_portal_uri ?sub_id ?session_file_path ?image_modal
         """
 
     return "\n".join([DEFAULT_CONTEXT, query_string])

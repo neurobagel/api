@@ -25,7 +25,6 @@ ATTRIBUTES_ORDER = [
     "image_modal",
     "dataset_name",
     "dataset_portal_uri",
-    "dataset_file_path",
 ]
 
 
@@ -107,12 +106,11 @@ async def get(
     results_df = pd.DataFrame(results_dicts).reindex(columns=ATTRIBUTES_ORDER)
 
     response_obj = []
-    dataset_cols = ["dataset_name", "dataset_portal_uri", "dataset_file_path"]
+    dataset_cols = ["dataset_name", "dataset_portal_uri"]
     if not results_df.empty:
         for (
             dataset_name,
             dataset_portal_uri,
-            dataset_file_path,
         ), group in results_df.groupby(by=dataset_cols):
             if util.RETURN_AGG.val:
                 subject_data = list(group["session_file_path"].dropna())
@@ -141,7 +139,6 @@ async def get(
                 CohortQueryResponse(
                     dataset_name=dataset_name,
                     dataset_portal_uri=dataset_portal_uri,
-                    dataset_file_path=dataset_file_path,
                     num_matching_subjects=group["sub_id"].nunique(),
                     subject_data=subject_data,
                     image_modals=list(group["image_modal"].unique()),
