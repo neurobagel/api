@@ -127,7 +127,7 @@ async def get(
                             "sex": "first",
                             "diagnosis": lambda x: list(set(x)),
                             "subject_group": "first",
-                            "assessment": "first",
+                            "assessment": lambda x: list(set(x)),
                             "image_modal": lambda x: list(set(x)),
                             "session_file_path": "first",
                         }
