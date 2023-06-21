@@ -140,7 +140,7 @@ async def get(
                     dataset_uuid=dataset_uuid,
                     dataset_name=dataset_name,
                     dataset_portal_uri=group["dataset_portal_uri"].iloc[0]
-                    if group["dataset_portal_uri"].all()
+                    if group["dataset_portal_uri"].notna().all()
                     else None,
                     num_matching_subjects=group["sub_id"].nunique(),
                     subject_data=subject_data,
