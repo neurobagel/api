@@ -13,9 +13,9 @@ def test_data():
     """Create toy data for two datasets for testing."""
     return [
         {
+            "dataset_uuid": "http://neurobagel.org/vocab/12345",
             "dataset_name": "QPN",
-            "dataset_portal_uri": "https://openneuro.org/datasets/ds002725",
-            "dataset_file_path": "https://github.com/OpenNeuroDatasets/ds002725.git",
+            "dataset_portal_uri": "https://rpq-qpn.ca/en/researchers-section/databases/",
             "num_matching_subjects": 5,
             "subject_data": [
                 "/my/happy/path/sub-0051/to/session-01",
@@ -30,9 +30,9 @@ def test_data():
             ],
         },
         {
+            "dataset_uuid": "http://neurobagel.org/vocab/67890",
             "dataset_name": "PPMI",
-            "dataset_portal_uri": "https://openneuro.org/datasets/ds002727",
-            "dataset_file_path": "https://github.com/OpenNeuroDatasets/ds002727.git",
+            "dataset_portal_uri": "https://www.ppmi-info.org/access-data-specimens/download-data",
             "num_matching_subjects": 3,
             "subject_data": [
                 "/my/happy/path/sub-719238/to/session-01",

@@ -53,7 +53,7 @@ PROJECT = Domain("project", "nb:hasSamples")
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
 
-IS_CONTROL_TERM = "http://purl.obolibrary.org/obo/NCIT_C94342"
+IS_CONTROL_TERM = "purl:NCIT_C94342"  # TODO: Remove once https://github.com/neurobagel/bagel-cli/issues/139 is resolved.
 
 
 def create_query(
@@ -136,19 +136,20 @@ def create_query(
         )
 
     query_string = f"""
-        SELECT DISTINCT ?dataset_name ?dataset_portal_uri ?dataset_file_path ?sub_id ?age ?sex
+        SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
         ?diagnosis ?subject_group ?num_sessions ?session_id ?assessment ?image_modal ?session_file_path
         WHERE {{
-            ?dataset a nb:Dataset;
+            ?dataset_uuid a nb:Dataset;
                     nb:hasLabel ?dataset_name;
-                    nb:hasPortalURI ?dataset_portal_uri;
-                    nb:hasFilePath ?dataset_file_path;
                     nb:hasSamples ?subject.
             ?subject a nb:Subject;
                     nb:hasLabel ?sub_id;
                     nb:hasSession ?session;
                     nb:hasSession/nb:hasAcquisition/nb:hasContrastType ?image_modal.
             ?session nb:hasLabel ?session_id.
+            OPTIONAL {{
+                ?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.
+            }}
             OPTIONAL {{
                 ?session nb:hasFilePath ?session_file_path.
             }}
@@ -184,9 +185,9 @@ def create_query(
     # wrap query in an aggregating statement so data returned from graph include only attributes needed for dataset-level aggregate metadata.
     if return_agg:
         query_string = f"""
-            SELECT ?dataset_name ?dataset_portal_uri ?dataset_file_path ?sub_id ?session_file_path ?image_modal WHERE {{\n
+            SELECT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?session_file_path ?image_modal WHERE {{\n
             {query_string}
-            \n}} GROUP BY ?dataset_name ?dataset_portal_uri ?dataset_file_path ?sub_id ?session_file_path ?image_modal
+            \n}} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?session_file_path ?image_modal
         """
 
     return "\n".join([DEFAULT_CONTEXT, query_string])

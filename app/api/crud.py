@@ -24,8 +24,8 @@ ATTRIBUTES_ORDER = [
     "assessment",
     "image_modal",
     "dataset_name",
+    "dataset_uuid",
     "dataset_portal_uri",
-    "dataset_file_path",
 ]
 
 
@@ -107,13 +107,11 @@ async def get(
     results_df = pd.DataFrame(results_dicts).reindex(columns=ATTRIBUTES_ORDER)
 
     response_obj = []
-    dataset_cols = ["dataset_name", "dataset_portal_uri", "dataset_file_path"]
+    dataset_cols = ["dataset_uuid", "dataset_name"]
     if not results_df.empty:
-        for (
-            dataset_name,
-            dataset_portal_uri,
-            dataset_file_path,
-        ), group in results_df.groupby(by=dataset_cols):
+        for (dataset_uuid, dataset_name), group in results_df.groupby(
+            by=dataset_cols
+        ):
             if util.RETURN_AGG.val:
                 subject_data = list(group["session_file_path"].dropna())
             else:
@@ -139,9 +137,11 @@ async def get(
 
             response_obj.append(
                 CohortQueryResponse(
+                    dataset_uuid=dataset_uuid,
                     dataset_name=dataset_name,
-                    dataset_portal_uri=dataset_portal_uri,
-                    dataset_file_path=dataset_file_path,
+                    dataset_portal_uri=group["dataset_portal_uri"].iloc[0]
+                    if group["dataset_portal_uri"].notna().all()
+                    else None,
                     num_matching_subjects=group["sub_id"].nunique(),
                     subject_data=subject_data,
                     image_modals=list(group["image_modal"].unique()),
