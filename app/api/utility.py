@@ -53,7 +53,7 @@ PROJECT = Domain("project", "nb:hasSamples")
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
 
-IS_CONTROL_TERM = "http://purl.obolibrary.org/obo/NCIT_C94342"
+IS_CONTROL_TERM = "purl:NCIT_C94342"  # TODO: Remove once https://github.com/neurobagel/bagel-cli/issues/139 is resolved.
 
 
 def create_query(
