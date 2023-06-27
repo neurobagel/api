@@ -1,0 +1,52 @@
+# doc: https://citation-file-format.github.io/
+# schema: https://github.com/citation-file-format/citation-file-format/blob/main/schema-guide.md
+
+cff-version: 1.2.0
+
+title: "neurobagel_api"
+
+version: 0.2.0
+
+abstract: "The Neurobagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [pydantic](https://docs.pydantic.dev/)."
+
+message: "If you use this software, please cite it as below."
+
+repository-code: "https://github.com/neurobagel/api.git"
+
+contact:
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Urchs
+    given-names: Sebastian 
+
+authors:
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Urchs
+    given-names: Sebastian 
+    orcid: "https://orcid.org/0000-0001-5504-8579"
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Dai
+    given-names: Alyssa
+    orcid: "https://orcid.org/0000-0003-0174-6800"
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Armoza
+    given-names: Jonathan
+    orcid: "https://orcid.org/0000-0002-7193-9344"
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Jahanpour
+    given-names: Arman    
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    email:  nikhil.bhagwat@mcgill.ca
+    family-names: Bhagwat
+    given-names: Nikhil
+    orcid: "https://orcid.org/0000-0001-6073-7141"
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Poline
+    given-names: Jean-Baptiste
+    orcid: "https://orcid.org/0000-0002-9794-749X"    
+
+license: MIT
