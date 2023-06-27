@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+
+title: "neurobagel_api"
+
+version: 0.2.0
+
+abstract: "The Neurobagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [pydantic](https://docs.pydantic.dev/)."
+
+message: "If you use this software, please cite it as below."
+
+repository-code: "https://github.com/neurobagel/api.git"
+
+contact:
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Urchs
+    given-names: Sebastian 
+
+authors:
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Urchs
+    given-names: Sebastian 
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Dai
+    given-names: Alyssa  
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Armoza
+    given-names: Jonathan   
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Jahanpour
+    given-names: Arman    
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    email:  nikhil.bhagwat@mcgill.ca
+    family-names: Bhagwat
+    given-names: Nikhil
+    orcid: "https://orcid.org/0000-0001-6073-7141"
+
+  - affiliation: "ORIGAMI lab, McGill University, Montréal, Canada"
+    family-names: Poline
+    given-names: Jean-Baptiste
+    orcid: "https://orcid.org/0000-0002-9794-749X"    
+
+license: MIT
