@@ -68,6 +68,17 @@ async def get(
 
     """
     try:
+        print("Queyr")
+        print(util.create_query(
+                return_agg=util.RETURN_AGG.val,
+                age=(min_age, max_age),
+                sex=sex,
+                diagnosis=diagnosis,
+                is_control=is_control,
+                min_num_sessions=min_num_sessions,
+                assessment=assessment,
+                image_modal=image_modal,
+            ))
         response = httpx.post(
             url=util.QUERY_URL,
             content=util.create_query(
@@ -85,6 +96,7 @@ async def get(
                 os.environ.get(util.GRAPH_USERNAME.name),
                 os.environ.get(util.GRAPH_PASSWORD.name),
             ),
+            timeout=60.0,
         )
     except httpx.ConnectTimeout as exc:
         raise HTTPException(
