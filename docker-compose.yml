@@ -16,4 +16,4 @@ services:
     volumes:
       - "${STARDOG_ROOT:-~/stardog-home}:/opt/graphdb/home"
     ports:
-      - "5820:7200"
+      - "7200:7200"
