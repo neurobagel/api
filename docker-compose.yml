@@ -12,8 +12,8 @@ services:
       NB_GRAPH_DB: ${NB_GRAPH_DB:-test_data}
       NB_RETURN_AGG: ${NB_RETURN_AGG:-true}
   graph:
-    image: "stardog/stardog:${STARDOG_TAG:-8.2.2-java11-preview}"
+    image: "ontotext/graphdb:${STARDOG_TAG:-10.2.4}"
     volumes:
-      - "${STARDOG_ROOT:-~/stardog-home}:/var/opt/stardog"
+      - "${STARDOG_ROOT:-~/stardog-home}:/opt/graphdb/home"
     ports:
-      - "5820:5820"
+      - "5820:7200"

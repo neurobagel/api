@@ -23,8 +23,8 @@ RETURN_AGG = EnvVar(
     "NB_RETURN_AGG", os.environ.get("NB_RETURN_AGG", "True").lower() == "true"
 )
 
-GRAPH_PORT = 5820
-QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT}/{GRAPH_DB.val}/query"
+GRAPH_PORT = 7200
+QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT}/{GRAPH_DB.val}"
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",
