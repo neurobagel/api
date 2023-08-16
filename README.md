@@ -57,16 +57,23 @@ NB_GRAPH_PASSWORD=somepassword
 ```
 
 Below are all the possible Neurobagel environment variables that you can set in `.env`, depending on your mode of installation of the API.
-| Environment variable | Required in .env? | Description                                                                                                                              | Default value            | Relevant installation mode |
-|----------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|----------------------------|
-| `NB_GRAPH_USERNAME`  | Yes               | Username to access Stardog graph database that API will communicate with                                                                 | -                        | Docker, Python             |
-| `NB_GRAPH_PASSWORD`  | Yes               | Password to access Stardog graph database that API will communicate with                                                                 | -                        | Docker, Python             |
-| `NB_GRAPH_ADDRESS`   | No                | IP address for the graph database (or container name, if graph is hosted locally)                                                        | `206.12.99.17` (`graph`) | Docker, Python             |
-| `NB_GRAPH_DB`        | No                | Name of graph database to query                                                                                                          | `test_data`              | Docker, Python             |
-| `NB_RETURN_AGG`      | No                | Whether to return only dataset-level query results (including data locations) and exclude subject-level attributes. One of [true, false] | `true`                   | Docker, Python             |
-| `NB_API_TAG` | No | Tag for API Docker image | `latest` | Docker
-| `STARDOG_TAG` | No | Tag for Stardog Docker image | `8.2.2-java11-preview` | Docker |
-| `STARDOG_ROOT` | No | Path to directory on host machine containing a Stardog license file | `~/stardog-home` | Docker |
+| Environment variable | Required in .env? | Description                                                                                                                              | Default value                          | Relevant installation mode(s) |
+| -------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----------------------------- |
+| `NB_GRAPH_USERNAME`  | Yes               | Username to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
+| `NB_GRAPH_PASSWORD`  | Yes               | Password to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
+| `NB_GRAPH_ADDRESS`   | No                | IP address for the graph database (or container name, if graph is hosted locally)                                                        | `206.12.99.17` (`graph`)               | Docker, Python                |
+| `NB_GRAPH_DB`        | No                | Name of graph database endpoint to query (e.g., for a Stardog database, this will take the format of `{database_name}/query`)            | `test_data/query`                      | Docker, Python                |
+| `NB_RETURN_AGG`      | No                | Whether to return only dataset-level query results (including data locations) and exclude subject-level attributes. One of [true, false] | `true`                                 | Docker, Python                |
+| `NB_API_TAG`         | No                | Tag for API Docker image                                                                                                                 | `latest`                               | Docker                        |
+| `NB_API_PORT_HOST`   | No                | Port number on the _host machine_ to map the API container port to                                                                       | `8000`                                 | Docker, Python                |
+| `NB_API_PORT`        | No                | Port number to use for the _API container_                                                                                               | `8000`                                 | Docker, Python                |
+| `NB_GRAPH_IMG`       | No                | Graph server Docker image                                                                                                                | `stardog/stardog:8.2.2-java11-preview` | Docker                        |
+| `NB_GRAPH_ROOT_HOST` | No                | Path to directory containing a Stardog license file on the _host machine_                                                                | `~/stardog-home`                       | Docker                        |
+| `NB_GRAPH_ROOT_CONT` | No                | Path to directory for graph databases in the _graph server container_                                                                    | `/var/opt/stardog` *                   | Docker                        |
+| `NB_GRAPH_PORT_HOST` | No                | Port number on the _host machine_ to map the graph server container port to                                                              | `5820`                                 | Docker                        |
+| `NB_GRAPH_PORT`      | No                | Port number used by the _graph server container_                                                                                         | `5820` *                               | Docker                        |
+
+_* These defaults should not be changed if using a Stardog backend._
 
 NOTE: To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), ensure that any variables defined in your `.env` file are not already set in your current shell environment with **different** values.
 
