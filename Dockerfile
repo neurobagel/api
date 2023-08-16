@@ -1,7 +1,5 @@
 FROM python:3.10
 
-ARG NB_API_PORT
-
 WORKDIR /usr/src/
 
 COPY ./requirements.txt /usr/src/app/requirements.txt
