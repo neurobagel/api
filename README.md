@@ -73,7 +73,7 @@ Below are all the possible Neurobagel environment variables that you can set in 
 | `NB_GRAPH_PORT_HOST` | No                | Port number on the _host machine_ to map the graph server container port to                                                              | `5820`                                 | Docker                        |
 | `NB_GRAPH_PORT`      | No                | Port number used by the _graph server container_                                                                                         | `5820` *                               | Docker                        |
 
-_* These defaults should not be changed if using a Stardog backend._
+_* These defaults are configured for a Stardog backend - you should not have to change them if you are running a Stardog backend._
 
 **NOTE:** To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), 
 ensure that any variables defined in your `.env` file are not already set in your current shell environment with **different** values.
