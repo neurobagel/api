@@ -85,7 +85,8 @@ async def get(
                 os.environ.get(util.GRAPH_USERNAME.name),
                 os.environ.get(util.GRAPH_PASSWORD.name),
             ),
-            timeout=10.0,
+            # TODO: Revisit timeout value when query performance is improved
+            timeout=30.0,
         )
     except httpx.ConnectTimeout as exc:
         raise HTTPException(
