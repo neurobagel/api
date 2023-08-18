@@ -75,13 +75,12 @@ Below are all the possible Neurobagel environment variables that you can set in 
 
 _* These defaults are configured for a Stardog backend - you should not have to change them if you are running a Stardog backend._
 
-**NOTE:** To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), 
-ensure that any variables defined in your `.env` file are not already set in your current shell environment with **different** values.
-
-If needed, you can export all the variables defined in your `.env` file in one step by running the following:
-```bash
-export $(cat .env | xargs)
-```
+---
+**IMPORTANT:** 
+- Variables set in the shell environment where the API is launched **_should not be used as a replacement for the `.env` file_** to configure options for the API or graph server software.
+- To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), 
+also ensure that any variables defined in your `.env` are not already set in your current shell environment with **different** values.
+---
 
 The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your `.env`.
 
@@ -107,9 +106,10 @@ docker compose up -d
 docker pull neurobagel/api
 docker run -d --name=api -p 8000:8000 --env-file=.env neurobagel/api
 ```
-NOTE: The above `docker run` command uses recommended default values for `NBI_API_PORT_HOST` and `NB_API_PORT` in the `-p` flag. If you have manually set either of these variables in your `.env` file, run the below commands instead:
+**NOTE:** The above `docker run` command uses recommended default values for `NBI_API_PORT_HOST` and `NB_API_PORT` in the `-p` flag.
+If you wish to set different port numbers, modify your `.env` file accordingly and run the below commands instead:
 ```bash
-export $(cat .env | xargs)  # export your environment variables
+export $(cat .env | xargs)  # export your .env file to expose your set port numbers to the -p flag of docker run
 docker run -d --name=api -p ${NB_API_PORT_HOST}:${NB_API_PORT} --env-file=.env neurobagel/api
 ```
 
@@ -119,10 +119,11 @@ After cloning the current repository, build the Docker image locally:
 docker build -t neurobagel/api .
 docker run -d --name=api -p 8000:8000 --env-file=.env neurobagel/api
 ```
-NOTE: The above `docker run` command uses recommended default values for `NBI_API_PORT_HOST` and `NB_API_PORT` in the `-p` flag. If you have manually set either of these variables in your `.env` file, run the below commands instead:
+**NOTE:** The above `docker run` command uses recommended default values for `NBI_API_PORT_HOST` and `NB_API_PORT` in the `-p` flag. 
+If you wish to set different port numbers, modify your `.env` file accordingly and run the below commands instead:
 ```bash
 docker build -t neurobagel/api .
-export $(cat .env | xargs)  # export your environment variables
+export $(cat .env | xargs)  # export your .env file to expose your set port numbers to the -p flag of docker run
 docker run -d --name=api -p ${NB_API_PORT_HOST}:${NB_API_PORT} --env-file=.env neurobagel/api
 ```
 
