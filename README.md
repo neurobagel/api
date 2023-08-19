@@ -47,21 +47,18 @@ git clone https://github.com/neurobagel/api.git
 ```
 
 ### Set the environment variables
-Create a `.env` file in the root of the repository to house the environment variables used by the app. 
+A `.env` file in the root of the repository will house the environment variables used by the app. 
 
 To run API requests against a graph, at least two environment variables must be set, `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD`.  
-The contents of a minimal `.env` file:
-```bash
-NB_GRAPH_USERNAME=someuser
-NB_GRAPH_PASSWORD=somepassword
-```
 
-Below are all the possible Neurobagel environment variables that you can set in `.env`, depending on your mode of installation of the API and graph server software.
+This repository contains a [template `.env` file](/.env) that you can edit.
+
+Below are explanations of all the possible Neurobagel environment variables that you can set in `.env`, depending on your mode of installation of the API and graph server software.
 | Environment variable | Required in .env? | Description                                                                                                                              | Default value if not set               | Relevant installation mode(s) |
 | -------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----------------------------- |
 | `NB_GRAPH_USERNAME`  | Yes               | Username to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
 | `NB_GRAPH_PASSWORD`  | Yes               | Password to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
-| `NB_GRAPH_ADDRESS`   | No                | IP address for the graph database (or container name, if graph is hosted locally)                                                        | `206.12.99.17` (`graph`)               | Docker, Python                |
+| `NB_GRAPH_ADDRESS`   | No                | IP address for the graph database (or container name, if graph is hosted locally)                                                        | `206.12.99.17` (`graph`) **               | Docker, Python                |
 | `NB_GRAPH_DB`        | No                | Name of graph database endpoint to query (e.g., for a Stardog database, this will take the format of `{database_name}/query`)            | `test_data/query`                      | Docker, Python                |
 | `NB_RETURN_AGG`      | No                | Whether to return only dataset-level query results (including data locations) and exclude subject-level attributes. One of [true, false] | `true`                                 | Docker, Python                |
 | `NB_API_TAG`         | No                | Tag for API Docker image                                                                                                                 | `latest`                               | Docker                        |
@@ -74,6 +71,9 @@ Below are all the possible Neurobagel environment variables that you can set in 
 | `NB_GRAPH_PORT`      | No                | Port number used by the _graph server container_                                                                                         | `5820` *                               | Docker, Python                |
 
 _* These defaults are configured for a Stardog backend - you should not have to change them if you are running a Stardog backend._
+
+_** If using the [docker compose installation route](#option-1-recommended-use-the-docker-composeyaml-file), 
+do not change `NB_API_ADDRESS` from its default value (`graph`) as this corresponds to the preset container name of the graph database server within the docker compose network._
 
 ---
 **IMPORTANT:** 
