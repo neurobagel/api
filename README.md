@@ -47,11 +47,11 @@ git clone https://github.com/neurobagel/api.git
 ```
 
 ### Set the environment variables
-A `.env` file in the root of the repository will house the environment variables used by the app. 
+Create a file called `.env` in the root of the repository will house the environment variables used by the app. 
 
 To run API requests against a graph, at least two environment variables must be set, `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD`.  
 
-This repository contains a [template `.env` file](/.env) that you can edit.
+This repository contains a [template `.env` file](/.template-env) that you can copy and edit.
 
 Below are explanations of all the possible Neurobagel environment variables that you can set in `.env`, depending on your mode of installation of the API and graph server software.
 | Environment variable | Required in .env? | Description                                                                                                                              | Default value if not set               | Relevant installation mode(s) |
