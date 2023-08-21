@@ -4,16 +4,17 @@ services:
   api:
     image: "neurobagel/api:${NB_API_TAG:-latest}"
     ports:
-      - "8000:8000"
+      - "${NB_API_PORT_HOST:-8000}:${NB_API_PORT:-8000}"
     environment:
       NB_GRAPH_USERNAME: ${NB_GRAPH_USERNAME}
       NB_GRAPH_PASSWORD: ${NB_GRAPH_PASSWORD}
       NB_GRAPH_ADDRESS: ${NB_GRAPH_ADDRESS:-graph}
-      NB_GRAPH_DB: ${NB_GRAPH_DB:-test_data}
+      NB_GRAPH_DB: ${NB_GRAPH_DB:-test_data/query}
       NB_RETURN_AGG: ${NB_RETURN_AGG:-true}
+      NB_API_PORT: ${NB_API_PORT:-8000}
   graph:
-    image: "stardog/stardog:${STARDOG_TAG:-8.2.2-java11-preview}"
+    image: "${NB_GRAPH_IMG:-stardog/stardog:8.2.2-java11-preview}"
     volumes:
-      - "${STARDOG_ROOT:-~/stardog-home}:/var/opt/stardog"
+      - "${NB_GRAPH_ROOT_HOST:-~/stardog-home}:${NB_GRAPH_ROOT_CONT:-/var/opt/stardog}"
     ports:
-      - "5820:5820"
+      - "${NB_GRAPH_PORT_HOST:-5820}:${NB_GRAPH_PORT:-5820}"

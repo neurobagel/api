@@ -23,6 +23,7 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 
 - [Quickstart](#quickstart)
 - [Local installation](#local-installation)
+    - [Environment variables](#set-the-environment-variables)
     - [Docker](#docker)
     - [Python](#python)
 - [Testing](#testing)
@@ -36,10 +37,9 @@ Example: **I want to query for only female participants in the graph.** The URL 
 
 Interactive documentation for the API is available at https://api.neurobagel.org/docs.
 
-NOTE: Currently, to access the API, you must be connected to the McGill network.
-
 ## Local installation
-The below instructions assume that you have a local instance of or access to a remotely hosted graph database to be queried. If this is not the case and you need to first build a graph from data, refer to the instructions for getting started locally with [Stardog Studio](https://docs.stardog.com/stardog-applications/dockerized_access#stardog-studio).
+The below instructions assume that you have a local instance of or access to a remotely hosted graph database to be queried. 
+If this is not the case and you need to first build a graph from data, refer to our documentation for [getting started locally with a graph backend](https://neurobagel.org/infrastructure/).
 
 ### Clone the repo
 ```bash
@@ -47,45 +47,54 @@ git clone https://github.com/neurobagel/api.git
 ```
 
 ### Set the environment variables
-Create a `.env` file in the root of the repository to house the environment variables used by the app. 
+Create a file called `.env` in the root of the repository will house the environment variables used by the app. 
 
 To run API requests against a graph, at least two environment variables must be set, `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD`.  
-The contents of a minimal `.env` file:
-```bash
-NB_GRAPH_USERNAME=someuser
-NB_GRAPH_PASSWORD=somepassword
-```
 
-Below are all the possible Neurobagel environment variables that you can set in `.env`, depending on your mode of installation of the API.
-| Environment variable | Required in .env? | Description                                                                                                                              | Default value            | Relevant installation mode |
-|----------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|----------------------------|
-| `NB_GRAPH_USERNAME`  | Yes               | Username to access Stardog graph database that API will communicate with                                                                 | -                        | Docker, Python             |
-| `NB_GRAPH_PASSWORD`  | Yes               | Password to access Stardog graph database that API will communicate with                                                                 | -                        | Docker, Python             |
-| `NB_GRAPH_ADDRESS`   | No                | IP address for the graph database (or container name, if graph is hosted locally)                                                        | `206.12.99.17` (`graph`) | Docker, Python             |
-| `NB_GRAPH_DB`        | No                | Name of graph database to query                                                                                                          | `test_data`              | Docker, Python             |
-| `NB_RETURN_AGG`      | No                | Whether to return only dataset-level query results (including data locations) and exclude subject-level attributes. One of [true, false] | `true`                   | Docker, Python             |
-| `NB_API_TAG` | No | Tag for API Docker image | `latest` | Docker
-| `STARDOG_TAG` | No | Tag for Stardog Docker image | `8.2.2-java11-preview` | Docker |
-| `STARDOG_ROOT` | No | Path to directory on host machine containing a Stardog license file | `~/stardog-home` | Docker |
+This repository contains a [template `.env` file](/.template-env) that you can copy and edit.
 
-NOTE: To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), ensure that any variables defined in your `.env` file are not already set in your current shell environment with **different** values.
+Below are explanations of all the possible Neurobagel environment variables that you can set in `.env`, depending on your mode of installation of the API and graph server software.
+| Environment variable | Required in .env? | Description                                                                                                                              | Default value if not set               | Relevant installation mode(s) |
+| -------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----------------------------- |
+| `NB_GRAPH_USERNAME`  | Yes               | Username to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
+| `NB_GRAPH_PASSWORD`  | Yes               | Password to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
+| `NB_GRAPH_ADDRESS`   | No                | IP address for the graph database (or container name, if graph is hosted locally)                                                        | `206.12.99.17` (`graph`) **               | Docker, Python                |
+| `NB_GRAPH_DB`        | No                | Name of graph database endpoint to query (e.g., for a Stardog database, this will take the format of `{database_name}/query`)            | `test_data/query`                      | Docker, Python                |
+| `NB_RETURN_AGG`      | No                | Whether to return only dataset-level query results (including data locations) and exclude subject-level attributes. One of [true, false] | `true`                                 | Docker, Python                |
+| `NB_API_TAG`         | No                | Tag for API Docker image                                                                                                                 | `latest`                               | Docker                        |
+| `NB_API_PORT_HOST`   | No                | Port number on the _host machine_ to map the API container port to                                                                       | `8000`                                 | Docker                        |
+| `NB_API_PORT`        | No                | Port number on which to run the API                                                                                                      | `8000`                                 | Docker, Python                |
+| `NB_GRAPH_IMG`       | No                | Graph server Docker image                                                                                                                | `stardog/stardog:8.2.2-java11-preview` | Docker                        |
+| `NB_GRAPH_ROOT_HOST` | No                | Path to directory containing a Stardog license file on the _host machine_                                                                | `~/stardog-home`                       | Docker                        |
+| `NB_GRAPH_ROOT_CONT` | No                | Path to directory for graph databases in the _graph server container_                                                                    | `/var/opt/stardog` *                   | Docker                        |
+| `NB_GRAPH_PORT_HOST` | No                | Port number on the _host machine_ to map the graph server container port to                                                              | `5820`                                 | Docker                        |
+| `NB_GRAPH_PORT`      | No                | Port number used by the _graph server container_                                                                                         | `5820` *                               | Docker, Python                |
 
-To export all the variables defined in your `.env` file in one step, run the following:
-```bash
-export $(cat .env | xargs)
-```
+_* These defaults are configured for a Stardog backend - you should not have to change them if you are running a Stardog backend._
 
-The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your current environment.
+_** If using the [docker compose installation route](#option-1-recommended-use-the-docker-composeyaml-file), 
+do not change `NB_API_ADDRESS` from its default value (`graph`) as this corresponds to the preset container name of the graph database server within the docker compose network._
+
+---
+**IMPORTANT:** 
+- Variables set in the shell environment where the API is launched **_should not be used as a replacement for the `.env` file_** to configure options for the API or graph server software.
+- To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), 
+also ensure that any variables defined in your `.env` are not already set in your current shell environment with **different** values.
+---
+
+The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your `.env`.
 
 ### Docker
 First, [install docker](https://docs.docker.com/get-docker/).
 
 You can then run a Docker container for the API in one of three ways:
-#### Option 1: Use the `docker-compose.yaml` file
+#### Option 1 (RECOMMENDED): Use the `docker-compose.yaml` file
 
 First, [install docker compose](https://docs.docker.com/compose/install/).
 
 If needed, update your `.env` file with optional environment variables for the docker compose configuration.
+
+**TIP:** Double check that the environment variables are resolved with your expected values using the command `docker compose config`.
 
 Use Docker Compose to spin up the containers by running the following in the repository root (where the `docker-compose.yml` file is):
 ```bash
@@ -94,21 +103,29 @@ docker compose up -d
 
 #### Option 2: Use the latest image from Docker Hub
 ```bash
-export $(cat .env | xargs)  # export your environment variables 
 docker pull neurobagel/api
-docker run -d --name api -p 8000:8000 --env NB_GRAPH_USERNAME --env NB_GRAPH_PASSWORD neurobagel/api
+docker run -d --name=api -p 8000:8000 --env-file=.env neurobagel/api
 ```
+**NOTE:** The above `docker run` command uses recommended default values for `NBI_API_PORT_HOST` and `NB_API_PORT` in the `-p` flag.
+If you wish to set different port numbers, modify your `.env` file accordingly and run the below commands instead:
+```bash
+export $(cat .env | xargs)  # export your .env file to expose your set port numbers to the -p flag of docker run
+docker run -d --name=api -p ${NB_API_PORT_HOST}:${NB_API_PORT} --env-file=.env neurobagel/api
+```
+
 #### Option 3: Build the image using the Dockerfile
 After cloning the current repository, build the Docker image locally:
 ```bash
-export $(cat .env | xargs)  # export your environment variables
-docker build -t <image_name> .
-docker run -d --name api -p 8000:8000 --env NB_GRAPH_USERNAME --env NB_GRAPH_PASSWORD neurobagel/api
+docker build -t neurobagel/api .
+docker run -d --name=api -p 8000:8000 --env-file=.env neurobagel/api
 ```
-
-For Options 2 or 3, if you wish to also set `NB_GRAPH_ADDRESS`, make sure to pass it to the container in the `docker run` command using the `--env` flag.
-
-NOTE: In case you're connecting to the McGill network via VPN and you started the container before connecting to the VPN, make sure to configure your VPN client to allow local (LAN) access when using the VPN.
+**NOTE:** The above `docker run` command uses recommended default values for `NBI_API_PORT_HOST` and `NB_API_PORT` in the `-p` flag. 
+If you wish to set different port numbers, modify your `.env` file accordingly and run the below commands instead:
+```bash
+docker build -t neurobagel/api .
+export $(cat .env | xargs)  # export your .env file to expose your set port numbers to the -p flag of docker run
+docker run -d --name=api -p ${NB_API_PORT_HOST}:${NB_API_PORT} --env-file=.env neurobagel/api
+```
 
 #### Send a test query to the API
 By default, after running the above steps, the API should be served at localhost, http://127.0.0.1:8000/query, on the machine where you launched the Dockerized app. To check that the API is running and can access the knowledge graph as expected, you can navigate to the interactive API docs in your local browser (http://127.0.0.1:8000/docs) and enter a sample query, or send an HTTP request in your terminal using `curl`:
@@ -130,6 +147,11 @@ $ pip install -r requirements.txt
 #### Launch the API
 
 To launch the API make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
+
+Export the variables defined in your `.env` file:
+```bash
+export $(cat .env | xargs)
+```
 
 You can then launch the API by running the following command in your terminal:
 
