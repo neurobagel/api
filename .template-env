@@ -8,7 +8,7 @@ NB_GRAPH_IMG=stardog/stardog:8.2.2-java11-preview
 ## ADDITIONAL CONFIGURABLE PARAMETERS: Uncomment and modify values of the below variables as needed to use non-default values.
 # NB_API_PORT_HOST=8000
 # NB_API_PORT=8000
-# NB_API_ROOT_HOST=~/stardog-home
+# NB_GRAPH_ROOT_HOST=~/stardog-home
 # NB_GRAPH_ROOT_CONT=/var/opt/stardog
 # NB_GRAPH_ADDRESS=graph
 # NB_GRAPH_PORT_HOST=5820
