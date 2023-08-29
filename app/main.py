@@ -1,6 +1,7 @@
 """Main app."""
 
 import os
+import warnings
 
 import uvicorn
 from fastapi import FastAPI
@@ -25,11 +26,23 @@ app.add_middleware(
 async def auth_check():
     """Checks whether username and password environment variables are set."""
     if (
+        # TODO: Check if this error is still raised when variables are empty strings
         os.environ.get(util.GRAPH_USERNAME.name) is None
         or os.environ.get(util.GRAPH_PASSWORD.name) is None
     ):
         raise RuntimeError(
             f"The application was launched but could not find the {util.GRAPH_USERNAME.name} and / or {util.GRAPH_PASSWORD.name} environment variables."
+        )
+
+
+@app.on_event("startup")
+async def allowed_origins_check():
+    """Raises warning if allowed origins environment variable has not been set or is an empty string."""
+    if os.environ.get(util.ALLOWED_ORIGINS.name, "") == "":
+        warnings.warn(
+            f"The API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment variable. "
+            f"This means that the API will not be accessible from any origin. To fix this, explicitly set the value of {util.ALLOWED_ORIGINS.name} to at least one origin (e.g. http://localhost:3000). "
+            "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes. "
         )
 
 
