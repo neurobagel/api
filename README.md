@@ -24,6 +24,7 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 - [Quickstart](#quickstart)
 - [Local installation](#local-installation)
     - [Environment variables](#set-the-environment-variables)
+    - [Using a graphical query tool](#using-a-graphical-query-tool-to-send-api-requests)
     - [Docker](#docker)
     - [Python](#python)
 - [Testing](#testing)
@@ -49,26 +50,27 @@ git clone https://github.com/neurobagel/api.git
 ### Set the environment variables
 Create a file called `.env` in the root of the repository will house the environment variables used by the app. 
 
-To run API requests against a graph, at least two environment variables must be set, `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD`.  
+To run API requests against a graph, at least two environment variables must be set, `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD`.
 
 This repository contains a [template `.env` file](/.template-env) that you can copy and edit.
 
 Below are explanations of all the possible Neurobagel environment variables that you can set in `.env`, depending on your mode of installation of the API and graph server software.
-| Environment variable | Required in .env? | Description                                                                                                                              | Default value if not set               | Relevant installation mode(s) |
-| -------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----------------------------- |
-| `NB_GRAPH_USERNAME`  | Yes               | Username to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
-| `NB_GRAPH_PASSWORD`  | Yes               | Password to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
-| `NB_GRAPH_ADDRESS`   | No                | IP address for the graph database (or container name, if graph is hosted locally)                                                        | `206.12.99.17` (`graph`) **               | Docker, Python                |
-| `NB_GRAPH_DB`        | No                | Name of graph database endpoint to query (e.g., for a Stardog database, this will take the format of `{database_name}/query`)            | `test_data/query`                      | Docker, Python                |
-| `NB_RETURN_AGG`      | No                | Whether to return only dataset-level query results (including data locations) and exclude subject-level attributes. One of [true, false] | `true`                                 | Docker, Python                |
-| `NB_API_TAG`         | No                | Tag for API Docker image                                                                                                                 | `latest`                               | Docker                        |
-| `NB_API_PORT_HOST`   | No                | Port number on the _host machine_ to map the API container port to                                                                       | `8000`                                 | Docker                        |
-| `NB_API_PORT`        | No                | Port number on which to run the API                                                                                                      | `8000`                                 | Docker, Python                |
-| `NB_GRAPH_IMG`       | No                | Graph server Docker image                                                                                                                | `stardog/stardog:8.2.2-java11-preview` | Docker                        |
-| `NB_GRAPH_ROOT_HOST` | No                | Path to directory containing a Stardog license file on the _host machine_                                                                | `~/stardog-home`                       | Docker                        |
-| `NB_GRAPH_ROOT_CONT` | No                | Path to directory for graph databases in the _graph server container_                                                                    | `/var/opt/stardog` *                   | Docker                        |
-| `NB_GRAPH_PORT_HOST` | No                | Port number on the _host machine_ to map the graph server container port to                                                              | `5820`                                 | Docker                        |
-| `NB_GRAPH_PORT`      | No                | Port number used by the _graph server container_                                                                                         | `5820` *                               | Docker, Python                |
+| Environment variable     | Required in .env? | Description                                                                                                                              | Default value if not set               | Relevant installation mode(s) |
+| ------------------------ | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----------------------------- |
+| `NB_GRAPH_USERNAME`      | Yes               | Username to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
+| `NB_GRAPH_PASSWORD`      | Yes               | Password to access Stardog graph database that API will communicate with                                                                 | -                                      | Docker, Python                |
+| `NB_GRAPH_ADDRESS`       | No                | IP address for the graph database (or container name, if graph is hosted locally)                                                        | `206.12.99.17` (`graph`) **            | Docker, Python                |
+| `NB_GRAPH_DB`            | No                | Name of graph database endpoint to query (e.g., for a Stardog database, this will take the format of `{database_name}/query`)            | `test_data/query`                      | Docker, Python                |
+| `NB_RETURN_AGG`          | No                | Whether to return only dataset-level query results (including data locations) and exclude subject-level attributes. One of [true, false] | `true`                                 | Docker, Python                |
+| `NB_API_TAG`             | No                | Tag for API Docker image                                                                                                                 | `latest`                               | Docker                        |
+| `NB_API_PORT_HOST`       | No                | Port number on the _host machine_ to map the API container port to                                                                       | `8000`                                 | Docker                        |
+| `NB_API_PORT`            | No                | Port number on which to run the API                                                                                                      | `8000`                                 | Docker, Python                |
+| `NB_API_ALLOWED_ORIGINS` | Yes, if using a query tool               | Origins allowed to make [cross-origin resource sharing](https://fastapi.tiangolo.com/tutorial/cors/) requests. _At least one origin must be specified to make the API accessible from a frontend query tool._ Multiple origins should be separated with spaces in a single string enclosed in quotes.                                                                                                                                   | `""`                                      | Docker, Python                |
+| `NB_GRAPH_IMG`           | No                | Graph server Docker image                                                                                                                | `stardog/stardog:8.2.2-java11-preview` | Docker                        |
+| `NB_GRAPH_ROOT_HOST`     | No                | Path to directory containing a Stardog license file on the _host machine_                                                                | `~/stardog-home`                       | Docker                        |
+| `NB_GRAPH_ROOT_CONT`     | No                | Path to directory for graph databases in the _graph server container_                                                                    | `/var/opt/stardog` *                   | Docker                        |
+| `NB_GRAPH_PORT_HOST`     | No                | Port number on the _host machine_ to map the graph server container port to                                                              | `5820`                                 | Docker                        |
+| `NB_GRAPH_PORT`          | No                | Port number used by the _graph server container_                                                                                         | `5820` *                               | Docker, Python                |
 
 _* These defaults are configured for a Stardog backend - you should not have to change them if you are running a Stardog backend._
 
@@ -83,6 +85,26 @@ also ensure that any variables defined in your `.env` are not already set in you
 ---
 
 The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your `.env`.
+
+### Using a graphical query tool to send API requests
+To make the API accessible by a frontend tool such as our [browser query tool](https://github.com/neurobagel/query-tool), you must explicitly specify the origin(s) for the frontend using `NB_API_ALLOWED_ORIGINS` in `.env` (see also above table). 
+This variable defaults to an empty string (`""`) when unset, meaning that your deployed API will only accessible via direct `curl` requests to the URL where the API is hosted (see [this section](#send-a-test-query-to-the-api) for an example `curl` request).
+
+Note: The `.template-env` file in this repo assumes you want to allow API requests from a query tool hosted at a specific port on `localhost`.
+
+Other examples:
+```bash
+# ---- .env file ----
+
+# do not allow requests from any frontend origins
+NB_API_ALLOWED_ORIGINS=""  # or, exclude variable from .env
+
+# allow requests from only one origin
+NB_API_ALLOWED_ORIGINS="https://query.neurobagel.org"
+
+# allow requests from 3 different origins
+NB_API_ALLOWED_ORIGINS="https://query.neurobagel.org https://localhost:3000 http://localhost:3000"
+```
 
 ### Docker
 First, [install docker](https://docs.docker.com/get-docker/).
