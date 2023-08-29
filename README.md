@@ -104,6 +104,9 @@ NB_API_ALLOWED_ORIGINS="https://query.neurobagel.org"
 
 # allow requests from 3 different origins
 NB_API_ALLOWED_ORIGINS="https://query.neurobagel.org https://localhost:3000 http://localhost:3000"
+
+# allow requests from any origin - use with caution
+NB_API_ALLOWED_ORIGINS="*"
 ```
 
 ### Docker
