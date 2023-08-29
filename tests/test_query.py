@@ -1,5 +1,8 @@
 """Test API to query subjects from the Stardog graph who match user-specified criteria."""
 
+import os
+import warnings
+
 import httpx
 import pytest
 from fastapi import HTTPException
@@ -112,6 +115,66 @@ def test_app_with_invalid_environment_vars(test_app, monkeypatch):
     monkeypatch.setattr(httpx, "post", mock_httpx_post)
     response = test_app.get("/query/")
     assert response.status_code == 401
+
+
+def test_app_with_unset_allowed_origins(test_app, monkeypatch):
+    """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses a default value."""
+    monkeypatch.delenv(util.ALLOWED_ORIGINS.name, raising=False)
+
+    with pytest.warns(
+        UserWarning,
+        match=f"API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment variable",
+    ):
+        with test_app:
+            pass
+
+    assert util.parse_origins_as_list(
+        os.environ.get(util.ALLOWED_ORIGINS.name, "")
+    ) == [""]
+
+
+@pytest.mark.parametrize(
+    "allowed_origins, parsed_origins, expectation",
+    [
+        (
+            "",
+            [""],
+            pytest.warns(
+                UserWarning,
+                match=f"API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment variable",
+            ),
+        ),
+        (
+            "http://localhost:3000",
+            ["http://localhost:3000"],
+            warnings.catch_warnings(),
+        ),
+        (
+            "http://localhost:3000 https://localhost:3000",
+            ["http://localhost:3000", "https://localhost:3000"],
+            warnings.catch_warnings(),
+        ),
+    ],
+)
+def test_app_with_set_allowed_origins(
+    test_app, monkeypatch, allowed_origins, parsed_origins, expectation
+):
+    """
+    Test that when the environment variable for allowed origins has been explicitly set, the app correctly parses it into a list
+    and raises a warning if the value is an empty string.
+    """
+    monkeypatch.setenv(util.ALLOWED_ORIGINS.name, allowed_origins)
+
+    with expectation:
+        with test_app:
+            pass
+
+    assert (
+        util.parse_origins_as_list(
+            os.environ.get(util.ALLOWED_ORIGINS.name, "")
+        )
+        == parsed_origins
+    )
 
 
 def test_get_all(test_app, mock_successful_get, monkeypatch):
