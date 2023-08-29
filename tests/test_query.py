@@ -120,6 +120,9 @@ def test_app_with_invalid_environment_vars(test_app, monkeypatch):
 def test_app_with_unset_allowed_origins(test_app, monkeypatch):
     """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses a default value."""
     monkeypatch.delenv(util.ALLOWED_ORIGINS.name, raising=False)
+    # set random username and password to avoid RuntimeError from other startup check
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "DBUSER")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "DBPASSWORD")
 
     with pytest.warns(
         UserWarning,
@@ -164,6 +167,9 @@ def test_app_with_set_allowed_origins(
     and raises a warning if the value is an empty string.
     """
     monkeypatch.setenv(util.ALLOWED_ORIGINS.name, allowed_origins)
+    # set random username and password to avoid RuntimeError from other startup check
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "DBUSER")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "DBPASSWORD")
 
     with expectation:
         with test_app:
