@@ -6,6 +6,11 @@ from typing import Optional
 
 # Request constants
 EnvVar = namedtuple("EnvVar", ["name", "val"])
+
+ALLOWED_ORIGINS = EnvVar(
+    "NB_API_ALLOWED_ORIGINS", os.environ.get("NB_API_ALLOWED_ORIGINS", "")
+)
+
 GRAPH_USERNAME = EnvVar(
     "NB_GRAPH_USERNAME", os.environ.get("NB_GRAPH_USERNAME")
 )
@@ -27,6 +32,7 @@ RETURN_AGG = EnvVar(
 )
 
 QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT.val}/{GRAPH_DB.val}"
+print(QUERY_URL)
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",
@@ -56,6 +62,11 @@ PROJECT = Domain("project", "nb:hasSamples")
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
 
 IS_CONTROL_TERM = "purl:NCIT_C94342"  # TODO: Remove once https://github.com/neurobagel/bagel-cli/issues/139 is resolved.
+
+
+def parse_origins_as_list(allowed_origins: str) -> list:
+    """Returns user-defined allowed origins as a list."""
+    return list(allowed_origins.split(" "))
 
 
 def create_query(

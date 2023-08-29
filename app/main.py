@@ -14,7 +14,7 @@ app = FastAPI(default_response_class=ORJSONResponse)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=util.parse_origins_as_list(util.ALLOWED_ORIGINS.val),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
