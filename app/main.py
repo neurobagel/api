@@ -41,7 +41,8 @@ async def allowed_origins_check():
     if os.environ.get(util.ALLOWED_ORIGINS.name, "") == "":
         warnings.warn(
             f"The API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment variable. "
-            f"This means that the API will only be accessible from the same origin it is hosted from: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy. If you want to access the API from tools hosted at other origins such as the Neurobagel query tool, explicitly set the value of {util.ALLOWED_ORIGINS.name} to the origin(s) of these tools (e.g. http://localhost:3000). "
+            "This means that the API will only be accessible from the same origin it is hosted from: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy. "
+            f"If you want to access the API from tools hosted at other origins such as the Neurobagel query tool, explicitly set the value of {util.ALLOWED_ORIGINS.name} to the origin(s) of these tools (e.g. http://localhost:3000). "
             "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes. "
         )
 
