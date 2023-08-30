@@ -4,7 +4,7 @@ NB_GRAPH_PASSWORD=DBPASSWORD  # REPLACE DBPASSWORD WITH YOUR GRAPH DATABASE PASS
 NB_GRAPH_DB=test_data/query
 NB_RETURN_AGG=true
 NB_API_TAG=latest
-NB_API_ALLOWED_ORIGINS="https://localhost:3000 http://localhost:3000"
+NB_API_ALLOWED_ORIGINS="https://localhost:3000 http://localhost:3000"  # Example of allowing multiple origins, edit as needed for your own setup
 NB_GRAPH_IMG=stardog/stardog:8.2.2-java11-preview
 ## ADDITIONAL CONFIGURABLE PARAMETERS: Uncomment and modify values of the below variables as needed to use non-default values.
 # NB_API_PORT_HOST=8000
