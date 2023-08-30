@@ -32,7 +32,6 @@ RETURN_AGG = EnvVar(
 )
 
 QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT.val}/{GRAPH_DB.val}"
-print(QUERY_URL)
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",
@@ -66,6 +65,7 @@ IS_CONTROL_TERM = "purl:NCIT_C94342"  # TODO: Remove once https://github.com/neu
 
 def parse_origins_as_list(allowed_origins: str) -> list:
     """Returns user-defined allowed origins as a list."""
+    print(list(allowed_origins.split(" ")))
     return list(allowed_origins.split(" "))
 
 
