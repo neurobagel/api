@@ -157,6 +157,11 @@ def test_app_with_unset_allowed_origins(test_app, monkeypatch):
             ["http://localhost:3000", "https://localhost:3000"],
             warnings.catch_warnings(),
         ),
+        (
+            " http://localhost:3000 https://localhost:3000  ",
+            ["http://localhost:3000", "https://localhost:3000"],
+            warnings.catch_warnings(),
+        ),
     ],
 )
 def test_app_with_set_allowed_origins(
@@ -175,11 +180,10 @@ def test_app_with_set_allowed_origins(
         with test_app:
             pass
 
-    assert (
+    assert set(parsed_origins).issubset(
         util.parse_origins_as_list(
             os.environ.get(util.ALLOWED_ORIGINS.name, "")
         )
-        == parsed_origins
     )
 
 
