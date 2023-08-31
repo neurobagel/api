@@ -65,7 +65,6 @@ IS_CONTROL_TERM = "purl:NCIT_C94342"  # TODO: Remove once https://github.com/neu
 
 def parse_origins_as_list(allowed_origins: str) -> list:
     """Returns user-defined allowed origins as a list."""
-    print(list(allowed_origins.split(" ")))
     return list(allowed_origins.split(" "))
 
 
