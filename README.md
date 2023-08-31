@@ -94,6 +94,10 @@ The `NB_API_ALLOWED_ORIGINS` variable defaults to an empty string (`""`) when un
 However, in many cases you may want to make the API accessible by a frontend tool such as our [browser query tool](https://github.com/neurobagel/query-tool).
 To do so, you must explicitly specify the origin(s) for the frontend using `NB_API_ALLOWED_ORIGINS` in `.env`. 
 
+When you [locally deploy the API with `docker compose`](#docker), you may also deploy a local version of the 
+graphical query tool. By default you can reach
+your local query tool at http://localhost:3000 once it is running.
+
 For example, the `.template-env` file in this repo assumes you want to allow API requests from a query tool hosted at a specific port on `localhost`.
 
 Other examples:
