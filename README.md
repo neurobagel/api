@@ -65,8 +65,8 @@ Below are explanations of all the possible Neurobagel environment variables that
 | `NB_API_TAG`             | No                | Tag for API Docker image                                                                                                                 | `latest`                               | Docker                        |
 | `NB_API_PORT_HOST`       | No                | Port number on the _host machine_ to map the API container port to                                                                       | `8000`                                 | Docker                        |
 | `NB_API_PORT`            | No                | Port number on which to run the API                                                                                                      | `8000`                                 | Docker, Python                |
-| `NB_API_ALLOWED_ORIGINS` | Yes, if using a query tool               | Origins allowed to make [cross-origin resource sharing](https://fastapi.tiangolo.com/tutorial/cors/) requests. _At least one origin must be specified to make the API accessible from a frontend query tool._ Multiple origins should be separated with spaces in a single string enclosed in quotes.                                                                                                                                   | `""`                                      | Docker, Python                |
-| `NB_GRAPH_IMG`           | No                | Graph server Docker image                                                                                                                | `stardog/stardog:8.2.2-java11-preview` | Docker                        |
+| `NB_API_ALLOWED_ORIGINS` | No [&dagger;](#using-a-graphical-query-tool-to-send-api-requests)                | Origins allowed to make [cross-origin resource sharing](https://fastapi.tiangolo.com/tutorial/cors/) requests. Multiple origins should be separated with spaces in a single string enclosed in quotes. _NOTE: To make the API accessible from a frontend query tool, you will need to explicitly provide the origin in `.env`. See_ [&dagger;](#using-a-graphical-query-tool-to-send-api-requests) _for more info_                                                                                                                                | `""`                                      | Docker, Python                |
+| `NB_GRAPH_IMG`           | No    | Graph server Docker image                                                                                                                | `stardog/stardog:8.2.2-java11-preview` | Docker                        |
 | `NB_GRAPH_ROOT_HOST`     | No                | Path to directory containing a Stardog license file on the _host machine_                                                                | `~/stardog-home`                       | Docker                        |
 | `NB_GRAPH_ROOT_CONT`     | No                | Path to directory for graph databases in the _graph server container_                                                                    | `/var/opt/stardog` *                   | Docker                        |
 | `NB_GRAPH_PORT_HOST`     | No                | Port number on the _host machine_ to map the graph server container port to                                                              | `5820`                                 | Docker                        |
@@ -87,17 +87,19 @@ also ensure that any variables defined in your `.env` are not already set in you
 The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your `.env`.
 
 ### Using a graphical query tool to send API requests
-To make the API accessible by a frontend tool such as our [browser query tool](https://github.com/neurobagel/query-tool), you must explicitly specify the origin(s) for the frontend using `NB_API_ALLOWED_ORIGINS` in `.env` (see also above table). 
-This variable defaults to an empty string (`""`) when unset, meaning that your deployed API will only accessible via direct `curl` requests to the URL where the API is hosted (see [this section](#send-a-test-query-to-the-api) for an example `curl` request).
+The `NB_API_ALLOWED_ORIGINS` variable defaults to an empty string (`""`) when unset, meaning that your deployed API will only accessible via direct `curl` requests to the URL where the API is hosted (see [this section](#send-a-test-query-to-the-api) for an example `curl` request).
 
-Note: The `.template-env` file in this repo assumes you want to allow API requests from a query tool hosted at a specific port on `localhost`.
+However, in many cases you may want to make the API accessible by a frontend tool such as our [browser query tool](https://github.com/neurobagel/query-tool).
+To do so, you must explicitly specify the origin(s) for the frontend using `NB_API_ALLOWED_ORIGINS` in `.env`. 
+
+For example, the `.template-env` file in this repo assumes you want to allow API requests from a query tool hosted at a specific port on `localhost`.
 
 Other examples:
 ```bash
 # ---- .env file ----
 
 # do not allow requests from any frontend origins
-NB_API_ALLOWED_ORIGINS=""  # or, exclude variable from .env
+NB_API_ALLOWED_ORIGINS=""  # this is the default value that will also be set if the variable is excluded from the .env file
 
 # allow requests from only one origin
 NB_API_ALLOWED_ORIGINS="https://query.neurobagel.org"
@@ -108,6 +110,8 @@ NB_API_ALLOWED_ORIGINS="https://query.neurobagel.org https://localhost:3000 http
 # allow requests from any origin - use with caution
 NB_API_ALLOWED_ORIGINS="*"
 ```
+
+**A note for more technical users:** If you have configured an NGINX reverse proxy (or proxy requests to the remote origin) to serve both the API and the query tool from the same origin, you can skip the step of enabling CORS for the API. For an example, see https://stackoverflow.com/a/28599481.
 
 ### Docker
 First, [install docker](https://docs.docker.com/get-docker/).
