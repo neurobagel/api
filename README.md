@@ -65,7 +65,7 @@ Below are explanations of all the possible Neurobagel environment variables that
 | `NB_API_TAG`             | No                | Tag for API Docker image                                                                                                                 | `latest`                               | Docker                        |
 | `NB_API_PORT_HOST`       | No                | Port number on the _host machine_ to map the API container port to                                                                       | `8000`                                 | Docker                        |
 | `NB_API_PORT`            | No                | Port number on which to run the API                                                                                                      | `8000`                                 | Docker, Python                |
-| `NB_API_ALLOWED_ORIGINS` | No [&dagger;](#using-a-graphical-query-tool-to-send-api-requests)                | Origins allowed to make [cross-origin resource sharing](https://fastapi.tiangolo.com/tutorial/cors/) requests. Multiple origins should be separated with spaces in a single string enclosed in quotes. _NOTE: To make the API accessible from a frontend query tool, you will need to explicitly provide the origin in `.env`. See_ [&dagger;](#using-a-graphical-query-tool-to-send-api-requests) _for more info_                                                                                                                                | `""`                                      | Docker, Python                |
+| `NB_API_ALLOWED_ORIGINS` | No &dagger;                | Origins allowed to make [cross-origin resource sharing](https://fastapi.tiangolo.com/tutorial/cors/) requests. Multiple origins must be separated with spaces in a single string enclosed in quotes. _NOTE: To make the API accessible from a frontend query tool, the origin must be explicitly set. See_ &dagger; _for more info_                                                                                                                                | `""`                                      | Docker, Python                |
 | `NB_GRAPH_IMG`           | No    | Graph server Docker image                                                                                                                | `stardog/stardog:8.2.2-java11-preview` | Docker                        |
 | `NB_GRAPH_ROOT_HOST`     | No                | Path to directory containing a Stardog license file on the _host machine_                                                                | `~/stardog-home`                       | Docker                        |
 | `NB_GRAPH_ROOT_CONT`     | No                | Path to directory for graph databases in the _graph server container_                                                                    | `/var/opt/stardog` *                   | Docker                        |
@@ -77,6 +77,8 @@ _* These defaults are configured for a Stardog backend - you should not have to 
 _** If using the [docker compose installation route](#option-1-recommended-use-the-docker-composeyaml-file), 
 do not change `NB_API_ADDRESS` from its default value (`graph`) as this corresponds to the preset container name of the graph database server within the docker compose network._
 
+_&dagger; See section [Using a graphical query tool to send API requests](#using-a-graphical-query-tool-to-send-api-requests)_
+
 ---
 **IMPORTANT:** 
 - Variables set in the shell environment where the API is launched **_should not be used as a replacement for the `.env` file_** to configure options for the API or graph server software.
@@ -86,7 +88,7 @@ also ensure that any variables defined in your `.env` are not already set in you
 
 The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your `.env`.
 
-### Using a graphical query tool to send API requests (&dagger;)
+### Using a graphical query tool to send API requests
 The `NB_API_ALLOWED_ORIGINS` variable defaults to an empty string (`""`) when unset, meaning that your deployed API will only accessible via direct `curl` requests to the URL where the API is hosted (see [this section](#send-a-test-query-to-the-api) for an example `curl` request).
 
 However, in many cases you may want to make the API accessible by a frontend tool such as our [browser query tool](https://github.com/neurobagel/query-tool).
