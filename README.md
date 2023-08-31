@@ -86,7 +86,7 @@ also ensure that any variables defined in your `.env` are not already set in you
 
 The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your `.env`.
 
-### Using a graphical query tool to send API requests
+### Using a graphical query tool to send API requests (&dagger;)
 The `NB_API_ALLOWED_ORIGINS` variable defaults to an empty string (`""`) when unset, meaning that your deployed API will only accessible via direct `curl` requests to the URL where the API is hosted (see [this section](#send-a-test-query-to-the-api) for an example `curl` request).
 
 However, in many cases you may want to make the API accessible by a frontend tool such as our [browser query tool](https://github.com/neurobagel/query-tool).
@@ -111,7 +111,8 @@ NB_API_ALLOWED_ORIGINS="https://query.neurobagel.org https://localhost:3000 http
 NB_API_ALLOWED_ORIGINS="*"
 ```
 
-**A note for more technical users:** If you have configured an NGINX reverse proxy (or proxy requests to the remote origin) to serve both the API and the query tool from the same origin, you can skip the step of enabling CORS for the API. For an example, see https://stackoverflow.com/a/28599481.
+**A note for more technical users:** If you have configured an NGINX reverse proxy (or proxy requests to the remote origin) to serve both the API and the query tool from the same origin, you can skip the step of enabling CORS for the API. 
+For an example, see https://stackoverflow.com/a/28599481.
 
 ### Docker
 First, [install docker](https://docs.docker.com/get-docker/).
