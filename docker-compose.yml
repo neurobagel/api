@@ -23,3 +23,5 @@ services:
     image: "neurobagel/query_tool:${NB_QUERY_TAG:-latest}"
     ports:
       - "${NB_QUERY_PORT_HOST:-3000}:3000"
+    environment:
+      - API_QUERY_URL: "${API_QUERY_URL:-http://localhost:${NB_API_PORT_HOST:-8000}}"

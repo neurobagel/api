@@ -72,7 +72,7 @@ Below are explanations of all the possible Neurobagel environment variables that
 | `NB_GRAPH_PORT_HOST`     | No                | Port number on the _host machine_ to map the graph server container port to                                                                                                                                                                                                                                                         | `5820`                                 | Docker                        |
 | `NB_GRAPH_PORT`          | No                | Port number used by the _graph server container_                                                                                                                                                                                                                                                                                    | `5820` *                               | Docker, Python                |
 | `NB_QUERY_TAG`           | No                | Docker image tag for the query tool                                                                                                                                                                                                                                                                                                 | `latest`                               | Docker                        |
-| `NB_QUERY_PORT_HOST`     | No                | Port number used by the `query_tool`                                                                                                                                                                                                                                                                                                | `3000`                                 | Docker                        |
+| `NB_QUERY_PORT_HOST`     | No                | Port number used by the `query_tool` on the _host machine_                                                                                                                                                                                                                                                                                               | `3000`                                 | Docker                        |
 
 _* These defaults are configured for a Stardog backend - you should not have to change them if you are running a Stardog backend._
 
@@ -97,7 +97,7 @@ However, in many cases you may want to make the API accessible by a frontend too
 To do so, you must explicitly specify the origin(s) for the frontend using `NB_API_ALLOWED_ORIGINS` in `.env`. 
 
 When you [locally deploy the API with `docker compose`](#docker), you may also deploy a local version of the 
-graphical query tool. By default you can reach
+Neurobagel graphical query tool. By default you can reach
 your local query tool at http://localhost:3000 once it is running.
 
 For example, the `.template-env` file in this repo assumes you want to allow API requests from a query tool hosted at a specific port on `localhost`.
