@@ -139,6 +139,11 @@ Use Docker Compose to spin up the containers by running the following in the rep
 ```bash
 docker compose up -d
 ```
+If you want to ensure you have the latest images use the command below:
+
+```bash
+docker compose pull && docker compose up -d
+```
 
 #### Option 2: Use the latest image from Docker Hub
 ```bash
