@@ -54,12 +54,10 @@ To run API requests against a graph, at least two environment variables must be 
 
 **See our [official documentation](https://neurobagel.org/infrastructure/#set-the-environment-variables) for all the possible Neurobagel environment variables that you can set in `.env`, and to check which variables are relevant for your specific installation and setup.**
 
----
-**IMPORTANT:** 
-- Variables set in the shell environment where the API is launched **_should not be used as a replacement for the `.env` file_** to configure options for the API or graph server software.
-- To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), 
-also ensure that any variables defined in your `.env` are not already set in your current shell environment with **different** values.
----
+> :warning: **Important:** 
+> - Variables set in the shell environment where the API is launched **_should not be used as a replacement for the `.env` file_** to configure options for the API or graph server software.
+> - To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), 
+> also ensure that any variables defined in your `.env` are not already set in your current shell environment with **different** values.
 
 The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your `.env`.
 
@@ -75,7 +73,7 @@ If needed, update your `.env` file with optional environment variables for the d
 
 **TIP:** Double check that the environment variables are resolved with your expected values using the command `docker compose config`.
 
-##### Note: Deploying the Neurobagel query tool
+> :information_source: **Note: Deploying the Neurobagel query tool**  
 > When you locally deploy the API with `docker compose`, you will also deploy a local version of the [Neurobagel graphical query tool](https://github.com/neurobagel/query-tool). 
 > By default you can reach your local query tool at http://localhost:3000 once it is running.
 > Similarly, the `.template-env` file in this repo also assumes you want to allow API requests from a query tool hosted at a specific port on `localhost`.
