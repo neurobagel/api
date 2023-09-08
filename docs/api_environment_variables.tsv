@@ -13,3 +13,4 @@ Environment variable	Required in .env?	Description	Default value if not set	Rele
 `NB_GRAPH_ROOT_CONT`	No	Path to directory for graph databases in the _graph server container_	`/var/opt/stardog` *	Docker
 `NB_GRAPH_PORT_HOST`	No	Port number on the _host machine_ to map the graph server container port to	`5820`	Docker, Python
 `NB_GRAPH_PORT`	No	Port number used by the _graph server container_	`5820` *	Docker
+`API_QUERY_URL`	Yes, unless default is correct	URL of the API that the query tool will send its requests to. See also the [query tool README](https://github.com/neurobagel/query-tool?tab=readme-ov-file#set-the-environment-variables). **Must** end in a forward slash `/`!	http://localhost:8000/	Docker
