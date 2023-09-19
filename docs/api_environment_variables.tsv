@@ -15,4 +15,4 @@ Environment variable	Required in .env?	Description	Default value if not set	Rele
 `NB_GRAPH_PORT`	No	Port number used by the _graph server container_	`5820` *	Docker
 `NB_QUERY_TAG`	No	Docker image tag for the query tool	`latest`	Docker
 `NB_QUERY_PORT_HOST`	No	Port number used by the `query_tool` on the host machine	`3000`	Docker
-`API_QUERY_URL`	Yes	URL of the API that the query tool will send its requests to. The port number in the URL **must** correspond to `NB_API_PORT_HOST`. See also the [query tool README](https://github.com/neurobagel/query-tool?tab=readme-ov-file#set-the-environment-variables). **Must** end in a forward slash `/`!	`http://localhost:8000/`	Docker
+`API_QUERY_URL`	Yes, unless default is correct	URL of the API that the query tool will send its requests to. The port number in the URL **must** correspond to `NB_API_PORT_HOST`. See also the [query tool README](https://github.com/neurobagel/query-tool?tab=readme-ov-file#set-the-environment-variables). **Must** end in a forward slash `/`!	`http://localhost:8000/`	Docker
