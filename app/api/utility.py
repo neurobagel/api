@@ -44,6 +44,7 @@ DEFAULT_CONTEXT = """
 PREFIX cogatlas: <https://www.cognitiveatlas.org/task/id/>
 PREFIX nb: <http://neurobagel.org/vocab/>
 PREFIX nbg: <http://neurobagel.org/graph/>
+PREFIX ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
 PREFIX nidm: <http://purl.org/nidash/nidm#>
 PREFIX snomed: <http://purl.bioontology.org/ontology/SNOMEDCT/>
 """
@@ -62,7 +63,7 @@ PROJECT = Domain("project", "nb:hasSamples")
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
 
-IS_CONTROL_TERM = "purl:NCIT_C94342"  # TODO: Remove once https://github.com/neurobagel/bagel-cli/issues/139 is resolved.
+IS_CONTROL_TERM = "ncit:C94342"
 
 
 def parse_origins_as_list(allowed_origins: str) -> list:
@@ -125,11 +126,11 @@ def create_query(
     if is_control is not None:
         if is_control:
             subject_level_filters += (
-                "\n" + f"FILTER (?{IS_CONTROL.var} = <{IS_CONTROL_TERM}>)."
+                "\n" + f"FILTER (?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
             )
         else:
             subject_level_filters += (
-                "\n" + f"FILTER (?{IS_CONTROL.var} != <{IS_CONTROL_TERM}>)."
+                "\n" + f"FILTER (?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
             )
 
     if min_num_sessions is not None:
