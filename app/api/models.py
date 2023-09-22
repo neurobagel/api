@@ -60,7 +60,3 @@ class CohortQueryResponse(BaseModel):
     num_matching_subjects: int
     subject_data: list
     image_modals: list
-
-
-class AttributeModel(BaseModel):
-    attribute_URI: constr(regex=CONTROLLED_TERM_REGEX)
