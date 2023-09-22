@@ -11,7 +11,7 @@ def test_app():
 
 
 @pytest.fixture()
-def test_data():
+def query_test_data():
     """Create toy data for two datasets for testing."""
     return [
         {
@@ -52,7 +52,7 @@ def test_data():
 
 
 @pytest.fixture
-def mock_successful_get(test_data):
+def mock_successful_get_query(query_test_data):
     """Mock get function that returns non-empty query results."""
 
     async def mockreturn(
@@ -65,13 +65,13 @@ def mock_successful_get(test_data):
         assessment,
         image_modal,
     ):
-        return test_data
+        return query_test_data
 
     return mockreturn
 
 
 @pytest.fixture
-def mock_invalid_get():
+def mock_invalid_get_query():
     """Mock get function that does not return any response (for testing invalid parameter values)."""
 
     async def mockreturn(
