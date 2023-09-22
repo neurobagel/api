@@ -118,6 +118,6 @@ def mock_invalid_get_terms():
     """Mock get_terms function that does not return any terms (for testing invalid attribute values)."""
 
     async def mockreturn(attribute_URI):
-        return {attribute_URI: []}
+        return None
 
     return mockreturn

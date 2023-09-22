@@ -394,3 +394,33 @@ def test_get_undefined_prefix_image_modal(
         f"/query/?image_modal={undefined_prefix_image_modal}"
     )
     assert response.status_code == 500
+
+
+@pytest.mark.parametrize(
+    "valid_attribute_URI",
+    ["nb:Diagnosis", "nb:Assessment"],
+)
+def test_get_terms_valid_attribute_URI(
+    test_app, mock_successful_get_terms, valid_attribute_URI, monkeypatch
+):
+    """Given a valid attribute URI, returns a 200 status code and a non-empty list of terms for that attribute."""
+
+    monkeypatch.setattr(crud, "get_terms", mock_successful_get_terms)
+    response = test_app.get(f"/query/attributes/{valid_attribute_URI}")
+    assert response.status_code == 200
+    first_key = next(iter(response.json()))
+    assert response.json()[first_key] != []
+
+
+@pytest.mark.parametrize(
+    "invalid_attribute_URI",
+    ["apple", "some_thing:cool"],
+)
+def test_get_terms_invalid_attribute_URI(
+    test_app, mock_invalid_get_terms, invalid_attribute_URI, monkeypatch
+):
+    """Given a valid attribute URI, returns a 422 status code."""
+
+    monkeypatch.setattr(crud, "get_terms", mock_invalid_get_terms)
+    response = test_app.get(f"/query/attributes/{invalid_attribute_URI}")
+    assert response.status_code == 422
