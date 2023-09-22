@@ -419,7 +419,7 @@ def test_get_terms_valid_data_element_URI(
 def test_get_terms_invalid_data_element_URI(
     test_app, invalid_data_element_URI, monkeypatch
 ):
-    """Given a valid data element URI, returns a 422 status code."""
+    """Given an invalid data element URI, returns a 422 status code as the validation of the data element URI fails."""
 
     response = test_app.get(f"/query/attributes/{invalid_data_element_URI}")
     assert response.status_code == 422
