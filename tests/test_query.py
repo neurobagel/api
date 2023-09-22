@@ -11,85 +11,6 @@ from app.api import crud
 from app.api import utility as util
 
 
-@pytest.fixture()
-def test_data():
-    """Create toy data for two datasets for testing."""
-    return [
-        {
-            "dataset_uuid": "http://neurobagel.org/vocab/12345",
-            "dataset_name": "QPN",
-            "dataset_portal_uri": "https://rpq-qpn.ca/en/researchers-section/databases/",
-            "num_matching_subjects": 5,
-            "subject_data": [
-                "/my/happy/path/sub-0051/to/session-01",
-                "/my/happy/path/sub-0653/to/session-01",
-                "/my/happy/path/sub-1063/to/session-01",
-                "/my/happy/path/sub-1113/to/session-01",
-                "/my/happy/path/sub-1170/to/session-01",
-            ],
-            "image_modals": [
-                "http://purl.org/nidash/nidm#T1Weighted",
-                "http://purl.org/nidash/nidm#T2Weighted",
-            ],
-        },
-        {
-            "dataset_uuid": "http://neurobagel.org/vocab/67890",
-            "dataset_name": "PPMI",
-            "dataset_portal_uri": "https://www.ppmi-info.org/access-data-specimens/download-data",
-            "num_matching_subjects": 3,
-            "subject_data": [
-                "/my/happy/path/sub-719238/to/session-01",
-                "/my/happy/path/sub-719341/to/session-01",
-                "/my/happy/path/sub-719369/to/session-01",
-                "/my/happy/path/sub-719238/to/session-02",
-                "/my/happy/path/sub-719341/to/session-02",
-            ],
-            "image_modals": [
-                "http://purl.org/nidash/nidm#FlowWeighted",
-                "http://purl.org/nidash/nidm#T1Weighted",
-            ],
-        },
-    ]
-
-
-@pytest.fixture
-def mock_successful_get(test_data):
-    """Mock get function that returns non-empty query results."""
-
-    async def mockreturn(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        assessment,
-        image_modal,
-    ):
-        return test_data
-
-    return mockreturn
-
-
-@pytest.fixture
-def mock_invalid_get():
-    """Mock get function that does not return any response (for testing invalid parameter values)."""
-
-    async def mockreturn(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_sessions,
-        assessment,
-        image_modal,
-    ):
-        return None
-
-    return mockreturn
-
-
 def test_start_app_without_environment_vars_fails(test_app, monkeypatch):
     """Given non-existing username and password environment variables, raises an informative RuntimeError."""
     monkeypatch.delenv(util.GRAPH_USERNAME.name, raising=False)
@@ -473,3 +394,32 @@ def test_get_undefined_prefix_image_modal(
         f"/query/?image_modal={undefined_prefix_image_modal}"
     )
     assert response.status_code == 500
+
+
+@pytest.mark.parametrize(
+    "valid_data_element_URI",
+    ["nb:Diagnosis", "nb:Assessment"],
+)
+def test_get_terms_valid_data_element_URI(
+    test_app, mock_successful_get_terms, valid_data_element_URI, monkeypatch
+):
+    """Given a valid data element URI, returns a 200 status code and a non-empty list of terms for that data element."""
+
+    monkeypatch.setattr(crud, "get_terms", mock_successful_get_terms)
+    response = test_app.get(f"/query/attributes/{valid_data_element_URI}")
+    assert response.status_code == 200
+    first_key = next(iter(response.json()))
+    assert response.json()[first_key] != []
+
+
+@pytest.mark.parametrize(
+    "invalid_data_element_URI",
+    ["apple", "some_thing:cool"],
+)
+def test_get_terms_invalid_data_element_URI(
+    test_app, invalid_data_element_URI, monkeypatch
+):
+    """Given an invalid data element URI, returns a 422 status code as the validation of the data element URI fails."""
+
+    response = test_app.get(f"/query/attributes/{invalid_data_element_URI}")
+    assert response.status_code == 422

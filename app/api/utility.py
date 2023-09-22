@@ -206,3 +206,31 @@ def create_query(
         """
 
     return "\n".join([DEFAULT_CONTEXT, query_string])
+
+
+def create_terms_query(data_element_URI: str) -> str:
+    """
+    Creates a SPARQL query using a simple query template to retrieve term URLS for a given data element.
+
+    Parameters
+    ----------
+    data_element_URI : str
+        The URI of the data element for which to retrieve the URIs of all connected term.
+
+    Returns
+    -------
+    str
+        The SPARQL query.
+    Examples
+    --------
+    get_terms_query("nb:Assessment")
+    """
+
+    query_string = f"""
+    SELECT DISTINCT ?termURL
+    WHERE {{
+        ?termURL a {data_element_URI}.
+    }}
+    """
+
+    return "\n".join([DEFAULT_CONTEXT, query_string])
