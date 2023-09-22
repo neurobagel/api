@@ -3,9 +3,10 @@
 from typing import List
 
 from fastapi import APIRouter, Depends
+from pydantic import constr
 
 from .. import crud
-from ..models import CohortQueryResponse, QueryModel
+from ..models import CONTROLLED_TERM_REGEX, CohortQueryResponse, QueryModel
 
 router = APIRouter(prefix="/query", tags=["query"])
 
@@ -28,7 +29,7 @@ async def get_query(query: QueryModel = Depends(QueryModel)):
 
 
 @router.get("/attributes/{attribute_URI}")
-async def get_terms(attribute_URI: str):
+async def get_terms(attribute_URI: constr(regex=CONTROLLED_TERM_REGEX)):
     """When a GET request is sent, return a dict with the only key corresponding to controlled term of a neurobagel class and value corresponding to all the available terms."""
     response = await crud.get_terms(attribute_URI)
 
