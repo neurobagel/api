@@ -1,10 +1,10 @@
 @prefix nb: <http://neurobagel.org/vocab/> . 
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-nb:Age
+nb:Acquisition
     a rdfs:Class.
 
-nb:Acquisition
+nb:Age
     a rdfs:Class.
 
 nb:Assessment 
