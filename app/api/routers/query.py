@@ -25,3 +25,11 @@ async def get_query(query: QueryModel = Depends(QueryModel)):
     )
 
     return response
+
+
+@router.get("/attributes/{attribute_URI}")
+async def get_terms(attribute_URI: str):
+    """When a GET request is sent, return a dict with the only key corresponding to controlled term of a neurobagel class and value corresponding to all the available terms."""
+    response = await crud.get_terms(attribute_URI)
+
+    return response
