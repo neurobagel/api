@@ -397,30 +397,29 @@ def test_get_undefined_prefix_image_modal(
 
 
 @pytest.mark.parametrize(
-    "valid_attribute_URI",
+    "valid_data_element_URI",
     ["nb:Diagnosis", "nb:Assessment"],
 )
-def test_get_terms_valid_attribute_URI(
-    test_app, mock_successful_get_terms, valid_attribute_URI, monkeypatch
+def test_get_terms_valid_data_element_URI(
+    test_app, mock_successful_get_terms, valid_data_element_URI, monkeypatch
 ):
-    """Given a valid attribute URI, returns a 200 status code and a non-empty list of terms for that attribute."""
+    """Given a valid data element URI, returns a 200 status code and a non-empty list of terms for that data element."""
 
     monkeypatch.setattr(crud, "get_terms", mock_successful_get_terms)
-    response = test_app.get(f"/query/attributes/{valid_attribute_URI}")
+    response = test_app.get(f"/query/attributes/{valid_data_element_URI}")
     assert response.status_code == 200
     first_key = next(iter(response.json()))
     assert response.json()[first_key] != []
 
 
 @pytest.mark.parametrize(
-    "invalid_attribute_URI",
+    "invalid_data_element_URI",
     ["apple", "some_thing:cool"],
 )
-def test_get_terms_invalid_attribute_URI(
-    test_app, mock_invalid_get_terms, invalid_attribute_URI, monkeypatch
+def test_get_terms_invalid_data_element_URI(
+    test_app, invalid_data_element_URI, monkeypatch
 ):
-    """Given a valid attribute URI, returns a 422 status code."""
+    """Given a valid data element URI, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get_terms", mock_invalid_get_terms)
-    response = test_app.get(f"/query/attributes/{invalid_attribute_URI}")
+    response = test_app.get(f"/query/attributes/{invalid_data_element_URI}")
     assert response.status_code == 422

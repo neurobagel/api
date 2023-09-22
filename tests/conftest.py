@@ -107,17 +107,7 @@ def terms_test_data():
 def mock_successful_get_terms(terms_test_data):
     """Mock get_terms function that returns non-empty results."""
 
-    async def mockreturn(attribute_URI):
+    async def mockreturn(data_element_URI):
         return terms_test_data
-
-    return mockreturn
-
-
-@pytest.fixture
-def mock_invalid_get_terms():
-    """Mock get_terms function that does not return any terms (for testing invalid attribute values)."""
-
-    async def mockreturn(attribute_URI):
-        return None
 
     return mockreturn
