@@ -205,3 +205,28 @@ def create_query(
         """
 
     return "\n".join([DEFAULT_CONTEXT, query_string])
+
+
+def create_terms_query(attribute_URI: str) -> str:
+    """
+    Creates a SPARQL query using a simple query template to retrieve term URLS for a given attribute.
+
+    Parameters
+    ----------
+    attribute_URI : str
+        The URI of the attribute for which to retrieve term URLS.
+
+    Returns
+    -------
+    str
+        The SPARQL query.
+    """
+
+    query_string = f"""
+    SELECT DISTINCT ?termURL
+    WHERE {{
+        ?termURL a {attribute_URI}.
+    }}
+    """
+
+    return "\n".join([DEFAULT_CONTEXT, query_string])
