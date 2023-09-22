@@ -53,7 +53,7 @@ def query_test_data():
 
 @pytest.fixture
 def mock_successful_get_query(query_test_data):
-    """Mock get function that returns non-empty query results."""
+    """Mock get_query function that returns non-empty query results."""
 
     async def mockreturn(
         min_age,
@@ -72,7 +72,7 @@ def mock_successful_get_query(query_test_data):
 
 @pytest.fixture
 def mock_invalid_get_query():
-    """Mock get function that does not return any response (for testing invalid parameter values)."""
+    """Mock get_query function that does not return any response (for testing invalid parameter values)."""
 
     async def mockreturn(
         min_age,
@@ -85,5 +85,39 @@ def mock_invalid_get_query():
         image_modal,
     ):
         return None
+
+    return mockreturn
+
+
+@pytest.fixture()
+def terms_test_data():
+    """Create toy data for terms for testing."""
+    return {
+        "nb:NeurobagelClass": [
+            "http://neurobagel.org/vocab/term1",
+            "http://neurobagel.org/vocab/term2",
+            "http://neurobagel.org/vocab/term3",
+            "http://neurobagel.org/vocab/term4",
+            "http://neurobagel.org/vocab/term5",
+        ]
+    }
+
+
+@pytest.fixture
+def mock_successful_get_terms(terms_test_data):
+    """Mock get_terms function that returns non-empty results."""
+
+    async def mockreturn(attribute_URI):
+        return terms_test_data
+
+    return mockreturn
+
+
+@pytest.fixture
+def mock_invalid_get_terms():
+    """Mock get_terms function that does not return any terms (for testing invalid attribute values)."""
+
+    async def mockreturn(attribute_URI):
+        return {attribute_URI: []}
 
     return mockreturn
