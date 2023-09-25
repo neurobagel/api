@@ -1,0 +1,37 @@
+@prefix nb: <http://neurobagel.org/vocab/> . 
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+nb:Acquisition
+    a rdfs:Class.
+
+nb:Age
+    a rdfs:Class.
+
+nb:Assessment 
+    a rdfs:Class ;
+    rdfs:subClassOf nb:ControlledTerm .
+
+nb:ControlledTerm
+    a rdfs:Class.
+
+nb:Diagnosis
+    a rdfs:Class ;
+    rdfs:subClassOf nb:ControlledTerm .
+
+nb:Image
+    a rdfs:Class ;
+    rdfs:subClassOf nb:ControlledTerm .
+
+nb:Session
+    a rdfs:Class.
+
+nb:Sex
+    a rdfs:Class ;
+    rdfs:subClassOf nb:ControlledTerm .
+
+nb:Subject 
+    a rdfs:Class.
+
+nb:SubjectGroup
+    a rdfs:Class ;
+    rdfs:subClassOf nb:ControlledTerm .
