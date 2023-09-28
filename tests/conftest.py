@@ -12,19 +12,20 @@ def test_app():
 
 @pytest.fixture()
 def test_data():
-    """Create toy data for two datasets for testing."""
+    """Create valid aggregate response data for two toy datasets for testing."""
     return [
         {
             "dataset_uuid": "http://neurobagel.org/vocab/12345",
             "dataset_name": "QPN",
             "dataset_portal_uri": "https://rpq-qpn.ca/en/researchers-section/databases/",
             "num_matching_subjects": 5,
+            "records_protected": True,
             "subject_data": [
-                "/my/happy/path/sub-0051/to/session-01",
-                "/my/happy/path/sub-0653/to/session-01",
-                "/my/happy/path/sub-1063/to/session-01",
-                "/my/happy/path/sub-1113/to/session-01",
-                "/my/happy/path/sub-1170/to/session-01",
+                {"session_file_path": "/my/happy/path/sub-0051/to/session-01"},
+                {"session_file_path": "/my/happy/path/sub-0653/to/session-01"},
+                {"session_file_path": "/my/happy/path/sub-1063/to/session-01"},
+                {"session_file_path": "/my/happy/path/sub-1113/to/session-01"},
+                {"session_file_path": "/my/happy/path/sub-1170/to/session-01"},
             ],
             "image_modals": [
                 "http://purl.org/nidash/nidm#T1Weighted",
@@ -36,12 +37,23 @@ def test_data():
             "dataset_name": "PPMI",
             "dataset_portal_uri": "https://www.ppmi-info.org/access-data-specimens/download-data",
             "num_matching_subjects": 3,
+            "records_protected": True,
             "subject_data": [
-                "/my/happy/path/sub-719238/to/session-01",
-                "/my/happy/path/sub-719341/to/session-01",
-                "/my/happy/path/sub-719369/to/session-01",
-                "/my/happy/path/sub-719238/to/session-02",
-                "/my/happy/path/sub-719341/to/session-02",
+                {
+                    "session_file_path": "/my/happy/path/sub-719238/to/session-01"
+                },
+                {
+                    "session_file_path": "/my/happy/path/sub-719341/to/session-01"
+                },
+                {
+                    "session_file_path": "/my/happy/path/sub-719369/to/session-01"
+                },
+                {
+                    "session_file_path": "/my/happy/path/sub-719238/to/session-02"
+                },
+                {
+                    "session_file_path": "/my/happy/path/sub-719341/to/session-02"
+                },
             ],
             "image_modals": [
                 "http://purl.org/nidash/nidm#FlowWeighted",
