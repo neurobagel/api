@@ -102,6 +102,7 @@ async def get(
 
     results = response.json()
 
+    # Reformat SPARQL results into more human-readable form
     results_dicts = [
         {k: v["value"] for k, v in res.items()}
         for res in results["results"]["bindings"]
@@ -115,7 +116,10 @@ async def get(
             by=dataset_cols
         ):
             if util.RETURN_AGG.val:
-                subject_data = list(group["session_file_path"].dropna())
+                subject_data = list(
+                    {"session_file_path": file_path}
+                    for file_path in group["session_file_path"].dropna()
+                )
             else:
                 subject_data = (
                     group.drop(dataset_cols, axis=1)
