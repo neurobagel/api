@@ -23,9 +23,7 @@ GRAPH_ADDRESS = EnvVar(
 GRAPH_DB = EnvVar(
     "NB_GRAPH_DB", os.environ.get("NB_GRAPH_DB", "test_data/query")
 )
-GRAPH_PORT_HOST = EnvVar(
-    "NB_GRAPH_PORT_HOST", os.environ.get("NB_GRAPH_PORT_HOST", 5820)
-)
+GRAPH_PORT = EnvVar("NB_GRAPH_PORT", os.environ.get("NB_GRAPH_PORT", 5820))
 # TODO: Environment variables can't be parsed as bool so this is a workaround but isn't ideal.
 # Another option is to switch this to a command-line argument, but that would require changing the
 # Dockerfile also since Uvicorn can't accept custom command-line args.
@@ -33,7 +31,7 @@ RETURN_AGG = EnvVar(
     "NB_RETURN_AGG", os.environ.get("NB_RETURN_AGG", "True").lower() == "true"
 )
 
-QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT_HOST.val}/{GRAPH_DB.val}"
+QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT.val}/{GRAPH_DB.val}"
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",
