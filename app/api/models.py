@@ -57,6 +57,7 @@ class CohortQueryResponse(BaseModel):
     # dataset_file_path: str  # TODO: Revisit this field once we have datasets without imaging info/sessions.
     dataset_name: str
     dataset_portal_uri: Optional[str]
+    records_protected: bool
     num_matching_subjects: int
-    subject_data: list
+    subject_data: list[dict]
     image_modals: list
