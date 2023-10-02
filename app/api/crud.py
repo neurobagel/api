@@ -198,3 +198,48 @@ async def get_terms(data_element_URI: str):
     }
 
     return results_dict
+
+
+async def get_controlled_term_attributes():
+    """
+    Makes a POST query to Stardog API for all Neurobagel classes representing controlled term attributes.
+
+    Returns
+    -------
+    dict
+        Dictionary with value corresponding to all available controlled term attributes.
+    """
+    attributes_query = f"""
+    {util.DEFAULT_CONTEXT}
+
+    SELECT DISTINCT ?attribute
+    WHERE {{
+        ?attribute rdfs:subClassOf nb:ControlledTerm .
+    }}
+    """
+
+    response = httpx.post(
+        url=util.QUERY_URL,
+        content=attributes_query,
+        headers=util.QUERY_HEADER,
+        auth=httpx.BasicAuth(
+            os.environ.get(util.GRAPH_USERNAME.name),
+            os.environ.get(util.GRAPH_PASSWORD.name),
+        ),
+    )
+
+    if not response.is_success:
+        raise HTTPException(
+            status_code=response.status_code,
+            detail=f"{response.reason_phrase}: {response.text}",
+        )
+
+    results = response.json()
+    results_dict = {
+        "nb:ControlledTerm": [
+            result["attribute"]["value"]
+            for result in results["results"]["bindings"]
+        ]
+    }
+
+    return results_dict
