@@ -406,7 +406,7 @@ def test_get_terms_valid_data_element_URI(
     """Given a valid data element URI, returns a 200 status code and a non-empty list of terms for that data element."""
 
     monkeypatch.setattr(crud, "get_terms", mock_successful_get_terms)
-    response = test_app.get(f"/query/attributes/{valid_data_element_URI}")
+    response = test_app.get(f"/attributes/{valid_data_element_URI}")
     assert response.status_code == 200
     first_key = next(iter(response.json()))
     assert response.json()[first_key] != []
@@ -417,9 +417,9 @@ def test_get_terms_valid_data_element_URI(
     ["apple", "some_thing:cool"],
 )
 def test_get_terms_invalid_data_element_URI(
-    test_app, invalid_data_element_URI, monkeypatch
+    test_app, invalid_data_element_URI
 ):
     """Given an invalid data element URI, returns a 422 status code as the validation of the data element URI fails."""
 
-    response = test_app.get(f"/query/attributes/{invalid_data_element_URI}")
+    response = test_app.get(f"/attributes/{invalid_data_element_URI}")
     assert response.status_code == 422
