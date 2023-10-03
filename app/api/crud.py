@@ -216,7 +216,7 @@ async def get_controlled_term_attributes():
         Dictionary with value corresponding to all available controlled term attributes.
     """
     attributes_query = f"""
-    {util.DEFAULT_CONTEXT}
+    {util.create_context()}
 
     SELECT DISTINCT ?attribute
     WHERE {{
