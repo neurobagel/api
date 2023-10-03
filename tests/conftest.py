@@ -106,11 +106,11 @@ def terms_test_data():
     """Create toy data for terms for testing."""
     return {
         "nb:NeurobagelClass": [
-            "http://neurobagel.org/vocab/term1",
-            "http://neurobagel.org/vocab/term2",
-            "http://neurobagel.org/vocab/term3",
-            "http://neurobagel.org/vocab/term4",
-            "http://neurobagel.org/vocab/term5",
+            "nb:term1",
+            "nb:term2",
+            "nb:term3",
+            "nb:term4",
+            "nb:term5",
         ]
     }
 

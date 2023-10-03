@@ -429,7 +429,7 @@ def test_get_attributes(
     test_app,
     monkeypatch,
 ):
-    """Tests that a GET request to the /attributes/ endpoint successfully returns controlled term attributes as a list."""
+    """Given a GET request to the /attributes/ endpoint, successfully returns controlled term attributes with namespaces abbrieviated and as a list."""
 
     monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
     monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
@@ -438,9 +438,24 @@ def test_get_attributes(
         "head": {"vars": ["attribute"]},
         "results": {
             "bindings": [
-                {"attribute": {"type": "uri", "value": "nb:ControlledTerm1"}},
-                {"attribute": {"type": "uri", "value": "nb:ControlledTerm2"}},
-                {"attribute": {"type": "uri", "value": "nb:ControlledTerm3"}},
+                {
+                    "attribute": {
+                        "type": "uri",
+                        "value": "http://neurobagel.org/vocab/ControlledTerm1",
+                    }
+                },
+                {
+                    "attribute": {
+                        "type": "uri",
+                        "value": "http://neurobagel.org/vocab/ControlledTerm2",
+                    }
+                },
+                {
+                    "attribute": {
+                        "type": "uri",
+                        "value": "http://neurobagel.org/vocab/ControlledTerm3",
+                    }
+                },
             ]
         },
     }
