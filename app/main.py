@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 
 from .api import utility as util
-from .api.routers import query
+from .api.routers import attributes, query
 
 app = FastAPI(default_response_class=ORJSONResponse)
 
@@ -48,6 +48,7 @@ async def allowed_origins_check():
 
 
 app.include_router(query.router)
+app.include_router(attributes.router)
 
 # Automatically start uvicorn server on execution of main.py
 if __name__ == "__main__":

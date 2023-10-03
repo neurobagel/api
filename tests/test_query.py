@@ -406,7 +406,7 @@ def test_get_terms_valid_data_element_URI(
     """Given a valid data element URI, returns a 200 status code and a non-empty list of terms for that data element."""
 
     monkeypatch.setattr(crud, "get_terms", mock_successful_get_terms)
-    response = test_app.get(f"/query/attributes/{valid_data_element_URI}")
+    response = test_app.get(f"/attributes/{valid_data_element_URI}")
     assert response.status_code == 200
     first_key = next(iter(response.json()))
     assert response.json()[first_key] != []
@@ -417,9 +417,57 @@ def test_get_terms_valid_data_element_URI(
     ["apple", "some_thing:cool"],
 )
 def test_get_terms_invalid_data_element_URI(
-    test_app, invalid_data_element_URI, monkeypatch
+    test_app, invalid_data_element_URI
 ):
     """Given an invalid data element URI, returns a 422 status code as the validation of the data element URI fails."""
 
-    response = test_app.get(f"/query/attributes/{invalid_data_element_URI}")
+    response = test_app.get(f"/attributes/{invalid_data_element_URI}")
     assert response.status_code == 422
+
+
+def test_get_attributes(
+    test_app,
+    monkeypatch,
+):
+    """Given a GET request to the /attributes/ endpoint, successfully returns controlled term attributes with namespaces abbrieviated and as a list."""
+
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
+
+    mock_response_json = {
+        "head": {"vars": ["attribute"]},
+        "results": {
+            "bindings": [
+                {
+                    "attribute": {
+                        "type": "uri",
+                        "value": "http://neurobagel.org/vocab/ControlledTerm1",
+                    }
+                },
+                {
+                    "attribute": {
+                        "type": "uri",
+                        "value": "http://neurobagel.org/vocab/ControlledTerm2",
+                    }
+                },
+                {
+                    "attribute": {
+                        "type": "uri",
+                        "value": "http://neurobagel.org/vocab/ControlledTerm3",
+                    }
+                },
+            ]
+        },
+    }
+
+    def mock_httpx_post(**kwargs):
+        return httpx.Response(status_code=200, json=mock_response_json)
+
+    monkeypatch.setattr(httpx, "post", mock_httpx_post)
+    response = test_app.get("/attributes/")
+
+    assert response.json() == [
+        "nb:ControlledTerm1",
+        "nb:ControlledTerm2",
+        "nb:ControlledTerm3",
+    ]

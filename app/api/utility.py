@@ -38,6 +38,7 @@ QUERY_HEADER = {
 }
 
 # SPARQL query context
+# TODO: Refactor into a function.
 DEFAULT_CONTEXT = """
 PREFIX cogatlas: <https://www.cognitiveatlas.org/task/id/>
 PREFIX nb: <http://neurobagel.org/vocab/>
@@ -46,6 +47,15 @@ PREFIX ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
 PREFIX nidm: <http://purl.org/nidash/nidm#>
 PREFIX snomed: <http://purl.bioontology.org/ontology/SNOMEDCT/>
 """
+
+CONTEXT = {
+    "cogatlas": "https://www.cognitiveatlas.org/task/id/",
+    "nb": "http://neurobagel.org/vocab/",
+    "nbg": "http://neurobagel.org/graph/",  # TODO: Check if we still need this namespace.
+    "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
+    "nidm": "http://purl.org/nidash/nidm#",
+    "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
+}
 
 # Store domains in named tuples
 Domain = namedtuple("Domain", ["var", "pred"])
@@ -219,6 +229,7 @@ def create_terms_query(data_element_URI: str) -> str:
     -------
     str
         The SPARQL query.
+
     Examples
     --------
     get_terms_query("nb:Assessment")
@@ -227,8 +238,31 @@ def create_terms_query(data_element_URI: str) -> str:
     query_string = f"""
     SELECT DISTINCT ?termURL
     WHERE {{
-        ?termURL a {data_element_URI}.
+        ?termURL a {data_element_URI} .
+        {data_element_URI} rdfs:subClassOf nb:ControlledTerm .
     }}
     """
 
     return "\n".join([DEFAULT_CONTEXT, query_string])
+
+
+def replace_namespace_uri(url: str) -> str:
+    """
+    Replaces namespace URIs in term URLs with corresponding prefixes from the context.
+
+    Parameters
+    ----------
+    url : str
+        A controlled term URL.
+
+    Returns
+    -------
+    str
+        The term with namespace URIs replaced with prefixes if found in the context, or the original URL.
+    """
+    for prefix, uri in CONTEXT.items():
+        if uri in url:
+            return url.replace(uri, f"{prefix}:")
+
+    # If no match found within the context, return original URL
+    return url
