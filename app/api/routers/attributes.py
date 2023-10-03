@@ -15,9 +15,9 @@ async def get_terms(data_element_URI: constr(regex=CONTROLLED_TERM_REGEX)):
     return response
 
 
-@router.get("/", response_model=dict)
+@router.get("/", response_model=list)
 async def get_attributes():
-    """When a GET request is sent, return a dict containing a list of the harmonized controlled term attributes."""
+    """When a GET request is sent, return a list of the harmonized controlled term attributes."""
     response = await crud.get_controlled_term_attributes()
 
     return response

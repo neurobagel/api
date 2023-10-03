@@ -235,11 +235,9 @@ async def get_controlled_term_attributes():
         )
 
     results = response.json()
-    results_dict = {
-        "nb:ControlledTerm": [
-            result["attribute"]["value"]
-            for result in results["results"]["bindings"]
-        ]
-    }
+    results_list = [
+        result["attribute"]["value"]
+        for result in results["results"]["bindings"]
+    ]
 
-    return results_dict
+    return results_list
