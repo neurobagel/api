@@ -423,3 +423,36 @@ def test_get_terms_invalid_data_element_URI(
 
     response = test_app.get(f"/attributes/{invalid_data_element_URI}")
     assert response.status_code == 422
+
+
+def test_get_attributes(
+    test_app,
+    monkeypatch,
+):
+    """Tests that a GET request to the /attributes/ endpoint successfully returns controlled term attributes as a list."""
+
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
+
+    mock_response_json = {
+        "head": {"vars": ["attribute"]},
+        "results": {
+            "bindings": [
+                {"attribute": {"type": "uri", "value": "nb:ControlledTerm1"}},
+                {"attribute": {"type": "uri", "value": "nb:ControlledTerm2"}},
+                {"attribute": {"type": "uri", "value": "nb:ControlledTerm3"}},
+            ]
+        },
+    }
+
+    def mock_httpx_post(**kwargs):
+        return httpx.Response(status_code=200, json=mock_response_json)
+
+    monkeypatch.setattr(httpx, "post", mock_httpx_post)
+    response = test_app.get("/attributes/")
+
+    assert response.json() == [
+        "nb:ControlledTerm1",
+        "nb:ControlledTerm2",
+        "nb:ControlledTerm3",
+    ]
