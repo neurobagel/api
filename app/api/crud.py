@@ -192,7 +192,7 @@ async def get_terms(data_element_URI: str):
 
     results_dict = {
         data_element_URI: [
-            result["termURL"]["value"]
+            util.replace_namespace_uri(result["termURL"]["value"])
             for result in results["results"]["bindings"]
         ]
     }
@@ -236,7 +236,7 @@ async def get_controlled_term_attributes():
 
     results = response.json()
     results_list = [
-        result["attribute"]["value"]
+        util.replace_namespace_uri(result["attribute"]["value"])
         for result in results["results"]["bindings"]
     ]
 
