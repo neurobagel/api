@@ -29,6 +29,48 @@ ATTRIBUTES_ORDER = [
 ]
 
 
+def post_query_to_stardog(query: str, timeout: float = 5.0) -> dict:
+    """
+    Makes a post request to the Stardog API using the parameters from the environment.
+    Parameters
+    ----------
+    query : str
+        The full SPARQL query string.
+    timeout : float, optional
+        The maximum duration for the request, by default 5.0 seconds.
+
+    Returns
+    -------
+    dict
+        The response from the Stardog API, encoded as json.
+    """
+    try:
+        response = httpx.post(
+            url=util.QUERY_URL,
+            content=query,
+            headers=util.QUERY_HEADER,
+            auth=httpx.BasicAuth(
+                os.environ.get(util.GRAPH_USERNAME.name),
+                os.environ.get(util.GRAPH_PASSWORD.name),
+            ),
+            timeout=timeout,
+        )
+    # Provide more informative error message for a timeout in the connection to the host.
+    except httpx.ConnectTimeout as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Timed out while connecting to the server. You may not be on an authorized network to perform this request.",
+        ) from exc
+
+    if not response.is_success:
+        raise HTTPException(
+            status_code=response.status_code,
+            detail=f"{response.reason_phrase}: {response.text}",
+        )
+
+    return response.json()
+
+
 async def get(
     min_age: float,
     max_age: float,
@@ -67,40 +109,20 @@ async def get(
         Response of the POST request.
 
     """
-    try:
-        response = httpx.post(
-            url=util.QUERY_URL,
-            content=util.create_query(
-                return_agg=util.RETURN_AGG.val,
-                age=(min_age, max_age),
-                sex=sex,
-                diagnosis=diagnosis,
-                is_control=is_control,
-                min_num_sessions=min_num_sessions,
-                assessment=assessment,
-                image_modal=image_modal,
-            ),
-            headers=util.QUERY_HEADER,
-            auth=httpx.BasicAuth(
-                os.environ.get(util.GRAPH_USERNAME.name),
-                os.environ.get(util.GRAPH_PASSWORD.name),
-            ),
-            # TODO: Revisit timeout value when query performance is improved
-            timeout=30.0,
-        )
-    except httpx.ConnectTimeout as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Timed out while connecting to the server. Please confirm that you are connected to the McGill network and try again.",
-        ) from exc
-
-    if not response.is_success:
-        raise HTTPException(
-            status_code=response.status_code,
-            detail=f"{response.reason_phrase}: {response.text}",
-        )
-
-    results = response.json()
+    results = post_query_to_stardog(
+        util.create_query(
+            return_agg=util.RETURN_AGG.val,
+            age=(min_age, max_age),
+            sex=sex,
+            diagnosis=diagnosis,
+            is_control=is_control,
+            min_num_sessions=min_num_sessions,
+            assessment=assessment,
+            image_modal=image_modal,
+        ),
+        # TODO: Revisit timeout value when query performance is improved
+        timeout=30.0,
+    )
 
     # Reformat SPARQL results into more human-readable form
     results_dicts = [
@@ -172,23 +194,7 @@ async def get_terms(data_element_URI: str):
     httpx.response
         Response of the POST request.
     """
-    response = httpx.post(
-        url=util.QUERY_URL,
-        content=util.create_terms_query(data_element_URI),
-        headers=util.QUERY_HEADER,
-        auth=httpx.BasicAuth(
-            os.environ.get(util.GRAPH_USERNAME.name),
-            os.environ.get(util.GRAPH_PASSWORD.name),
-        ),
-    )
-
-    if not response.is_success:
-        raise HTTPException(
-            status_code=response.status_code,
-            detail=f"{response.reason_phrase}: {response.text}",
-        )
-
-    results = response.json()
+    results = post_query_to_stardog(util.create_terms_query(data_element_URI))
 
     results_dict = {
         data_element_URI: [
@@ -217,24 +223,8 @@ async def get_controlled_term_attributes():
         ?attribute rdfs:subClassOf nb:ControlledTerm .
     }}
     """
+    results = post_query_to_stardog(attributes_query)
 
-    response = httpx.post(
-        url=util.QUERY_URL,
-        content=attributes_query,
-        headers=util.QUERY_HEADER,
-        auth=httpx.BasicAuth(
-            os.environ.get(util.GRAPH_USERNAME.name),
-            os.environ.get(util.GRAPH_PASSWORD.name),
-        ),
-    )
-
-    if not response.is_success:
-        raise HTTPException(
-            status_code=response.status_code,
-            detail=f"{response.reason_phrase}: {response.text}",
-        )
-
-    results = response.json()
     results_list = [
         util.replace_namespace_uri(result["attribute"]["value"])
         for result in results["results"]["bindings"]
