@@ -219,6 +219,7 @@ def create_terms_query(data_element_URI: str) -> str:
     -------
     str
         The SPARQL query.
+
     Examples
     --------
     get_terms_query("nb:Assessment")
@@ -227,7 +228,8 @@ def create_terms_query(data_element_URI: str) -> str:
     query_string = f"""
     SELECT DISTINCT ?termURL
     WHERE {{
-        ?termURL a {data_element_URI}.
+        ?termURL a {data_element_URI} .
+        {data_element_URI} rdfs:subClassOf nb:ControlledTerm .
     }}
     """
 
