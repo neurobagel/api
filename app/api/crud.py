@@ -31,7 +31,7 @@ ATTRIBUTES_ORDER = [
 
 def post_query_to_stardog(query: str, timeout: float = 5.0) -> dict:
     """
-    Makes a post request to the Stardog API using the parameters from the environment.
+    Makes a post request to the Stardog API to perform a query, using parameters from the environment.
     Parameters
     ----------
     query : str
