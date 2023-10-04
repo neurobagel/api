@@ -1,4 +1,4 @@
-"""Constants for Stardog graph connection and utility functions for writing the SPARQL query."""
+"""Constants for graph server connection and utility functions for writing the SPARQL query."""
 
 import os
 from collections import namedtuple
@@ -37,17 +37,6 @@ QUERY_HEADER = {
     "Accept": "application/sparql-results+json",
 }
 
-# SPARQL query context
-# TODO: Refactor into a function.
-DEFAULT_CONTEXT = """
-PREFIX cogatlas: <https://www.cognitiveatlas.org/task/id/>
-PREFIX nb: <http://neurobagel.org/vocab/>
-PREFIX nbg: <http://neurobagel.org/graph/>
-PREFIX ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
-PREFIX nidm: <http://purl.org/nidash/nidm#>
-PREFIX snomed: <http://purl.bioontology.org/ontology/SNOMEDCT/>
-"""
-
 CONTEXT = {
     "cogatlas": "https://www.cognitiveatlas.org/task/id/",
     "nb": "http://neurobagel.org/vocab/",
@@ -77,6 +66,13 @@ IS_CONTROL_TERM = "ncit:C94342"
 def parse_origins_as_list(allowed_origins: str) -> list:
     """Returns user-defined allowed origins as a list."""
     return list(allowed_origins.split(" "))
+
+
+def create_context() -> str:
+    """Creates a SPARQL query context string from the CONTEXT dictionary."""
+    return "\n".join(
+        [f"PREFIX {prefix}: <{uri}>" for prefix, uri in CONTEXT.items()]
+    )
 
 
 def create_query(
@@ -213,7 +209,7 @@ def create_query(
             \n}} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?session_file_path ?image_modal
         """
 
-    return "\n".join([DEFAULT_CONTEXT, query_string])
+    return "\n".join([create_context(), query_string])
 
 
 def create_terms_query(data_element_URI: str) -> str:
@@ -243,7 +239,7 @@ def create_terms_query(data_element_URI: str) -> str:
     }}
     """
 
-    return "\n".join([DEFAULT_CONTEXT, query_string])
+    return "\n".join([create_context(), query_string])
 
 
 def replace_namespace_uri(url: str) -> str:
