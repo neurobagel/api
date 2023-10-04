@@ -1,4 +1,4 @@
-"""Test API to query subjects from the Stardog graph who match user-specified criteria."""
+"""Test API to query subjects from the graph database who match user-specified criteria."""
 
 import os
 import warnings
