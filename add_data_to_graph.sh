@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # ARG_HELP([Upload JSONLD and Turtle data to a Neurobagel graph])
-# ARG_POSITIONAL_SINGLE([dir],[Path to directory containing .jsonld and/or .ttl files to be uploaded])
+# ARG_POSITIONAL_SINGLE([dir],[Path to directory containing .jsonld and/or .ttl files. ALL .jsonld and .ttl files in this directory will be uploaded.])
 # ARG_POSITIONAL_SINGLE([graph-url],[Host and port at which to access the graph database to add data to (e.g., localhost:7200)])
 # ARG_POSITIONAL_SINGLE([graph-db],[Name of graph database to add data to])
 # ARG_POSITIONAL_SINGLE([user],[Username for graph database access])
@@ -41,7 +41,7 @@ print_help()
 {
 	printf '%s\n' "Upload JSONLD and Turtle data to a Neurobagel graph"
 	printf 'Usage: %s [-h|--help] [--(no-)clear-data] <dir> <graph-url> <graph-db> <user> <password>\n' "$0"
-	printf '\t%s\n' "<dir>: Path to directory containing .jsonld and/or .ttl files to be uploaded"
+	printf '\t%s\n' "<dir>: Path to directory containing .jsonld and/or .ttl files. ALL .jsonld and .ttl files in this directory will be uploaded."
 	printf '\t%s\n' "<graph-url>: Host and port at which to access the graph database to add data to (e.g., localhost:7200)"
 	printf '\t%s\n' "<graph-db>: Name of graph database to add data to"
 	printf '\t%s\n' "<user>: Username for graph database access"
