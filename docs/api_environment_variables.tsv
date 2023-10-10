@@ -9,7 +9,7 @@ Environment variable	Required in .env?	Description	Default value if not set	Rele
 `NB_API_PORT`	No	Port number on which to run the API	`8000`	Docker, Python
 `NB_API_ALLOWED_ORIGINS`	Yes, if using a frontend query tool ‡	Origins allowed to make cross-origin resource sharing requests. Multiple origins must be separated with spaces in a single string enclosed in quotes. See ‡ for more info	"`""""`"	Docker, Python
 `NB_GRAPH_IMG`	No	Graph server Docker image	`stardog/stardog:8.2.2-java11-preview`	Docker
-`NB_GRAPH_ROOT_HOST`	No	For a Stardog backend, path to directory containing a Stardog license file on the _host machine_	`~/stardog-home`	Docker
+`NB_GRAPH_ROOT_HOST`	No	Path to directory on the _host machine_ to store graph database files and data. For a Stardog backend, this directory must contain a Stardog license file.	`~/stardog-home`	Docker
 `NB_GRAPH_ROOT_CONT`	No	Path to directory for graph databases in the _graph server container_	`/var/opt/stardog` *	Docker
 `NB_GRAPH_PORT_HOST`	No	Port number on the _host machine_ to map the graph server container port to	`5820`	Docker, Python
 `NB_GRAPH_PORT`	No	Port number used by the _graph server container_	`5820` *	Docker
