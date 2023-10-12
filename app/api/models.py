@@ -61,3 +61,12 @@ class CohortQueryResponse(BaseModel):
     num_matching_subjects: int
     subject_data: list[dict]
     image_modals: list
+
+
+class VocabLabelsResponse(BaseModel):
+    """Data model for response to a request for all term labels for a vocabulary."""
+
+    vocabulary_name: str
+    namespace_url: str
+    namespace_prefix: str
+    term_labels: dict
