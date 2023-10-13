@@ -67,7 +67,9 @@ CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
 
 IS_CONTROL_TERM = "ncit:C94342"
 
-BACKUP_VOCAB_DIR = Path(__file__).absolute().parents[2] / "vocab/backup"
+BACKUP_VOCAB_DIR = (
+    Path(__file__).absolute().parents[2] / "vocab/backup_external"
+)
 
 
 def parse_origins_as_list(allowed_origins: str) -> list:
@@ -298,9 +300,8 @@ def fetch_and_save_cogatlas(temp_vocab_dir: Path):
             {response.reason_phrase}: {response.text}
             """
         )
-        with open(
-            BACKUP_VOCAB_DIR / "cogatlas_task_term_labels.json", "r"
-        ) as f:
+        # Use backup copy of the raw vocabulary JSON
+        with open(BACKUP_VOCAB_DIR / "cogatlas_task.json", "r") as f:
             vocab = json.load(f)
 
     term_labels = {term["id"]: term["name"] for term in vocab}
