@@ -1,8 +1,13 @@
 """Constants for graph server connection and utility functions for writing the SPARQL query."""
 
+import json
 import os
+import warnings
 from collections import namedtuple
+from pathlib import Path
 from typing import Optional
+
+import httpx
 
 # Request constants
 EnvVar = namedtuple("EnvVar", ["name", "val"])
@@ -61,6 +66,8 @@ PROJECT = Domain("project", "nb:hasSamples")
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
 
 IS_CONTROL_TERM = "ncit:C94342"
+
+BACKUP_VOCAB_DIR = Path(__file__).absolute().parents[2] / "vocab/backup"
 
 
 def parse_origins_as_list(allowed_origins: str) -> list:
@@ -262,3 +269,40 @@ def replace_namespace_uri(url: str) -> str:
 
     # If no match found within the context, return original URL
     return url
+
+
+def fetch_and_save_cogatlas(temp_vocab_dir: Path):
+    """
+    Fetches the Cognitive Atlas vocabulary using its native Task API and writes term ID-label pairings to a temporary lookup file.
+    If the API request fails, a backup copy of the vocabulary is used instead.
+
+    Saves a JSON with keys corresponding to Cognitive Atlas task IDs and values corresponding to human-readable task names).
+
+    Parameters
+    ----------
+    temp_vocab_dir : Path
+        Path to temporary directory to store vocabulary lookup files.
+    """
+    api_url = "https://www.cognitiveatlas.org/api/v-alpha/task?format=json"
+    response = httpx.get(url=api_url)
+
+    if response.is_success:
+        vocab = response.json()
+    else:
+        warnings.warn(
+            f"""
+            The API was unable to fetch the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source and will default to using a local backup copy of the vocabulary instead.
+
+            Details of the response from the source:
+            Status code {response.status_code}
+            {response.reason_phrase}: {response.text}
+            """
+        )
+        with open(
+            BACKUP_VOCAB_DIR / "cogatlas_task_term_labels.json", "r"
+        ) as f:
+            vocab = json.load(f)
+
+    term_labels = {term["id"]: term["name"] for term in vocab}
+    with open(temp_vocab_dir / "cogatlas_task_term_labels.json", "w") as f:
+        f.write(json.dumps(term_labels, indent=2))

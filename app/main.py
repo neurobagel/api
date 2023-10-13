@@ -2,6 +2,8 @@
 
 import os
 import warnings
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import uvicorn
 from fastapi import FastAPI
@@ -45,6 +47,25 @@ async def allowed_origins_check():
             f"If you want to access the API from tools hosted at other origins such as the Neurobagel query tool, explicitly set the value of {util.ALLOWED_ORIGINS.name} to the origin(s) of these tools (e.g. http://localhost:3000). "
             "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes. "
         )
+
+
+@app.on_event("startup")
+async def create_temp_vocab_dir():
+    """Create a temporary directory to store vocabulary term lookup files, and also store its path in the app instance."""
+    app.state.vocab_dir = TemporaryDirectory()
+    app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
+
+
+@app.on_event("startup")
+async def fetch_vocabularies():
+    """Fetch vocabularies using their respective native APIs and store them in a temporary directory for use."""
+    util.fetch_and_save_cogatlas(app.state.vocab_dir_path)
+
+
+@app.on_event("shutdown")
+async def cleanup_temp_vocab_dir():
+    """Clean up the temporary directory created on startup."""
+    app.state.vocab_dir.cleanup()
 
 
 app.include_router(query.router)
