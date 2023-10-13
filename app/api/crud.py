@@ -1,6 +1,5 @@
 """CRUD functions called by path operations."""
 
-import json
 import os
 from pathlib import Path
 
@@ -237,8 +236,7 @@ async def get_controlled_term_attributes():
 
 async def get_term_labels_for_cogatlas(term_labels_path: Path):
     """Return the term-label mappings for the Cognitive Atlas Task vocabulary."""
-    with open(term_labels_path, "r") as f:
-        term_labels = json.load(f)
+    term_labels = util.load_json(term_labels_path)
 
     return VocabLabelsResponse(
         vocabulary_name="Cognitive Atlas Tasks",

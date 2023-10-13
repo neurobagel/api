@@ -273,6 +273,19 @@ def replace_namespace_uri(url: str) -> str:
     return url
 
 
+def load_json(path: Path) -> dict:
+    """
+    Loads a user-specified JSON file.
+
+    Parameters
+    ----------
+    path : Path
+        Path to JSON file.
+    """
+    with open(path, "r") as f:
+        return json.load(f)
+
+
 def fetch_and_save_cogatlas(temp_vocab_dir: Path):
     """
     Fetches the Cognitive Atlas vocabulary using its native Task API and writes term ID-label pairings to a temporary lookup file.
@@ -301,8 +314,7 @@ def fetch_and_save_cogatlas(temp_vocab_dir: Path):
             """
         )
         # Use backup copy of the raw vocabulary JSON
-        with open(BACKUP_VOCAB_DIR / "cogatlas_task.json", "r") as f:
-            vocab = json.load(f)
+        vocab = load_json(BACKUP_VOCAB_DIR / "cogatlas_task.json", "r")
 
     term_labels = {term["id"]: term["name"] for term in vocab}
     with open(temp_vocab_dir / "cogatlas_task_term_labels.json", "w") as f:
