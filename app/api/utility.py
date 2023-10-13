@@ -70,6 +70,7 @@ IS_CONTROL_TERM = "ncit:C94342"
 BACKUP_VOCAB_DIR = (
     Path(__file__).absolute().parents[2] / "vocab/backup_external"
 )
+VOCAB_FILE_PREFIX = {"cogatlas": "cogatlas_task"}
 
 
 def parse_origins_as_list(allowed_origins: str) -> list:
@@ -314,8 +315,13 @@ def fetch_and_save_cogatlas(temp_vocab_dir: Path):
             """
         )
         # Use backup copy of the raw vocabulary JSON
-        vocab = load_json(BACKUP_VOCAB_DIR / "cogatlas_task.json", "r")
+        vocab = load_json(
+            BACKUP_VOCAB_DIR / f"{VOCAB_FILE_PREFIX['cogatlas']}.json", "r"
+        )
 
     term_labels = {term["id"]: term["name"] for term in vocab}
-    with open(temp_vocab_dir / "cogatlas_task_term_labels.json", "w") as f:
+    with open(
+        temp_vocab_dir / f"{VOCAB_FILE_PREFIX['cogatlas']}_term_labels.json",
+        "w",
+    ) as f:
         f.write(json.dumps(term_labels, indent=2))
