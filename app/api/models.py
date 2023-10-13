@@ -1,5 +1,6 @@
 """Data models."""
 
+from enum import Enum
 from typing import Optional
 
 from fastapi import Query
@@ -61,6 +62,12 @@ class CohortQueryResponse(BaseModel):
     num_matching_subjects: int
     subject_data: list[dict]
     image_modals: list
+
+
+class DataElementURI(str, Enum):
+    """Data model for data element URIs that have available vocabulary lookups."""
+
+    assessment = "nb:Assessment"
 
 
 class VocabLabelsResponse(BaseModel):
