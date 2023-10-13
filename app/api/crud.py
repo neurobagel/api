@@ -235,7 +235,7 @@ async def get_controlled_term_attributes():
 
 
 async def get_term_labels_for_cogatlas(term_labels_path: Path):
-    """Return the term-label mappings for the Cognitive Atlas Task vocabulary."""
+    """Returns the term-label mappings as well as the vocabulary use details for the Cognitive Atlas Task vocabulary."""
     term_labels = util.load_json(term_labels_path)
 
     return VocabLabelsResponse(

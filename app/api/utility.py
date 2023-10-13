@@ -289,7 +289,7 @@ def load_json(path: Path) -> dict:
 
 def fetch_and_save_cogatlas(temp_vocab_dir: Path):
     """
-    Fetches the Cognitive Atlas vocabulary using its native Task API and writes term ID-label pairings to a temporary lookup file.
+    Fetches the Cognitive Atlas vocabulary using its native Task API and writes term ID-label mappings to a temporary lookup file.
     If the API request fails, a backup copy of the vocabulary is used instead.
 
     Saves a JSON with keys corresponding to Cognitive Atlas task IDs and values corresponding to human-readable task names).
