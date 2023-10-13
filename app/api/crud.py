@@ -1,13 +1,15 @@
 """CRUD functions called by path operations."""
 
+import json
 import os
+from pathlib import Path
 
 import httpx
 import pandas as pd
 from fastapi import HTTPException, status
 
 from . import utility as util
-from .models import CohortQueryResponse
+from .models import CohortQueryResponse, VocabLabelsResponse
 
 # Order that dataset and subject-level attributes should appear in the API JSON response.
 # This order is defined explicitly because when graph-returned results are transformed to a dataframe,
@@ -231,3 +233,16 @@ async def get_controlled_term_attributes():
     ]
 
     return results_list
+
+
+async def get_term_labels_for_cogatlas(term_labels_path: Path):
+    """Return the term-label mappings for the Cognitive Atlas Task vocabulary."""
+    with open(term_labels_path, "r") as f:
+        term_labels = json.load(f)
+
+    return VocabLabelsResponse(
+        vocabulary_name="Cognitive Atlas Tasks",
+        namespace_url=util.CONTEXT["cogatlas"],
+        namespace_prefix="cogatlas",
+        term_labels=term_labels,
+    )
