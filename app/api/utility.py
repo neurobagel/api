@@ -316,7 +316,7 @@ def fetch_and_save_cogatlas(temp_vocab_dir: Path):
         )
         # Use backup copy of the raw vocabulary JSON
         vocab = load_json(
-            BACKUP_VOCAB_DIR / f"{VOCAB_FILE_PREFIX['cogatlas']}.json", "r"
+            BACKUP_VOCAB_DIR / f"{VOCAB_FILE_PREFIX['cogatlas']}.json"
         )
 
     term_labels = {term["id"]: term["name"] for term in vocab}
