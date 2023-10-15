@@ -1,5 +1,6 @@
 """Test API to query subjects from the graph database who match user-specified criteria."""
 
+import json
 import os
 import warnings
 
@@ -105,6 +106,79 @@ def test_app_with_set_allowed_origins(
         util.parse_origins_as_list(
             os.environ.get(util.ALLOWED_ORIGINS.name, "")
         )
+    )
+
+
+def test_external_vocab_is_fetched_on_startup(test_app, monkeypatch):
+    """
+    Tests that on startup, a GET request is made to the Cognitive Atlas API and that when the request succeeds,
+    the term ID-label mappings from the returned vocab are stored in a temporary lookup file.
+    """
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
+    mock_vocab_json = [
+        {
+            "creation_time": 1689609836,
+            "last_updated": 1689609836,
+            "name": "Generalized Self-Efficacy Scale",
+            "definition_text": "The original Generalized Self-Efficacy Scale contains 10 items designed to tap into a global sense of self-efficacy, or belief of an individual in his or her ability (e.g., \u201cI can always solve difficult problems if I try hard enough,\u201d and \u201cI can usually handle whatever comes my way.\u201d) The revised version here includes these 10 items and two, which are repeated and reversed to examine acquiescence bias. Response options range from 1, never true, to 7, always true. Higher scores indicate greater generalized self-efficacy.",
+            "id": "tsk_p7cabUkVvQPBS",
+        },
+        {
+            "creation_time": 1689610375,
+            "last_updated": 1689610375,
+            "name": "Verbal Interference Test",
+            "definition_text": "The Verbal Interference Test is a behavioral assessment of cognitive regulation. In this task participants are presented with visual word stimuli that appear with incongruent text and color meaning (e.g., the word \u201cRED\u201d printed in blue, the word \u201cBLUE\u201d printed in green, the word \u201cGREEN\u201d printed in red). There are two phases of the task: Name (Part I) and Color (Part II). In the Name phase, participants are asked to identify the meaning of the word (e.g., red is the correct answer for the word \u201cRED\u201d printed in blue). In the Color phase, participants are asked to identify the color in which the word is printed (e.g., blue is the correct answer for the word \u201cRED\u201d printed in blue). This test assesses aspects of inhibition and interference corresponding to those indexed by the Stroop test.",
+            "id": "tsk_ccTKYnmv7tOZY",
+        },
+    ]
+
+    def mock_httpx_get(**kwargs):
+        return httpx.Response(status_code=200, json=mock_vocab_json)
+
+    monkeypatch.setattr(httpx, "get", mock_httpx_get)
+
+    with test_app:
+        term_labels_path = (
+            test_app.app.state.vocab_dir_path
+            / "cogatlas_task_term_labels.json"
+        )
+        assert term_labels_path.exists()
+
+        with open(term_labels_path, "r") as f:
+            term_labels = json.load(f)
+
+        assert term_labels == {
+            "tsk_p7cabUkVvQPBS": "Generalized Self-Efficacy Scale",
+            "tsk_ccTKYnmv7tOZY": "Verbal Interference Test",
+        }
+
+
+def test_failed_vocab_fetching_on_startup_raises_warning(
+    test_app, monkeypatch
+):
+    """Tests that when a GET request to the Cognitive Atlas API fails, a warning is raised and that a term label lookup file is still created using a backup copy of the vocab."""
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
+
+    def mock_httpx_get(**kwargs):
+        return httpx.Response(
+            status_code=500, json={}, text="Some error message"
+        )
+
+    monkeypatch.setattr(httpx, "get", mock_httpx_get)
+
+    with pytest.warns(UserWarning) as w:
+        with test_app:
+            assert (
+                test_app.app.state.vocab_dir_path
+                / "cogatlas_task_term_labels.json"
+            ).exists()
+
+    assert any(
+        "unable to fetch the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source and will default to using a local backup copy"
+        in str(warn.message)
+        for warn in w
     )
 
 
@@ -471,3 +545,27 @@ def test_get_attributes(
         "nb:ControlledTerm2",
         "nb:ControlledTerm3",
     ]
+
+
+def test_get_attribute_vocab(test_app, monkeypatch):
+    """Given a GET request to the /attributes/{data_element_URI}/vocab endpoint, successfully returns a JSON object containing the vocabulary name, namespace info, and term-label mappings."""
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
+    mock_term_labels = {
+        "tsk_p7cabUkVvQPBS": "Generalized Self-Efficacy Scale",
+        "tsk_ccTKYnmv7tOZY": "Verbal Interference Test",
+    }
+
+    def mock_load_json(path):
+        return mock_term_labels
+
+    monkeypatch.setattr(util, "load_json", mock_load_json)
+    response = test_app.get("/attributes/nb:Assessment/vocab")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "vocabulary_name": "Cognitive Atlas Tasks",
+        "namespace_url": util.CONTEXT["cogatlas"],
+        "namespace_prefix": "cogatlas",
+        "term_labels": mock_term_labels,
+    }
