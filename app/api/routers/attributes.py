@@ -2,7 +2,6 @@ from fastapi import APIRouter, Request
 from pydantic import constr
 
 from .. import crud
-from .. import utility as util
 from ..models import CONTROLLED_TERM_REGEX, DataElementURI, VocabLabelsResponse
 
 router = APIRouter(prefix="/attributes", tags=["attributes"])
@@ -15,8 +14,7 @@ async def get_term_labels_for_vocab(
     """When a GET request is sent, return a dict containing the name, namespace info, and all term ID-label mappings for the vocabulary of the specified variable."""
     if data_element_URI is DataElementURI.assessment:
         return await crud.get_term_labels_for_cogatlas(
-            term_labels_path=request.app.state.vocab_dir_path
-            / f"{util.VOCAB_FILE_PREFIX['cogatlas']}_term_labels.json"
+            term_labels_path=request.app.state.cogatlas_term_lookup_path
         )
 
 

@@ -70,7 +70,6 @@ IS_CONTROL_TERM = "ncit:C94342"
 BACKUP_VOCAB_DIR = (
     Path(__file__).absolute().parents[2] / "vocab/backup_external"
 )
-VOCAB_FILE_PREFIX = {"cogatlas": "cogatlas_task"}
 
 
 def parse_origins_as_list(allowed_origins: str) -> list:
@@ -287,7 +286,7 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 
-def fetch_and_save_cogatlas(temp_vocab_dir: Path):
+def fetch_and_save_cogatlas(output_path: Path):
     """
     Fetches the Cognitive Atlas vocabulary using its native Task API and writes term ID-label mappings to a temporary lookup file.
     If the API request fails, a backup copy of the vocabulary is used instead.
@@ -296,8 +295,8 @@ def fetch_and_save_cogatlas(temp_vocab_dir: Path):
 
     Parameters
     ----------
-    temp_vocab_dir : Path
-        Path to temporary directory to store vocabulary lookup files.
+    output_path : Path
+        File path to store output vocabulary lookup file.
     """
     api_url = "https://www.cognitiveatlas.org/api/v-alpha/task?format=json"
     response = httpx.get(url=api_url)
@@ -315,13 +314,8 @@ def fetch_and_save_cogatlas(temp_vocab_dir: Path):
             """
         )
         # Use backup copy of the raw vocabulary JSON
-        vocab = load_json(
-            BACKUP_VOCAB_DIR / f"{VOCAB_FILE_PREFIX['cogatlas']}.json"
-        )
+        vocab = load_json(BACKUP_VOCAB_DIR / "cogatlas_task.json")
 
     term_labels = {term["id"]: term["name"] for term in vocab}
-    with open(
-        temp_vocab_dir / f"{VOCAB_FILE_PREFIX['cogatlas']}_term_labels.json",
-        "w",
-    ) as f:
+    with open(output_path, "w") as f:
         f.write(json.dumps(term_labels, indent=2))

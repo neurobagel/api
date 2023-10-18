@@ -53,14 +53,18 @@ async def allowed_origins_check():
 async def fetch_vocabularies_to_temp_dir():
     """
     Create and store on the app instance a temporary directory for vocabulary term lookup files,
-    and then fetch vocabularies using their respective native APIs and save them to the temporary directory for use.
+    and then fetch vocabularies using their respective native APIs and save them to the temporary directory for reuse.
     """
     # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
     # to store a temporary directory object and its corresponding path. These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
     app.state.vocab_dir = TemporaryDirectory()
     app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
 
-    util.fetch_and_save_cogatlas(app.state.vocab_dir_path)
+    app.state.cogatlas_term_lookup_path = (
+        app.state.vocab_dir_path / "cogatlas_task_term_labels.json"
+    )
+
+    util.fetch_and_save_cogatlas(app.state.cogatlas_term_lookup_path)
 
 
 @app.on_event("shutdown")

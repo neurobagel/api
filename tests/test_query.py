@@ -139,10 +139,7 @@ def test_external_vocab_is_fetched_on_startup(test_app, monkeypatch):
     monkeypatch.setattr(httpx, "get", mock_httpx_get)
 
     with test_app:
-        term_labels_path = (
-            test_app.app.state.vocab_dir_path
-            / "cogatlas_task_term_labels.json"
-        )
+        term_labels_path = test_app.app.state.cogatlas_term_lookup_path
         assert term_labels_path.exists()
 
         with open(term_labels_path, "r") as f:
@@ -173,10 +170,7 @@ def test_failed_vocab_fetching_on_startup_raises_warning(
 
     with pytest.warns(UserWarning) as w:
         with test_app:
-            assert (
-                test_app.app.state.vocab_dir_path
-                / "cogatlas_task_term_labels.json"
-            ).exists()
+            assert test_app.app.state.cogatlas_term_lookup_path.exists()
 
     assert any(
         "unable to fetch the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source and will default to using a local backup copy"
