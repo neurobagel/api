@@ -157,13 +157,16 @@ def test_external_vocab_is_fetched_on_startup(test_app, monkeypatch):
 def test_failed_vocab_fetching_on_startup_raises_warning(
     test_app, monkeypatch
 ):
-    """Tests that when a GET request to the Cognitive Atlas API fails, a warning is raised and that a term label lookup file is still created using a backup copy of the vocab."""
+    """
+    Tests that when a GET request to the Cognitive Atlas API fails (e.g., due to service being unavailable),
+    a warning is raised and that a term label lookup file is still created using a backup copy of the vocab.
+    """
     monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
     monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
 
     def mock_httpx_get(**kwargs):
         return httpx.Response(
-            status_code=500, json={}, text="Some error message"
+            status_code=503, json={}, text="Some error message"
         )
 
     monkeypatch.setattr(httpx, "get", mock_httpx_get)
