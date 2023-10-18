@@ -14,12 +14,10 @@ async def get_term_labels_for_vocab(
 ):
     """When a GET request is sent, return a dict containing the name, namespace info, and all term ID-label mappings for the vocabulary of the specified variable."""
     if data_element_URI is DataElementURI.assessment:
-        response = await crud.get_term_labels_for_cogatlas(
+        return await crud.get_term_labels_for_cogatlas(
             term_labels_path=request.app.state.vocab_dir_path
             / f"{util.VOCAB_FILE_PREFIX['cogatlas']}_term_labels.json"
         )
-
-    return response
 
 
 @router.get("/{data_element_URI}")
