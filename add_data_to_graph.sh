@@ -186,12 +186,13 @@ for db in ${jsonld_dir}/*.jsonld; do
 		upload_failed+=("${db}")
 	fi
 	# Print rest of response to stdout
-	echo "$(sed '$d' <<< "$response")"
+	echo -e "$(sed '$d' <<< "$response")\n"
 done
 
 for file in ${jsonld_dir}/*.ttl; do
 	[ -e "$file" ] || continue
 
+	echo "$(basename ${file}):"
 	response=$(curl -u "${user}:${password}" --no-progress-meter -i -w "\n%{http_code}\n" \
 				-X POST $upload_data_url \
 				-H "Content-Type: text/turtle" \
@@ -199,15 +200,15 @@ for file in ${jsonld_dir}/*.ttl; do
 
 	httpcode=$(tail -n1 <<< "$response")
 	if (( $httpcode < 200 || $httpcode >= 300 )); then
-		upload_failed+=("${db}")
+		upload_failed+=("${file}")
 	fi
-	echo "$(sed '$d' <<< "$response")"
+	echo -e "$(sed '$d' <<< "$response")\n"
 done
 
-echo -e "\nFINISHED UPLOADING DATA FROM ${jsonld_dir} TO ${graph_db}."
+echo "FINISHED UPLOADING DATA FROM ${jsonld_dir} TO ${graph_db}."
 
 if (( ${#upload_failed[@]} != 0 )); then
-	echo -e "\nUPLOAD FAILED FOR THESE FILES:"
+	echo -e "\nERROR: Upload failed for these files:"
 	printf '%s\n' "${upload_failed[@]}"
 fi
 
