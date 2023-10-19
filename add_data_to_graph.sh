@@ -148,18 +148,25 @@ fi
 
 # Clear existing data in graph database if requested
 if [ "$clear_data" = "on" ]; then
-	echo -e "\nClearing existing data from ${graph_db}..."
+	echo -e "\nCLEARING EXISTING DATA FROM ${graph_db}..."
 
-	curl -u "${user}:${password}" -X POST $clear_data_url \
+	response=$(curl -u "${user}:${password}" --no-progress-meter -i -w "\n%{http_code}\n" \
+		-X POST $clear_data_url \
 		-H "Content-Type: application/sparql-update" \
-		--data-binary "${DELETE_TRIPLES_QUERY}"
-
-	echo -e "\nDone clearing existing data from ${graph_db}.\n"
+		--data-binary "${DELETE_TRIPLES_QUERY}")
+	
+	httpcode=$(tail -n1 <<< "$response")
+	if (( $httpcode < 200 || $httpcode >= 300 )); then
+		echo -e "\nERROR: Failed to clear ${graph_db}:"
+		echo "$(sed '$d' <<< "$response")"
+		echo -e "\nEXITING..."
+		exit 1
+	fi
 fi
 
 
 # Add data to specified graph database
-echo -e "\nUploading data from ${jsonld_dir} to ${graph_db}...\n"
+echo -e "\nUPLOADING DATA FROM ${jsonld_dir} TO ${graph_db}...\n"
 
 upload_failed=()
 
@@ -197,10 +204,10 @@ for file in ${jsonld_dir}/*.ttl; do
 	echo "$(sed '$d' <<< "$response")"
 done
 
-echo -e "\nFinished uploading data from ${jsonld_dir} to ${graph_db}."
+echo -e "\nFINISHED UPLOADING DATA FROM ${jsonld_dir} TO ${graph_db}."
 
 if (( ${#upload_failed[@]} != 0 )); then
-	echo -e "\nUpload failed for these files:"
+	echo -e "\nUPLOAD FAILED FOR THESE FILES:"
 	printf '%s\n' "${upload_failed[@]}"
 fi
 
