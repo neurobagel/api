@@ -137,13 +137,14 @@ DELETE {
 
 # Depending on the graph backend used, set URLs for uploading data to and clearing data in graph database
 base_url="http://${graph_url}/${graph_db}"
-if [ "$use_graphdb_syntax" = "on"]; then
+if [ "$use_graphdb_syntax" = "on" ]; then
 	upload_data_url="${base_url}/statements"
 	clear_data_url=$upload_data_url
 else
 	upload_data_url=$base_url
 	clear_data_url="${base_url}/update"
 fi
+
 
 # Clear existing data in graph database if requested
 if [ "$clear_data" = "on" ]; then
@@ -153,25 +154,54 @@ if [ "$clear_data" = "on" ]; then
 		-H "Content-Type: application/sparql-update" \
 		--data-binary "${DELETE_TRIPLES_QUERY}"
 
-	echo -e "Done clearing existing data from ${graph_db}.\n"
+	echo -e "\nDone clearing existing data from ${graph_db}.\n"
 fi
 
 
 # Add data to specified graph database
-echo "Uploading data from ${jsonld_dir} to ${graph_db}..."
+echo -e "\nUploading data from ${jsonld_dir} to ${graph_db}...\n"
+
+upload_failed=()
 
 for db in ${jsonld_dir}/*.jsonld; do
-	curl -u "${user}:${password}" -i -X POST $upload_data_url \
-	-H "Content-Type: application/ld+json" \
-	--data-binary @${db}
+	# Prevent edge case where no matching files are present in directory and so loop executes once with glob pattern string itself
+	[ -e "$db" ] || continue
+
+	echo "$(basename ${db}):"
+	response=$(curl -u "${user}:${password}" --no-progress-meter -i -w "\n%{http_code}\n" \
+				-X POST $upload_data_url \
+				-H "Content-Type: application/ld+json" \
+				--data-binary @${db})
+
+	# Extract and check status code outputted as final line of response
+	httpcode=$(tail -n1 <<< "$response")
+	if (( $httpcode < 200 || $httpcode >= 300 )); then
+		upload_failed+=("${db}")
+	fi
+	# Print rest of response to stdout
+	echo "$(sed '$d' <<< "$response")"
 done
 
 for file in ${jsonld_dir}/*.ttl; do
-	curl -u "${user}:${password}" -i -X POST $upload_data_url \
-	-H "Content-Type: text/turtle" \
-	--data-binary @${file}
+	[ -e "$file" ] || continue
+
+	response=$(curl -u "${user}:${password}" --no-progress-meter -i -w "\n%{http_code}\n" \
+				-X POST $upload_data_url \
+				-H "Content-Type: text/turtle" \
+				--data-binary @${file})
+
+	httpcode=$(tail -n1 <<< "$response")
+	if (( $httpcode < 200 || $httpcode >= 300 )); then
+		upload_failed+=("${db}")
+	fi
+	echo "$(sed '$d' <<< "$response")"
 done
 
-echo "Finished uploading data from ${jsonld_dir} to ${graph_db}"
+echo -e "\nFinished uploading data from ${jsonld_dir} to ${graph_db}."
+
+if (( ${#upload_failed[@]} != 0 )); then
+	echo -e "\nUpload failed for these files:"
+	printf '%s\n' "${upload_failed[@]}"
+fi
 
 # ] <-- needed because of Argbash
