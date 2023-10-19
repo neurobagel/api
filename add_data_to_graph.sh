@@ -154,7 +154,8 @@ if [ "$clear_data" = "on" ]; then
 		-X POST $clear_data_url \
 		-H "Content-Type: application/sparql-update" \
 		--data-binary "${DELETE_TRIPLES_QUERY}")
-	
+
+	# Extract and check status code outputted as final line of response
 	httpcode=$(tail -n1 <<< "$response")
 	if (( $httpcode < 200 || $httpcode >= 300 )); then
 		echo -e "\nERROR: Failed to clear ${graph_db}:"
@@ -180,7 +181,6 @@ for db in ${jsonld_dir}/*.jsonld; do
 				-H "Content-Type: application/ld+json" \
 				--data-binary @${db})
 
-	# Extract and check status code outputted as final line of response
 	httpcode=$(tail -n1 <<< "$response")
 	if (( $httpcode < 200 || $httpcode >= 300 )); then
 		upload_failed+=("${db}")
