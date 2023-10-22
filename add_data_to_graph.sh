@@ -3,7 +3,7 @@
 # ARG_HELP([Upload JSONLD and Turtle data to a Neurobagel graph])
 # ARG_POSITIONAL_SINGLE([dir],[Path to directory containing .jsonld and/or .ttl files. ALL .jsonld and .ttl files in this directory will be uploaded.])
 # ARG_POSITIONAL_SINGLE([graph-url],[Host and port at which to access the graph database to add data to (e.g., localhost:7200)])
-# ARG_POSITIONAL_SINGLE([graph-db],[Name of graph database to add data to])
+# ARG_POSITIONAL_SINGLE([graph-database],[Name of graph database to add data to])
 # ARG_POSITIONAL_SINGLE([user],[Username for graph database access])
 # ARG_POSITIONAL_SINGLE([password],[Password for graph database user])
 # ARG_OPTIONAL_BOOLEAN([clear-data],[],[Whether or not to first clear all existing data from the graph database],[off])
@@ -42,10 +42,10 @@ _arg_use_graphdb_syntax="off"
 print_help()
 {
 	printf '%s\n' "Upload JSONLD and Turtle data to a Neurobagel graph"
-	printf 'Usage: %s [-h|--help] [--(no-)clear-data] [--(no-)use-graphdb-syntax] <dir> <graph-url> <graph-db> <user> <password>\n' "$0"
+	printf 'Usage: %s [-h|--help] [--(no-)clear-data] [--(no-)use-graphdb-syntax] <dir> <graph-url> <graph-database> <user> <password>\n' "$0"
 	printf '\t%s\n' "<dir>: Path to directory containing .jsonld and/or .ttl files. ALL .jsonld and .ttl files in this directory will be uploaded."
 	printf '\t%s\n' "<graph-url>: Host and port at which to access the graph database to add data to (e.g., localhost:7200)"
-	printf '\t%s\n' "<graph-db>: Name of graph database to add data to"
+	printf '\t%s\n' "<graph-database>: Name of graph database to add data to"
 	printf '\t%s\n' "<user>: Username for graph database access"
 	printf '\t%s\n' "<password>: Password for graph database user"
 	printf '\t%s\n' "-h, --help: Prints help"
@@ -90,7 +90,7 @@ parse_commandline()
 
 handle_passed_args_count()
 {
-	local _required_args_string="'dir', 'graph-url', 'graph-db', 'user' and 'password'"
+	local _required_args_string="'dir', 'graph-url', 'graph-database', 'user' and 'password'"
 	test "${_positionals_count}" -ge 5 || _PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require exactly 5 (namely: $_required_args_string), but got only ${_positionals_count}." 1
 	test "${_positionals_count}" -le 5 || _PRINT_HELP=yes die "FATAL ERROR: There were spurious positional arguments --- we expect exactly 5 (namely: $_required_args_string), but got ${_positionals_count} (the last one was: '${_last_positional}')." 1
 }
@@ -99,7 +99,7 @@ handle_passed_args_count()
 assign_positional_args()
 {
 	local _positional_name _shift_for=$1
-	_positional_names="_arg_dir _arg_graph_url _arg_graph_db _arg_user _arg_password "
+	_positional_names="_arg_dir _arg_graph_url _arg_graph_database _arg_user _arg_password "
 
 	shift "$_shift_for"
 	for _positional_name in ${_positional_names}
@@ -123,7 +123,7 @@ assign_positional_args 1 "${_positionals[@]}"
 jsonld_dir=$_arg_dir
 user=$_arg_user
 password=$_arg_password
-graph_db=$_arg_graph_db
+graph_db=$_arg_graph_database
 graph_url=$_arg_graph_url
 clear_data=$_arg_clear_data  # value is either on or off (https://argbash.readthedocs.io/en/stable/guide.html#optional-arguments)
 use_graphdb_syntax=$_arg_use_graphdb_syntax
