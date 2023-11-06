@@ -38,23 +38,7 @@ def test_data():
             "dataset_portal_uri": "https://www.ppmi-info.org/access-data-specimens/download-data",
             "num_matching_subjects": 3,
             "records_protected": True,
-            "subject_data": [
-                {
-                    "session_file_path": "/my/happy/path/sub-719238/to/session-01"
-                },
-                {
-                    "session_file_path": "/my/happy/path/sub-719341/to/session-01"
-                },
-                {
-                    "session_file_path": "/my/happy/path/sub-719369/to/session-01"
-                },
-                {
-                    "session_file_path": "/my/happy/path/sub-719238/to/session-02"
-                },
-                {
-                    "session_file_path": "/my/happy/path/sub-719341/to/session-02"
-                },
-            ],
+            "subject_data": [],
             "image_modals": [
                 "http://purl.org/nidash/nidm#FlowWeighted",
                 "http://purl.org/nidash/nidm#T1Weighted",
