@@ -138,10 +138,7 @@ async def get(
             by=dataset_cols
         ):
             if util.RETURN_AGG.val:
-                subject_data = list(
-                    {"session_file_path": file_path}
-                    for file_path in group["session_file_path"].dropna()
-                )
+                subject_data = "protected"
             else:
                 subject_data = (
                     group.drop(dataset_cols, axis=1)

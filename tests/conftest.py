@@ -20,13 +20,7 @@ def test_data():
             "dataset_portal_uri": "https://rpq-qpn.ca/en/researchers-section/databases/",
             "num_matching_subjects": 5,
             "records_protected": True,
-            "subject_data": [
-                {"session_file_path": "/my/happy/path/sub-0051/to/session-01"},
-                {"session_file_path": "/my/happy/path/sub-0653/to/session-01"},
-                {"session_file_path": "/my/happy/path/sub-1063/to/session-01"},
-                {"session_file_path": "/my/happy/path/sub-1113/to/session-01"},
-                {"session_file_path": "/my/happy/path/sub-1170/to/session-01"},
-            ],
+            "subject_data": "protected",
             "image_modals": [
                 "http://purl.org/nidash/nidm#T1Weighted",
                 "http://purl.org/nidash/nidm#T2Weighted",
@@ -38,23 +32,7 @@ def test_data():
             "dataset_portal_uri": "https://www.ppmi-info.org/access-data-specimens/download-data",
             "num_matching_subjects": 3,
             "records_protected": True,
-            "subject_data": [
-                {
-                    "session_file_path": "/my/happy/path/sub-719238/to/session-01"
-                },
-                {
-                    "session_file_path": "/my/happy/path/sub-719341/to/session-01"
-                },
-                {
-                    "session_file_path": "/my/happy/path/sub-719369/to/session-01"
-                },
-                {
-                    "session_file_path": "/my/happy/path/sub-719238/to/session-02"
-                },
-                {
-                    "session_file_path": "/my/happy/path/sub-719341/to/session-02"
-                },
-            ],
+            "subject_data": "protected",
             "image_modals": [
                 "http://purl.org/nidash/nidm#FlowWeighted",
                 "http://purl.org/nidash/nidm#T1Weighted",

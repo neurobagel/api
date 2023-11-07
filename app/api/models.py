@@ -1,7 +1,7 @@
 """Data models."""
 
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 from fastapi import Query
 from fastapi.exceptions import HTTPException
@@ -60,7 +60,7 @@ class CohortQueryResponse(BaseModel):
     dataset_portal_uri: Optional[str]
     records_protected: bool
     num_matching_subjects: int
-    subject_data: list[dict]
+    subject_data: Union[list[dict], str]
     image_modals: list
 
 

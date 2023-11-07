@@ -213,9 +213,9 @@ def create_query(
     # wrap query in an aggregating statement so data returned from graph include only attributes needed for dataset-level aggregate metadata.
     if return_agg:
         query_string = f"""
-            SELECT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?session_file_path ?image_modal WHERE {{\n
+            SELECT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal WHERE {{\n
             {query_string}
-            \n}} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?session_file_path ?image_modal
+            \n}} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal
         """
 
     return "\n".join([create_context(), query_string])
