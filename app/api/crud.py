@@ -197,22 +197,39 @@ async def get_terms(
     term_url_results = post_query_to_graph(
         util.create_terms_query(data_element_URI)
     )
-    vocab_term_lookup = util.load_json(term_labels_path)
 
-    term_label_pairs = {}
+    if term_labels_path is not None:
+        vocab_term_lookup = util.load_json(term_labels_path)
+
+    term_label_dicts = []
     for result in term_url_results["results"]["bindings"]:
         term_url = result["termURL"]["value"]
+        # First, check whether the found instance of the data element contains a recognized namespace
         if util.is_term_namespace_in_context(term_url):
-            term_label_pairs[
-                util.replace_namespace_uri_with_prefix(term_url)
-            ] = vocab_term_lookup[util.strip_namespace_from_term_uri(term_url)]
+            # Then, check if we have a vocab lookup available to get the human-readable label for the term
+            if term_labels_path is not None:
+                # If so, attempt to get the label for the term
+                term_label = vocab_term_lookup.get(
+                    util.strip_namespace_from_term_uri(term_url), None
+                )
+            else:
+                term_label = None
+
+            term_label_dicts.append(
+                {
+                    "TermURL": util.replace_namespace_uri_with_prefix(
+                        term_url
+                    ),
+                    "Label": term_label,
+                }
+            )
         else:
             warnings.warn(
                 f"The controlled term {term_url} was found in the graph but does not come from a vocabulary recognized by Neurobagel."
                 "This term will be ignored."
             )
 
-    results_dict = {data_element_URI: term_label_pairs}
+    results_dict = {data_element_URI: term_label_dicts}
 
     return results_dict
 
