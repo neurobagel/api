@@ -257,7 +257,7 @@ def is_term_namespace_in_context(term_url: str) -> bool:
 
     Parameters
     ----------
-    url : str
+    term_url : str
         A controlled term URI.
 
     Returns
@@ -277,8 +277,10 @@ def strip_namespace_from_term_uri(term: str, has_prefix: bool = False) -> str:
 
     Parameters
     ----------
-    uri : str
+    term : str
         A controlled term URI.
+    has_prefix : bool, optional
+        Whether the term URI includes a namespace prefix (as opposed to the full namespace URI), by default False.
 
     Returns
     -------

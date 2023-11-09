@@ -22,7 +22,10 @@ async def get_term_labels_for_vocab(
 async def get_terms(
     data_element_URI: constr(regex=CONTROLLED_TERM_REGEX), request: Request
 ):
-    """When a GET request is sent, return a dict with the only key corresponding to controlled term of a neurobagel class and value corresponding to all the available terms."""
+    """
+    When a GET request is sent, return a dict with the only key corresponding to the controlled term of a neurobagel class,
+    and the value being a list of dictionaries each corresponding to an available class instance term from the graph.
+    """
     term_labels_path = None
 
     if data_element_URI == DataElementURI.assessment:

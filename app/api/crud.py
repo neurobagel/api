@@ -188,11 +188,15 @@ async def get_terms(
     ----------
     data_element_URI : str
         Controlled term of neurobagel class for which all the available terms should be retrieved.
+    term_labels_path : Path
+        Path to JSON file containing term-label mappings for the vocabulary of the data element URI.
 
     Returns
     -------
     dict
-        Dictionary where the key is the Neurobagel class and values correspond to all the terms representing available (i.e. used) instances of that class in the graph.
+        Dictionary where the key is the Neurobagel class and the value is a list of dictionaries
+        corresponding to the available (i.e. used) instances of that class in the graph. Each instance dictionary
+        has two items: the 'TermURL' and the human-readable 'Label' for the term.
     """
     term_url_results = post_query_to_graph(
         util.create_terms_query(data_element_URI)
