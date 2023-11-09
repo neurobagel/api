@@ -203,9 +203,9 @@ async def get_terms(
     for result in term_url_results["results"]["bindings"]:
         term_url = result["termURL"]["value"]
         if util.is_term_namespace_in_context(term_url):
-            term_uri_with_pfx = util.replace_namespace_uri(term_url)
-            term_id = util.strip_namespace_from_term_uri(term_url)
-            term_label_pairs[term_uri_with_pfx] = vocab_term_lookup[term_id]
+            term_label_pairs[
+                util.replace_namespace_uri_with_prefix(term_url)
+            ] = vocab_term_lookup[util.strip_namespace_from_term_uri(term_url)]
         else:
             warnings.warn(
                 f"The controlled term {term_url} was found in the graph but does not come from a vocabulary recognized by Neurobagel."
@@ -237,7 +237,7 @@ async def get_controlled_term_attributes() -> list:
     results = post_query_to_graph(attributes_query)
 
     results_list = [
-        util.replace_namespace_uri(result["attribute"]["value"])
+        util.replace_namespace_uri_with_prefix(result["attribute"]["value"])
         for result in results["results"]["bindings"]
     ]
 

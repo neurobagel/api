@@ -298,7 +298,7 @@ def strip_namespace_from_term_uri(term: str, has_prefix: bool = False) -> str:
     return term
 
 
-def replace_namespace_uri(url: str) -> str:
+def replace_namespace_uri_with_prefix(url: str) -> str:
     """
     Replaces namespace URIs in term URLs with corresponding prefixes from the context.
 
