@@ -19,11 +19,16 @@ async def get_term_labels_for_vocab(
 
 
 @router.get("/{data_element_URI}")
-async def get_terms(data_element_URI: constr(regex=CONTROLLED_TERM_REGEX)):
+async def get_terms(
+    data_element_URI: constr(regex=CONTROLLED_TERM_REGEX), request: Request
+):
     """When a GET request is sent, return a dict with the only key corresponding to controlled term of a neurobagel class and value corresponding to all the available terms."""
-    response = await crud.get_terms(data_element_URI)
+    term_labels_path = None
 
-    return response
+    if data_element_URI == DataElementURI.assessment:
+        term_labels_path = request.app.state.cogatlas_term_lookup_path
+
+    return await crud.get_terms(data_element_URI, term_labels_path)
 
 
 @router.get("/", response_model=list)
