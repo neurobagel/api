@@ -84,11 +84,10 @@ def terms_test_data():
     """Create toy data for terms for testing."""
     return {
         "nb:NeurobagelClass": [
-            "nb:term1",
-            "nb:term2",
-            "nb:term3",
-            "nb:term4",
-            "nb:term5",
+            {"TermURL": "cogatlas:123", "Label": "term 1"},
+            {"TermURL": "cogatlas:234", "Label": "term 2"},
+            {"TermURL": "cogatlas:345", "Label": "term 3"},
+            {"TermURL": "cogatlas:456", "Label": "term 4"},
         ]
     }
 
@@ -97,7 +96,7 @@ def terms_test_data():
 def mock_successful_get_terms(terms_test_data):
     """Mock get_terms function that returns non-empty results."""
 
-    async def mockreturn(data_element_URI):
+    async def mockreturn(data_element_URI, term_labels_path):
         return terms_test_data
 
     return mockreturn

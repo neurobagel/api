@@ -251,7 +251,56 @@ def create_terms_query(data_element_URI: str) -> str:
     return "\n".join([create_context(), query_string])
 
 
-def replace_namespace_uri(url: str) -> str:
+def is_term_namespace_in_context(term_url: str) -> bool:
+    """
+    Performs basic check for if a term URL contains a namespace URI from the context.
+
+    Parameters
+    ----------
+    term_url : str
+        A controlled term URI.
+
+    Returns
+    -------
+    bool
+        True if the term URL contains a namespace URI from the context, False otherwise.
+    """
+    for uri in CONTEXT.values():
+        if uri in term_url:
+            return True
+    return False
+
+
+def strip_namespace_from_term_uri(term: str, has_prefix: bool = False) -> str:
+    """
+    Removes namespace URI or prefix from a term URI if the namespace is recognized.
+
+    Parameters
+    ----------
+    term : str
+        A controlled term URI.
+    has_prefix : bool, optional
+        Whether the term URI includes a namespace prefix (as opposed to the full namespace URI), by default False.
+
+    Returns
+    -------
+    str
+        The unique term ID.
+    """
+    if has_prefix:
+        term_split = term.rsplit(":", 1)
+        if term_split[0] in CONTEXT:
+            return term_split[1]
+    else:
+        for uri in CONTEXT.values():
+            if uri in term:
+                return term.replace(uri, "")
+
+    # If no match found within the context, return original term
+    return term
+
+
+def replace_namespace_uri_with_prefix(url: str) -> str:
     """
     Replaces namespace URIs in term URLs with corresponding prefixes from the context.
 

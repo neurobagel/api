@@ -52,7 +52,8 @@ async def allowed_origins_check():
 @app.on_event("startup")
 async def fetch_vocabularies_to_temp_dir():
     """
-    Create and store on the app instance a temporary directory for vocabulary term lookup files,
+    Create and store on the app instance a temporary directory for vocabulary term lookup JSON files
+    (each of which contain key-value pairings of IDs to human-readable names of terms),
     and then fetch vocabularies using their respective native APIs and save them to the temporary directory for reuse.
     """
     # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
