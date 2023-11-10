@@ -21,6 +21,8 @@
 
 The Neurobagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [pydantic](https://docs.pydantic.dev/).
 
+Please refer to our [**official documentation**](https://neurobagel.org/api/) for more information on how to use the API.
+
 - [Quickstart](#quickstart)
 - [Local installation](#local-installation)
     - [Environment variables](#set-the-environment-variables)
@@ -29,7 +31,6 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 - [Testing](#testing)
 - [License](#license)
 
-Please refer to our [**official documentation**](https://neurobagel.org/api/) for more information on how to use the API.
 
 ## Quickstart
 The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route.
