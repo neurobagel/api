@@ -288,10 +288,10 @@ def strip_namespace_from_term_uri(term: str, has_prefix: bool = False) -> str:
         The unique term ID.
     """
     if has_prefix:
-        for prefix in CONTEXT:
-            if prefix in term:
-                return term.replace(prefix, "")
-    elif not has_prefix:
+        term_split = term.rsplit(":", 1)
+        if term_split[0] in CONTEXT:
+            return term_split[1]
+    else:
         for uri in CONTEXT.values():
             if uri in term:
                 return term.replace(uri, "")
