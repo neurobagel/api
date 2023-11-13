@@ -37,12 +37,11 @@ def test_app_with_invalid_environment_vars(test_app, monkeypatch):
     assert response.status_code == 401
 
 
-def test_app_with_unset_allowed_origins(test_app, monkeypatch):
+def test_app_with_unset_allowed_origins(
+    test_app, monkeypatch, set_test_credentials
+):
     """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses a default value."""
     monkeypatch.delenv(util.ALLOWED_ORIGINS.name, raising=False)
-    # set random username and password to avoid RuntimeError from other startup check
-    monkeypatch.setenv(util.GRAPH_USERNAME.name, "DBUSER")
-    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "DBPASSWORD")
 
     with pytest.warns(
         UserWarning,
@@ -85,16 +84,18 @@ def test_app_with_unset_allowed_origins(test_app, monkeypatch):
     ],
 )
 def test_app_with_set_allowed_origins(
-    test_app, monkeypatch, allowed_origins, parsed_origins, expectation
+    test_app,
+    monkeypatch,
+    set_test_credentials,
+    allowed_origins,
+    parsed_origins,
+    expectation,
 ):
     """
     Test that when the environment variable for allowed origins has been explicitly set, the app correctly parses it into a list
     and raises a warning if the value is an empty string.
     """
     monkeypatch.setenv(util.ALLOWED_ORIGINS.name, allowed_origins)
-    # set random username and password to avoid RuntimeError from other startup check
-    monkeypatch.setenv(util.GRAPH_USERNAME.name, "DBUSER")
-    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "DBPASSWORD")
 
     with expectation:
         with test_app:
@@ -107,13 +108,13 @@ def test_app_with_set_allowed_origins(
     )
 
 
-def test_external_vocab_is_fetched_on_startup(test_app, monkeypatch):
+def test_external_vocab_is_fetched_on_startup(
+    test_app, monkeypatch, set_test_credentials
+):
     """
     Tests that on startup, a GET request is made to the Cognitive Atlas API and that when the request succeeds,
     the term ID-label mappings from the returned vocab are stored in a temporary lookup file.
     """
-    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
-    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
     mock_vocab_json = [
         {
             "creation_time": 1689609836,
@@ -150,14 +151,12 @@ def test_external_vocab_is_fetched_on_startup(test_app, monkeypatch):
 
 
 def test_failed_vocab_fetching_on_startup_raises_warning(
-    test_app, monkeypatch
+    test_app, monkeypatch, set_test_credentials
 ):
     """
     Tests that when a GET request to the Cognitive Atlas API fails (e.g., due to service being unavailable),
     a warning is raised and that a term label lookup file is still created using a backup copy of the vocab.
     """
-    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
-    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
 
     def mock_httpx_get(**kwargs):
         return httpx.Response(

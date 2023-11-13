@@ -1,6 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
+from app.api import utility as util
 from app.main import app
 
 
@@ -8,6 +9,13 @@ from app.main import app
 def test_app():
     client = TestClient(app)
     yield client
+
+
+@pytest.fixture(scope="function")
+def set_test_credentials(monkeypatch):
+    """Set random username and password to avoid error from startup check for set credentials."""
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
 
 
 @pytest.fixture()
