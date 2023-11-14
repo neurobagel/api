@@ -221,6 +221,23 @@ def create_query(
     return "\n".join([create_context(), query_string])
 
 
+def create_multidataset_size_query(dataset_uuids: list) -> str:
+    """Construct a SPARQL query to retrieve the number of subjects in each dataset in a list of dataset UUIDs."""
+    dataset_uuids_string = "\n".join([f"<{uuid}>" for uuid in dataset_uuids])
+    query_string = f"""
+        SELECT ?dataset_uuid (COUNT(DISTINCT ?subject) as ?total_subjects)
+        WHERE {{
+            VALUES ?dataset_uuid {{
+                {dataset_uuids_string}
+            }}
+            ?dataset_uuid nb:hasSamples ?subject.
+            ?subject a nb:Subject.
+        }} GROUP BY ?dataset_uuid
+    """
+
+    return "\n".join([create_context(), query_string])
+
+
 def create_terms_query(data_element_URI: str) -> str:
     """
     Creates a SPARQL query using a simple query template to retrieve term URLS for a given data element.
