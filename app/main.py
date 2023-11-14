@@ -17,7 +17,7 @@ from .api.routers import attributes, query
 app = FastAPI(
     default_response_class=ORJSONResponse, docs_url=None, redoc_url=None
 )
-favicon_url = "https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_logo.png"
+favicon_url = "https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_favicon.png"
 
 app.add_middleware(
     CORSMiddleware,
