@@ -30,11 +30,17 @@ app.add_middleware(
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
+    """
+    Overrides the default favicon with a custom one.
+    """
     return RedirectResponse(url=favicon_url)
 
 
 @app.get("/docs", include_in_schema=False)
 def overridden_swagger():
+    """
+    Overrides the Swagger UI HTML for the "/docs" endpoint.
+    """
     return get_swagger_ui_html(
         openapi_url="/openapi.json",
         title="FastAPI",
@@ -44,6 +50,9 @@ def overridden_swagger():
 
 @app.get("/redoc", include_in_schema=False)
 def overridden_redoc():
+    """
+    Overrides the Redoc HTML for the "/redoc" endpoint.
+    """
     return get_redoc_html(
         openapi_url="/openapi.json",
         title="FastAPI",
