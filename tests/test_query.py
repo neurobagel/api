@@ -7,7 +7,7 @@ from app.api import crud
 
 
 def test_get_all(test_app, mock_successful_get, monkeypatch):
-    """Given no input for the sex parameter, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
+    """Given no input for any query parameters, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get("/query/")
