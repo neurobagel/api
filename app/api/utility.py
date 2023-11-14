@@ -84,6 +84,18 @@ def create_context() -> str:
     )
 
 
+def unpack_http_response_json_to_dicts(response: dict) -> list[dict]:
+    """
+    Reformats a nested dictionary object from a SPARQL query response JSON into a more human-readable list of dictionaries,
+    where the keys are the variables selected in the SPARQL query and the values correspond to the variable values.
+    The number of dictionaries should correspond to the number of query matches.
+    """
+    return [
+        {k: v["value"] for k, v in res.items()}
+        for res in response["results"]["bindings"]
+    ]
+
+
 def create_query(
     return_agg: bool,
     age: Optional[tuple] = (None, None),
