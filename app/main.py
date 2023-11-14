@@ -43,7 +43,7 @@ def overridden_swagger():
     """
     return get_swagger_ui_html(
         openapi_url="/openapi.json",
-        title="FastAPI",
+        title="Neurobagel API",
         swagger_favicon_url=favicon_url,
     )
 
@@ -55,7 +55,7 @@ def overridden_redoc():
     """
     return get_redoc_html(
         openapi_url="/openapi.json",
-        title="FastAPI",
+        title="Neurobagel API",
         redoc_favicon_url=favicon_url,
     )
 
