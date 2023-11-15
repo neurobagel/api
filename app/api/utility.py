@@ -84,6 +84,18 @@ def create_context() -> str:
     )
 
 
+def unpack_http_response_json_to_dicts(response: dict) -> list[dict]:
+    """
+    Reformats a nested dictionary object from a SPARQL query response JSON into a more human-readable list of dictionaries,
+    where the keys are the variables selected in the SPARQL query and the values correspond to the variable values.
+    The number of dictionaries should correspond to the number of query matches.
+    """
+    return [
+        {k: v["value"] for k, v in res.items()}
+        for res in response["results"]["bindings"]
+    ]
+
+
 def create_query(
     return_agg: bool,
     age: Optional[tuple] = (None, None),
@@ -217,6 +229,23 @@ def create_query(
             {query_string}
             \n}} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal
         """
+
+    return "\n".join([create_context(), query_string])
+
+
+def create_multidataset_size_query(dataset_uuids: list) -> str:
+    """Construct a SPARQL query to retrieve the number of subjects in each dataset in a list of dataset UUIDs."""
+    dataset_uuids_string = "\n".join([f"<{uuid}>" for uuid in dataset_uuids])
+    query_string = f"""
+        SELECT ?dataset_uuid (COUNT(DISTINCT ?subject) as ?total_subjects)
+        WHERE {{
+            VALUES ?dataset_uuid {{
+                {dataset_uuids_string}
+            }}
+            ?dataset_uuid nb:hasSamples ?subject.
+            ?subject a nb:Subject.
+        }} GROUP BY ?dataset_uuid
+    """
 
     return "\n".join([create_context(), query_string])
 
