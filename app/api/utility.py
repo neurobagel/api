@@ -369,7 +369,7 @@ def fetch_and_save_cogatlas(output_path: Path):
     Fetches the Cognitive Atlas vocabulary using its native Task API and writes term ID-label mappings to a temporary lookup file.
     If the API request fails, a backup copy of the vocabulary is used instead.
 
-    Saves a JSON with keys corresponding to Cognitive Atlas task IDs and values corresponding to human-readable task names).
+    Saves a JSON with keys corresponding to Cognitive Atlas task IDs and values corresponding to human-readable task names.
 
     Parameters
     ----------
@@ -403,7 +403,7 @@ def create_snomed_term_lookup(output_path: Path):
     """
     Reads in a file of disorder terms from the SNOMED CT vocabulary and writes term ID-label mappings to a temporary lookup file.
 
-    Saves a JSON with keys corresponding to Cognitive Atlas task IDs and values corresponding to human-readable task names).
+    Saves a JSON with keys corresponding to SNOMED CT IDs and values corresponding to human-readable term names.
 
     Parameters
     ----------
