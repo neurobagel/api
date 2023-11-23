@@ -275,11 +275,11 @@ async def get_controlled_term_attributes() -> list:
     return results_list
 
 
-async def get_term_labels_for_cogatlas(
-    term_labels_path: Path,
+async def get_term_labels_for_vocab(
+    term_labels_path: Path, vocabulary_name: str, namespace_prefix: str
 ) -> VocabLabelsResponse:
     """
-    Returns the term-label mappings along with the vocabulary namespace details for the Cognitive Atlas Task vocabulary.
+    Returns the term-label mappings along with the vocabulary namespace details for the specified vocabulary.
 
     Returns
     -------
@@ -288,8 +288,8 @@ async def get_term_labels_for_cogatlas(
     term_labels = util.load_json(term_labels_path)
 
     return VocabLabelsResponse(
-        vocabulary_name="Cognitive Atlas Tasks",
-        namespace_url=util.CONTEXT["cogatlas"],
-        namespace_prefix="cogatlas",
+        vocabulary_name=vocabulary_name,
+        namespace_url=util.CONTEXT[namespace_prefix],
+        namespace_prefix=namespace_prefix,
         term_labels=term_labels,
     )
