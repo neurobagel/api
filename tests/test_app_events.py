@@ -164,7 +164,7 @@ def test_failed_vocab_fetching_on_startup_raises_warning(
     test_app, monkeypatch, set_test_credentials
 ):
     """
-    Tests that when a GET request to the Cognitive Atlas API fails (e.g., due to service being unavailable),
+    Tests that when a GET request to the Cognitive Atlas API has a non-success response code (e.g., due to service being unavailable),
     a warning is raised and that a term label lookup file is still created using a backup copy of the vocab.
     """
 
@@ -183,4 +183,26 @@ def test_failed_vocab_fetching_on_startup_raises_warning(
         "unable to fetch the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source and will default to using a local backup copy"
         in str(warn.message)
         for warn in w
+    )
+
+
+def test_network_error_on_startup_raises_warning(
+    test_app, monkeypatch, set_test_credentials
+):
+    """
+    Tests that when a GET request to the Cognitive Atlas API fails due to a network error (i.e., while issuing the request),
+    a warning is raised and that a term label lookup file is still created using a backup copy of the vocab.
+    """
+
+    def mock_httpx_get(**kwargs):
+        raise httpx.ConnectError("Some network error")
+
+    monkeypatch.setattr(httpx, "get", mock_httpx_get)
+
+    with pytest.warns(UserWarning) as w:
+        with test_app:
+            assert test_app.app.state.cogatlas_term_lookup_path.exists()
+
+    assert any(
+        "failed due to a network error" in str(warn.message) for warn in w
     )
