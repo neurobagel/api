@@ -97,7 +97,7 @@ async def fetch_vocabularies_to_temp_dir():
     app.state.vocab_dir = TemporaryDirectory()
     app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
 
-    # TODO: Maybe store these paths in a dictionary instead?
+    # TODO: Maybe store these paths in one dictionary on the app instance instead of separate variables?
     app.state.cogatlas_term_lookup_path = (
         app.state.vocab_dir_path / "cogatlas_task_term_labels.json"
     )
