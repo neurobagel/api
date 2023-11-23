@@ -377,18 +377,30 @@ def fetch_and_save_cogatlas(output_path: Path):
         File path to store output vocabulary lookup file.
     """
     api_url = "https://www.cognitiveatlas.org/api/v-alpha/task?format=json"
-    response = httpx.get(url=api_url)
 
-    if response.is_success:
-        vocab = response.json()
-    else:
+    try:
+        response = httpx.get(url=api_url)
+        if response.is_success:
+            vocab = response.json()
+        else:
+            warnings.warn(
+                f"""
+                The API was unable to fetch the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source and will default to using a local backup copy of the vocabulary instead.
+
+                Details of the response from the source:
+                Status code {response.status_code}
+                {response.reason_phrase}: {response.text}
+                """
+            )
+            # Use backup copy of the raw vocabulary JSON
+            vocab = load_json(BACKUP_VOCAB_DIR / "cogatlas_task.json")
+    except httpx.NetworkError as exc:
         warnings.warn(
-            f"""
-            The API was unable to fetch the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source and will default to using a local backup copy of the vocabulary instead.
+            f""""
+            Fetching of the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source failed due to a network error.
+            The API will default to using a local backup copy of the vocabulary instead.
 
-            Details of the response from the source:
-            Status code {response.status_code}
-            {response.reason_phrase}: {response.text}
+            Error: {exc}
             """
         )
         # Use backup copy of the raw vocabulary JSON
