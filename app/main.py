@@ -97,11 +97,16 @@ async def fetch_vocabularies_to_temp_dir():
     app.state.vocab_dir = TemporaryDirectory()
     app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
 
+    # TODO: Maybe store these paths in a dictionary instead?
     app.state.cogatlas_term_lookup_path = (
         app.state.vocab_dir_path / "cogatlas_task_term_labels.json"
     )
+    app.state.snomed_term_lookup_path = (
+        app.state.vocab_dir_path / "snomedct_disorder_term_labels.json"
+    )
 
     util.fetch_and_save_cogatlas(app.state.cogatlas_term_lookup_path)
+    util.create_snomed_term_lookup(app.state.snomed_term_lookup_path)
 
 
 @app.on_event("shutdown")

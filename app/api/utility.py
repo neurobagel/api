@@ -397,3 +397,21 @@ def fetch_and_save_cogatlas(output_path: Path):
     term_labels = {term["id"]: term["name"] for term in vocab}
     with open(output_path, "w") as f:
         f.write(json.dumps(term_labels, indent=2))
+
+
+def create_snomed_term_lookup(output_path: Path):
+    """
+    Reads in a file of disorder terms from the SNOMED CT vocabulary and writes term ID-label mappings to a temporary lookup file.
+
+    Saves a JSON with keys corresponding to Cognitive Atlas task IDs and values corresponding to human-readable task names).
+
+    Parameters
+    ----------
+    output_path : Path
+        File path to store output vocabulary lookup file.
+    """
+    vocab = load_json(BACKUP_VOCAB_DIR / "snomedct_disorder.json")
+
+    term_labels = {term["sctid"]: term["preferred_name"] for term in vocab}
+    with open(output_path, "w") as f:
+        f.write(json.dumps(term_labels, indent=2))
