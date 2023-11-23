@@ -108,6 +108,16 @@ def test_app_with_set_allowed_origins(
     )
 
 
+def test_stored_vocab_lookup_file_created_on_startup(
+    test_app, set_test_credentials
+):
+    """Test that on startup, a non-empty temporary lookup file is created for term ID-label mappings for the locally stored SNOMED CT vocabulary."""
+    with test_app:
+        term_labels_path = test_app.app.state.snomed_term_lookup_path
+        assert term_labels_path.exists()
+        assert term_labels_path.stat().st_size > 0
+
+
 def test_external_vocab_is_fetched_on_startup(
     test_app, monkeypatch, set_test_credentials
 ):

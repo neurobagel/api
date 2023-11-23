@@ -195,23 +195,38 @@ def test_get_attributes(
     ]
 
 
-def test_get_attribute_vocab(test_app, monkeypatch, set_test_credentials):
+@pytest.mark.parametrize(
+    "data_element_uri, expected_vocab_name, expected_namespace_pfx",
+    [
+        ("nb:Assessment", "Cognitive Atlas Tasks", "cogatlas"),
+        ("nb:Diagnosis", "SNOMED CT", "snomed"),
+    ],
+)
+def test_get_attribute_vocab(
+    test_app,
+    monkeypatch,
+    set_test_credentials,
+    data_element_uri,
+    expected_vocab_name,
+    expected_namespace_pfx,
+):
     """Given a GET request to the /attributes/{data_element_URI}/vocab endpoint, successfully returns a JSON object containing the vocabulary name, namespace info, and term-label mappings."""
+    # Mock contents of a temporary term-label lookup file for a vocabulary
     mock_term_labels = {
-        "tsk_p7cabUkVvQPBS": "Generalized Self-Efficacy Scale",
-        "tsk_ccTKYnmv7tOZY": "Verbal Interference Test",
+        "trm_1234": "Generic Vocabulary Term 1",
+        "trm_2345": "Generic Vocabulary Term 2",
     }
 
     def mock_load_json(path):
         return mock_term_labels
 
     monkeypatch.setattr(util, "load_json", mock_load_json)
-    response = test_app.get("/attributes/nb:Assessment/vocab")
+    response = test_app.get(f"/attributes/{data_element_uri}/vocab")
 
     assert response.status_code == 200
     assert response.json() == {
-        "vocabulary_name": "Cognitive Atlas Tasks",
-        "namespace_url": util.CONTEXT["cogatlas"],
-        "namespace_prefix": "cogatlas",
+        "vocabulary_name": expected_vocab_name,
+        "namespace_url": util.CONTEXT[expected_namespace_pfx],
+        "namespace_prefix": expected_namespace_pfx,
         "term_labels": mock_term_labels,
     }
