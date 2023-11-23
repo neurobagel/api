@@ -176,7 +176,7 @@ for db in ${jsonld_dir}/*.jsonld; do
 	[ -e "$db" ] || continue
 
 	echo "$(basename ${db}):"
-	response=$(curl -u "${user}:${password}" --no-progress-meter -i -w "\n%{http_code}\n" \
+	response=$(curl -u "${user}:${password}" -s -S -i -w "\n%{http_code}\n" \
 				-X POST $upload_data_url \
 				-H "Content-Type: application/ld+json" \
 				--data-binary @${db})
