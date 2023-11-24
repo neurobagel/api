@@ -183,15 +183,17 @@ def create_query(
                     nb:hasLabel ?dataset_name;
                     nb:hasSamples ?subject.
             ?subject a nb:Subject;
-                    nb:hasLabel ?sub_id;
-                    nb:hasSession ?session;
-                    nb:hasSession/nb:hasAcquisition/nb:hasContrastType ?image_modal.
-            ?session nb:hasLabel ?session_id.
+                    nb:hasLabel ?sub_id.
             OPTIONAL {{
-                ?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.
+                ?subject nb:hasSession ?session;
+                         nb:hasSession/nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                ?session nb:hasLabel ?session_id.
+                OPTIONAL {{
+                    ?session nb:hasFilePath ?session_file_path.
+                }}
             }}
             OPTIONAL {{
-                ?session nb:hasFilePath ?session_file_path.
+                ?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.
             }}
             OPTIONAL {{
                 ?subject nb:hasAge ?age.
@@ -211,9 +213,11 @@ def create_query(
             {{
                 SELECT ?subject (count(distinct ?session) as ?num_sessions)
                 WHERE {{
-                    ?subject a nb:Subject;
-                            nb:hasSession ?session.
-                    ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                    ?subject a nb:Subject.
+                    OPTIONAL {{
+                        ?subject nb:hasSession ?session.
+                        ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                    }}
                     {session_level_filters}
                 }} GROUP BY ?subject
             }}
