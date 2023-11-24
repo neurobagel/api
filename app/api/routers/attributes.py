@@ -12,14 +12,14 @@ async def get_term_labels_for_vocab(
     data_element_URI: DataElementURI, request: Request
 ):
     """When a GET request is sent, return a dict containing the name, namespace info, and all term ID-label mappings for the vocabulary of the specified variable."""
-    if data_element_URI is DataElementURI.assessment:
+    if data_element_URI == DataElementURI.assessment:
         return await crud.get_term_labels_for_vocab(
             term_labels_path=request.app.state.cogatlas_term_lookup_path,
             vocabulary_name="Cognitive Atlas Tasks",
             namespace_prefix="cogatlas",
         )
     else:
-        if data_element_URI is DataElementURI.diagnosis:
+        if data_element_URI == DataElementURI.diagnosis:
             return await crud.get_term_labels_for_vocab(
                 term_labels_path=request.app.state.snomed_term_lookup_path,
                 vocabulary_name="SNOMED CT",
@@ -39,6 +39,9 @@ async def get_terms(
 
     if data_element_URI == DataElementURI.assessment:
         term_labels_path = request.app.state.cogatlas_term_lookup_path
+    else:
+        if data_element_URI == DataElementURI.diagnosis:
+            term_labels_path = request.app.state.snomed_term_lookup_path
 
     return await crud.get_terms(data_element_URI, term_labels_path)
 
