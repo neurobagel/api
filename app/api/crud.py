@@ -153,18 +153,18 @@ async def get(
             else:
                 subject_data = (
                     group.drop(dataset_cols, axis=1)
-                    .groupby(by=["sub_id", "session_id"])
-                    .agg(
+                    # TODO: Switch back to dropna=True once phenotypic sessions are implemented, as all subjects will have at least one non-null session ID
+                    .groupby(by=["sub_id", "session_id"], dropna=False).agg(
                         {
                             "sub_id": "first",
                             "session_id": "first",
                             "num_sessions": "first",
                             "age": "first",
                             "sex": "first",
-                            "diagnosis": lambda x: list(set(x)),
+                            "diagnosis": lambda x: list(x.unique()),
                             "subject_group": "first",
-                            "assessment": lambda x: list(set(x)),
-                            "image_modal": lambda x: list(set(x)),
+                            "assessment": lambda x: list(x.unique()),
+                            "image_modal": lambda x: list(x.unique()),
                             "session_file_path": "first",
                         }
                     )
