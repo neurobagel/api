@@ -69,6 +69,7 @@ class DataElementURI(str, Enum):
     """Data model for data element URIs that have available vocabulary lookups."""
 
     assessment = "nb:Assessment"
+    diagnosis = "nb:Diagnosis"
 
 
 class VocabLabelsResponse(BaseModel):
