@@ -7,6 +7,7 @@ COPY ./requirements.txt /usr/src/app/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /usr/src/app/requirements.txt
 
 COPY ./app /usr/src/app
+COPY ./vocab /usr/src/vocab
 
 # NB_API_PORT, representing the port on which the API will be exposed, 
 # is an environment variable that will always have a default value of 8000 when building the image
