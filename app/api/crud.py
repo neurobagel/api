@@ -184,7 +184,11 @@ async def get(
                     num_matching_subjects=group["sub_id"].nunique(),
                     records_protected=util.RETURN_AGG.val,
                     subject_data=subject_data,
-                    image_modals=list(group["image_modal"].unique()),
+                    image_modals=list(
+                        group["image_modal"][
+                            group["image_modal"].notna()
+                        ].unique()
+                    ),
                 )
             )
 
