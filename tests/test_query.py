@@ -6,6 +6,16 @@ from fastapi import HTTPException
 from app.api import crud
 
 
+def test_null_modalities(
+    test_app, test_data, mock_post_query_to_graph, monkeypatch
+):
+    """Given a response containing a dataset with no recorded modalities, returns an empty list for the imaging modalities."""
+
+    monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
+    response = test_app.get("/query/")
+    assert response.json()[0]["image_modals"] == []
+
+
 def test_get_all(test_app, mock_successful_get, monkeypatch):
     """Given no input for any query parameters, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
 
