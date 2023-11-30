@@ -64,7 +64,8 @@ def mock_post_query_to_graph():
                     "dataset_name",
                     "dataset_portal_uri",
                     "sub_id",
-                    "image_modal" "total_subjects",
+                    "image_modal",
+                    "total_subjects",
                 ]
             },
             "results": {
