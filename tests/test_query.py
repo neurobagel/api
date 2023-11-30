@@ -13,7 +13,9 @@ def test_null_modalities(
 
     monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
     response = test_app.get("/query/")
-    assert response.json()[0]["image_modals"] == []
+    assert response.json()[0]["image_modals"] == [
+        "http://purl.org/nidash/nidm#T1Weighted"
+    ]
 
 
 def test_get_all(test_app, mock_successful_get, monkeypatch):
