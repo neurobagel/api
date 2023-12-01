@@ -73,6 +73,32 @@ def post_query_to_graph(query: str, timeout: float = 5.0) -> dict:
     return response.json()
 
 
+def query_matching_dataset_sizes(dataset_uuids: list) -> dict:
+    """
+    Queries the graph for the number of subjects in each dataset in a list of dataset UUIDs.
+
+    Parameters
+    ----------
+    dataset_uuids : pd.Series
+        A list of unique dataset UUIDs.
+
+    Returns
+    -------
+    dict
+        A dictionary with keys corresponding to the dataset UUIDs and values corresponding to the number of subjects in the dataset.
+    """
+    # Get the total number of subjects in each dataset that matched the query
+    matching_dataset_size_results = post_query_to_graph(
+        util.create_multidataset_size_query(dataset_uuids)
+    )
+    return {
+        ds["dataset_uuid"]: int(ds["total_subjects"])
+        for ds in util.unpack_http_response_json_to_dicts(
+            matching_dataset_size_results
+        )
+    }
+
+
 async def get(
     min_age: float,
     max_age: float,
@@ -129,18 +155,9 @@ async def get(
         util.unpack_http_response_json_to_dicts(results)
     ).reindex(columns=ATTRIBUTES_ORDER)
 
-    # Get the total number of subjects in each dataset that matched the query
-    matching_dataset_size_results = post_query_to_graph(
-        util.create_multidataset_size_query(
-            results_df["dataset_uuid"].unique()
-        )
+    matching_dataset_sizes = query_matching_dataset_sizes(
+        results_df["dataset_uuid"].unique()
     )
-    matching_dataset_sizes = {
-        ds["dataset_uuid"]: int(ds["total_subjects"])
-        for ds in util.unpack_http_response_json_to_dicts(
-            matching_dataset_size_results
-        )
-    }
 
     response_obj = []
     dataset_cols = ["dataset_uuid", "dataset_name"]
