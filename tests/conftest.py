@@ -51,7 +51,6 @@ def test_data():
     ]
 
 
-# TODO update the test once https://github.com/neurobagel/api/issues/234 is resolved
 @pytest.fixture
 def mock_post_query_to_graph():
     """Mock post_query_to_graph function that returns toy data containing a dataset with no modalities for testing."""
