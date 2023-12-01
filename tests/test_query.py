@@ -6,12 +6,67 @@ from fastapi import HTTPException
 from app.api import crud
 
 
+def test_get_subjects_by_query(monkeypatch):
+    """Test that graph results for dataset size queries are correctly parsed into a dictionary."""
+
+    def mock_post_query_to_graph(query, timeout=5.0):
+        return {
+            "head": {"vars": ["dataset_uuid", "total_subjects"]},
+            "results": {
+                "bindings": [
+                    {
+                        "dataset_uuid": {
+                            "type": "uri",
+                            "value": "http://neurobagel.org/vocab/ds1234",
+                        },
+                        "total_subjects": {
+                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                            "type": "literal",
+                            "value": "70",
+                        },
+                    },
+                    {
+                        "dataset_uuid": {
+                            "type": "uri",
+                            "value": "http://neurobagel.org/vocab/ds2345",
+                        },
+                        "total_subjects": {
+                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
+                            "type": "literal",
+                            "value": "40",
+                        },
+                    },
+                ]
+            },
+        }
+
+    monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
+    assert crud.query_matching_dataset_sizes(
+        [
+            "http://neurobagel.org/vocab/ds1234",
+            "http://neurobagel.org/vocab/ds2345",
+        ]
+    ) == {
+        "http://neurobagel.org/vocab/ds1234": 70,
+        "http://neurobagel.org/vocab/ds2345": 40,
+    }
+
+
 def test_null_modalities(
     test_app, test_data, mock_post_query_to_graph, monkeypatch
 ):
     """Given a response containing a dataset with no recorded modalities, returns an empty list for the imaging modalities."""
 
+    def mock_query_matching_dataset_sizes(dataset_uuids):
+        return {
+            "http://neurobagel.org/vocab/12345": 200,
+        }
+
     monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
+    monkeypatch.setattr(
+        crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
+    )
+
     response = test_app.get("/query/")
     assert response.json()[0]["image_modals"] == [
         "http://purl.org/nidash/nidm#T1Weighted"
