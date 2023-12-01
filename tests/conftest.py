@@ -51,7 +51,6 @@ def test_data():
     ]
 
 
-# TODO update the test once https://github.com/neurobagel/api/issues/234 is resolved
 @pytest.fixture
 def mock_post_query_to_graph():
     """Mock post_query_to_graph function that returns toy data containing a dataset with no modalities for testing."""
@@ -65,7 +64,6 @@ def mock_post_query_to_graph():
                     "dataset_portal_uri",
                     "sub_id",
                     "image_modal",
-                    "total_subjects",
                 ]
             },
             "results": {
@@ -81,11 +79,6 @@ def mock_post_query_to_graph():
                         },
                         "sub_id": {"type": "literal", "value": "sub-ON95534"},
                         "dataset_name": {"type": "literal", "value": "QPN"},
-                        "total_subjects": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "200",
-                        },
                     },
                     {
                         "dataset_uuid": {
@@ -101,11 +94,6 @@ def mock_post_query_to_graph():
                         "image_modal": {
                             "type": "uri",
                             "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "total_subjects": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "200",
                         },
                     },
                 ]
