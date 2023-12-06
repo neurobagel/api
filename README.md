@@ -77,9 +77,12 @@ If needed, update your `.env` file with optional environment variables for the d
 
 > :information_source: **Note: Deploying the Neurobagel query tool**
 >
-> When you locally deploy the API with `docker compose`, you will also deploy a local version of the [Neurobagel graphical query tool](https://github.com/neurobagel/query-tool). 
-> By default you can reach your local query tool at http://localhost:3000 once it is running.
-> Similarly, the `.template-env` file in this repo also assumes you want to allow API requests from a query tool hosted at a specific port on `localhost`.
+> When you deploy the API locally with `docker compose`, 
+> you will only spin up the graph backend and the API service. 
+> If you want to use the graphical browser query tool
+> as a standalone service for your local API, 
+> you will have to deploy it manually.
+> Please refer to our [documentation for details](https://neurobagel.org/infrastructure/#as-a-standalone-service).
 
 Use Docker Compose to spin up the containers by running the following in the repository root (where the `docker-compose.yml` file is):
 ```bash
