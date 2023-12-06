@@ -20,9 +20,3 @@ services:
       - "${NB_GRAPH_ROOT_HOST:-~/stardog-home}:${NB_GRAPH_ROOT_CONT:-/var/opt/stardog}"
     ports:
       - "${NB_GRAPH_PORT_HOST:-5820}:${NB_GRAPH_PORT:-5820}"
-  query:
-    image: "neurobagel/query_tool:${NB_QUERY_TAG:-latest}"
-    ports:
-      - "${NB_QUERY_PORT_HOST:-3000}:3000"
-    environment:
-      API_QUERY_URL: "${API_QUERY_URL:-http://localhost:8000/}"
