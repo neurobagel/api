@@ -1,4 +1,4 @@
-name: continuous integration
+name: build docker
 
 on:
   push:
@@ -29,4 +29,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/api:nightly
