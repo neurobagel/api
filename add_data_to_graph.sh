@@ -150,7 +150,7 @@ fi
 if [ "$clear_data" = "on" ]; then
 	echo -e "\nCLEARING EXISTING DATA FROM ${graph_db}..."
 
-	response=$(curl -u "${user}:${password}" --no-progress-meter -i -w "\n%{http_code}\n" \
+	response=$(curl -u "${user}:${password}" -s -S -i -w "\n%{http_code}\n" \
 		-X POST $clear_data_url \
 		-H "Content-Type: application/sparql-update" \
 		--data-binary "${DELETE_TRIPLES_QUERY}")
@@ -193,7 +193,7 @@ for file in ${jsonld_dir}/*.ttl; do
 	[ -e "$file" ] || continue
 
 	echo "$(basename ${file}):"
-	response=$(curl -u "${user}:${password}" --no-progress-meter -i -w "\n%{http_code}\n" \
+	response=$(curl -u "${user}:${password}" -s -S -i -w "\n%{http_code}\n" \
 				-X POST $upload_data_url \
 				-H "Content-Type: text/turtle" \
 				--data-binary @${file})
