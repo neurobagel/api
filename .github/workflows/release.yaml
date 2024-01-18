@@ -1,0 +1,28 @@
+name: auto release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  auto-release:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download latest auto
+        run: |
+          auto_download_url="$(curl -fsSL https://api.github.com/repos/intuit/auto/releases/latest | jq -r '.assets[] | select(.name == "auto-linux.gz") | .browser_download_url')"
+          wget -O- "$auto_download_url" | gunzip > ~/auto
+          chmod a+x ~/auto
+
+      - name: Release
+        run: ~/auto shipit -vv
+        env:
+          GH_TOKEN: ${{ secrets.NB_PAT_RELEASE }}
+          PROTECTED_BRANCH_REVIEWER_TOKEN: ${{ secrets.NB_PAT_RELEASE_PROTECTED }}
