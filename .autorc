@@ -9,12 +9,14 @@
         "released",
         "protected-branch",
         "first-time-contributor",
-        "omit-commits",
-        {
-            "username": "dependabot[bot]",
-            "subject": "[pre-commit.ci]",
-            "labels": "_bot"
-        }
+        [
+            "omit-commits",
+            {
+                "username": "dependabot[bot]",
+                "subject": "[pre-commit.ci]",
+                "labels": "_bot"
+            }
+        ]
     ],
     "labels": [
         {
