@@ -102,7 +102,8 @@ def create_query(
     sex: Optional[str] = None,
     diagnosis: Optional[str] = None,
     is_control: Optional[bool] = None,
-    min_num_sessions: Optional[int] = None,
+    min_num_imaging_sessions: Optional[int] = None,
+    min_num_phenotypic_sessions: Optional[int] = None,
     assessment: Optional[str] = None,
     image_modal: Optional[str] = None,
 ) -> str:
@@ -158,10 +159,11 @@ def create_query(
                 "\n" + f"FILTER (?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
             )
 
-    if min_num_sessions is not None:
-        subject_level_filters += (
-            "\n" + f"FILTER (?num_sessions >= {min_num_sessions})."
-        )
+    # TODO: Uncomment once query template is updated
+    # if min_num_sessions is not None:
+    #     subject_level_filters += (
+    #         "\n" + f"FILTER (?num_sessions >= {min_num_sessions})."
+    #     )
 
     if assessment is not None:
         subject_level_filters += (

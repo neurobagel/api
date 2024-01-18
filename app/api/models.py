@@ -18,7 +18,9 @@ class QueryModel(BaseModel):
     sex: constr(regex=CONTROLLED_TERM_REGEX) = None
     diagnosis: constr(regex=CONTROLLED_TERM_REGEX) = None
     is_control: bool = None
-    min_num_sessions: int = Query(default=None, ge=1)
+    # min_num_sessions: int = Query(default=None, ge=1)
+    min_num_imaging_sessions: int = Query(default=None, ge=0)
+    min_num_phenotypic_sessions: int = Query(default=None, ge=0)
     assessment: constr(regex=CONTROLLED_TERM_REGEX) = None
     image_modal: constr(regex=CONTROLLED_TERM_REGEX) = None
 

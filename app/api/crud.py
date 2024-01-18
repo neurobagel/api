@@ -108,7 +108,8 @@ async def get(
     sex: str,
     diagnosis: str,
     is_control: bool,
-    min_num_sessions: int,
+    min_num_imaging_sessions: int,
+    min_num_phenotypic_sessions: int,
     assessment: str,
     image_modal: str,
 ) -> list[CohortQueryResponse]:
@@ -147,7 +148,8 @@ async def get(
             sex=sex,
             diagnosis=diagnosis,
             is_control=is_control,
-            min_num_sessions=min_num_sessions,
+            min_num_phenotypic_sessions=min_num_phenotypic_sessions,
+            min_num_imaging_sessions=min_num_imaging_sessions,
             assessment=assessment,
             image_modal=image_modal,
         )
@@ -174,6 +176,7 @@ async def get(
                     # TODO: Switch back to dropna=True once phenotypic sessions are implemented, as all subjects will have at least one non-null session ID
                     .groupby(by=["sub_id", "session_id"], dropna=False).agg(
                         {
+                            # TODO: Update to show both number of imaging and phenotypic sessions
                             "sub_id": "first",
                             "session_id": "first",
                             "num_sessions": "first",
