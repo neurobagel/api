@@ -31,9 +31,12 @@ ATTRIBUTES_ORDER = [
 ]
 
 
-def post_query_to_graph(query: str, timeout: float = 5.0) -> dict:
+def post_query_to_graph(query: str, timeout: float = 30.0) -> dict:
     """
     Makes a post request to the graph API to perform a query, using parameters from the environment.
+
+    # TODO: Revisit default timeout value when query performance is improved
+
     Parameters
     ----------
     query : str
@@ -147,9 +150,7 @@ async def get(
             min_num_sessions=min_num_sessions,
             assessment=assessment,
             image_modal=image_modal,
-        ),
-        # TODO: Revisit timeout value when query performance is improved
-        timeout=30.0,
+        )
     )
     results_df = pd.DataFrame(
         util.unpack_http_response_json_to_dicts(results)
