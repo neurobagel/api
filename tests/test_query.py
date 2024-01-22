@@ -218,7 +218,7 @@ def test_get_invalid_control_diagnosis_pair(
     )
 
 
-@pytest.mark.parametrize("valid_min_num_sessions", [1, 2, 4, 7])
+@pytest.mark.parametrize("valid_min_num_sessions", [0, 1, 2, 4, 7])
 def test_get_valid_min_num_sessions(
     test_app, mock_successful_get, valid_min_num_sessions, monkeypatch
 ):
@@ -226,13 +226,13 @@ def test_get_valid_min_num_sessions(
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        f"/query/?min_num_sessions={valid_min_num_sessions}"
+        f"/query/?min_num_imaging_sessions={valid_min_num_sessions}"
     )
     assert response.status_code == 200
     assert response.json() != []
 
 
-@pytest.mark.parametrize("invalid_min_num_sessions", [0, -3, "apple"])
+@pytest.mark.parametrize("invalid_min_num_sessions", [-3, 2.5, "apple"])
 def test_get_invalid_min_num_sessions(
     test_app, mock_invalid_get, invalid_min_num_sessions, monkeypatch
 ):
@@ -240,7 +240,7 @@ def test_get_invalid_min_num_sessions(
 
     monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get(
-        f"/query/?min_num_sessions={invalid_min_num_sessions}"
+        f"/query/?min_num_imaging_sessions={invalid_min_num_sessions}"
     )
     response.status_code = 422
 
@@ -305,7 +305,8 @@ def test_get_valid_unavailable_image_modal(
         sex,
         diagnosis,
         is_control,
-        min_num_sessions,
+        min_num_imaging_sessions,
+        min_num_phenotypic_sessions,
         assessment,
         image_modal,
     ):
@@ -348,7 +349,8 @@ def test_get_undefined_prefix_image_modal(
         sex,
         diagnosis,
         is_control,
-        min_num_sessions,
+        min_num_imaging_sessions,
+        min_num_phenotypic_sessions,
         assessment,
         image_modal,
     ):
