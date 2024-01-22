@@ -189,8 +189,8 @@ def create_query(
                     nb:hasLabel ?dataset_name;
                     nb:hasSamples ?subject.
             ?subject a nb:Subject;
-                    nb:hasLabel ?sub_id.
-                    nb:hasSession ?session
+                    nb:hasLabel ?sub_id;
+                    nb:hasSession ?session.
             ?session a ?session_type;
                      nb:hasLabel ?session_id.
             OPTIONAL {{
