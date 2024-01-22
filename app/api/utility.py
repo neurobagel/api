@@ -159,37 +159,42 @@ def create_query(
                 "\n" + f"FILTER (?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
             )
 
-    # TODO: Uncomment once query template is updated
-    # if min_num_sessions is not None:
-    #     subject_level_filters += (
-    #         "\n" + f"FILTER (?num_sessions >= {min_num_sessions})."
-    #     )
+    if min_num_phenotypic_sessions is not None:
+        subject_level_filters += (
+            "\n"
+            + f"FILTER (?num_phenotypic_sessions >= {min_num_phenotypic_sessions})."
+        )
+    if min_num_imaging_sessions is not None:
+        subject_level_filters += (
+            "\n"
+            + f"FILTER (?num_imaging_sessions >= {min_num_imaging_sessions})."
+        )
 
     if assessment is not None:
         subject_level_filters += (
             "\n" + f"FILTER (?{ASSESSMENT.var} = {assessment})."
         )
 
-    session_level_filters = ""
-
+    imaging_session_level_filters = ""
     if image_modal is not None:
-        session_level_filters += (
+        imaging_session_level_filters += (
             "\n" + f"FILTER (?{IMAGE_MODAL.var} = {image_modal})."
         )
 
     query_string = f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
-        ?diagnosis ?subject_group ?num_sessions ?session_id ?assessment ?image_modal ?session_file_path
+        ?diagnosis ?subject_group ?num_phenotypic_sessions ?num_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path
         WHERE {{
             ?dataset_uuid a nb:Dataset;
                     nb:hasLabel ?dataset_name;
                     nb:hasSamples ?subject.
             ?subject a nb:Subject;
                     nb:hasLabel ?sub_id.
+                    nb:hasSession ?session
+            ?session a ?session_type;
+                     nb:hasLabel ?session_id.
             OPTIONAL {{
-                ?subject nb:hasSession ?session;
-                         nb:hasSession/nb:hasAcquisition/nb:hasContrastType ?image_modal.
-                ?session nb:hasLabel ?session_id.
+                ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
                 OPTIONAL {{
                     ?session nb:hasFilePath ?session_file_path.
                 }}
@@ -198,29 +203,39 @@ def create_query(
                 ?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.
             }}
             OPTIONAL {{
-                ?subject nb:hasAge ?age.
+                ?session nb:hasAge ?age.
             }}
             OPTIONAL {{
-                ?subject nb:hasSex ?sex.
+                ?session nb:hasSex ?sex.
             }}
             OPTIONAL {{
-                ?subject nb:hasDiagnosis ?diagnosis.
+                ?session nb:hasDiagnosis ?diagnosis.
             }}
             OPTIONAL {{
-                ?subject nb:isSubjectGroup ?subject_group.
+                ?session nb:isSubjectGroup ?subject_group.
             }}
             OPTIONAL {{
-                ?subject nb:hasAssessment ?assessment.
+                ?session nb:hasAssessment ?assessment.
             }}
             {{
-                SELECT ?subject (count(distinct ?session) as ?num_sessions)
+                SELECT ?subject (count(distinct ?phenotypic_session) as ?num_phenotypic_sessions)
                 WHERE {{
                     ?subject a nb:Subject.
                     OPTIONAL {{
-                        ?subject nb:hasSession ?session.
-                        ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                        ?subject nb:hasSession ?phenotypic_session.
+                        ?phenotypic_session a nb:PhenotypicSession.
                     }}
-                    {session_level_filters}
+                }} GROUP BY ?subject
+            }}
+            {{
+                SELECT ?subject (count(distinct ?imaging_session) as ?num_imaging_sessions)
+                WHERE {{
+                    ?subject a nb:Subject.
+                    OPTIONAL {{
+                        ?subject nb:hasSession ?imaging_session.
+                        ?imaging_session nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                    }}
+                    {imaging_session_level_filters}
                 }} GROUP BY ?subject
             }}
             {subject_level_filters}
@@ -236,6 +251,7 @@ def create_query(
             \n}} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal
         """
 
+    print(query_string)  # TODO: Remove this line once we're done debugging.
     return "\n".join([create_context(), query_string])
 
 
