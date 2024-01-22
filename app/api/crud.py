@@ -14,10 +14,13 @@ from .models import CohortQueryResponse, VocabLabelsResponse
 # Order that dataset and subject-level attributes should appear in the API JSON response.
 # This order is defined explicitly because when graph-returned results are transformed to a dataframe,
 # the default order of columns may be different than the order that variables are given in the SPARQL SELECT state
+# TODO: Check if this is still needed
 ATTRIBUTES_ORDER = [
     "sub_id",
-    "num_sessions",
+    "num_phenotypic_sessions",
+    "num_imaging_sessions",
     "session_id",
+    "session_type",
     "session_file_path",
     "age",
     "sex",
@@ -174,12 +177,16 @@ async def get(
                 subject_data = (
                     group.drop(dataset_cols, axis=1)
                     # TODO: Switch back to dropna=True once phenotypic sessions are implemented, as all subjects will have at least one non-null session ID
-                    .groupby(by=["sub_id", "session_id"], dropna=False).agg(
+                    .groupby(
+                        by=["sub_id", "session_id", "session_type"],
+                        dropna=False,
+                    ).agg(
                         {
-                            # TODO: Update to show both number of imaging and phenotypic sessions
                             "sub_id": "first",
                             "session_id": "first",
-                            "num_sessions": "first",
+                            "num_phenotypic_sessions": "first",
+                            "num_imaging_sessions": "first",
+                            "session_type": "first",
                             "age": "first",
                             "sex": "first",
                             "diagnosis": lambda x: list(x.unique()),
