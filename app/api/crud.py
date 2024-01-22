@@ -132,8 +132,10 @@ async def get(
         Subject diagnosis.
     is_control : bool
         Whether or not subject is a control.
-    min_num_sessions : int
+    min_num_imaging_sessions : int
         Subject minimum number of imaging sessions.
+    min_num_phenotypic_sessions : int
+        Subject minimum number of phenotypic sessions.
     assessment : str
         Non-imaging assessment completed by subjects.
     image_modal : str

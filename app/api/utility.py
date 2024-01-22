@@ -122,8 +122,10 @@ def create_query(
         Subject diagnosis, by default None.
     is_control : bool, optional
         Whether or not subject is a control, by default None.
-    min_num_sessions : int, optional
+    min_num_imaging_sessions : int, optional
         Subject minimum number of imaging sessions, by default None.
+    min_num_phenotypic_sessions : int, optional
+        Subject minimum number of phenotypic sessions, by default None.
     assessment : str, optional
         Non-imaging assessment completed by subjects, by default None.
     image_modal : str, optional
@@ -274,7 +276,6 @@ def create_query(
             \n}} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal
         """
 
-    print(query_string)  # TODO: Remove this line once we're done debugging.
     return "\n".join([create_context(), query_string])
 
 
