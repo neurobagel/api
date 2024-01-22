@@ -134,31 +134,43 @@ def create_query(
     str
         The SPARQL query.
     """
-    subject_level_filters = ""
+    phenotypic_session_level_filters = ""
 
     if age[0] is not None:
-        subject_level_filters += "\n" + f"FILTER (?{AGE.var} >= {age[0]})."
+        phenotypic_session_level_filters += (
+            "\n" + f"FILTER (?{AGE.var} >= {age[0]})."
+        )
     if age[1] is not None:
-        subject_level_filters += "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
+        phenotypic_session_level_filters += (
+            "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
+        )
 
     if sex is not None:
-        subject_level_filters += "\n" + f"FILTER (?{SEX.var} = {sex})."
+        phenotypic_session_level_filters += (
+            "\n" + f"FILTER (?{SEX.var} = {sex})."
+        )
 
     if diagnosis is not None:
-        subject_level_filters += (
+        phenotypic_session_level_filters += (
             "\n" + f"FILTER (?{DIAGNOSIS.var} = {diagnosis})."
         )
 
     if is_control is not None:
         if is_control:
-            subject_level_filters += (
+            phenotypic_session_level_filters += (
                 "\n" + f"FILTER (?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
             )
         else:
-            subject_level_filters += (
+            phenotypic_session_level_filters += (
                 "\n" + f"FILTER (?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
             )
 
+    if assessment is not None:
+        phenotypic_session_level_filters += (
+            "\n" + f"FILTER (?{ASSESSMENT.var} = {assessment})."
+        )
+
+    subject_level_filters = ""
     if min_num_phenotypic_sessions is not None:
         subject_level_filters += (
             "\n"
@@ -168,11 +180,6 @@ def create_query(
         subject_level_filters += (
             "\n"
             + f"FILTER (?num_imaging_sessions >= {min_num_imaging_sessions})."
-        )
-
-    if assessment is not None:
-        subject_level_filters += (
-            "\n" + f"FILTER (?{ASSESSMENT.var} = {assessment})."
         )
 
     imaging_session_level_filters = ""
@@ -224,7 +231,23 @@ def create_query(
                     OPTIONAL {{
                         ?subject nb:hasSession ?phenotypic_session.
                         ?phenotypic_session a nb:PhenotypicSession.
+                        OPTIONAL {{
+                            ?phenotypic_session nb:hasAge ?age.
+                        }}
+                        OPTIONAL {{
+                            ?phenotypic_session nb:hasSex ?sex.
+                        }}
+                        OPTIONAL {{
+                            ?phenoypic_session nb:hasDiagnosis ?diagnosis.
+                        }}
+                        OPTIONAL {{
+                            ?phenotypic_session nb:isSubjectGroup ?subject_group.
+                        }}
+                        OPTIONAL {{
+                            ?phenotypic_session nb:hasAssessment ?assessment.
+                        }}
                     }}
+                    {phenotypic_session_level_filters}
                 }} GROUP BY ?subject
             }}
             {{
