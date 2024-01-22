@@ -11,28 +11,6 @@ from fastapi import HTTPException, status
 from . import utility as util
 from .models import CohortQueryResponse, VocabLabelsResponse
 
-# Order that dataset and subject-level attributes should appear in the API JSON response.
-# This order is defined explicitly because when graph-returned results are transformed to a dataframe,
-# the default order of columns may be different than the order that variables are given in the SPARQL SELECT state
-# TODO: Check if this is still needed
-ATTRIBUTES_ORDER = [
-    "sub_id",
-    "num_phenotypic_sessions",
-    "num_imaging_sessions",
-    "session_id",
-    "session_type",
-    "session_file_path",
-    "age",
-    "sex",
-    "diagnosis",
-    "subject_group",
-    "assessment",
-    "image_modal",
-    "dataset_name",
-    "dataset_uuid",
-    "dataset_portal_uri",
-]
-
 
 def post_query_to_graph(query: str, timeout: float = 30.0) -> dict:
     """
@@ -159,9 +137,7 @@ async def get(
             image_modal=image_modal,
         )
     )
-    results_df = pd.DataFrame(
-        util.unpack_http_response_json_to_dicts(results)
-    ).reindex(columns=ATTRIBUTES_ORDER)
+    results_df = pd.DataFrame(util.unpack_http_response_json_to_dicts(results))
 
     matching_dataset_sizes = query_matching_dataset_sizes(
         results_df["dataset_uuid"].unique()
@@ -178,11 +154,11 @@ async def get(
             else:
                 subject_data = (
                     group.drop(dataset_cols, axis=1)
-                    # TODO: Switch back to dropna=True once phenotypic sessions are implemented, as all subjects will have at least one non-null session ID
                     .groupby(
                         by=["sub_id", "session_id", "session_type"],
-                        dropna=False,
-                    ).agg(
+                        dropna=True,
+                    )
+                    .agg(
                         {
                             "sub_id": "first",
                             "session_id": "first",

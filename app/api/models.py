@@ -18,7 +18,6 @@ class QueryModel(BaseModel):
     sex: constr(regex=CONTROLLED_TERM_REGEX) = None
     diagnosis: constr(regex=CONTROLLED_TERM_REGEX) = None
     is_control: bool = None
-    # min_num_sessions: int = Query(default=None, ge=1)
     min_num_imaging_sessions: int = Query(default=None, ge=0)
     min_num_phenotypic_sessions: int = Query(default=None, ge=0)
     assessment: constr(regex=CONTROLLED_TERM_REGEX) = None
@@ -53,6 +52,23 @@ class QueryModel(BaseModel):
         return values
 
 
+class SessionResponse(BaseModel):
+    """Data model for a single session available for a matching subject."""
+
+    sub_id: str
+    session_id: str
+    num_phenotypic_sessions: int
+    num_imaging_sessions: int
+    session_type: str
+    age: Optional[float]
+    sex: Optional[str]
+    diagnosis: list
+    subject_group: Optional[str]
+    assessment: list
+    image_modal: list
+    session_file_path: Optional[str]
+
+
 class CohortQueryResponse(BaseModel):
     """Data model for query results for one matching dataset (i.e., a cohort)."""
 
@@ -63,7 +79,7 @@ class CohortQueryResponse(BaseModel):
     dataset_total_subjects: int
     records_protected: bool
     num_matching_subjects: int
-    subject_data: Union[list[dict], str]
+    subject_data: Union[list[SessionResponse], str]
     image_modals: list
 
 
