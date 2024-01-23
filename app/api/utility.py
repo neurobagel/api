@@ -136,6 +136,18 @@ def create_query(
     str
         The SPARQL query.
     """
+    subject_level_filters = ""
+    if min_num_phenotypic_sessions is not None:
+        subject_level_filters += (
+            "\n"
+            + f"FILTER (?num_phenotypic_sessions >= {min_num_phenotypic_sessions})."
+        )
+    if min_num_imaging_sessions is not None:
+        subject_level_filters += (
+            "\n"
+            + f"FILTER (?num_imaging_sessions >= {min_num_imaging_sessions})."
+        )
+
     phenotypic_session_level_filters = ""
 
     if age[0] is not None:
@@ -170,18 +182,6 @@ def create_query(
     if assessment is not None:
         phenotypic_session_level_filters += (
             "\n" + f"FILTER (?{ASSESSMENT.var} = {assessment})."
-        )
-
-    subject_level_filters = ""
-    if min_num_phenotypic_sessions is not None:
-        subject_level_filters += (
-            "\n"
-            + f"FILTER (?num_phenotypic_sessions >= {min_num_phenotypic_sessions})."
-        )
-    if min_num_imaging_sessions is not None:
-        subject_level_filters += (
-            "\n"
-            + f"FILTER (?num_imaging_sessions >= {min_num_imaging_sessions})."
         )
 
     imaging_session_level_filters = ""
