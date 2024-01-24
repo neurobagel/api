@@ -218,29 +218,46 @@ def test_get_invalid_control_diagnosis_pair(
     )
 
 
+# NOTE: Stacked parametrization is a feature of pytest: all combinations of the parameters are tested.
+@pytest.mark.parametrize(
+    "session_param",
+    ["min_num_phenotypic_sessions", "min_num_imaging_sessions"],
+)
 @pytest.mark.parametrize("valid_min_num_sessions", [0, 1, 2, 4, 7])
 def test_get_valid_min_num_sessions(
-    test_app, mock_successful_get, valid_min_num_sessions, monkeypatch
+    test_app,
+    mock_successful_get,
+    session_param,
+    valid_min_num_sessions,
+    monkeypatch,
 ):
     """Given a valid minimum number of imaging sessions, returns a 200 status code and a non-empty list of results."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        f"/query/?min_num_imaging_sessions={valid_min_num_sessions}"
+        f"/query/?{session_param}={valid_min_num_sessions}"
     )
     assert response.status_code == 200
     assert response.json() != []
 
 
+@pytest.mark.parametrize(
+    "session_param",
+    ["min_num_phenotypic_sessions", "min_num_imaging_sessions"],
+)
 @pytest.mark.parametrize("invalid_min_num_sessions", [-3, 2.5, "apple"])
 def test_get_invalid_min_num_sessions(
-    test_app, mock_invalid_get, invalid_min_num_sessions, monkeypatch
+    test_app,
+    mock_invalid_get,
+    session_param,
+    invalid_min_num_sessions,
+    monkeypatch,
 ):
     """Given an invalid minimum number of imaging sessions, returns a 422 status code."""
 
     monkeypatch.setattr(crud, "get", mock_invalid_get)
     response = test_app.get(
-        f"/query/?min_num_imaging_sessions={invalid_min_num_sessions}"
+        f"/query/?{session_param}={invalid_min_num_sessions}"
     )
     response.status_code = 422
 
