@@ -5,35 +5,26 @@ import warnings
 from pathlib import Path
 
 import httpx
+import numpy as np
 import pandas as pd
 from fastapi import HTTPException, status
 
 from . import utility as util
-from .models import CohortQueryResponse, VocabLabelsResponse
+from .models import CohortQueryResponse, SessionResponse, VocabLabelsResponse
 
-# Order that dataset and subject-level attributes should appear in the API JSON response.
-# This order is defined explicitly because when graph-returned results are transformed to a dataframe,
-# the default order of columns may be different than the order that variables are given in the SPARQL SELECT state
-ATTRIBUTES_ORDER = [
-    "sub_id",
-    "num_sessions",
-    "session_id",
-    "session_file_path",
-    "age",
-    "sex",
-    "diagnosis",
-    "subject_group",
-    "assessment",
-    "image_modal",
-    "dataset_name",
+ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.__fields__.keys()) + [
     "dataset_uuid",
+    "dataset_name",
     "dataset_portal_uri",
 ]
 
 
-def post_query_to_graph(query: str, timeout: float = 5.0) -> dict:
+def post_query_to_graph(query: str, timeout: float = 30.0) -> dict:
     """
     Makes a post request to the graph API to perform a query, using parameters from the environment.
+
+    # TODO: Revisit default timeout value when query performance is improved
+
     Parameters
     ----------
     query : str
@@ -105,7 +96,8 @@ async def get(
     sex: str,
     diagnosis: str,
     is_control: bool,
-    min_num_sessions: int,
+    min_num_imaging_sessions: int,
+    min_num_phenotypic_sessions: int,
     assessment: str,
     image_modal: str,
 ) -> list[CohortQueryResponse]:
@@ -125,8 +117,10 @@ async def get(
         Subject diagnosis.
     is_control : bool
         Whether or not subject is a control.
-    min_num_sessions : int
+    min_num_imaging_sessions : int
         Subject minimum number of imaging sessions.
+    min_num_phenotypic_sessions : int
+        Subject minimum number of phenotypic sessions.
     assessment : str
         Non-imaging assessment completed by subjects.
     image_modal : str
@@ -144,16 +138,19 @@ async def get(
             sex=sex,
             diagnosis=diagnosis,
             is_control=is_control,
-            min_num_sessions=min_num_sessions,
+            min_num_phenotypic_sessions=min_num_phenotypic_sessions,
+            min_num_imaging_sessions=min_num_imaging_sessions,
             assessment=assessment,
             image_modal=image_modal,
-        ),
-        # TODO: Revisit timeout value when query performance is improved
-        timeout=30.0,
+        )
     )
+
+    # Reindexing is needed here because when a certain attribute is missing from all matching sessions,
+    # the attribute does not end up in the graph API response or the below resulting processed dataframe.
+    # Conforming the columns to a list of expected attributes ensures every subject-session has the same response shape from the node API.
     results_df = pd.DataFrame(
         util.unpack_http_response_json_to_dicts(results)
-    ).reindex(columns=ATTRIBUTES_ORDER)
+    ).reindex(columns=ALL_SUBJECT_ATTRIBUTES)
 
     matching_dataset_sizes = query_matching_dataset_sizes(
         results_df["dataset_uuid"].unique()
@@ -170,12 +167,17 @@ async def get(
             else:
                 subject_data = (
                     group.drop(dataset_cols, axis=1)
-                    # TODO: Switch back to dropna=True once phenotypic sessions are implemented, as all subjects will have at least one non-null session ID
-                    .groupby(by=["sub_id", "session_id"], dropna=False).agg(
+                    .groupby(
+                        by=["sub_id", "session_id", "session_type"],
+                        dropna=True,
+                    )
+                    .agg(
                         {
                             "sub_id": "first",
                             "session_id": "first",
-                            "num_sessions": "first",
+                            "num_phenotypic_sessions": "first",
+                            "num_imaging_sessions": "first",
+                            "session_type": "first",
                             "age": "first",
                             "sex": "first",
                             "diagnosis": lambda x: list(x.unique()),
@@ -186,6 +188,20 @@ async def get(
                         }
                     )
                 )
+
+                # TODO: Revisit this as there may be a more elegant solution.
+                # The following code replaces columns with all NaN values with values of None, to ensure they show up in the final JSON as `null`.
+                # This is needed as the above .agg() seems to turn NaN into None for object-type columns (which have some non-missing values)
+                # but not for columns with all NaN, which end up with a column type of float64. This is a problem because
+                # if the column corresponds to a SessionResponse attribute with an expected str type, then the column values will be converted
+                # to the string "nan" in the response JSON, which we don't want.
+                all_nan_columns = subject_data.columns[
+                    subject_data.isna().all()
+                ]
+                subject_data[all_nan_columns] = subject_data[
+                    all_nan_columns
+                ].replace({np.nan: None})
+
                 subject_data = list(subject_data.to_dict("records"))
 
             response_obj.append(

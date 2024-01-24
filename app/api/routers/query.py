@@ -19,7 +19,8 @@ async def get_query(query: QueryModel = Depends(QueryModel)):
         query.sex,
         query.diagnosis,
         query.is_control,
-        query.min_num_sessions,
+        query.min_num_imaging_sessions,
+        query.min_num_phenotypic_sessions,
         query.assessment,
         query.image_modal,
     )

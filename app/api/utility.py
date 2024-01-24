@@ -102,7 +102,8 @@ def create_query(
     sex: Optional[str] = None,
     diagnosis: Optional[str] = None,
     is_control: Optional[bool] = None,
-    min_num_sessions: Optional[int] = None,
+    min_num_imaging_sessions: Optional[int] = None,
+    min_num_phenotypic_sessions: Optional[int] = None,
     assessment: Optional[str] = None,
     image_modal: Optional[str] = None,
 ) -> str:
@@ -121,8 +122,10 @@ def create_query(
         Subject diagnosis, by default None.
     is_control : bool, optional
         Whether or not subject is a control, by default None.
-    min_num_sessions : int, optional
+    min_num_imaging_sessions : int, optional
         Subject minimum number of imaging sessions, by default None.
+    min_num_phenotypic_sessions : int, optional
+        Subject minimum number of phenotypic sessions, by default None.
     assessment : str, optional
         Non-imaging assessment completed by subjects, by default None.
     image_modal : str, optional
@@ -134,60 +137,73 @@ def create_query(
         The SPARQL query.
     """
     subject_level_filters = ""
+    if min_num_phenotypic_sessions is not None:
+        subject_level_filters += (
+            "\n"
+            + f"FILTER (?num_phenotypic_sessions >= {min_num_phenotypic_sessions})."
+        )
+    if min_num_imaging_sessions is not None:
+        subject_level_filters += (
+            "\n"
+            + f"FILTER (?num_imaging_sessions >= {min_num_imaging_sessions})."
+        )
+
+    phenotypic_session_level_filters = ""
 
     if age[0] is not None:
-        subject_level_filters += "\n" + f"FILTER (?{AGE.var} >= {age[0]})."
+        phenotypic_session_level_filters += (
+            "\n" + f"FILTER (?{AGE.var} >= {age[0]})."
+        )
     if age[1] is not None:
-        subject_level_filters += "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
+        phenotypic_session_level_filters += (
+            "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
+        )
 
     if sex is not None:
-        subject_level_filters += "\n" + f"FILTER (?{SEX.var} = {sex})."
+        phenotypic_session_level_filters += (
+            "\n" + f"FILTER (?{SEX.var} = {sex})."
+        )
 
     if diagnosis is not None:
-        subject_level_filters += (
+        phenotypic_session_level_filters += (
             "\n" + f"FILTER (?{DIAGNOSIS.var} = {diagnosis})."
         )
 
     if is_control is not None:
         if is_control:
-            subject_level_filters += (
+            phenotypic_session_level_filters += (
                 "\n" + f"FILTER (?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
             )
         else:
-            subject_level_filters += (
+            phenotypic_session_level_filters += (
                 "\n" + f"FILTER (?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
             )
 
-    if min_num_sessions is not None:
-        subject_level_filters += (
-            "\n" + f"FILTER (?num_sessions >= {min_num_sessions})."
-        )
-
     if assessment is not None:
-        subject_level_filters += (
+        phenotypic_session_level_filters += (
             "\n" + f"FILTER (?{ASSESSMENT.var} = {assessment})."
         )
 
-    session_level_filters = ""
-
+    imaging_session_level_filters = ""
     if image_modal is not None:
-        session_level_filters += (
+        imaging_session_level_filters += (
             "\n" + f"FILTER (?{IMAGE_MODAL.var} = {image_modal})."
         )
 
     query_string = f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
-        ?diagnosis ?subject_group ?num_sessions ?session_id ?assessment ?image_modal ?session_file_path
+        ?diagnosis ?subject_group ?num_phenotypic_sessions ?num_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path
         WHERE {{
             ?dataset_uuid a nb:Dataset;
                     nb:hasLabel ?dataset_name;
                     nb:hasSamples ?subject.
             ?subject a nb:Subject;
-                    nb:hasLabel ?sub_id.
+                    nb:hasLabel ?sub_id;
+                    nb:hasSession ?session.
+            ?session a ?session_type;
+                     nb:hasLabel ?session_id.
             OPTIONAL {{
-                ?subject nb:hasSession ?session;
-                         nb:hasSession/nb:hasAcquisition/nb:hasContrastType ?image_modal.
-                ?session nb:hasLabel ?session_id.
+                ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
                 OPTIONAL {{
                     ?session nb:hasFilePath ?session_file_path.
                 }}
@@ -196,29 +212,55 @@ def create_query(
                 ?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.
             }}
             OPTIONAL {{
-                ?subject nb:hasAge ?age.
+                ?session nb:hasAge ?age.
             }}
             OPTIONAL {{
-                ?subject nb:hasSex ?sex.
+                ?session nb:hasSex ?sex.
             }}
             OPTIONAL {{
-                ?subject nb:hasDiagnosis ?diagnosis.
+                ?session nb:hasDiagnosis ?diagnosis.
             }}
             OPTIONAL {{
-                ?subject nb:isSubjectGroup ?subject_group.
+                ?session nb:isSubjectGroup ?subject_group.
             }}
             OPTIONAL {{
-                ?subject nb:hasAssessment ?assessment.
+                ?session nb:hasAssessment ?assessment.
             }}
             {{
-                SELECT ?subject (count(distinct ?session) as ?num_sessions)
+                SELECT ?subject (count(distinct ?phenotypic_session) as ?num_phenotypic_sessions)
                 WHERE {{
                     ?subject a nb:Subject.
                     OPTIONAL {{
-                        ?subject nb:hasSession ?session.
-                        ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                        ?subject nb:hasSession ?phenotypic_session.
+                        ?phenotypic_session a nb:PhenotypicSession.
+                        OPTIONAL {{
+                            ?phenotypic_session nb:hasAge ?age.
+                        }}
+                        OPTIONAL {{
+                            ?phenotypic_session nb:hasSex ?sex.
+                        }}
+                        OPTIONAL {{
+                            ?phenoypic_session nb:hasDiagnosis ?diagnosis.
+                        }}
+                        OPTIONAL {{
+                            ?phenotypic_session nb:isSubjectGroup ?subject_group.
+                        }}
+                        OPTIONAL {{
+                            ?phenotypic_session nb:hasAssessment ?assessment.
+                        }}
                     }}
-                    {session_level_filters}
+                    {phenotypic_session_level_filters}
+                }} GROUP BY ?subject
+            }}
+            {{
+                SELECT ?subject (count(distinct ?imaging_session) as ?num_imaging_sessions)
+                WHERE {{
+                    ?subject a nb:Subject.
+                    OPTIONAL {{
+                        ?subject nb:hasSession ?imaging_session.
+                        ?imaging_session nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                    }}
+                    {imaging_session_level_filters}
                 }} GROUP BY ?subject
             }}
             {subject_level_filters}

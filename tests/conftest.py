@@ -113,7 +113,8 @@ def mock_successful_get(test_data):
         sex,
         diagnosis,
         is_control,
-        min_num_sessions,
+        min_num_imaging_sessions,
+        min_num_phenotypic_sessions,
         assessment,
         image_modal,
     ):
@@ -132,7 +133,8 @@ def mock_invalid_get():
         sex,
         diagnosis,
         is_control,
-        min_num_sessions,
+        min_num_imaging_sessions,
+        min_num_phenotypic_sessions,
         assessment,
         image_modal,
     ):
