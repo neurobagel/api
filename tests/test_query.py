@@ -366,13 +366,14 @@ def test_get_undefined_prefix_image_modal(
     assert response.status_code == 500
 
 
-def test_query_with_return_agg(
+def test_aggregate_query_response_structure(
     test_app,
     set_test_credentials,
     mock_post_query_to_graph,
     mock_query_matching_dataset_sizes,
     monkeypatch,
 ):
+    """Test that when aggregate results are enabled, a cohort query response has the expected structure."""
     monkeypatch.setenv(util.RETURN_AGG.name, "true")
     monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
     monkeypatch.setattr(
