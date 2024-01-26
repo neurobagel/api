@@ -104,8 +104,48 @@ def mock_post_query_to_graph():
 
 
 @pytest.fixture
+def mock_get_with_exception(request):
+    """Mock get function that raises a specified exception."""
+
+    async def mockreturn(
+        min_age,
+        max_age,
+        sex,
+        diagnosis,
+        is_control,
+        min_num_imaging_sessions,
+        min_num_phenotypic_sessions,
+        assessment,
+        image_modal,
+    ):
+        raise request.param
+
+    return mockreturn
+
+
+@pytest.fixture
+def mock_get(request):
+    """Mock get function that returns an arbitrary response or value (can be None). Can be used to testing error handling of bad requests."""
+
+    async def mockreturn(
+        min_age,
+        max_age,
+        sex,
+        diagnosis,
+        is_control,
+        min_num_imaging_sessions,
+        min_num_phenotypic_sessions,
+        assessment,
+        image_modal,
+    ):
+        return request.param
+
+    return mockreturn
+
+
+@pytest.fixture
 def mock_successful_get(test_data):
-    """Mock get function that returns non-empty query results."""
+    """Mock get function that returns non-empty, valid aggregate query result data."""
 
     async def mockreturn(
         min_age,
@@ -119,26 +159,6 @@ def mock_successful_get(test_data):
         image_modal,
     ):
         return test_data
-
-    return mockreturn
-
-
-@pytest.fixture
-def mock_invalid_get():
-    """Mock get function that does not return any response (for testing invalid parameter values)."""
-
-    async def mockreturn(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_imaging_sessions,
-        min_num_phenotypic_sessions,
-        assessment,
-        image_modal,
-    ):
-        return None
 
     return mockreturn
 
