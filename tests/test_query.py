@@ -3,6 +3,7 @@
 import pytest
 from fastapi import HTTPException
 
+import app.api.utility as util
 from app.api import crud
 
 
@@ -52,13 +53,13 @@ def test_get_subjects_by_query(monkeypatch):
     }
 
 
-def test_null_modalities(test_app, mock_post_query_to_graph, monkeypatch):
+def test_null_modalities(
+    test_app,
+    mock_post_query_to_graph,
+    mock_query_matching_dataset_sizes,
+    monkeypatch,
+):
     """Given a response containing a dataset with no recorded modalities, returns an empty list for the imaging modalities."""
-
-    def mock_query_matching_dataset_sizes(dataset_uuids):
-        return {
-            "http://neurobagel.org/vocab/12345": 200,
-        }
 
     monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
     monkeypatch.setattr(
@@ -363,3 +364,22 @@ def test_get_undefined_prefix_image_modal(
         f"/query/?image_modal={undefined_prefix_image_modal}"
     )
     assert response.status_code == 500
+
+
+def test_query_with_return_agg(
+    test_app,
+    set_test_credentials,
+    mock_post_query_to_graph,
+    mock_query_matching_dataset_sizes,
+    monkeypatch,
+):
+    monkeypatch.setenv(util.RETURN_AGG.name, "true")
+    monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
+    monkeypatch.setattr(
+        crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
+    )
+
+    response = test_app.get("/query/")
+    assert all(
+        dataset["subject_data"] == "protected" for dataset in response.json()
+    )

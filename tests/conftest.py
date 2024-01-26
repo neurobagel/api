@@ -53,7 +53,7 @@ def test_data():
 
 @pytest.fixture
 def mock_post_query_to_graph():
-    """Mock post_query_to_graph function that returns toy data containing a dataset with no modalities for testing."""
+    """Mock post_query_to_graph function that returns toy aggregate data containing a dataset with no modalities for testing."""
 
     def mockreturn(query, timeout=5.0):
         return {
@@ -99,6 +99,20 @@ def mock_post_query_to_graph():
                 ]
             },
         }
+
+    return mockreturn
+
+
+@pytest.fixture
+def mock_query_matching_dataset_sizes():
+    """
+    Mock query_matching_dataset_sizes function that returns the total number of subjects for a toy dataset 12345.
+    Can be used together with mock_post_query_to_graph to mock both the POST step of a cohort query and the corresponding query for dataset size,
+    in order to test how the response from the graph is processed by the API (crud.get).
+    """
+
+    def mockreturn(dataset_uuids):
+        return {"http://neurobagel.org/vocab/12345": 200}
 
     return mockreturn
 
