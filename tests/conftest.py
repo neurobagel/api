@@ -53,7 +53,7 @@ def test_data():
 
 @pytest.fixture
 def mock_post_query_to_graph():
-    """Mock post_query_to_graph function that returns toy data containing a dataset with no modalities for testing."""
+    """Mock post_query_to_graph function that returns toy aggregate data containing a dataset with no modalities for testing."""
 
     def mockreturn(query, timeout=5.0):
         return {
@@ -104,10 +104,80 @@ def mock_post_query_to_graph():
 
 
 @pytest.fixture
-def mock_successful_get(test_data):
-    """Mock get function that returns non-empty query results."""
+def mock_query_matching_dataset_sizes():
+    """
+    Mock query_matching_dataset_sizes function that returns the total number of subjects for a toy dataset 12345.
+    Can be used together with mock_post_query_to_graph to mock both the POST step of a cohort query and the corresponding query for dataset size,
+    in order to test how the response from the graph is processed by the API (crud.get).
+    """
 
-    async def mockreturn(
+    def _mock_query_matching_dataset_sizes(dataset_uuids):
+        return {"http://neurobagel.org/vocab/12345": 200}
+
+    return _mock_query_matching_dataset_sizes
+
+
+@pytest.fixture
+def mock_get_with_exception(request):
+    """
+    Mock get function that raises a specified exception.
+
+    A parameter passed to this fixture via indirect parametrization is received by the internal factory function before it is passed to a test.
+
+    Example usage in test function:
+        @pytest.mark.parametrize("mock_get_with_exception", [HTTPException(500)], indirect=True)
+        (this tells mock_get_with_exception to raise an HTTPException)
+    """
+
+    async def _mock_get_with_exception(
+        min_age,
+        max_age,
+        sex,
+        diagnosis,
+        is_control,
+        min_num_imaging_sessions,
+        min_num_phenotypic_sessions,
+        assessment,
+        image_modal,
+    ):
+        raise request.param
+
+    return _mock_get_with_exception
+
+
+@pytest.fixture
+def mock_get(request):
+    """
+    Mock get function that returns an arbitrary response or value (can be None). Can be used to testing error handling of bad requests.
+
+    A parameter passed to this fixture via indirect parametrization is received by the internal factory function before it is passed to a test.
+
+    Example usage in test function:
+        @pytest.mark.parametrize("mock_get", [None], indirect=True)
+        (this tells mock_get to return None)
+    """
+
+    async def _mock_get(
+        min_age,
+        max_age,
+        sex,
+        diagnosis,
+        is_control,
+        min_num_imaging_sessions,
+        min_num_phenotypic_sessions,
+        assessment,
+        image_modal,
+    ):
+        return request.param
+
+    return _mock_get
+
+
+@pytest.fixture
+def mock_successful_get(test_data):
+    """Mock get function that returns non-empty, valid aggregate query result data."""
+
+    async def _mock_successful_get(
         min_age,
         max_age,
         sex,
@@ -120,27 +190,7 @@ def mock_successful_get(test_data):
     ):
         return test_data
 
-    return mockreturn
-
-
-@pytest.fixture
-def mock_invalid_get():
-    """Mock get function that does not return any response (for testing invalid parameter values)."""
-
-    async def mockreturn(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_imaging_sessions,
-        min_num_phenotypic_sessions,
-        assessment,
-        image_modal,
-    ):
-        return None
-
-    return mockreturn
+    return _mock_successful_get
 
 
 @pytest.fixture()
@@ -160,7 +210,7 @@ def terms_test_data():
 def mock_successful_get_terms(terms_test_data):
     """Mock get_terms function that returns non-empty results."""
 
-    async def mockreturn(data_element_URI, term_labels_path):
+    async def _mock_successful_get_terms(data_element_URI, term_labels_path):
         return terms_test_data
 
-    return mockreturn
+    return _mock_successful_get_terms
