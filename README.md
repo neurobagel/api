@@ -178,6 +178,21 @@ You can then run the tests by executing the following command in your terminal:
 pytest tests
 ```
 
+## Regenerating the default Neurobagel SPARQL query for documentation
+
+(For developers)
+
+`docs/default_neurobagel_query.rq` contains a sample default SPARQL query sent by the Neurobagel API to a graph database to retrieve all available phenotypic and imaging data.
+
+To regenerate this sample query when the API query template is updated, run the following commands from the repository root in an interactive Python terminal:
+
+```python
+from app.api.utility import create_query
+
+with open("docs/default_neurobagel_query.rq", "w") as file:
+    file.write(create_query(return_agg=False))
+```
+
 ### License
 
 Neurobagel API is released under the terms of the [MIT License](LICENSE)
