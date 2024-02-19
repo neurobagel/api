@@ -1,4 +1,5 @@
 """Test utility functions."""
+
 from app.api import utility as util
 
 
