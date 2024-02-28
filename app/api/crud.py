@@ -175,8 +175,8 @@ async def get(
                         {
                             "sub_id": "first",
                             "session_id": "first",
-                            "num_phenotypic_sessions": "first",
-                            "num_imaging_sessions": "first",
+                            "num_matching_phenotypic_sessions": "first",
+                            "num_matching_imaging_sessions": "first",
                             "session_type": "first",
                             "age": "first",
                             "sex": "first",

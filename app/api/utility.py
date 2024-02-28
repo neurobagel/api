@@ -141,12 +141,12 @@ def create_query(
     if min_num_phenotypic_sessions is not None:
         subject_level_filters += (
             "\n"
-            + f"FILTER (?num_phenotypic_sessions >= {min_num_phenotypic_sessions})."
+            + f"FILTER (?num_matching_phenotypic_sessions >= {min_num_phenotypic_sessions})."
         )
     if min_num_imaging_sessions is not None:
         subject_level_filters += (
             "\n"
-            + f"FILTER (?num_imaging_sessions >= {min_num_imaging_sessions})."
+            + f"FILTER (?num_matching_imaging_sessions >= {min_num_imaging_sessions})."
         )
 
     phenotypic_session_level_filters = ""
@@ -194,7 +194,7 @@ def create_query(
     query_string = textwrap.dedent(
         f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
-        ?diagnosis ?subject_group ?num_phenotypic_sessions ?num_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path
+        ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path
         WHERE {{
             ?dataset_uuid a nb:Dataset;
                     nb:hasLabel ?dataset_name;
@@ -229,7 +229,7 @@ def create_query(
                 ?session nb:hasAssessment ?assessment.
             }}
             {{
-                SELECT ?subject (count(distinct ?phenotypic_session) as ?num_phenotypic_sessions)
+                SELECT ?subject (count(distinct ?phenotypic_session) as ?num_matching_phenotypic_sessions)
                 WHERE {{
                     ?subject a nb:Subject.
                     OPTIONAL {{
@@ -255,7 +255,7 @@ def create_query(
                 }} GROUP BY ?subject
             }}
             {{
-                SELECT ?subject (count(distinct ?imaging_session) as ?num_imaging_sessions)
+                SELECT ?subject (count(distinct ?imaging_session) as ?num_matching_imaging_sessions)
                 WHERE {{
                     ?subject a nb:Subject.
                     OPTIONAL {{
