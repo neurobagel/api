@@ -57,8 +57,8 @@ class SessionResponse(BaseModel):
 
     sub_id: str
     session_id: str
-    num_phenotypic_sessions: int
-    num_imaging_sessions: int
+    num_matching_phenotypic_sessions: int
+    num_matching_imaging_sessions: int
     session_type: str
     age: Optional[float]
     sex: Optional[str]
