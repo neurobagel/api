@@ -181,7 +181,7 @@ pytest tests
 
 ## The default Neurobagel SPARQL query
 
-[docs/default_neurobagel_query.rq](docs/default_neurobagel_query.rq) contains a sample default SPARQL query sent by the Neurobagel API to a graph database to retrieve all available phenotypic and imaging data.
+[`docs/default_neurobagel_query.rq`](docs/default_neurobagel_query.rq) contains a sample default SPARQL query sent by the Neurobagel API to a graph database to retrieve all available phenotypic and imaging data.
 This file is mainly intended for reference because in normal operations, 
 the API will always talk to the graph on behalf of the user.
 
