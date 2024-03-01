@@ -88,9 +88,14 @@ parse_commandline()
 				test "${1:0:5}" = "--no-" && _arg_log_output="off"
 				;;
 			--log-file)
-					shift
-				_arg_log_file="$1"
+				test $# -lt 2 && die "Missing value for the optional argument '$_key'." 1
+				_arg_log_file="$2"
+				shift
 				;;
+			--log-file=*)
+				_arg_log_file="${_key##--log-file=}"
+				;;
+			*)
 			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
