@@ -170,7 +170,7 @@ else
 	clear_data_url="${base_url}/update"
 fi
 
-# Main logic of the script
+# Main logic
 main() {
     # Clear existing data in graph database if requested
     if [ "$clear_data" = "on" ]; then
