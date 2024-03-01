@@ -46,7 +46,7 @@ _arg_log_file="LOG.txt"
 print_help()
 {
 	printf '%s\n' "Upload JSONLD and Turtle data to a Neurobagel graph"
-	printf 'Usage: %s [-h|--help] [--(no-)clear-data] [--(no-)use-graphdb-syntax] <dir> <graph-url> <graph-database> <user> <password>\n' "$0"
+	printf 'Usage: %s [-h|--help] [--(no-)clear-data] [--(no-)use-graphdb-syntax] [--(no-)log-output] [--log-file <arg>] <dir> <graph-url> <graph-database> <user> <password>\n' "$0"
 	printf '\t%s\n' "<dir>: Path to directory containing .jsonld and/or .ttl files. ALL .jsonld and .ttl files in this directory will be uploaded."
 	printf '\t%s\n' "<graph-url>: Host and port at which to access the graph database to add data to (e.g., localhost:7200)"
 	printf '\t%s\n' "<graph-database>: Name of graph database to add data to"
