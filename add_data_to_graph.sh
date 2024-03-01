@@ -96,7 +96,6 @@ parse_commandline()
 				_arg_log_file="${_key##--log-file=}"
 				;;
 			*)
-			*)
 				_last_positional="$1"
 				_positionals+=("$_last_positional")
 				_positionals_count=$((_positionals_count + 1))
@@ -150,6 +149,10 @@ use_graphdb_syntax=$_arg_use_graphdb_syntax
 log_output=$_arg_log_output
 log_file=$_arg_log_file
 
+if [ "$log_output" = "on" ] && [ -z "$log_file" ]; then
+    log_file="LOG.txt"
+fi
+
 DELETE_TRIPLES_QUERY="
 DELETE { 
 	?s ?p ?o .
@@ -167,79 +170,79 @@ else
 	clear_data_url="${base_url}/update"
 fi
 
+# Main logic of the script
+main() {
+    # Clear existing data in graph database if requested
+    if [ "$clear_data" = "on" ]; then
+        echo -e "\nCLEARING EXISTING DATA FROM ${graph_db}..."
 
-# Clear existing data in graph database if requested
-if [ "$clear_data" = "on" ]; then
-	echo -e "\nCLEARING EXISTING DATA FROM ${graph_db}..."
+        response=$(curl -u "${user}:${password}" -s -S -i -w "\n%{http_code}\n" \
+            -X POST $clear_data_url \
+            -H "Content-Type: application/sparql-update" \
+            --data-binary "${DELETE_TRIPLES_QUERY}")
 
-	response=$(curl -u "${user}:${password}" -s -S -i -w "\n%{http_code}\n" \
-		-X POST $clear_data_url \
-		-H "Content-Type: application/sparql-update" \
-		--data-binary "${DELETE_TRIPLES_QUERY}")
+        # Extract and check status code outputted as final line of response
+        httpcode=$(tail -n1 <<< "$response")
+        if (( $httpcode < 200 || $httpcode >= 300 )); then
+            echo -e "\nERROR: Failed to clear ${graph_db}:"
+            echo "$(sed '$d' <<< "$response")"
+            echo -e "\nEXITING..."
+            exit 1
+        fi
+    fi
 
-	# Extract and check status code outputted as final line of response
-	httpcode=$(tail -n1 <<< "$response")
-	if (( $httpcode < 200 || $httpcode >= 300 )); then
-		echo -e "\nERROR: Failed to clear ${graph_db}:"
-		echo "$(sed '$d' <<< "$response")"
-		echo -e "\nEXITING..."
-		exit 1
-	fi
-fi
+    # Add data to specified graph database
+    echo -e "\nUPLOADING DATA FROM ${jsonld_dir} TO ${graph_db}...\n"
 
-# Function to write output to log file
-write_to_log() {
-    if [ "$log_output" = "on" ]; then
-        echo "$1" >> "$log_file"
-    else
-        echo "$1"
+    upload_failed=()
+
+    for db in ${jsonld_dir}/*.jsonld; do
+        # Prevent edge case where no matching files are present in directory and so loop executes once with glob pattern string itself
+        [ -e "$db" ] || continue
+
+        echo "$(basename ${db}):"
+        response=$(curl -u "${user}:${password}" -s -S -i -w "\n%{http_code}\n" \
+                    -X POST $upload_data_url \
+                    -H "Content-Type: application/ld+json" \
+                    --data-binary @${db})
+
+        httpcode=$(tail -n1 <<< "$response")
+        if (( $httpcode < 200 || $httpcode >= 300 )); then
+            upload_failed+=("${db}")
+        fi
+        # Print rest of response to stdout
+        echo -e "$(sed '$d' <<< "$response")\n"
+    done
+
+    for file in ${jsonld_dir}/*.ttl; do
+        [ -e "$file" ] || continue
+
+        echo "$(basename ${file}):"
+        response=$(curl -u "${user}:${password}" -s -S -i -w "\n%{http_code}\n" \
+                    -X POST $upload_data_url \
+                    -H "Content-Type: text/turtle" \
+                    --data-binary @${file})
+
+        httpcode=$(tail -n1 <<< "$response")
+        if (( $httpcode < 200 || $httpcode >= 300 )); then
+            upload_failed+=("${file}")
+        fi
+        echo -e "$(sed '$d' <<< "$response")\n"
+    done
+
+    echo "FINISHED UPLOADING DATA FROM ${jsonld_dir} TO ${graph_db}."
+
+    if (( ${#upload_failed[@]} != 0 )); then
+        echo -e "\nERROR: Upload failed for these files:"
+        printf '%s\n' "${upload_failed[@]}"
     fi
 }
 
-# Add data to specified graph database
-echo -e "\nUPLOADING DATA FROM ${jsonld_dir} TO ${graph_db}...\n"
-
-upload_failed=()
-
-for db in ${jsonld_dir}/*.jsonld; do
-	# Prevent edge case where no matching files are present in directory and so loop executes once with glob pattern string itself
-	[ -e "$db" ] || continue
-
-	echo "$(basename ${db}):"
-	response=$(curl -u "${user}:${password}" -s -S -i -w "\n%{http_code}\n" \
-				-X POST $upload_data_url \
-				-H "Content-Type: application/ld+json" \
-				--data-binary @${db})
-
-	httpcode=$(tail -n1 <<< "$response")
-	if (( $httpcode < 200 || $httpcode >= 300 )); then
-		upload_failed+=("${db}")
-	fi
-	# Print rest of response to stdout
-	echo -e "$(sed '$d' <<< "$response")\n"
-done
-
-for file in ${jsonld_dir}/*.ttl; do
-	[ -e "$file" ] || continue
-
-	echo "$(basename ${file}):"
-	response=$(curl -u "${user}:${password}" -s -S -i -w "\n%{http_code}\n" \
-				-X POST $upload_data_url \
-				-H "Content-Type: text/turtle" \
-				--data-binary @${file})
-
-	httpcode=$(tail -n1 <<< "$response")
-	if (( $httpcode < 200 || $httpcode >= 300 )); then
-		upload_failed+=("${file}")
-	fi
-	echo -e "$(sed '$d' <<< "$response")\n"
-done
-
-echo "FINISHED UPLOADING DATA FROM ${jsonld_dir} TO ${graph_db}."
-
-if (( ${#upload_failed[@]} != 0 )); then
-	echo -e "\nERROR: Upload failed for these files:"
-	printf '%s\n' "${upload_failed[@]}"
+# Call the main logic function with or without output redirection based on the --log-output flag
+if [ "$log_output" = "on" ]; then
+    main >> "$log_file"
+else
+    main
 fi
 
 # ] <-- needed because of Argbash
