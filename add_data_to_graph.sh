@@ -56,7 +56,7 @@ print_help()
 	printf '\t%s\n' "--clear-data, --no-clear-data: Whether or not to first clear all existing data from the graph database (off by default)"
 	printf '\t%s\n' "--use-graphdb-syntax, --no-use-graphdb-syntax: Whether or not to use GraphDB API endpoints to update the specified graph database. If off, assumes the graph database is a Stardog database. (off by default)"
   	printf '\t%s\n' "--log-output, --no-log-output: Whether or not to write the output to a log file (off by default)"
-    printf '\t%s\n' "--log-file <log-file>: Path to the log file (default: LOG.txt)"
+    printf '\t%s\n' "--log-file: Path to the log file (default: 'LOG.txt')"
 }
 
 
