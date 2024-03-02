@@ -106,6 +106,7 @@ If you wish to set different port numbers, modify your `.env` file accordingly a
 export $(cat .env | xargs)  # export your .env file to expose your set port numbers to the -p flag of docker run
 docker run -d --name=api -p ${NB_API_PORT_HOST}:${NB_API_PORT} --env-file=.env neurobagel/api
 ```
+> :warning: **IMPORTANT:** Do not wrap any space-separated values for variables in the `.env` file in quotation marks, as it may lead to issues.
 
 #### Option 3: Build the image using the Dockerfile
 After cloning the current repository, build the Docker image locally:
@@ -120,6 +121,7 @@ docker build -t neurobagel/api .
 export $(cat .env | xargs)  # export your .env file to expose your set port numbers to the -p flag of docker run
 docker run -d --name=api -p ${NB_API_PORT_HOST}:${NB_API_PORT} --env-file=.env neurobagel/api
 ```
+> :warning: **IMPORTANT:** Do not wrap any space-separated values for variables in the `.env` file in quotation marks, as it may lead to issues.
 
 #### Send a test query to the API
 By default, after running the above steps, the API should be served at localhost, http://127.0.0.1:8000/query, on the machine where you launched the Dockerized app. To check that the API is running and can access the knowledge graph as expected, you can navigate to the interactive API docs in your local browser (http://127.0.0.1:8000/docs) and enter a sample query, or send an HTTP request in your terminal using `curl`:
