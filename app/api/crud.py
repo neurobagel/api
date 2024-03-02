@@ -175,8 +175,8 @@ async def get(
                         {
                             "sub_id": "first",
                             "session_id": "first",
-                            "num_phenotypic_sessions": "first",
-                            "num_imaging_sessions": "first",
+                            "num_matching_phenotypic_sessions": "first",
+                            "num_matching_imaging_sessions": "first",
                             "session_type": "first",
                             "age": "first",
                             "sex": "first",
@@ -211,9 +211,11 @@ async def get(
                     dataset_total_subjects=matching_dataset_sizes[
                         dataset_uuid
                     ],
-                    dataset_portal_uri=group["dataset_portal_uri"].iloc[0]
-                    if group["dataset_portal_uri"].notna().all()
-                    else None,
+                    dataset_portal_uri=(
+                        group["dataset_portal_uri"].iloc[0]
+                        if group["dataset_portal_uri"].notna().all()
+                        else None
+                    ),
                     num_matching_subjects=group["sub_id"].nunique(),
                     records_protected=util.RETURN_AGG.val,
                     subject_data=subject_data,
