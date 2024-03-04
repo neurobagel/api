@@ -236,9 +236,6 @@ main() {
 
 # Call the main logic function with or without output redirection
 if [ "$log_output" = "on" ]; then
-    if [ -z "$log_file" ]; then
-        log_file="LOG.txt"
-    fi
     main >> "$log_file"
 else
     main
