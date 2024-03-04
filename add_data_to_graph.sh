@@ -236,7 +236,7 @@ main() {
 
 # Call the main logic function with or without output redirection
 if [ "$log_output" = "on" ]; then
-    main >> "$log_file"
+    main > "$log_file"
 else
     main
 fi
