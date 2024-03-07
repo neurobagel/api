@@ -106,7 +106,7 @@ If you wish to set different port numbers, modify your `.env` file accordingly a
 export $(cat .env | xargs)  # export your .env file to expose your set port numbers to the -p flag of docker run
 docker run -d --name=api -p ${NB_API_PORT_HOST}:${NB_API_PORT} --env-file=.env neurobagel/api
 ```
-> :warning: **IMPORTANT:** Do not wrap any space-separated values for variables in the `.env` file in quotation marks, as it may lead to issues.
+> :warning: **IMPORTANT:** If using the above command, do not wrap any values for variables in the `.env` file in quotation marks, as they will be interpreted literally and may lead to [issues](https://github.com/docker/for-linux/issues/1208).
 
 #### Option 3: Build the image using the Dockerfile
 After cloning the current repository, build the Docker image locally:
