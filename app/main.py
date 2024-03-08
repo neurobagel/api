@@ -27,6 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/", response_class=HTMLResponse)
 def root():
     """
@@ -40,7 +41,8 @@ def root():
         </body>
     </html>
     """
-    
+
+
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     """
