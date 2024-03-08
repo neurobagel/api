@@ -9,7 +9,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
-from fastapi.responses import ORJSONResponse, RedirectResponse, HTMLResponse
+from fastapi.responses import ORJSONResponse, RedirectResponse
 
 from .api import utility as util
 from .api.routers import attributes, query
@@ -27,20 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/", response_class=HTMLResponse)
-def root():
-    """
-    Display a welcome message and a link to the API documentation.
-    """
-    return """
-    <html>
-        <body>
-            <h1>Welcome to the Neurobagel REST API!</h1>
-            <p>Please visit the <a href="/docs">documentation</a> to view available API endpoints.</p>
-        </body>
-    </html>
-    """
-    
+
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     """
