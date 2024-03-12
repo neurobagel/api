@@ -8,15 +8,17 @@ import httpx
 import pytest
 
 from app.api import utility as util
+from app.main import lifespan
 
 
-def test_start_app_without_environment_vars_fails(test_app, monkeypatch):
+@pytest.mark.asyncio
+async def test_start_app_without_environment_vars_fails(test_app, monkeypatch):
     """Given non-existing username and password environment variables, raises an informative RuntimeError."""
     monkeypatch.delenv(util.GRAPH_USERNAME.name, raising=False)
     monkeypatch.delenv(util.GRAPH_PASSWORD.name, raising=False)
 
     with pytest.raises(RuntimeError) as e_info:
-        with test_app:
+        async with lifespan(test_app):
             pass
     assert (
         f"could not find the {util.GRAPH_USERNAME.name} and / or {util.GRAPH_PASSWORD.name} environment variables"
@@ -36,8 +38,8 @@ def test_app_with_invalid_environment_vars(test_app, monkeypatch):
     response = test_app.get("/query/")
     assert response.status_code == 401
 
-
-def test_app_with_unset_allowed_origins(
+@pytest.mark.asyncio
+async def test_app_with_unset_allowed_origins(
     test_app, monkeypatch, set_test_credentials
 ):
     """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses a default value."""
@@ -47,7 +49,7 @@ def test_app_with_unset_allowed_origins(
         UserWarning,
         match=f"API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment variable",
     ):
-        with test_app:
+        async with lifespan(test_app):
             pass
 
     assert util.parse_origins_as_list(
@@ -83,7 +85,9 @@ def test_app_with_unset_allowed_origins(
         ),
     ],
 )
-def test_app_with_set_allowed_origins(
+
+@pytest.mark.asyncio
+async def test_app_with_set_allowed_origins(
     test_app,
     monkeypatch,
     set_test_credentials,
@@ -98,7 +102,7 @@ def test_app_with_set_allowed_origins(
     monkeypatch.setenv(util.ALLOWED_ORIGINS.name, allowed_origins)
 
     with expectation:
-        with test_app:
+        async with lifespan(test_app):
             pass
 
     assert set(parsed_origins).issubset(
@@ -107,18 +111,18 @@ def test_app_with_set_allowed_origins(
         )
     )
 
-
-def test_stored_vocab_lookup_file_created_on_startup(
+@pytest.mark.asyncio
+async def test_stored_vocab_lookup_file_created_on_startup(
     test_app, set_test_credentials
 ):
     """Test that on startup, a non-empty temporary lookup file is created for term ID-label mappings for the locally stored SNOMED CT vocabulary."""
-    with test_app:
-        term_labels_path = test_app.app.state.snomed_term_lookup_path
+    async with lifespan(test_app) as p:
+        term_labels_path = test_app.snomed_term_lookup_path
         assert term_labels_path.exists()
         assert term_labels_path.stat().st_size > 0
 
-
-def test_external_vocab_is_fetched_on_startup(
+@pytest.mark.asyncio
+async def test_external_vocab_is_fetched_on_startup(
     test_app, monkeypatch, set_test_credentials
 ):
     """
@@ -147,8 +151,8 @@ def test_external_vocab_is_fetched_on_startup(
 
     monkeypatch.setattr(httpx, "get", mock_httpx_get)
 
-    with test_app:
-        term_labels_path = test_app.app.state.cogatlas_term_lookup_path
+    async with lifespan(test_app):
+        term_labels_path = test_app.cogatlas_term_lookup_path
         assert term_labels_path.exists()
 
         with open(term_labels_path, "r") as f:
@@ -159,8 +163,8 @@ def test_external_vocab_is_fetched_on_startup(
             "tsk_ccTKYnmv7tOZY": "Verbal Interference Test",
         }
 
-
-def test_failed_vocab_fetching_on_startup_raises_warning(
+@pytest.mark.asyncio
+async def test_failed_vocab_fetching_on_startup_raises_warning(
     test_app, monkeypatch, set_test_credentials
 ):
     """
@@ -176,8 +180,8 @@ def test_failed_vocab_fetching_on_startup_raises_warning(
     monkeypatch.setattr(httpx, "get", mock_httpx_get)
 
     with pytest.warns(UserWarning) as w:
-        with test_app:
-            assert test_app.app.state.cogatlas_term_lookup_path.exists()
+        async with lifespan(test_app):
+            assert test_app.cogatlas_term_lookup_path.exists()
 
     assert any(
         "unable to fetch the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source and will default to using a local backup copy"
@@ -185,8 +189,8 @@ def test_failed_vocab_fetching_on_startup_raises_warning(
         for warn in w
     )
 
-
-def test_network_error_on_startup_raises_warning(
+@pytest.mark.asyncio
+async def test_network_error_on_startup_raises_warning(
     test_app, monkeypatch, set_test_credentials
 ):
     """
@@ -200,8 +204,8 @@ def test_network_error_on_startup_raises_warning(
     monkeypatch.setattr(httpx, "get", mock_httpx_get)
 
     with pytest.warns(UserWarning) as w:
-        with test_app:
-            assert test_app.app.state.cogatlas_term_lookup_path.exists()
+        async with lifespan(test_app):
+            assert test_app.cogatlas_term_lookup_path.exists()
 
     assert any(
         "failed due to a network error" in str(warn.message) for warn in w
