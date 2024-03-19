@@ -4,7 +4,7 @@
 <!---
 Below is a suggested pull request template. Feel free to add more details you feel are relevant/necessary.
 
-For more info on the PR process for Neurobagel repositories, see https://neurobagel.org/contributing/pull_requests/.
+For more info on the Neurobagel PR process and other contributing guidelines, see https://neurobagel.org/contributing/CONTRIBUTING/.
 -->
 
 <!-- 
@@ -27,8 +27,9 @@ Changes proposed in this pull request:
 
 <!-- To be checked off by reviewers -->
 ## Checklist
+_This section is for the PR reviewer_
 
-- [ ] PR has an interpretable title with a prefix (`[ENH]`, `[FIX]`, `[REF]`, `[TST]`, `[CI]`, `[MNT]`, `[INF]`, `[MODEL]`, `[DOC]`) _(see https://neurobagel.org/contributing/pull_requests for more info)_
+- [ ] PR has an interpretable title with a prefix (`[ENH]`, `[FIX]`, `[REF]`, `[TST]`, `[CI]`, `[MNT]`, `[INF]`, `[MODEL]`, `[DOC]`) _(see our [Contributing Guidelines](https://neurobagel.org/contributing/CONTRIBUTING#pull-request-guidelines) for more info)_
 - [ ] PR has a label for the release changelog or `skip-release` (to be applied by maintainers only)
 - [ ] PR links to GitHub issue with mention `Closes #XXXX`
 - [ ] Tests pass
