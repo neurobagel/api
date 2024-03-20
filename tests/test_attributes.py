@@ -7,6 +7,17 @@ from app.api import crud
 from app.api import utility as util
 
 
+def test_root(test_app):
+    """Given a GET request to the root endpoint, Check for 200 status and expected content."""
+
+    with test_app:
+        response = test_app.get("/")
+
+    assert response.status_code == 200
+    assert "Welcome to the Neurobagel REST API!" in response.text
+    assert '<a href="/docs">documentation</a>' in response.text
+
+
 @pytest.mark.parametrize(
     "valid_data_element_URI",
     ["nb:Diagnosis", "nb:Assessment"],
