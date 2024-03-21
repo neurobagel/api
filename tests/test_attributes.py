@@ -7,7 +7,7 @@ from app.api import crud
 from app.api import utility as util
 
 
-def test_root(test_app):
+def test_root(test_app, set_test_credentials):
     """Given a GET request to the root endpoint, Check for 200 status and expected content."""
 
     with test_app:
