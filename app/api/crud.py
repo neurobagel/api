@@ -19,7 +19,7 @@ ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.__fields__.keys()) + [
 ]
 
 
-def post_query_to_graph(query: str, timeout: float = 30.0) -> dict:
+def post_query_to_graph(query: str, timeout: float = None) -> dict:
     """
     Makes a post request to the graph API to perform a query, using parameters from the environment.
 
@@ -30,7 +30,7 @@ def post_query_to_graph(query: str, timeout: float = 30.0) -> dict:
     query : str
         The full SPARQL query string.
     timeout : float, optional
-        The maximum duration for the request, by default 5.0 seconds.
+        The maximum duration for the request in seconds, by default None.
 
     Returns
     -------
