@@ -13,6 +13,8 @@ router = APIRouter(prefix="/query", tags=["query"])
 @router.get("/", response_model=List[CohortQueryResponse])
 async def get_query(query: QueryModel = Depends(QueryModel)):
     """When a GET request is sent, return list of dicts corresponding to subject-level metadata aggregated by dataset."""
+    import time
+    start = time.time()
     response = await crud.get(
         query.min_age,
         query.max_age,
@@ -24,5 +26,7 @@ async def get_query(query: QueryModel = Depends(QueryModel)):
         query.assessment,
         query.image_modal,
     )
+
+    print(f"Complete query time: {time.time() - start}")
 
     return response
