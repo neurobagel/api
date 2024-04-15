@@ -242,7 +242,7 @@ def create_query(
                             ?phenotypic_session nb:hasSex ?sex.
                         }}
                         OPTIONAL {{
-                            ?phenoypic_session nb:hasDiagnosis ?diagnosis.
+                            ?phenotypic_session nb:hasDiagnosis ?diagnosis.
                         }}
                         OPTIONAL {{
                             ?phenotypic_session nb:isSubjectGroup ?subject_group.
