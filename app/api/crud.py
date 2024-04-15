@@ -131,8 +131,6 @@ async def get(
     list
         List of CohortQueryResponse objects, where each object corresponds to a dataset matching the query.
     """
-    import time
-    start = time.time()
     results = post_query_to_graph(
         util.create_query(
             return_agg=util.RETURN_AGG.val,
@@ -146,8 +144,6 @@ async def get(
             image_modal=image_modal,
         )
     )
-    t_req = time.time()
-    print(f"    request time: {t_req - start}")
 
     # Reindexing is needed here because when a certain attribute is missing from all matching sessions,
     # the attribute does not end up in the graph API response or the below resulting processed dataframe.
@@ -160,14 +156,11 @@ async def get(
         results_df["dataset_uuid"].unique()
     )
 
-    t_df = time.time()
-    print(f"    df unpack time: {t_df - t_req}")
-
     response_obj = []
     dataset_cols = ["dataset_uuid", "dataset_name"]
     if not results_df.empty:
         for (dataset_uuid, dataset_name), group in results_df.groupby(
-                by=dataset_cols
+            by=dataset_cols
         ):
             if util.RETURN_AGG.val:
                 subject_data = "protected"
@@ -233,11 +226,6 @@ async def get(
                     ),
                 )
             )
-
-        t_obj = time.time()
-        print(f"    response build time: {t_obj - t_df}")
-
-    print(f"    total time: {time.time() - start}")
 
     return response_obj
 
