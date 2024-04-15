@@ -221,7 +221,7 @@ def create_query(
                     OPTIONAL {{
                         ?subject nb:hasSession ?phenotypic_session.
                         ?phenotypic_session a nb:PhenotypicSession.
-                        
+
                         OPTIONAL {{?phenotypic_session nb:hasAge ?age.}}
                         OPTIONAL {{?phenotypic_session nb:hasSex ?sex.}}
                         OPTIONAL {{?phenotypic_session nb:hasDiagnosis ?diagnosis.}}
