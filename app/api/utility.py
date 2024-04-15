@@ -206,28 +206,14 @@ def create_query(
                      nb:hasLabel ?session_id.
             OPTIONAL {{
                 ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
-                OPTIONAL {{
-                    ?session nb:hasFilePath ?session_file_path.
-                }}
+                OPTIONAL {{?session nb:hasFilePath ?session_file_path.}}
             }}
-            OPTIONAL {{
-                ?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.
-            }}
-            OPTIONAL {{
-                ?session nb:hasAge ?age.
-            }}
-            OPTIONAL {{
-                ?session nb:hasSex ?sex.
-            }}
-            OPTIONAL {{
-                ?session nb:hasDiagnosis ?diagnosis.
-            }}
-            OPTIONAL {{
-                ?session nb:isSubjectGroup ?subject_group.
-            }}
-            OPTIONAL {{
-                ?session nb:hasAssessment ?assessment.
-            }}
+            OPTIONAL {{?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.}}
+            OPTIONAL {{?session nb:hasAge ?age.}}
+            OPTIONAL {{?session nb:hasSex ?sex.}}
+            OPTIONAL {{?session nb:hasDiagnosis ?diagnosis.}}
+            OPTIONAL {{?session nb:isSubjectGroup ?subject_group.}}
+            OPTIONAL {{?session nb:hasAssessment ?assessment.}}
             {{
                 SELECT ?subject (count(distinct ?phenotypic_session) as ?num_matching_phenotypic_sessions)
                 WHERE {{
@@ -235,21 +221,12 @@ def create_query(
                     OPTIONAL {{
                         ?subject nb:hasSession ?phenotypic_session.
                         ?phenotypic_session a nb:PhenotypicSession.
-                        OPTIONAL {{
-                            ?phenotypic_session nb:hasAge ?age.
-                        }}
-                        OPTIONAL {{
-                            ?phenotypic_session nb:hasSex ?sex.
-                        }}
-                        OPTIONAL {{
-                            ?phenotypic_session nb:hasDiagnosis ?diagnosis.
-                        }}
-                        OPTIONAL {{
-                            ?phenotypic_session nb:isSubjectGroup ?subject_group.
-                        }}
-                        OPTIONAL {{
-                            ?phenotypic_session nb:hasAssessment ?assessment.
-                        }}
+                        
+                        OPTIONAL {{?phenotypic_session nb:hasAge ?age.}}
+                        OPTIONAL {{?phenotypic_session nb:hasSex ?sex.}}
+                        OPTIONAL {{?phenotypic_session nb:hasDiagnosis ?diagnosis.}}
+                        OPTIONAL {{?phenotypic_session nb:isSubjectGroup ?subject_group.}}
+                        OPTIONAL {{?phenotypic_session nb:hasAssessment ?assessment.}}
                     }}
                     {phenotypic_session_level_filters}
                 }} GROUP BY ?subject
