@@ -237,7 +237,8 @@ def create_query(
                     ?subject a nb:Subject.
                     OPTIONAL {{
                         ?subject nb:hasSession ?imaging_session.
-                        ?imaging_session nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                        ?imaging_session a nb:ImagingSession;
+                            nb:hasAcquisition/nb:hasContrastType ?image_modal.
                     }}
                     {imaging_session_level_filters}
                 }} GROUP BY ?subject
