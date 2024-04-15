@@ -51,7 +51,7 @@ git clone https://github.com/neurobagel/api.git
 
 ### Set the environment variables
 Create a file called `.env` in the root of the repository to store the environment variables used by the app. 
-This repository contains a [template `.env` file](/.template-env) that you can copy and edit.
+See the Neurobagel recipes repo for a [template `.env` file](https://github.com/neurobagel/recipes/blob/main/dev/template.env) you can copy and edit.
 
 To run API requests against a graph, at least two environment variables must be set: `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD`.
 
@@ -65,31 +65,22 @@ To run API requests against a graph, at least two environment variables must be 
 The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your `.env`.
 
 ### Docker
-First, [install docker](https://docs.docker.com/get-docker/).
+First, [install Docker](https://docs.docker.com/get-docker/).
 
 You can then run a Docker container for the API in one of three ways:
 #### Option 1 (RECOMMENDED): Use the `docker-compose.yaml` file
 
-First, [install docker compose](https://docs.docker.com/compose/install/).
+First, [install Docker Compose](https://docs.docker.com/compose/install/).
 
-If needed, update your `.env` file with optional environment variables for the docker compose configuration.
+Refer to our [official documentation](https://neurobagel.org/infrastructure/#launch-the-neurobagel-node-api-and-graph-stack) for instructions on using the template configuration files from our [recipes](https://github.com/neurobagel/recipes) repository to spin up a local Neurobagel API and graph backend with Docker Compose.
 
 **TIP:** Double check that the environment variables are resolved with your expected values using the command `docker compose config`.
 
-> :information_source: **Note: Deploying the Neurobagel query tool**
->
-> When you deploy the API locally with `docker compose`, 
-> you will only spin up the graph backend and the API service. 
-> If you want to use the graphical browser query tool
-> as a standalone service for your local API, 
-> you will have to deploy it manually.
-> Please refer to our [documentation for details](https://neurobagel.org/infrastructure/#as-a-standalone-service).
-
-Use Docker Compose to spin up the containers by running the following in the repository root (where the `docker-compose.yml` file is):
+Use Docker Compose to spin up your API and graph containers by running the following in the directory where the `docker-compose.yml` file is):
 ```bash
 docker compose up -d
 ```
-If you want to ensure you have the latest images use the command below:
+Or, to ensure you have the latest images:
 
 ```bash
 docker compose pull && docker compose up -d
