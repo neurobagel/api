@@ -12,7 +12,7 @@ h11==0.14.0
 httpcore==0.16.2
 httpx==0.23.1
 identify==2.5.9
-idna==3.4
+idna==3.7
 iniconfig==1.1.1
 nodeenv==1.7.0
 orjson==3.9.15
