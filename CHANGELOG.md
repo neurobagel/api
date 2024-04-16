@@ -1,3 +1,17 @@
+# v0.2.1 (Tue Apr 16 2024)
+
+#### 🐛 Bug Fixes
+
+- [FIX] Address performance issues in SPARQL query [#308](https://github.com/neurobagel/api/pull/308) ([@surchs](https://github.com/surchs))
+- [FIX] Disable timeout for request to graph [#305](https://github.com/neurobagel/api/pull/305) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 2
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+- Sebastian Urchs ([@surchs](https://github.com/surchs))
+
+---
+
 # v0.2.0 (Thu Apr 11 2024)
 
 :tada: This release contains work from a new contributor! :tada:
