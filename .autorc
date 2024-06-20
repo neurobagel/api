@@ -4,6 +4,9 @@
     "baseBranch": "main",
     "author": "Chef Bot <chef@neurobagel.org>",
     "noVersionPrefix": false,
+    "changelog": {
+        "message": "Update CHANGELOG.md [skip pre-commit.ci] [skip ci]"
+    },
     "plugins": [
         "git-tag",
         "released",
