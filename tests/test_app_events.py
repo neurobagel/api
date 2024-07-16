@@ -10,7 +10,9 @@ import pytest
 from app.api import utility as util
 
 
-def test_start_app_without_environment_vars_fails(test_app, monkeypatch):
+def test_start_app_without_environment_vars_fails(
+    test_app, monkeypatch, disable_auth
+):
     """Given non-existing username and password environment variables, raises an informative RuntimeError."""
     monkeypatch.delenv(util.GRAPH_USERNAME.name, raising=False)
     monkeypatch.delenv(util.GRAPH_PASSWORD.name, raising=False)
@@ -24,8 +26,10 @@ def test_start_app_without_environment_vars_fails(test_app, monkeypatch):
     )
 
 
-def test_app_with_invalid_environment_vars(test_app, monkeypatch):
-    """Given invalid environment variables, returns a 401 status code."""
+def test_app_with_invalid_environment_vars(
+    test_app, monkeypatch, mock_auth_header, set_mock_verify_token
+):
+    """Given invalid environment variables for the graph, returns a 401 status code."""
     monkeypatch.setenv(util.GRAPH_USERNAME.name, "something")
     monkeypatch.setenv(util.GRAPH_PASSWORD.name, "cool")
 
@@ -33,12 +37,15 @@ def test_app_with_invalid_environment_vars(test_app, monkeypatch):
         return httpx.Response(status_code=401)
 
     monkeypatch.setattr(httpx, "post", mock_httpx_post)
-    response = test_app.get("/query/")
+    response = test_app.get("/query/", headers=mock_auth_header)
     assert response.status_code == 401
 
 
 def test_app_with_unset_allowed_origins(
-    test_app, monkeypatch, set_test_credentials
+    test_app,
+    monkeypatch,
+    set_test_credentials,
+    disable_auth,
 ):
     """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses a default value."""
     monkeypatch.delenv(util.ALLOWED_ORIGINS.name, raising=False)
@@ -90,6 +97,7 @@ def test_app_with_set_allowed_origins(
     allowed_origins,
     parsed_origins,
     expectation,
+    disable_auth,
 ):
     """
     Test that when the environment variable for allowed origins has been explicitly set, the app correctly parses it into a list
@@ -109,7 +117,9 @@ def test_app_with_set_allowed_origins(
 
 
 def test_stored_vocab_lookup_file_created_on_startup(
-    test_app, set_test_credentials
+    test_app,
+    set_test_credentials,
+    disable_auth,
 ):
     """Test that on startup, a non-empty temporary lookup file is created for term ID-label mappings for the locally stored SNOMED CT vocabulary."""
     with test_app:
@@ -119,7 +129,7 @@ def test_stored_vocab_lookup_file_created_on_startup(
 
 
 def test_external_vocab_is_fetched_on_startup(
-    test_app, monkeypatch, set_test_credentials
+    test_app, monkeypatch, set_test_credentials, disable_auth
 ):
     """
     Tests that on startup, a GET request is made to the Cognitive Atlas API and that when the request succeeds,
@@ -161,7 +171,7 @@ def test_external_vocab_is_fetched_on_startup(
 
 
 def test_failed_vocab_fetching_on_startup_raises_warning(
-    test_app, monkeypatch, set_test_credentials
+    test_app, monkeypatch, set_test_credentials, disable_auth
 ):
     """
     Tests that when a GET request to the Cognitive Atlas API has a non-success response code (e.g., due to service being unavailable),
@@ -187,7 +197,7 @@ def test_failed_vocab_fetching_on_startup_raises_warning(
 
 
 def test_network_error_on_startup_raises_warning(
-    test_app, monkeypatch, set_test_credentials
+    test_app, monkeypatch, set_test_credentials, disable_auth
 ):
     """
     Tests that when a GET request to the Cognitive Atlas API fails due to a network error (i.e., while issuing the request),

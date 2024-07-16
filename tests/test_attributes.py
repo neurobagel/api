@@ -7,11 +7,10 @@ from app.api import crud
 from app.api import utility as util
 
 
-def test_root(test_app, set_test_credentials):
+def test_root(test_app):
     """Given a GET request to the root endpoint, Check for 200 status and expected content."""
 
-    with test_app:
-        response = test_app.get("/")
+    response = test_app.get("/")
 
     assert response.status_code == 200
     assert "Welcome to the Neurobagel REST API!" in response.text
@@ -28,6 +27,7 @@ def test_get_terms_valid_data_element_URI(
     mock_successful_get_terms,
     valid_data_element_URI,
     monkeypatch,
+    disable_auth,
 ):
     """Given a valid data element URI, returns a 200 status code and a non-empty list of terms for that data element."""
     monkeypatch.setattr(crud, "get_terms", mock_successful_get_terms)
@@ -54,7 +54,7 @@ def test_get_terms_invalid_data_element_URI(
 
 
 def test_get_terms_for_attribute_with_vocab_lookup(
-    test_app, monkeypatch, set_test_credentials
+    test_app, monkeypatch, set_test_credentials, disable_auth
 ):
     """
     Given a valid data element URI with a vocabulary lookup file available, returns prefixed term URIs and their human-readable labels (where found)
