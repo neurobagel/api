@@ -17,6 +17,7 @@ def test_root(test_app):
     assert '<a href="/docs">documentation</a>' in response.text
 
 
+@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 @pytest.mark.parametrize(
     "valid_data_element_URI",
     ["nb:Diagnosis", "nb:Assessment"],

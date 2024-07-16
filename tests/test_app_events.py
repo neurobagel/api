@@ -10,6 +10,7 @@ import pytest
 from app.api import utility as util
 
 
+@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_start_app_without_environment_vars_fails(
     test_app, monkeypatch, disable_auth
 ):
@@ -26,6 +27,7 @@ def test_start_app_without_environment_vars_fails(
     )
 
 
+@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_app_with_invalid_environment_vars(
     test_app, monkeypatch, mock_auth_header, set_mock_verify_token
 ):
@@ -116,6 +118,7 @@ def test_app_with_set_allowed_origins(
     )
 
 
+@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_stored_vocab_lookup_file_created_on_startup(
     test_app,
     set_test_credentials,
@@ -128,6 +131,7 @@ def test_stored_vocab_lookup_file_created_on_startup(
         assert term_labels_path.stat().st_size > 0
 
 
+@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_external_vocab_is_fetched_on_startup(
     test_app, monkeypatch, set_test_credentials, disable_auth
 ):
@@ -170,6 +174,7 @@ def test_external_vocab_is_fetched_on_startup(
         }
 
 
+@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_failed_vocab_fetching_on_startup_raises_warning(
     test_app, monkeypatch, set_test_credentials, disable_auth
 ):
@@ -196,6 +201,7 @@ def test_failed_vocab_fetching_on_startup_raises_warning(
     )
 
 
+@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_network_error_on_startup_raises_warning(
     test_app, monkeypatch, set_test_credentials, disable_auth
 ):
