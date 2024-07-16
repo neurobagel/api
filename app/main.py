@@ -13,6 +13,7 @@ from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
 from .api import utility as util
 from .api.routers import attributes, query
+from .api.security import check_client_id
 
 app = FastAPI(
     default_response_class=ORJSONResponse, docs_url=None, redoc_url=None
@@ -77,7 +78,14 @@ def overridden_redoc():
 
 @app.on_event("startup")
 async def auth_check():
-    """Checks whether username and password environment variables are set."""
+    """
+    Checks whether authentication has been enabled for API queries and whether the
+    username and password environment variables for the graph backend have been set.
+
+    TODO: Refactor once startup events have been replaced by lifespan event
+    """
+    check_client_id()
+
     if (
         # TODO: Check if this error is still raised when variables are empty strings
         os.environ.get(util.GRAPH_USERNAME.name) is None
