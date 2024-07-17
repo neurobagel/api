@@ -11,11 +11,44 @@ def test_app():
     yield client
 
 
+@pytest.fixture
+def disable_auth(monkeypatch):
+    """
+    Disable the authentication requirement for the API to skip startup checks
+    (for when the tested route does not require authentication).
+    """
+    monkeypatch.setattr("app.api.security.AUTH_ENABLED", False)
+
+
 @pytest.fixture(scope="function")
 def set_test_credentials(monkeypatch):
     """Set random username and password to avoid error from startup check for set credentials."""
     monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
     monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
+
+
+@pytest.fixture()
+def mock_verify_token():
+    """Mock a successful token verification that does not raise any exceptions."""
+
+    def _verify_token(token):
+        return None
+
+    return _verify_token
+
+
+@pytest.fixture()
+def set_mock_verify_token(monkeypatch, mock_verify_token):
+    """Set the verify_token function to a mock that does not raise any exceptions."""
+    monkeypatch.setattr(
+        "app.api.routers.query.verify_token", mock_verify_token
+    )
+
+
+@pytest.fixture()
+def mock_auth_header() -> dict:
+    """Create an authorization header with a mock token that is well-formed for testing purposes."""
+    return {"Authorization": "Bearer foo"}
 
 
 @pytest.fixture()
