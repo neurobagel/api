@@ -495,3 +495,17 @@ def test_aggregate_query_response_structure(
     assert all(
         dataset["subject_data"] == "protected" for dataset in response.json()
     )
+
+
+def test_query_without_token_succeeds_when_auth_disabled(
+    test_app,
+    mock_successful_get,
+    monkeypatch,
+    disable_auth,
+):
+    """
+    Test that when authentication is disabled, a request to the /query route without a token succeeds.
+    """
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get("/query/")
+    assert response.status_code == 200
