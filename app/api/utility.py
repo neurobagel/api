@@ -212,13 +212,13 @@ def create_query(
         ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path
         WHERE {{
             ?dataset_uuid a nb:Dataset;
-                    nb:hasLabel ?dataset_name;
-                    nb:hasSamples ?subject.
+                nb:hasLabel ?dataset_name;
+                nb:hasSamples ?subject.
             ?subject a nb:Subject;
-                    nb:hasLabel ?sub_id;
-                    nb:hasSession ?session.
+                nb:hasLabel ?sub_id;
+                nb:hasSession ?session.
             ?session a ?session_type;
-                    nb:hasLabel ?session_id.
+                nb:hasLabel ?session_id.
             OPTIONAL {{
                 ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
                 OPTIONAL {{?session nb:hasFilePath ?session_file_path.}}
@@ -232,8 +232,7 @@ def create_query(
             {{
                 SELECT ?subject (count(distinct ?phenotypic_session) as ?num_matching_phenotypic_sessions)
                 WHERE {{
-                    ?subject a nb:Subject;
-                        nb:hasSession ?phenotypic_session.
+                    ?subject nb:hasSession ?phenotypic_session.
                     ?phenotypic_session a nb:PhenotypicSession.
 
                     OPTIONAL {{?phenotypic_session nb:hasAge ?age.}}
@@ -248,7 +247,6 @@ def create_query(
             {{
                 SELECT ?subject (count(distinct ?imaging_session) as ?num_matching_imaging_sessions)
                 WHERE {{
-                    ?subject a nb:Subject.
                     OPTIONAL {{
                         ?subject nb:hasSession ?imaging_session.
                         ?imaging_session a nb:ImagingSession;
