@@ -10,10 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
     steps:
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.NB_BOT_ID }}
+          private-key: ${{ secrets.NB_BOT_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
 
       - name: Download latest auto
         run: |
@@ -24,5 +32,4 @@ jobs:
       - name: Release
         run: ~/auto shipit -vv
         env:
-          GH_TOKEN: ${{ secrets.NB_PAT_RELEASE }}
-          PROTECTED_BRANCH_REVIEWER_TOKEN: ${{ secrets.NB_PAT_RELEASE_PROTECTED }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
