@@ -162,42 +162,42 @@ def create_query(
     if age[0] is not None:
         phenotypic_session_level_filters += (
             "\n"
-            + f"{create_bound_filter({AGE.var})} && ?{AGE.var} >= {age[0]})."
+            + f"{create_bound_filter(AGE.var)} && ?{AGE.var} >= {age[0]})."
         )
     if age[1] is not None:
         phenotypic_session_level_filters += (
             "\n"
-            + f"{create_bound_filter({AGE.var})} && ?{AGE.var} <= {age[1]})."
+            + f"{create_bound_filter(AGE.var)} && ?{AGE.var} <= {age[1]})."
         )
 
     if sex is not None:
         phenotypic_session_level_filters += (
-            "\n" + f"{create_bound_filter({SEX.var})} && ?{SEX.var} = {sex})."
+            "\n" + f"{create_bound_filter(SEX.var)} && ?{SEX.var} = {sex})."
         )
 
     if diagnosis is not None:
         phenotypic_session_level_filters += (
             "\n"
-            + f"{create_bound_filter({DIAGNOSIS.var})} && ?{DIAGNOSIS.var} = {diagnosis})."
+            + f"{create_bound_filter(DIAGNOSIS.var)} && ?{DIAGNOSIS.var} = {diagnosis})."
         )
 
     if is_control is not None:
         if is_control:
             phenotypic_session_level_filters += (
                 "\n"
-                + f"{create_bound_filter({IS_CONTROL.var})} && ?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
+                + f"{create_bound_filter(IS_CONTROL.var)} && ?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
             )
         else:
             # TODO: Revisit - this logic seems odd, since in our current data model the session should not have this edge if it's not a control.
             phenotypic_session_level_filters += (
                 "\n"
-                + f"{create_bound_filter({IS_CONTROL.var})} && ?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
+                + f"{create_bound_filter(IS_CONTROL.var)} && ?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
             )
 
     if assessment is not None:
         phenotypic_session_level_filters += (
             "\n"
-            + f"{create_bound_filter({ASSESSMENT.var})} && ?{ASSESSMENT.var} = {assessment})."
+            + f"{create_bound_filter(ASSESSMENT.var)} && ?{ASSESSMENT.var} = {assessment})."
         )
 
     imaging_session_level_filters = ""
