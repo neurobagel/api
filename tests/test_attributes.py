@@ -242,3 +242,12 @@ def test_get_attribute_vocab(
         "namespace_prefix": expected_namespace_pfx,
         "term_labels": mock_term_labels,
     }
+
+
+def test_request_with_trailing_slash_not_redirected(test_app):
+    """
+    Test that given a request to a route with a trailing slash '/' where none is expected,
+    the request is not redirected and returns a 404 status code.
+    """
+    response = test_app.get("/attributes/nb:SomeClass/")
+    assert response.status_code == 404

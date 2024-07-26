@@ -509,3 +509,24 @@ def test_query_without_token_succeeds_when_auth_disabled(
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get("/query/")
     assert response.status_code == 200
+
+
+def test_request_without_trailing_slash_not_redirected(
+    test_app, monkeypatch, mock_successful_get, disable_auth
+):
+    """Test that a request to the /query route is not redirected to have a trailing slash."""
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get("/query", follow_redirects=False)
+    assert response.status_code == 200
+
+
+def test_query_params_missing_leading_slash_succeeds(
+    test_app, monkeypatch, mock_successful_get, disable_auth
+):
+    """
+    Test that a request to the /query route with query parameters but missing a leading slash
+    is redirected to include the slash, and succeeds.
+    """
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get("/query?min_age=20")
+    assert response.status_code == 200
