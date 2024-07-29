@@ -23,6 +23,11 @@ oauth2_scheme = OAuth2(
 )
 
 
+# We (unconventionally) use an "" path prefix here because we have globally disabled
+# redirection of trailing slashes in the main app file. We use an empty string here
+# to ensure that a request without a trailing slash (e.g., to /query instead of /query/)
+# is correctly routed to this endpoint.
+# For more context, see https://github.com/neurobagel/api/issues/327.
 @router.get("", response_model=List[CohortQueryResponse])
 async def get_query(
     query: QueryModel = Depends(QueryModel),
