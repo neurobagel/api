@@ -39,7 +39,7 @@ def test_app_with_invalid_environment_vars(
         return httpx.Response(status_code=401)
 
     monkeypatch.setattr(httpx, "post", mock_httpx_post)
-    response = test_app.get("/query/", headers=mock_auth_header)
+    response = test_app.get("/query", headers=mock_auth_header)
     assert response.status_code == 401
 
 

@@ -6,6 +6,8 @@ from fastapi import HTTPException
 import app.api.utility as util
 from app.api import crud
 
+ROUTE = "/query"
+
 
 def test_get_subjects_by_query(monkeypatch):
     """Test that graph results for dataset size queries are correctly parsed into a dictionary."""
@@ -68,7 +70,7 @@ def test_null_modalities(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
 
-    response = test_app.get("/query/", headers=mock_auth_header)
+    response = test_app.get(f"{ROUTE}", headers=mock_auth_header)
     assert response.json()[0]["image_modals"] == [
         "http://purl.org/nidash/nidm#T1Weighted"
     ]
@@ -84,7 +86,7 @@ def test_get_all(
     """Given no input for any query parameters, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get("/query/", headers=mock_auth_header)
+    response = test_app.get(f"{ROUTE}", headers=mock_auth_header)
     assert response.status_code == 200
     assert response.json() != []
 
@@ -106,7 +108,7 @@ def test_get_valid_age_range(
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        f"/query/?min_age={valid_min_age}&max_age={valid_max_age}",
+        f"{ROUTE}?min_age={valid_min_age}&max_age={valid_max_age}",
         headers=mock_auth_header,
     )
     assert response.status_code == 200
@@ -128,7 +130,7 @@ def test_get_valid_age_single_bound(
     """Given only a valid lower/upper age bound, returns a 200 status code and a non-empty list of results."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get(f"/query/?{age_keyval}", headers=mock_auth_header)
+    response = test_app.get(f"{ROUTE}?{age_keyval}", headers=mock_auth_header)
     assert response.status_code == 200
     assert response.json() != []
 
@@ -155,7 +157,7 @@ def test_get_invalid_age(
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        f"/query/?min_age={invalid_min_age}&max_age={invalid_max_age}",
+        f"{ROUTE}?min_age={invalid_min_age}&max_age={invalid_max_age}",
         headers=mock_auth_header,
     )
     assert response.status_code == 422
@@ -177,7 +179,7 @@ def test_get_valid_sex(
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        f"/query/?sex={valid_sex}", headers=mock_auth_header
+        f"{ROUTE}?sex={valid_sex}", headers=mock_auth_header
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -190,7 +192,7 @@ def test_get_invalid_sex(
     """Given an invalid sex string, returns a 422 status code."""
 
     monkeypatch.setattr(crud, "get", mock_get)
-    response = test_app.get("/query/?sex=apple", headers=mock_auth_header)
+    response = test_app.get(f"{ROUTE}?sex=apple", headers=mock_auth_header)
     assert response.status_code == 422
 
 
@@ -209,7 +211,7 @@ def test_get_valid_diagnosis(
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        f"/query/?diagnosis={valid_diagnosis}", headers=mock_auth_header
+        f"{ROUTE}?diagnosis={valid_diagnosis}", headers=mock_auth_header
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -231,7 +233,7 @@ def test_get_invalid_diagnosis(
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        f"/query/?diagnosis={invalid_diagnosis}", headers=mock_auth_header
+        f"{ROUTE}?diagnosis={invalid_diagnosis}", headers=mock_auth_header
     )
     assert response.status_code == 422
 
@@ -249,7 +251,7 @@ def test_get_valid_iscontrol(
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        f"/query/?is_control={valid_iscontrol}", headers=mock_auth_header
+        f"{ROUTE}?is_control={valid_iscontrol}", headers=mock_auth_header
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -263,7 +265,7 @@ def test_get_invalid_iscontrol(
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        "/query/?is_control=apple", headers=mock_auth_header
+        f"{ROUTE}?is_control=apple", headers=mock_auth_header
     )
     assert response.status_code == 422
 
@@ -276,7 +278,7 @@ def test_get_invalid_control_diagnosis_pair(
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        "/query/?diagnosis=snomed:35489007&is_control=True",
+        f"{ROUTE}?diagnosis=snomed:35489007&is_control=True",
         headers=mock_auth_header,
     )
     assert response.status_code == 422
@@ -305,7 +307,7 @@ def test_get_valid_min_num_sessions(
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        f"/query/?{session_param}={valid_min_num_sessions}",
+        f"{ROUTE}?{session_param}={valid_min_num_sessions}",
         headers=mock_auth_header,
     )
     assert response.status_code == 200
@@ -331,7 +333,7 @@ def test_get_invalid_min_num_sessions(
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        f"/query/?{session_param}={invalid_min_num_sessions}",
+        f"{ROUTE}?{session_param}={invalid_min_num_sessions}",
         headers=mock_auth_header,
     )
     response.status_code = 422
@@ -348,7 +350,7 @@ def test_get_valid_assessment(
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        "/query/?assessment=nb:cogAtlas-1234", headers=mock_auth_header
+        f"{ROUTE}?assessment=nb:cogAtlas-1234", headers=mock_auth_header
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -370,7 +372,7 @@ def test_get_invalid_assessment(
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        f"/query/?assessment={invalid_assessment}", headers=mock_auth_header
+        f"{ROUTE}?assessment={invalid_assessment}", headers=mock_auth_header
     )
     assert response.status_code == 422
 
@@ -397,7 +399,7 @@ def test_get_valid_available_image_modal(
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
     response = test_app.get(
-        f"/query/?image_modal={valid_available_image_modal}",
+        f"{ROUTE}?image_modal={valid_available_image_modal}",
         headers=mock_auth_header,
     )
     assert response.status_code == 200
@@ -421,7 +423,7 @@ def test_get_valid_unavailable_image_modal(
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        f"/query/?image_modal={valid_unavailable_image_modal}",
+        f"{ROUTE}?image_modal={valid_unavailable_image_modal}",
         headers=mock_auth_header,
     )
 
@@ -445,7 +447,7 @@ def test_get_invalid_image_modal(
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        f"/query/?image_modal={invalid_image_modal}", headers=mock_auth_header
+        f"{ROUTE}?image_modal={invalid_image_modal}", headers=mock_auth_header
     )
     assert response.status_code == 422
 
@@ -469,7 +471,7 @@ def test_get_undefined_prefix_image_modal(
 
     monkeypatch.setattr(crud, "get", mock_get_with_exception)
     response = test_app.get(
-        f"/query/?image_modal={undefined_prefix_image_modal}",
+        f"{ROUTE}?image_modal={undefined_prefix_image_modal}",
         headers=mock_auth_header,
     )
     assert response.status_code == 500
@@ -491,7 +493,7 @@ def test_aggregate_query_response_structure(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
 
-    response = test_app.get("/query/", headers=mock_auth_header)
+    response = test_app.get(f"{ROUTE}", headers=mock_auth_header)
     assert all(
         dataset["subject_data"] == "protected" for dataset in response.json()
     )
@@ -507,7 +509,7 @@ def test_query_without_token_succeeds_when_auth_disabled(
     Test that when authentication is disabled, a request to the /query route without a token succeeds.
     """
     monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get("/query/")
+    response = test_app.get(f"{ROUTE}")
     assert response.status_code == 200
 
 
@@ -516,17 +518,14 @@ def test_request_without_trailing_slash_not_redirected(
 ):
     """Test that a request to the /query route is not redirected to have a trailing slash."""
     monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get("/query", follow_redirects=False)
+    response = test_app.get(f"{ROUTE}", follow_redirects=False)
     assert response.status_code == 200
 
 
-def test_query_params_missing_leading_slash_succeeds(
-    test_app, monkeypatch, mock_successful_get, disable_auth
-):
+def test_query_params_with_leading_slash_fails(test_app, disable_auth):
     """
-    Test that a request to the /query route with query parameters but missing a leading slash
-    is redirected to include the slash, and succeeds.
+    Test that a request to the /query route with a slash before query parameters
+    is *not* redirected to exclude the slash, and fails with a 404.
     """
-    monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get("/query?min_age=20")
-    assert response.status_code == 200
+    response = test_app.get(f"{ROUTE}/?min_age=20")
+    assert response.status_code == 404
