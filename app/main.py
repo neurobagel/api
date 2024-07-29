@@ -16,7 +16,10 @@ from .api.routers import attributes, query
 from .api.security import check_client_id
 
 app = FastAPI(
-    default_response_class=ORJSONResponse, docs_url=None, redoc_url=None
+    default_response_class=ORJSONResponse,
+    docs_url=None,
+    redoc_url=None,
+    redirect_slashes=False,
 )
 favicon_url = "https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_favicon.png"
 

@@ -23,7 +23,7 @@ oauth2_scheme = OAuth2(
 )
 
 
-@router.get("/", response_model=List[CohortQueryResponse])
+@router.get("", response_model=List[CohortQueryResponse])
 async def get_query(
     query: QueryModel = Depends(QueryModel),
     token: str | None = Depends(oauth2_scheme),
