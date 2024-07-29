@@ -51,9 +51,18 @@ def test_invalid_token_raises_error(invalid_token):
     [{}, {"Authorization": ""}, {"badheader": "badvalue"}],
 )
 def test_query_with_malformed_auth_header_fails(
-    test_app, set_mock_verify_token, enable_auth, invalid_auth_header
+    test_app,
+    set_mock_verify_token,
+    enable_auth,
+    invalid_auth_header,
+    monkeypatch,
 ):
-    """Test that a request to the /query route with a missing or malformed authorization header, fails."""
+    """
+    Test that when authentication is enabled, a request to the /query route with a
+    missing or malformed authorization header fails.
+    """
+    monkeypatch.setattr("app.api.security.CLIENT_ID", "foo.id")
+
     response = test_app.get(
         "/query",
         headers=invalid_auth_header,
