@@ -54,7 +54,6 @@ def test_query_with_malformed_auth_header_fails(
     test_app, set_mock_verify_token, enable_auth, invalid_auth_header
 ):
     """Test that a request to the /query route with a missing or malformed authorization header, fails."""
-
     response = test_app.get(
         "/query",
         headers=invalid_auth_header,

@@ -97,6 +97,14 @@ def unpack_http_response_json_to_dicts(response: dict) -> list[dict]:
     ]
 
 
+def create_bound_filter(var: str) -> str:
+    """
+    Create a SPARQL filter substring for checking if a variable is bound
+    (meaning the variable actually has a corresponding value, e.g., the property exists).
+    """
+    return f"FILTER (BOUND(?{var})"
+
+
 def create_query(
     return_agg: bool,
     age: Optional[tuple] = (None, None),
@@ -153,36 +161,43 @@ def create_query(
 
     if age[0] is not None:
         phenotypic_session_level_filters += (
-            "\n" + f"FILTER (?{AGE.var} >= {age[0]})."
+            "\n"
+            + f"{create_bound_filter(AGE.var)} && ?{AGE.var} >= {age[0]})."
         )
     if age[1] is not None:
         phenotypic_session_level_filters += (
-            "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
+            "\n"
+            + f"{create_bound_filter(AGE.var)} && ?{AGE.var} <= {age[1]})."
         )
 
     if sex is not None:
         phenotypic_session_level_filters += (
-            "\n" + f"FILTER (?{SEX.var} = {sex})."
+            "\n" + f"{create_bound_filter(SEX.var)} && ?{SEX.var} = {sex})."
         )
 
     if diagnosis is not None:
         phenotypic_session_level_filters += (
-            "\n" + f"FILTER (?{DIAGNOSIS.var} = {diagnosis})."
+            "\n"
+            + f"{create_bound_filter(DIAGNOSIS.var)} && ?{DIAGNOSIS.var} = {diagnosis})."
         )
 
     if is_control is not None:
         if is_control:
             phenotypic_session_level_filters += (
-                "\n" + f"FILTER (?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
+                "\n"
+                + f"{create_bound_filter(IS_CONTROL.var)} && ?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
             )
         else:
+            # TODO: Revisit - this logic seems odd, since in our current data model the session should not have this edge if it's not a control.
             phenotypic_session_level_filters += (
-                "\n" + f"FILTER (?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
+                "\n"
+                + f"{create_bound_filter(IS_CONTROL.var)} && ?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
             )
 
     if assessment is not None:
         phenotypic_session_level_filters += (
-            "\n" + f"FILTER (?{ASSESSMENT.var} = {assessment})."
+            "\n"
+            + f"{create_bound_filter(ASSESSMENT.var)} && ?{ASSESSMENT.var} = {assessment})."
         )
 
     imaging_session_level_filters = ""
@@ -197,13 +212,13 @@ def create_query(
         ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path
         WHERE {{
             ?dataset_uuid a nb:Dataset;
-                    nb:hasLabel ?dataset_name;
-                    nb:hasSamples ?subject.
+                nb:hasLabel ?dataset_name;
+                nb:hasSamples ?subject.
             ?subject a nb:Subject;
-                    nb:hasLabel ?sub_id;
-                    nb:hasSession ?session.
+                nb:hasLabel ?sub_id;
+                nb:hasSession ?session.
             ?session a ?session_type;
-                     nb:hasLabel ?session_id.
+                nb:hasLabel ?session_id.
             OPTIONAL {{
                 ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
                 OPTIONAL {{?session nb:hasFilePath ?session_file_path.}}
@@ -217,24 +232,21 @@ def create_query(
             {{
                 SELECT ?subject (count(distinct ?phenotypic_session) as ?num_matching_phenotypic_sessions)
                 WHERE {{
-                    ?subject a nb:Subject.
-                    OPTIONAL {{
-                        ?subject nb:hasSession ?phenotypic_session.
-                        ?phenotypic_session a nb:PhenotypicSession.
+                    ?subject nb:hasSession ?phenotypic_session.
+                    ?phenotypic_session a nb:PhenotypicSession.
 
-                        OPTIONAL {{?phenotypic_session nb:hasAge ?age.}}
-                        OPTIONAL {{?phenotypic_session nb:hasSex ?sex.}}
-                        OPTIONAL {{?phenotypic_session nb:hasDiagnosis ?diagnosis.}}
-                        OPTIONAL {{?phenotypic_session nb:isSubjectGroup ?subject_group.}}
-                        OPTIONAL {{?phenotypic_session nb:hasAssessment ?assessment.}}
-                    }}
+                    OPTIONAL {{?phenotypic_session nb:hasAge ?age.}}
+                    OPTIONAL {{?phenotypic_session nb:hasSex ?sex.}}
+                    OPTIONAL {{?phenotypic_session nb:hasDiagnosis ?diagnosis.}}
+                    OPTIONAL {{?phenotypic_session nb:isSubjectGroup ?subject_group.}}
+                    OPTIONAL {{?phenotypic_session nb:hasAssessment ?assessment.}}
+
                     {phenotypic_session_level_filters}
                 }} GROUP BY ?subject
             }}
             {{
                 SELECT ?subject (count(distinct ?imaging_session) as ?num_matching_imaging_sessions)
                 WHERE {{
-                    ?subject a nb:Subject.
                     OPTIONAL {{
                         ?subject nb:hasSession ?imaging_session.
                         ?imaging_session a nb:ImagingSession;

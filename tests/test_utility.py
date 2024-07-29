@@ -60,3 +60,9 @@ def test_unpack_http_response_json_to_dicts():
             "total_subjects": "84",
         },
     ]
+
+
+def test_bound_filter_created_correctly():
+    """Test that the function creates a valid SPARQL filter substring given a variable name."""
+    var = "subject_group"
+    assert util.create_bound_filter(var) == "FILTER (BOUND(?subject_group)"
