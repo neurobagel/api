@@ -273,7 +273,6 @@ def create_query(
             + "} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal"
         )
 
-    print(query_string)
     return "\n".join([create_context(), query_string])
 
 
