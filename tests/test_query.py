@@ -70,7 +70,7 @@ def test_null_modalities(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
 
-    response = test_app.get(f"{ROUTE}", headers=mock_auth_header)
+    response = test_app.get(ROUTE, headers=mock_auth_header)
     assert response.json()[0]["image_modals"] == [
         "http://purl.org/nidash/nidm#T1Weighted"
     ]
@@ -86,7 +86,7 @@ def test_get_all(
     """Given no input for any query parameters, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
 
     monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get(f"{ROUTE}", headers=mock_auth_header)
+    response = test_app.get(ROUTE, headers=mock_auth_header)
     assert response.status_code == 200
     assert response.json() != []
 
@@ -493,7 +493,7 @@ def test_aggregate_query_response_structure(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
 
-    response = test_app.get(f"{ROUTE}", headers=mock_auth_header)
+    response = test_app.get(ROUTE, headers=mock_auth_header)
     assert all(
         dataset["subject_data"] == "protected" for dataset in response.json()
     )
@@ -509,7 +509,7 @@ def test_query_without_token_succeeds_when_auth_disabled(
     Test that when authentication is disabled, a request to the /query route without a token succeeds.
     """
     monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get(f"{ROUTE}")
+    response = test_app.get(ROUTE)
     assert response.status_code == 200
 
 
@@ -518,7 +518,7 @@ def test_request_without_trailing_slash_not_redirected(
 ):
     """Test that a request to the /query route is not redirected to have a trailing slash."""
     monkeypatch.setattr(crud, "get", mock_successful_get)
-    response = test_app.get(f"{ROUTE}", follow_redirects=False)
+    response = test_app.get(ROUTE, follow_redirects=False)
     assert response.status_code == 200
 
 
