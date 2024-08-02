@@ -1,3 +1,20 @@
+# v0.3.0 (Fri Aug 02 2024)
+
+#### 💥 Breaking Changes
+
+- [FIX] Disable redirect slashes globally and remove trailing `/` from `/query` [#328](https://github.com/neurobagel/api/pull/328) ([@alyssadai](https://github.com/alyssadai))
+- [ENH] Add authentication to `/query` route [#323](https://github.com/neurobagel/api/pull/323) ([@alyssadai](https://github.com/alyssadai))
+
+#### 🐛 Bug Fixes
+
+- [FIX] Exclude sessions missing a queried property from matches [#326](https://github.com/neurobagel/api/pull/326) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.2.1 (Tue Apr 16 2024)
 
 #### 🐛 Bug Fixes
