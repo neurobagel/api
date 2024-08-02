@@ -6,14 +6,13 @@ from app.api.security import verify_token
 
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_missing_client_id_raises_error_when_auth_enabled(
-    monkeypatch, test_app, set_test_credentials
+    monkeypatch, test_app, set_test_credentials, enable_auth
 ):
     """Test that a missing client ID raises an error on startup when authentication is enabled."""
     # We're using what should be default values of CLIENT_ID and AUTH_ENABLED here
     # (if the corresponding environment variables are unset),
     # but we set the values explicitly here for clarity
     monkeypatch.setattr("app.api.security.CLIENT_ID", None)
-    monkeypatch.setattr("app.api.security.AUTH_ENABLED", True)
 
     with pytest.raises(ValueError) as exc_info:
         with test_app:
@@ -52,17 +51,20 @@ def test_invalid_token_raises_error(invalid_token):
     [{}, {"Authorization": ""}, {"badheader": "badvalue"}],
 )
 def test_query_with_malformed_auth_header_fails(
-    test_app, set_mock_verify_token, invalid_auth_header, monkeypatch
+    test_app,
+    set_mock_verify_token,
+    enable_auth,
+    invalid_auth_header,
+    monkeypatch,
 ):
     """
-    Test that when authentication is enabled, a request to the /query route with
-    a missing or malformed authorization header fails.
+    Test that when authentication is enabled, a request to the /query route with a
+    missing or malformed authorization header fails.
     """
     monkeypatch.setattr("app.api.security.CLIENT_ID", "foo.id")
-    monkeypatch.setattr("app.api.security.AUTH_ENABLED", True)
 
     response = test_app.get(
-        "/query/",
+        "/query",
         headers=invalid_auth_header,
     )
 
