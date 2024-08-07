@@ -247,6 +247,7 @@ def create_query(
             {{
                 SELECT ?subject (count(distinct ?imaging_session) as ?num_matching_imaging_sessions)
                 WHERE {{
+                    ?subject a nb:Subject.
                     OPTIONAL {{
                         ?subject nb:hasSession ?imaging_session.
                         ?imaging_session a nb:ImagingSession;
