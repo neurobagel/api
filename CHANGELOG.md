@@ -6,6 +6,22 @@
 
 #### 🏠 Internal
 
+- [CI] Fix reference for `DOCKERHUB_REPO` in build_docker_on_release.yml [#337](https://github.com/neurobagel/api/pull/337) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
+# v0.3.1 (Tue Aug 13 2024)
+
+#### 🐛 Bug Fixes
+
+- [FIX] Ensure subjects without imaging sessions are considered in main query [#333](https://github.com/neurobagel/api/pull/333) ([@alyssadai](https://github.com/alyssadai))
+
+#### 🏠 Internal
+
 - [CI] Release the node API [#336](https://github.com/neurobagel/api/pull/336) ([@alyssadai](https://github.com/alyssadai))
 
 #### Authors: 1
