@@ -27,7 +27,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           # TODO: Repos with this wf must have DOCKERHUB_REPO set in the repository variables
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_REPO }}
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_REPO }}
           # NOTE: This input is probably not necessary as the action should generate the appropriate tags
           # based on the default type=ref,event=tag, but we define an explicit pattern here for clarity
           tags: |
