@@ -1,0 +1,19 @@
+name: Linkspector
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linkspector:
+    name: Check for broken markdown links
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run linkspector 
+      uses: umbrelladocs/action-linkspector@v1
+      with:
+        config_file: .github/workflows/mlc_config.json
