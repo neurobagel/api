@@ -8,6 +8,7 @@ from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, constr, root_validator
 
 CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
+VERSION_REGEX = r"^\d+\.\d+\.\d+$"
 
 
 class QueryModel(BaseModel):
@@ -22,6 +23,8 @@ class QueryModel(BaseModel):
     min_num_phenotypic_sessions: int = Query(default=None, ge=0)
     assessment: constr(regex=CONTROLLED_TERM_REGEX) = None
     image_modal: constr(regex=CONTROLLED_TERM_REGEX) = None
+    pipeline_version: constr(regex=VERSION_REGEX) = None
+    pipeline_name: constr(regex=CONTROLLED_TERM_REGEX) = None
 
     @root_validator()
     def check_maxage_ge_minage(cls, values):
@@ -67,6 +70,8 @@ class SessionResponse(BaseModel):
     assessment: list
     image_modal: list
     session_file_path: Optional[str]
+    pipeline_version: list
+    pipeline_name: list
 
 
 class CohortQueryResponse(BaseModel):
@@ -81,6 +86,8 @@ class CohortQueryResponse(BaseModel):
     num_matching_subjects: int
     subject_data: Union[list[SessionResponse], str]
     image_modals: list
+    pipeline_version: list
+    pipeline_name: list
 
 
 class DataElementURI(str, Enum):
