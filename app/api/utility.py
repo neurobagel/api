@@ -50,6 +50,7 @@ CONTEXT = {
     "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
     "nidm": "http://purl.org/nidash/nidm#",
     "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
+    "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing",
 }
 
 # Store domains in named tuples
@@ -61,6 +62,8 @@ DIAGNOSIS = Domain("diagnosis", "nb:hasDiagnosis")
 IS_CONTROL = Domain("subject_group", "nb:isSubjectGroup")
 ASSESSMENT = Domain("assessment", "nb:hasAssessment")
 IMAGE_MODAL = Domain("image_modal", "nb:hasContrastType")
+PIPELINE_VERSION = Domain("pipeline_version", "nb:hasPipelineVersion")
+PIPELINE_NAME = Domain("pipeline_name", "nb:hasPipelineName")
 PROJECT = Domain("project", "nb:hasSamples")
 
 
@@ -115,6 +118,8 @@ def create_query(
     min_num_phenotypic_sessions: Optional[int] = None,
     assessment: Optional[str] = None,
     image_modal: Optional[str] = None,
+    pipeline_version: Optional[str] = None,
+    pipeline_name: Optional[str] = None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
@@ -139,6 +144,10 @@ def create_query(
         Non-imaging assessment completed by subjects, by default None.
     image_modal : str, optional
         Imaging modality of subject scans, by default None.
+    pipeline_version : str, optional
+        Pipeline version of subject scans, by default None.
+    pipeline_name : str, optional
+        Pipeline name of subject scans, by default None.
 
     Returns
     -------
@@ -206,10 +215,23 @@ def create_query(
             "\n" + f"FILTER (?{IMAGE_MODAL.var} = {image_modal})."
         )
 
+    pipeline_filters = ""
+    if pipeline_version is not None:
+        pipeline_filters += (
+            "\n"
+            + f'FILTER (?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes
+        )
+
+    if pipeline_name is not None:
+        pipeline_filters += (
+            "\n" + f"FILTER (?{PIPELINE_NAME.var} = {pipeline_name})."
+        )
+
     query_string = textwrap.dedent(
         f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
-        ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path
+        ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions
+        ?session_id ?session_type ?assessment ?image_modal ?session_file_path ?pipeline_version ?pipeline_name
         WHERE {{
             ?dataset_uuid a nb:Dataset;
                 nb:hasLabel ?dataset_name;
@@ -229,6 +251,13 @@ def create_query(
             OPTIONAL {{?session nb:hasDiagnosis ?diagnosis.}}
             OPTIONAL {{?session nb:isSubjectGroup ?subject_group.}}
             OPTIONAL {{?session nb:hasAssessment ?assessment.}}
+
+            OPTIONAL {{
+                ?session nb:hasCompletedPipeline ?pipeline.
+                ?pipeline nb:hasPipelineVersion ?pipeline_version.
+                ?pipeline nb:hasPipelineName ?pipeline_name.
+                {pipeline_filters}
+            }}
             {{
                 SELECT ?subject (count(distinct ?phenotypic_session) as ?num_matching_phenotypic_sessions)
                 WHERE {{
@@ -260,6 +289,7 @@ def create_query(
         }}
     """
     )
+    print(query_string)
 
     # The query defined above will return all subject-level attributes from the graph. If RETURN_AGG variable has been set to true,
     # wrap query in an aggregating statement so data returned from graph include only attributes needed for dataset-level aggregate metadata.
