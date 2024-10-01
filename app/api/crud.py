@@ -100,6 +100,8 @@ async def get(
     min_num_phenotypic_sessions: int,
     assessment: str,
     image_modal: str,
+    pipeline_version: str,
+    pipeline_name: str,
 ) -> list[CohortQueryResponse]:
     """
     Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
@@ -125,6 +127,10 @@ async def get(
         Non-imaging assessment completed by subjects.
     image_modal : str
         Imaging modality of subject scans.
+    pipeline_version : str
+        Pipeline version of subject scans.
+    pipeline_name : str
+        Pipeline name of subject scans.
 
     Returns
     -------
@@ -142,6 +148,8 @@ async def get(
             min_num_imaging_sessions=min_num_imaging_sessions,
             assessment=assessment,
             image_modal=image_modal,
+            pipeline_version=pipeline_version,
+            pipeline_name=pipeline_name,
         )
     )
 
@@ -184,6 +192,8 @@ async def get(
                             "subject_group": "first",
                             "assessment": lambda x: list(x.unique()),
                             "image_modal": lambda x: list(x.unique()),
+                            "pipeline_version": lambda x: list(x.unique()),
+                            "pipeline_name": lambda x: list(x.unique()),
                             "session_file_path": "first",
                         }
                     )
@@ -222,6 +232,16 @@ async def get(
                     image_modals=list(
                         group["image_modal"][
                             group["image_modal"].notna()
+                        ].unique()
+                    ),
+                    pipeline_version=list(
+                        group["pipeline_version"][
+                            group["pipeline_version"].notna()
+                        ].unique()
+                    ),
+                    pipeline_name=list(
+                        group["pipeline_name"][
+                            group["pipeline_name"].notna()
                         ].unique()
                     ),
                 )
