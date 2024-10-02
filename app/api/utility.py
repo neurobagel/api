@@ -215,15 +215,14 @@ def create_query(
             "\n" + f"FILTER (?{IMAGE_MODAL.var} = {image_modal})."
         )
 
-    pipeline_filters = ""
     if pipeline_version is not None:
-        pipeline_filters += (
+        imaging_session_level_filters += (
             "\n"
             + f'FILTER (?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes
         )
 
     if pipeline_name is not None:
-        pipeline_filters += (
+        imaging_session_level_filters += (
             "\n" + f"FILTER (?{PIPELINE_NAME.var} = {pipeline_name})."
         )
 
@@ -253,11 +252,11 @@ def create_query(
             OPTIONAL {{?session nb:hasAssessment ?assessment.}}
 
             OPTIONAL {{
-                ?session nb:hasCompletedPipeline ?pipeline.
-                ?pipeline nb:hasPipelineVersion ?pipeline_version.
-                ?pipeline nb:hasPipelineName ?pipeline_name.
-                {pipeline_filters}
-            }}
+                        ?session nb:hasCompletedPipeline ?pipeline.
+                        ?pipeline nb:hasPipelineVersion ?pipeline_version.
+                        ?pipeline nb:hasPipelineName ?pipeline_name.
+                    }}
+
             {{
                 SELECT ?subject (count(distinct ?phenotypic_session) as ?num_matching_phenotypic_sessions)
                 WHERE {{
@@ -282,6 +281,11 @@ def create_query(
                         ?imaging_session a nb:ImagingSession;
                             nb:hasAcquisition/nb:hasContrastType ?image_modal.
                     }}
+                    OPTIONAL {{
+                        ?imaging_session     nb:hasCompletedPipeline ?pipeline.
+                        ?pipeline nb:hasPipelineVersion ?pipeline_version.
+                        ?pipeline nb:hasPipelineName ?pipeline_name.
+                    }}
                     {imaging_session_level_filters}
                 }} GROUP BY ?subject
             }}
@@ -289,7 +293,6 @@ def create_query(
         }}
     """
     )
-    print(query_string)
 
     # The query defined above will return all subject-level attributes from the graph. If RETURN_AGG variable has been set to true,
     # wrap query in an aggregating statement so data returned from graph include only attributes needed for dataset-level aggregate metadata.
