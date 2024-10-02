@@ -477,6 +477,90 @@ def test_get_undefined_prefix_image_modal(
     assert response.status_code == 500
 
 
+@pytest.mark.parametrize("valid_pipeline_version", ["7.3.2", "23.1.3"])
+def test_get_valid_pipeline_version(
+    test_app,
+    mock_successful_get,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+    valid_pipeline_version,
+):
+    """Given a valid pipeline version, returns a 200 status code and a non-empty list of results."""
+
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get(
+        f"{ROUTE}?pipeline_version={valid_pipeline_version}",
+        headers=mock_auth_header,
+    )
+    assert response.status_code == 200
+    assert response.json() != []
+
+
+@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("invalid_pipeline_version", ["latest", "7.2", "23"])
+def test_get_invalid_pipeline_version(
+    test_app,
+    mock_get,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+    invalid_pipeline_version,
+):
+    """Given an invalid pipeline version, returns a 422 status code."""
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"{ROUTE}?pipeline_version={invalid_pipeline_version}",
+        headers=mock_auth_header,
+    )
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "valid_pipeline_name", ["np:fmriprep", "np:freesurfer"]
+)
+def test_get_valid_pipeline_name(
+    test_app,
+    mock_successful_get,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+    valid_pipeline_name,
+):
+    """Given a valid pipeline name, returns a 200 status code and a non-empty list of results."""
+
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get(
+        f"{ROUTE}?pipeline_name={valid_pipeline_name}",
+        headers=mock_auth_header,
+    )
+    assert response.status_code == 200
+    assert response.json() != []
+
+
+@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize(
+    "invalid_pipeline_name", ["n2p:coolpipeline", "apple", "some_thing:cool"]
+)
+def test_get_invalid_pipeline_name(
+    test_app,
+    mock_get,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+    invalid_pipeline_name,
+):
+    """Given an invalid pipeline name, returns a 422 status code."""
+
+    monkeypatch.setattr(crud, "get", mock_get)
+    response = test_app.get(
+        f"{ROUTE}?pipeline_name={invalid_pipeline_name}",
+        headers=mock_auth_header,
+    )
+    assert response.status_code == 422
+
+
 def test_aggregate_query_response_structure(
     test_app,
     set_test_credentials,
