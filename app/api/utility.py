@@ -250,13 +250,6 @@ def create_query(
             OPTIONAL {{?session nb:hasDiagnosis ?diagnosis.}}
             OPTIONAL {{?session nb:isSubjectGroup ?subject_group.}}
             OPTIONAL {{?session nb:hasAssessment ?assessment.}}
-
-            OPTIONAL {{
-                        ?session nb:hasCompletedPipeline ?pipeline.
-                        ?pipeline nb:hasPipelineVersion ?pipeline_version.
-                        ?pipeline nb:hasPipelineName ?pipeline_name.
-                    }}
-
             {{
                 SELECT ?subject (count(distinct ?phenotypic_session) as ?num_matching_phenotypic_sessions)
                 WHERE {{
@@ -272,6 +265,12 @@ def create_query(
                     {phenotypic_session_level_filters}
                 }} GROUP BY ?subject
             }}
+
+            OPTIONAL {{
+                ?session nb:hasCompletedPipeline ?pipeline.
+                ?pipeline nb:hasPipelineVersion ?pipeline_version.
+                ?pipeline nb:hasPipelineName ?pipeline_name.
+            }}
             {{
                 SELECT ?subject (count(distinct ?imaging_session) as ?num_matching_imaging_sessions)
                 WHERE {{
@@ -282,7 +281,7 @@ def create_query(
                             nb:hasAcquisition/nb:hasContrastType ?image_modal.
                     }}
                     OPTIONAL {{
-                        ?imaging_session     nb:hasCompletedPipeline ?pipeline.
+                        ?imaging_session nb:hasCompletedPipeline ?pipeline.
                         ?pipeline nb:hasPipelineVersion ?pipeline_version.
                         ?pipeline nb:hasPipelineName ?pipeline_name.
                     }}
