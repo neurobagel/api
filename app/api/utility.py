@@ -50,7 +50,7 @@ CONTEXT = {
     "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
     "nidm": "http://purl.org/nidash/nidm#",
     "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
-    "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing",
+    "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/",
 }
 
 # Store domains in named tuples
