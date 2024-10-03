@@ -70,8 +70,7 @@ class SessionResponse(BaseModel):
     assessment: list
     image_modal: list
     session_file_path: Optional[str]
-    pipeline_version: list
-    pipeline_name: list
+    pipeline: dict
 
 
 class CohortQueryResponse(BaseModel):
@@ -86,8 +85,7 @@ class CohortQueryResponse(BaseModel):
     num_matching_subjects: int
     subject_data: Union[list[SessionResponse], str]
     image_modals: list
-    pipeline_version: list
-    pipeline_name: list
+    pipeline: dict
 
 
 class DataElementURI(str, Enum):

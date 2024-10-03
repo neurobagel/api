@@ -16,6 +16,8 @@ ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.__fields__.keys()) + [
     "dataset_uuid",
     "dataset_name",
     "dataset_portal_uri",
+    "pipeline_version",
+    "pipeline_name",
 ]
 
 
@@ -212,7 +214,27 @@ async def get(
                     all_nan_columns
                 ].replace({np.nan: None})
 
+                subject_data["pipeline"] = subject_data.apply(
+                    lambda row: {
+                        name: versions
+                        for name, versions in zip(
+                            row["pipeline_name"], row["pipeline_version"]
+                        )
+                        if pd.notna(name) and pd.notna(versions)
+                    },
+                    axis=1,
+                )
+
                 subject_data = list(subject_data.to_dict("records"))
+
+                pipeline_info = {}
+                for name, version in zip(
+                    group["pipeline_name"], group["pipeline_version"]
+                ):
+                    if pd.notna(name) and pd.notna(version):
+                        if name not in pipeline_info:
+                            pipeline_info[name] = set()
+                        pipeline_info[name].add(version)
 
             response_obj.append(
                 CohortQueryResponse(
@@ -234,16 +256,7 @@ async def get(
                             group["image_modal"].notna()
                         ].unique()
                     ),
-                    pipeline_version=list(
-                        group["pipeline_version"][
-                            group["pipeline_version"].notna()
-                        ].unique()
-                    ),
-                    pipeline_name=list(
-                        group["pipeline_name"][
-                            group["pipeline_name"].notna()
-                        ].unique()
-                    ),
+                    pipeline=pipeline_info,
                 )
             )
 
