@@ -217,11 +217,14 @@ async def get(
 
                 subject_data["pipeline"] = subject_data.apply(
                     lambda row: {
-                        name: versions
-                        for name, versions in zip(
-                            row["pipeline_name"], row["pipeline_version"]
+                        name: list(
+                            group.loc[
+                                group["pipeline_name"] == name,
+                                "pipeline_version",
+                            ].unique()
                         )
-                        if pd.notna(name) and pd.notna(versions)
+                        for name in set(row["pipeline_name"])
+                        if pd.notna(name)
                     },
                     axis=1,
                 )
