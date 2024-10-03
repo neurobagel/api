@@ -168,6 +168,7 @@ async def get(
 
     response_obj = []
     dataset_cols = ["dataset_uuid", "dataset_name"]
+    pipeline_info = {}
     if not results_df.empty:
         for (dataset_uuid, dataset_name), group in results_df.groupby(
             by=dataset_cols
@@ -227,7 +228,6 @@ async def get(
 
                 subject_data = list(subject_data.to_dict("records"))
 
-                pipeline_info = {}
                 for name, version in zip(
                     group["pipeline_name"], group["pipeline_version"]
                 ):
