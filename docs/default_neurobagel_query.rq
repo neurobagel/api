@@ -52,13 +52,18 @@ WHERE {
             ?subject a nb:Subject.
             OPTIONAL {
                 ?subject nb:hasSession ?imaging_session.
-                ?imaging_session a nb:ImagingSession;
-                    nb:hasAcquisition/nb:hasContrastType ?image_modal.
-            }
-            OPTIONAL {
-                ?imaging_session nb:hasCompletedPipeline ?pipeline.
-                ?pipeline nb:hasPipelineVersion ?pipeline_version.
-                ?pipeline nb:hasPipelineName ?pipeline_name.
+                ?imaging_session a nb:ImagingSession.
+
+                OPTIONAL {
+                    ?imaging_session nb:hasAcquisition ?acquisition.
+                    ?acquisition nb:hasContrastType ?image_modal.
+                }
+
+                OPTIONAL {
+                    ?imaging_session nb:hasCompletedPipeline ?pipeline.
+                    ?pipeline nb:hasPipelineName ?pipeline_name;
+                    nb:hasPipelineVersion ?pipeline_version.
+                }
             }
 
         } GROUP BY ?subject
