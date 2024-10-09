@@ -233,7 +233,7 @@ def create_query(
         f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
         ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions
-        ?session_id ?session_type ?assessment ?image_modal ?session_file_path ?pipeline_version ?pipeline_name
+        ?session_id ?session_type ?assessment ?image_modal ?session_file_path ?pipeline_name ?pipeline_version
         WHERE {{
             ?dataset_uuid a nb:Dataset;
                 nb:hasLabel ?dataset_name;
@@ -289,8 +289,8 @@ def create_query(
 
                         OPTIONAL {{
                             ?imaging_session nb:hasCompletedPipeline ?pipeline.
-                            ?pipeline nb:hasPipelineVersion ?pipeline_version;
-                            nb:hasPipelineName ?pipeline_name.
+                            ?pipeline nb:hasPipelineName ?pipeline_name;
+                            nb:hasPipelineVersion ?pipeline_version.
                         }}
                     }}
                     {imaging_session_level_filters}
