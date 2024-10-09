@@ -169,7 +169,6 @@ async def get(
     response_obj = []
     dataset_cols = ["dataset_uuid", "dataset_name"]
     dataset_available_pipeline_info = {}
-    results_df.to_csv("output.csv", index=False)
     if not results_df.empty:
         for (dataset_uuid, dataset_name), group in results_df.groupby(
             by=dataset_cols
