@@ -73,6 +73,9 @@ def test_data():
                 "http://purl.org/nidash/nidm#T1Weighted",
                 "http://purl.org/nidash/nidm#T2Weighted",
             ],
+            "available_pipelines": {
+                "freesurfer": ["7.3.2", "2.8.2", "8.7.0-rc"]
+            },
         },
         {
             "dataset_uuid": "http://neurobagel.org/vocab/67890",
@@ -86,6 +89,10 @@ def test_data():
                 "http://purl.org/nidash/nidm#FlowWeighted",
                 "http://purl.org/nidash/nidm#T1Weighted",
             ],
+            "available_pipelines": {
+                "freesurfer": ["7.3.2", "2.1.2"],
+                "fmriprep": ["23.1.3", "22.1.4", "v2.0.1"],
+            },
         },
     ]
 
@@ -178,6 +185,8 @@ def mock_get_with_exception(request):
         min_num_phenotypic_sessions,
         assessment,
         image_modal,
+        pipeline_version,
+        pipeline_name,
     ):
         raise request.param
 
@@ -206,6 +215,8 @@ def mock_get(request):
         min_num_phenotypic_sessions,
         assessment,
         image_modal,
+        pipeline_version,
+        pipeline_name,
     ):
         return request.param
 
@@ -226,6 +237,8 @@ def mock_successful_get(test_data):
         min_num_phenotypic_sessions,
         assessment,
         image_modal,
+        pipeline_version,
+        pipeline_name,
     ):
         return test_data
 

@@ -50,6 +50,7 @@ CONTEXT = {
     "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
     "nidm": "http://purl.org/nidash/nidm#",
     "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
+    "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/",
 }
 
 # Store domains in named tuples
@@ -61,6 +62,8 @@ DIAGNOSIS = Domain("diagnosis", "nb:hasDiagnosis")
 IS_CONTROL = Domain("subject_group", "nb:isSubjectGroup")
 ASSESSMENT = Domain("assessment", "nb:hasAssessment")
 IMAGE_MODAL = Domain("image_modal", "nb:hasContrastType")
+PIPELINE_NAME = Domain("pipeline_name", "nb:hasPipelineName")
+PIPELINE_VERSION = Domain("pipeline_version", "nb:hasPipelineVersion")
 PROJECT = Domain("project", "nb:hasSamples")
 
 
@@ -115,6 +118,8 @@ def create_query(
     min_num_phenotypic_sessions: Optional[int] = None,
     assessment: Optional[str] = None,
     image_modal: Optional[str] = None,
+    pipeline_name: Optional[str] = None,
+    pipeline_version: Optional[str] = None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
@@ -139,6 +144,10 @@ def create_query(
         Non-imaging assessment completed by subjects, by default None.
     image_modal : str, optional
         Imaging modality of subject scans, by default None.
+    pipeline_name : str, optional
+        Name of pipeline run on subject scans, by default None.
+    pipeline_version : str, optional
+        Version of pipeline run on subject scans, by default None.
 
     Returns
     -------
@@ -203,13 +212,28 @@ def create_query(
     imaging_session_level_filters = ""
     if image_modal is not None:
         imaging_session_level_filters += (
-            "\n" + f"FILTER (?{IMAGE_MODAL.var} = {image_modal})."
+            "\n"
+            + f"{create_bound_filter(IMAGE_MODAL.var)} && ?{IMAGE_MODAL.var} = {image_modal})."
+        )
+
+    if pipeline_name is not None:
+        imaging_session_level_filters += (
+            "\n"
+            + f"{create_bound_filter(PIPELINE_NAME.var)} && (?{PIPELINE_NAME.var} = {pipeline_name})."
+        )
+
+    # In case a user specified the pipeline version but not the name
+    if pipeline_version is not None:
+        imaging_session_level_filters += (
+            "\n"
+            + f'{create_bound_filter(PIPELINE_VERSION.var)} && ?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes to avoid workaround implicit conversion
         )
 
     query_string = textwrap.dedent(
         f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
-        ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path
+        ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions
+        ?session_id ?session_type ?assessment ?image_modal ?session_file_path ?pipeline_version ?pipeline_name
         WHERE {{
             ?dataset_uuid a nb:Dataset;
                 nb:hasLabel ?dataset_name;
@@ -244,14 +268,30 @@ def create_query(
                     {phenotypic_session_level_filters}
                 }} GROUP BY ?subject
             }}
+
+            OPTIONAL {{
+                ?session nb:hasCompletedPipeline ?pipeline.
+                ?pipeline nb:hasPipelineVersion ?pipeline_version.
+                ?pipeline nb:hasPipelineName ?pipeline_name.
+            }}
             {{
                 SELECT ?subject (count(distinct ?imaging_session) as ?num_matching_imaging_sessions)
                 WHERE {{
                     ?subject a nb:Subject.
                     OPTIONAL {{
                         ?subject nb:hasSession ?imaging_session.
-                        ?imaging_session a nb:ImagingSession;
-                            nb:hasAcquisition/nb:hasContrastType ?image_modal.
+                        ?imaging_session a nb:ImagingSession.
+
+                        OPTIONAL {{
+                            ?imaging_session nb:hasAcquisition ?acquisition.
+                            ?acquisition nb:hasContrastType ?image_modal.
+                        }}
+
+                        OPTIONAL {{
+                            ?imaging_session nb:hasCompletedPipeline ?pipeline.
+                            ?pipeline nb:hasPipelineVersion ?pipeline_version;
+                            nb:hasPipelineName ?pipeline_name.
+                        }}
                     }}
                     {imaging_session_level_filters}
                 }} GROUP BY ?subject

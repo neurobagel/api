@@ -6,7 +6,7 @@ PREFIX nidm: <http://purl.org/nidash/nidm#>
 PREFIX snomed: <http://purl.bioontology.org/ontology/SNOMEDCT/>
 
 SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
-?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path
+?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions ?session_id ?session_type ?assessment ?image_modal ?session_file_path ?pipeline_name ?pipeline_version
 WHERE {
     ?dataset_uuid a nb:Dataset;
         nb:hasLabel ?dataset_name;
@@ -41,6 +41,11 @@ WHERE {
 
         } GROUP BY ?subject
     }
+    OPTIONAL {
+        ?session nb:hasCompletedPipeline ?pipeline.
+        ?pipeline nb:hasPipelineVersion ?pipeline_version.
+        ?pipeline nb:hasPipelineName ?pipeline_name.
+    }
     {
         SELECT ?subject (count(distinct ?imaging_session) as ?num_matching_imaging_sessions)
         WHERE {
@@ -49,6 +54,11 @@ WHERE {
                 ?subject nb:hasSession ?imaging_session.
                 ?imaging_session a nb:ImagingSession;
                     nb:hasAcquisition/nb:hasContrastType ?image_modal.
+            }
+            OPTIONAL {
+                ?imaging_session nb:hasCompletedPipeline ?pipeline.
+                ?pipeline nb:hasPipelineVersion ?pipeline_version.
+                ?pipeline nb:hasPipelineName ?pipeline_name.
             }
 
         } GROUP BY ?subject
