@@ -477,7 +477,9 @@ def test_get_undefined_prefix_image_modal(
     assert response.status_code == 500
 
 
-@pytest.mark.parametrize("valid_pipeline_version", ["7.3.2", "23.1.3"])
+@pytest.mark.parametrize(
+    "valid_pipeline_version", ["7.3.2", "23.1.3", "v2.0.1", "8.7.0-rc"]
+)
 def test_get_valid_pipeline_version(
     test_app,
     mock_successful_get,
@@ -559,6 +561,34 @@ def test_get_invalid_pipeline_name(
         headers=mock_auth_header,
     )
     assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "valid_pipeline_name",
+    ["np:fmriprep", "np:fmriprep", "np:freesurfer", "np:freesurfer"],
+)
+@pytest.mark.parametrize(
+    "valid_pipeline_version",
+    ["v2.0.1", "23.1.3", "7.3.2", "8.7.0-rc"],
+)
+def test_get_valid_pipeline_name_version(
+    test_app,
+    mock_successful_get,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+    valid_pipeline_name,
+    valid_pipeline_version,
+):
+    """Given a valid pipeline name and version, returns a 200 status code and a non-empty list of results."""
+
+    monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get(
+        f"{ROUTE}?pipeline_name={valid_pipeline_name}&pipeline_version={valid_pipeline_version}",
+        headers=mock_auth_header,
+    )
+    assert response.status_code == 200
+    assert response.json() != []
 
 
 def test_aggregate_query_response_structure(

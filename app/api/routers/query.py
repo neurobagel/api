@@ -52,8 +52,8 @@ async def get_query(
         query.min_num_phenotypic_sessions,
         query.assessment,
         query.image_modal,
-        query.pipeline_version,
         query.pipeline_name,
+        query.pipeline_version,
     )
 
     return response

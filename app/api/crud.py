@@ -102,8 +102,8 @@ async def get(
     min_num_phenotypic_sessions: int,
     assessment: str,
     image_modal: str,
-    pipeline_version: str,
     pipeline_name: str,
+    pipeline_version: str,
 ) -> list[CohortQueryResponse]:
     """
     Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
@@ -129,10 +129,10 @@ async def get(
         Non-imaging assessment completed by subjects.
     image_modal : str
         Imaging modality of subject scans.
-    pipeline_version : str
-        Pipeline version of subject scans.
     pipeline_name : str
-        Pipeline name of subject scans.
+        Name of pipeline run on subject scans.
+    pipeline_version : str
+        Version of pipeline run on subject scans.
 
     Returns
     -------
@@ -168,7 +168,8 @@ async def get(
 
     response_obj = []
     dataset_cols = ["dataset_uuid", "dataset_name"]
-    pipeline_info = {}
+    dataset_available_pipeline_info = {}
+    results_df.to_csv("output.csv", index=False)
     if not results_df.empty:
         for (dataset_uuid, dataset_name), group in results_df.groupby(
             by=dataset_cols
@@ -195,12 +196,52 @@ async def get(
                             "subject_group": "first",
                             "assessment": lambda x: list(x.unique()),
                             "image_modal": lambda x: list(x.unique()),
-                            "pipeline_version": lambda x: list(x.unique()),
-                            "pipeline_name": lambda x: list(x.unique()),
                             "session_file_path": "first",
                         }
                     )
                 )
+
+                pipeline_data = (
+                    group.groupby(
+                        [
+                            "sub_id",
+                            "session_id",
+                            "session_type",
+                            "pipeline_name",
+                        ]
+                    )
+                    .agg(
+                        {
+                            "pipeline_version": lambda x: list(
+                                x.dropna().unique()
+                            )
+                        }
+                    )
+                    .reset_index()
+                )
+
+                pipeline_dict = (
+                    pipeline_data.groupby(
+                        ["sub_id", "session_id", "session_type"]
+                    )
+                    .apply(
+                        lambda x: dict(
+                            zip(x["pipeline_name"], x["pipeline_version"])
+                        )
+                    )
+                    .reset_index(name="completed_pipelines")
+                )
+
+                subject_data = pd.merge(
+                    subject_data.reset_index(drop=True),
+                    pipeline_dict,
+                    on=["sub_id", "session_id", "session_type"],
+                    how="left",
+                )
+
+                subject_data["completed_pipelines"] = subject_data[
+                    "completed_pipelines"
+                ].apply(lambda x: x if isinstance(x, dict) else {})
 
                 # TODO: Revisit this as there may be a more elegant solution.
                 # The following code replaces columns with all NaN values with values of None, to ensure they show up in the final JSON as `null`.
@@ -215,29 +256,15 @@ async def get(
                     all_nan_columns
                 ].replace({np.nan: None})
 
-                subject_data["pipeline"] = subject_data.apply(
-                    lambda row: {
-                        name: list(
-                            group.loc[
-                                group["pipeline_name"] == name,
-                                "pipeline_version",
-                            ].unique()
-                        )
-                        for name in set(row["pipeline_name"])
-                        if pd.notna(name)
-                    },
-                    axis=1,
-                )
-
                 subject_data = list(subject_data.to_dict("records"))
 
-                for name, version in zip(
-                    group["pipeline_name"], group["pipeline_version"]
-                ):
-                    if pd.notna(name) and pd.notna(version):
-                        if name not in pipeline_info:
-                            pipeline_info[name] = set()
-                        pipeline_info[name].add(version)
+                dataset_available_pipeline_info = (
+                    group.groupby("pipeline_name", dropna=True)[
+                        "pipeline_version"
+                    ]
+                    .apply(lambda x: list(x.dropna().unique()))
+                    .to_dict()
+                )
 
             response_obj.append(
                 CohortQueryResponse(
@@ -259,7 +286,7 @@ async def get(
                             group["image_modal"].notna()
                         ].unique()
                     ),
-                    pipeline=pipeline_info,
+                    available_pipelines=dataset_available_pipeline_info,
                 )
             )
 

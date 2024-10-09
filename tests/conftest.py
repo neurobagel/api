@@ -73,7 +73,9 @@ def test_data():
                 "http://purl.org/nidash/nidm#T1Weighted",
                 "http://purl.org/nidash/nidm#T2Weighted",
             ],
-            "pipeline": {"freesurfer": ["7.3.2", "2.8.2"]},
+            "available_pipelines": {
+                "freesurfer": ["7.3.2", "2.8.2", "8.7.0-rc"]
+            },
         },
         {
             "dataset_uuid": "http://neurobagel.org/vocab/67890",
@@ -87,9 +89,9 @@ def test_data():
                 "http://purl.org/nidash/nidm#FlowWeighted",
                 "http://purl.org/nidash/nidm#T1Weighted",
             ],
-            "pipeline": {
+            "available_pipelines": {
                 "freesurfer": ["7.3.2", "2.1.2"],
-                "fmriprep": ["23.1.3", "22.1.4"],
+                "fmriprep": ["23.1.3", "22.1.4", "v2.0.1"],
             },
         },
     ]
