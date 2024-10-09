@@ -290,7 +290,7 @@ def create_query(
                         OPTIONAL {{
                             ?imaging_session nb:hasCompletedPipeline ?pipeline.
                             ?pipeline nb:hasPipelineVersion ?pipeline_version;
-                                    nb:hasPipelineName ?pipeline_name.
+                            nb:hasPipelineName ?pipeline_name.
                         }}
                     }}
                     {imaging_session_level_filters}

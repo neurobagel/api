@@ -564,12 +564,13 @@ def test_get_invalid_pipeline_name(
 
 
 @pytest.mark.parametrize(
-    "valid_pipeline_name",
-    ["np:fmriprep", "np:fmriprep", "np:freesurfer", "np:freesurfer"],
-)
-@pytest.mark.parametrize(
-    "valid_pipeline_version",
-    ["v2.0.1", "23.1.3", "7.3.2", "8.7.0-rc"],
+    "valid_pipeline_name, valid_pipeline_version",
+    [
+        ("np:fmriprep", "v2.0.1"),
+        ("np:fmriprep", "23.1.3"),
+        ("np:freesurfer", "7.3.2"),
+        ("np:freesurfer", "8.7.0-rc"),
+    ],
 )
 def test_get_valid_pipeline_name_version(
     test_app,

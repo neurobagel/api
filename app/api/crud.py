@@ -200,14 +200,15 @@ async def get(
                     )
                 )
 
-                pipeline_data = (
+                pipeline_grouped_data = (
                     group.groupby(
                         [
                             "sub_id",
                             "session_id",
                             "session_type",
                             "pipeline_name",
-                        ]
+                        ],
+                        dropna=True,
                     )
                     .agg(
                         {
@@ -219,8 +220,8 @@ async def get(
                     .reset_index()
                 )
 
-                pipeline_dict = (
-                    pipeline_data.groupby(
+                session_completed_pipeline_data = (
+                    pipeline_grouped_data.groupby(
                         ["sub_id", "session_id", "session_type"]
                     )
                     .apply(
@@ -233,11 +234,12 @@ async def get(
 
                 subject_data = pd.merge(
                     subject_data.reset_index(drop=True),
-                    pipeline_dict,
+                    session_completed_pipeline_data,
                     on=["sub_id", "session_id", "session_type"],
                     how="left",
                 )
 
+                # ensure that for sessions missing completed pipeline info, completed_pipelines is still a dict rather than null/nan
                 subject_data["completed_pipelines"] = subject_data[
                     "completed_pipelines"
                 ].apply(lambda x: x if isinstance(x, dict) else {})
