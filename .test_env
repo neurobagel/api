@@ -1,0 +1,18 @@
+# ---- PROJECT NAME ----
+COMPOSE_PROJECT_NAME=neurobagel_node
+
+# ---- CONFIGURATION FOR graph ----
+# Replace DBUSER with the username you want to set for your graph database user
+# NB_GRAPH_USERNAME=DBUSER
+# Replace my_db with the name you want to give your graph database
+NB_GRAPH_DB=repositories/my_db
+# Replace ./data with the path to your JSONLD files
+LOCAL_GRAPH_DATA=./recipes/data
+
+# Additional configurable parameters - uncomment to change the defaults
+# Change NB_GRAPH_PORT_HOST if port 7200 is already in use on the machine
+# NB_GRAPH_PORT_HOST=7200
+# Replace ./secrets with the directory path containing the text files with your desired 
+# secure passwords for GraphDB (NB_GRAPH_ADMIN_PASSWORD.txt and NB_GRAPH_PASSWORD.txt)
+# NB_GRAPH_SECRETS_PATH=./secrets
+# ---------------------------------
