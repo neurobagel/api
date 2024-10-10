@@ -74,7 +74,11 @@ def test_data():
                 "http://purl.org/nidash/nidm#T2Weighted",
             ],
             "available_pipelines": {
-                "freesurfer": ["7.3.2", "2.8.2", "8.7.0-rc"]
+                "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer": [
+                    "7.3.2",
+                    "2.8.2",
+                    "8.7.0-rc",
+                ]
             },
         },
         {
@@ -90,8 +94,15 @@ def test_data():
                 "http://purl.org/nidash/nidm#T1Weighted",
             ],
             "available_pipelines": {
-                "freesurfer": ["7.3.2", "2.1.2"],
-                "fmriprep": ["23.1.3", "22.1.4", "v2.0.1"],
+                "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer": [
+                    "7.3.2",
+                    "2.1.2",
+                ],
+                "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/fmriprep": [
+                    "23.1.3",
+                    "22.1.4",
+                    "v2.0.1",
+                ],
             },
         },
     ]
@@ -110,6 +121,8 @@ def mock_post_query_to_graph():
                     "dataset_portal_uri",
                     "sub_id",
                     "image_modal",
+                    "pipeline_name",
+                    "pipeline_version",
                 ]
             },
             "results": {
@@ -140,6 +153,14 @@ def mock_post_query_to_graph():
                         "image_modal": {
                             "type": "uri",
                             "value": "http://purl.org/nidash/nidm#T1Weighted",
+                        },
+                        "pipeline_version": {
+                            "type": "literal",
+                            "value": "7.3.2",
+                        },
+                        "pipeline_name": {
+                            "type": "uri",
+                            "value": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer",
                         },
                     },
                 ]
