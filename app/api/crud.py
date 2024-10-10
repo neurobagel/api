@@ -168,7 +168,6 @@ async def get(
 
     response_obj = []
     dataset_cols = ["dataset_uuid", "dataset_name"]
-    dataset_available_pipeline_info = {}
     if not results_df.empty:
         for (dataset_uuid, dataset_name), group in results_df.groupby(
             by=dataset_cols
@@ -259,13 +258,11 @@ async def get(
 
                 subject_data = list(subject_data.to_dict("records"))
 
-                dataset_available_pipeline_info = (
-                    group.groupby("pipeline_name", dropna=True)[
-                        "pipeline_version"
-                    ]
-                    .apply(lambda x: list(x.dropna().unique()))
-                    .to_dict()
-                )
+            dataset_available_pipelines = (
+                group.groupby("pipeline_name", dropna=True)["pipeline_version"]
+                .apply(lambda x: list(x.dropna().unique()))
+                .to_dict()
+            )
 
             response_obj.append(
                 CohortQueryResponse(
@@ -276,7 +273,7 @@ async def get(
                     ],
                     dataset_portal_uri=(
                         group["dataset_portal_uri"].iloc[0]
-                        if group["dataset_portal_uri"].notna().all()
+                        if not group["dataset_portal_uri"].isna().any()
                         else None
                     ),
                     num_matching_subjects=group["sub_id"].nunique(),
@@ -287,7 +284,7 @@ async def get(
                             group["image_modal"].notna()
                         ].unique()
                     ),
-                    available_pipelines=dataset_available_pipeline_info,
+                    available_pipelines=dataset_available_pipelines,
                 )
             )
 

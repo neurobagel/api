@@ -307,11 +307,11 @@ def create_query(
         query_string = (
             textwrap.dedent(
                 """
-            SELECT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal
+            SELECT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal ?pipeline_version ?pipeline_name
             WHERE {"""
             )
             + textwrap.indent(query_string, "    ")
-            + "} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal"
+            + "} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal ?pipeline_version ?pipeline_name"
         )
 
     return "\n".join([create_context(), query_string])
