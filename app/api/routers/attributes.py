@@ -59,7 +59,7 @@ async def get_pipeline_versions(resource: constr(regex=CONTROLLED_TERM_REGEX)):
     results_dict = {
         resource: [
             res["pipeline_version"]
-            for res in util.unpack_http_response_json_to_dicts(results)
+            for res in util.unpack_graph_response_json_to_dicts(results)
         ]
     }
     return results_dict
