@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request
 from pydantic import constr
 
 from .. import crud
+from .. import utility as util
 from ..models import CONTROLLED_TERM_REGEX, DataElementURI, VocabLabelsResponse
 
 router = APIRouter(prefix="/attributes", tags=["attributes"])
@@ -44,6 +45,24 @@ async def get_terms(
         term_labels_path = request.app.state.snomed_term_lookup_path
 
     return await crud.get_terms(data_element_URI, term_labels_path)
+
+
+@router.get("/nb:Pipeline/{resource}/versions")
+async def get_pipeline_versions(resource: constr(regex=CONTROLLED_TERM_REGEX)):
+    """
+    When a GET request is sent, return a list of pipeline versions available in the graph
+    for the specified pipeline resource.
+    """
+    results = crud.post_query_to_graph(
+        util.create_pipeline_versions_query(resource)
+    )
+    results_dict = {
+        resource: [
+            res["pipeline_version"]
+            for res in util.unpack_http_response_json_to_dicts(results)
+        ]
+    }
+    return results_dict
 
 
 @router.get("/", response_model=list)
