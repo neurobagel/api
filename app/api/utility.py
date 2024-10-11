@@ -219,7 +219,7 @@ def create_query(
     if pipeline_name is not None:
         imaging_session_level_filters += (
             "\n"
-            + f"{create_bound_filter(PIPELINE_NAME.var)} && (?{PIPELINE_NAME.var} = {pipeline_name})."
+            + f"{create_bound_filter(PIPELINE_NAME.var)} && ?{PIPELINE_NAME.var} = {pipeline_name})."
         )
 
     # In case a user specified the pipeline version but not the name
