@@ -13,8 +13,8 @@ async def get_pipeline_versions(
     pipeline_term: constr(regex=CONTROLLED_TERM_REGEX),
 ):
     """
-    When a GET request is sent, return a list of pipeline versions available in the graph
-    for the specified pipeline resource.
+    When a GET request is sent, return a dict keyed on the specified pipeline resource, where the value is
+    list of pipeline versions available in the graph for that pipeline.
     """
     results = crud.post_query_to_graph(
         util.create_pipeline_versions_query(pipeline_term)
