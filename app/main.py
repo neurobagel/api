@@ -12,7 +12,7 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
 from .api import utility as util
-from .api.routers import attributes, query
+from .api.routers import attributes, pipelines, query
 from .api.security import check_client_id
 
 app = FastAPI(
@@ -143,6 +143,7 @@ async def cleanup_temp_vocab_dir():
 
 app.include_router(query.router)
 app.include_router(attributes.router)
+app.include_router(pipelines.router)
 
 # Automatically start uvicorn server on execution of main.py
 if __name__ == "__main__":

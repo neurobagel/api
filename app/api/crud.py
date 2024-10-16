@@ -86,7 +86,7 @@ def query_matching_dataset_sizes(dataset_uuids: list) -> dict:
     )
     return {
         ds["dataset_uuid"]: int(ds["total_subjects"])
-        for ds in util.unpack_http_response_json_to_dicts(
+        for ds in util.unpack_graph_response_json_to_dicts(
             matching_dataset_size_results
         )
     }
@@ -159,7 +159,7 @@ async def get(
     # the attribute does not end up in the graph API response or the below resulting processed dataframe.
     # Conforming the columns to a list of expected attributes ensures every subject-session has the same response shape from the node API.
     results_df = pd.DataFrame(
-        util.unpack_http_response_json_to_dicts(results)
+        util.unpack_graph_response_json_to_dicts(results)
     ).reindex(columns=ALL_SUBJECT_ATTRIBUTES)
 
     matching_dataset_sizes = query_matching_dataset_sizes(

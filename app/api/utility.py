@@ -88,9 +88,9 @@ def create_context() -> str:
     )
 
 
-def unpack_http_response_json_to_dicts(response: dict) -> list[dict]:
+def unpack_graph_response_json_to_dicts(response: dict) -> list[dict]:
     """
-    Reformats a nested dictionary object from a SPARQL query response JSON into a more human-readable list of dictionaries,
+    Reformats a nested dictionary object from a SPARQL query response JSON into a list of dictionaries,
     where the keys are the variables selected in the SPARQL query and the values correspond to the variable values.
     The number of dictionaries should correspond to the number of query matches.
     """
@@ -511,3 +511,17 @@ def create_snomed_term_lookup(output_path: Path):
     term_labels = {term["sctid"]: term["preferred_name"] for term in vocab}
     with open(output_path, "w") as f:
         f.write(json.dumps(term_labels, indent=2))
+
+
+def create_pipeline_versions_query(pipeline: str) -> str:
+    """Create a SPARQL query for all versions of a pipeline available in a graph."""
+    query_string = textwrap.dedent(
+        f"""\
+    SELECT DISTINCT ?pipeline_version
+    WHERE {{
+        ?completed_pipeline a nb:CompletedPipeline;
+            nb:hasPipelineName {pipeline};
+            nb:hasPipelineVersion ?pipeline_version.
+    }}"""
+    )
+    return "\n".join([create_context(), query_string])
