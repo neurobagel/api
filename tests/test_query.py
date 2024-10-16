@@ -629,6 +629,7 @@ def test_query_without_token_succeeds_when_auth_disabled(
     assert response.status_code == 200
 
 
+@pytest.mark.integration
 def test_integration_query_without_auth_succeeds(
     test_app,
     monkeypatch,
