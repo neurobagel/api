@@ -7,12 +7,18 @@ from app.main import app
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--runintegration", action="store_true", default=False, help="run integration tests"
+        "--runintegration",
+        action="store_true",
+        default=False,
+        help="run integration tests",
     )
 
 
 def pytest_configure(config):
-    config.addinivalue_line("markers", "integration: mark integration tests that need the test graph to run")
+    config.addinivalue_line(
+        "markers",
+        "integration: mark integration tests that need the test graph to run",
+    )
 
 
 def pytest_collection_modifyitems(config, items):
