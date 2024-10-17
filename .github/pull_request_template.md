@@ -34,6 +34,7 @@ _This section is for the PR reviewer_
 - [ ] PR links to GitHub issue with mention `Closes #XXXX`
 - [ ] Tests pass
 - [ ] Checks pass
+- [ ] If the PR changes the SPARQL query template, the default Neurobagel query file has also been [regenerated](https://github.com/neurobagel/api?tab=readme-ov-file#the-default-neurobagel-sparql-query)
 
 For new features:
 - [ ] Tests have been added
