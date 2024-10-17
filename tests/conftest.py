@@ -264,26 +264,3 @@ def mock_successful_get(test_data):
         return test_data
 
     return _mock_successful_get
-
-
-@pytest.fixture()
-def terms_test_data():
-    """Create toy data for terms for testing."""
-    return {
-        "nb:NeurobagelClass": [
-            {"TermURL": "cogatlas:123", "Label": "term 1"},
-            {"TermURL": "cogatlas:234", "Label": "term 2"},
-            {"TermURL": "cogatlas:345", "Label": "term 3"},
-            {"TermURL": "cogatlas:456", "Label": "term 4"},
-        ]
-    }
-
-
-@pytest.fixture
-def mock_successful_get_terms(terms_test_data):
-    """Mock get_terms function that returns non-empty results."""
-
-    async def _mock_successful_get_terms(data_element_URI, term_labels_path):
-        return terms_test_data
-
-    return _mock_successful_get_terms

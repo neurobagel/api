@@ -126,7 +126,7 @@ def test_stored_vocab_lookup_file_created_on_startup(
 ):
     """Test that on startup, a non-empty temporary lookup file is created for term ID-label mappings for the locally stored SNOMED CT vocabulary."""
     with test_app:
-        term_labels_path = test_app.app.state.snomed_term_lookup_path
+        term_labels_path = test_app.app.state.vocab_lookup_paths["snomed"]
         assert term_labels_path.exists()
         assert term_labels_path.stat().st_size > 0
 
@@ -162,7 +162,7 @@ def test_external_vocab_is_fetched_on_startup(
     monkeypatch.setattr(httpx, "get", mock_httpx_get)
 
     with test_app:
-        term_labels_path = test_app.app.state.cogatlas_term_lookup_path
+        term_labels_path = test_app.app.state.vocab_lookup_paths["cogatlas"]
         assert term_labels_path.exists()
 
         with open(term_labels_path, "r") as f:
@@ -192,7 +192,7 @@ def test_failed_vocab_fetching_on_startup_raises_warning(
 
     with pytest.warns(UserWarning) as w:
         with test_app:
-            assert test_app.app.state.cogatlas_term_lookup_path.exists()
+            assert test_app.app.state.vocab_lookup_paths["cogatlas"].exists()
 
     assert any(
         "unable to fetch the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source and will default to using a local backup copy"
@@ -217,7 +217,7 @@ def test_network_error_on_startup_raises_warning(
 
     with pytest.warns(UserWarning) as w:
         with test_app:
-            assert test_app.app.state.cogatlas_term_lookup_path.exists()
+            assert test_app.app.state.vocab_lookup_paths["cogatlas"].exists()
 
     assert any(
         "failed due to a network error" in str(warn.message) for warn in w
