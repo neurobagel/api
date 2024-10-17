@@ -8,6 +8,9 @@ def test_get_instances_endpoint_with_vocab_lookup(
     test_app,
     monkeypatch,
     set_test_credentials,
+    # Since this test runs the API startup events to fetch the vocabularies used in the test,
+    # we need to disable auth to avoid startup errors about unset auth-related environment variables.
+    disable_auth,
 ):
     """
     Given a GET request to /assessments/ (attribute with an external vocabulary lookup file available),
