@@ -1,4 +1,4 @@
-"""Test API endpoints for querying controlled terms and vocabularies."""
+"""Test API endpoint for querying controlled term attributes modeled by Neurobagel."""
 
 import httpx
 
