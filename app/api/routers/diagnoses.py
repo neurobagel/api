@@ -8,7 +8,7 @@ router = APIRouter(prefix="/diagnoses", tags=["diagnoses"])
 
 router.add_api_route(
     path="/",
-    endpoint=route_factory.create_get_instances_endpoint(
+    endpoint=route_factory.create_get_instances_handler(
         data_element_uri=DataElementURI.diagnosis.value,
         external_vocab=EXTERNAL_VOCAB,
     ),
@@ -16,7 +16,7 @@ router.add_api_route(
 )
 router.add_api_route(
     path="/vocab",
-    endpoint=route_factory.create_get_vocab_endpoint(
+    endpoint=route_factory.create_get_vocab_handler(
         external_vocab=EXTERNAL_VOCAB, vocab_name="SNOMED CT"
     ),
     methods=["GET"],

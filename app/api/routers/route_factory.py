@@ -3,7 +3,7 @@ from fastapi import Request
 from .. import crud
 
 
-def create_get_instances_endpoint(
+def create_get_instances_handler(
     data_element_uri: str, external_vocab: str | None
 ):
     """
@@ -22,7 +22,7 @@ def create_get_instances_endpoint(
     return get_instances
 
 
-def create_get_vocab_endpoint(external_vocab: str, vocab_name: str):
+def create_get_vocab_handler(external_vocab: str, vocab_name: str):
     """When a GET request is sent, return a dict containing the name, namespace info, and all term ID-label mappings for the vocabulary of the specified variable."""
 
     async def get_vocab(request: Request):
