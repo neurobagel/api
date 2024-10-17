@@ -155,6 +155,14 @@ Neurobagel API utilizes [Pytest](https://docs.pytest.org/en/7.2.x/) framework fo
 
 To run the tests first make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
 
+Next, make sure to launch the test SPARQL graph by:
+
+```bash
+docker compose up -d test-graph
+```
+
+NOTE: Don't have a `.env` file in the root directory as it will conflict with the environment variable configuration of the docker compose file since docker compose will try to use that file by default.
+
 You can then run the tests by executing the following command in your terminal:
 
 ```bash

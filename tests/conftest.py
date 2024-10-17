@@ -5,6 +5,32 @@ from app.api import utility as util
 from app.main import app
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--runintegration",
+        action="store_true",
+        default=False,
+        help="run integration tests",
+    )
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "integration: mark integration tests that need the test graph to run",
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    if config.getoption("--runintegration"):
+        # --runintegration given in cli: do not skip integration tests
+        return
+    skip_slow = pytest.mark.skip(reason="need --runintegration option to run")
+    for item in items:
+        if "integration" in item.keywords:
+            item.add_marker(skip_slow)
+
+
 @pytest.fixture(scope="module")
 def test_app():
     client = TestClient(app)
@@ -29,8 +55,8 @@ def disable_auth(monkeypatch):
 @pytest.fixture(scope="function")
 def set_test_credentials(monkeypatch):
     """Set random username and password to avoid error from startup check for set credentials."""
-    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
-    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "DBUSER")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "DBPASSWORD")
 
 
 @pytest.fixture()
