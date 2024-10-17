@@ -4,9 +4,17 @@ from pydantic import constr
 from .. import crud
 from .. import utility as util
 from ..models import CONTROLLED_TERM_REGEX
-from .route_factory import create_get_instances_endpoint
+from . import route_factory
 
 router = APIRouter(prefix="/pipelines", tags=["pipelines"])
+
+router.add_api_route(
+    path="/",
+    endpoint=route_factory.create_get_instances_endpoint(
+        data_element_uri="nb:Pipeline", external_vocab=None
+    ),
+    methods=["GET"],
+)
 
 
 @router.get("/{pipeline_term}/versions")
@@ -27,12 +35,3 @@ async def get_pipeline_versions(
         ]
     }
     return results_dict
-
-
-router.add_api_route(
-    path="/",
-    endpoint=create_get_instances_endpoint(
-        data_element_uri="nb:Pipeline", vocab_name=None
-    ),
-    methods=["GET"],
-)

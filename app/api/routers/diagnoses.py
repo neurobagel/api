@@ -1,28 +1,24 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 
-from .. import crud
 from ..models import DataElementURI, VocabLabelsResponse
-from .route_factory import create_get_instances_endpoint
+from . import route_factory
 
-VOCAB_PFX = "snomed"
+EXTERNAL_VOCAB = "snomed"
 router = APIRouter(prefix="/diagnoses", tags=["diagnoses"])
-
-
-@router.get("/vocab", response_model=VocabLabelsResponse)
-async def get_vocab(request: Request):
-    """When a GET request is sent, return a dict containing the name, namespace info, and all term ID-label mappings for the vocabulary of the specified variable."""
-    return await crud.get_term_labels_for_vocab(
-        term_labels_path=request.app.state.vocab_lookup_paths[VOCAB_PFX],
-        vocabulary_name="SNOMED CT",
-        namespace_prefix=VOCAB_PFX,
-    )
-
 
 router.add_api_route(
     path="/",
-    endpoint=create_get_instances_endpoint(
+    endpoint=route_factory.create_get_instances_endpoint(
         data_element_uri=DataElementURI.diagnosis.value,
-        vocab_name=VOCAB_PFX,
+        external_vocab=EXTERNAL_VOCAB,
     ),
     methods=["GET"],
+)
+router.add_api_route(
+    path="/vocab",
+    endpoint=route_factory.create_get_vocab_endpoint(
+        external_vocab=EXTERNAL_VOCAB, vocab_name="SNOMED CT"
+    ),
+    methods=["GET"],
+    response_model=VocabLabelsResponse,
 )
