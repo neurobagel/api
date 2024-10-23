@@ -11,7 +11,6 @@ services:
       - "./neurobagel_examples/data-upload/pheno-bids-derivatives:/data"
     environment:
       NB_GRAPH_USERNAME: "DBUSER"
-      NB_GRAPH_PORT: 7200
       NB_GRAPH_DB: "repositories/my_db"
     secrets:
       - db_admin_password
@@ -22,3 +21,6 @@ secrets:
     file: ./recipes/secrets/NB_GRAPH_ADMIN_PASSWORD.txt
   db_user_password:
     file: ./recipes/secrets/NB_GRAPH_PASSWORD.txt
+
+volumes:
+  graphdb_home:

@@ -1,11 +1,11 @@
 # ---- PROJECT NAME ----
-COMPOSE_PROJECT_NAME=neurobagel_node
+COMPOSE_PROJECT_NAME=neurobagel_test_node
 
 # ---- CONFIGURATION FOR graph ----
 # Replace DBUSER with the username you want to set for your graph database user
 # NB_GRAPH_USERNAME=DBUSER
 # Replace my_db with the name you want to give your graph database
-NB_GRAPH_DB=repositories/my_db
+# NB_GRAPH_DB=repositories/my_db
 # Replace ./data with the path to your JSONLD files
 LOCAL_GRAPH_DATA=./recipes/data
 
