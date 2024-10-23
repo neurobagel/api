@@ -638,17 +638,6 @@ def test_integration_query_without_auth_succeeds(
     should succeed when authentication is disabled.
     """
     monkeypatch.setattr(
-        util, "GRAPH_DB", util.EnvVar(util.GRAPH_DB.name, "repositories/my_db")
-    )
-    monkeypatch.setattr(
-        util,
-        "GRAPH_ADDRESS",
-        util.EnvVar(util.GRAPH_ADDRESS.name, "127.0.0.1"),
-    )
-    monkeypatch.setattr(
-        util, "GRAPH_PORT", util.EnvVar(util.GRAPH_PORT.name, "7200")
-    )
-    monkeypatch.setattr(
         util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
     )
 
