@@ -27,16 +27,20 @@ class QueryModel(BaseModel):
     # TODO: Check back if validating using a regex is too restrictive
     pipeline_version: constr(regex=VERSION_REGEX) = None
 
-    # TODO: If/once we migrate the n-API to Pydantic v2,
-    # instead of using the below approach to enforce a case-insensitive allowed value of "true" and convert it to a bool,
-    # we can probably use the new BeforeValidator method to do this directly in the query parameter definition.
-    # Context: Neither Enum nor Literal works as desired for enforcing True (boolean) or None only for a FastAPI query param,
-    # or case-insensitive "true" (str) or None. So, as a workaround, we set the type of the query parameter to generic str
-    # and do the validation/conversion afterwards).
-    # See also https://github.com/fastapi/fastapi/discussions/8966
     @validator("is_control")
     def convert_valid_is_control_values_to_bool(cls, v):
-        """Convert 'true' to boolean True; keep None as is."""
+        """
+        Convert case-insensitive values of 'true' to boolean True,
+        or raise a validation error for other string values.
+
+        TODO: If/once we migrate the n-API to Pydantic v2,
+        instead of using this approach to enforce a case-insensitive allowed value "true" and convert it to a bool,
+        we can use the new BeforeValidator method to do this directly in the query parameter definition.
+        Context: Enum and Literal both don't work well when we want allowed options of either True (bool) or None,
+        or even case-insensitive "true" (str) or None, for a FastAPI query param.
+        As a workaround, we set the type to str and do the validation/conversion afterwards.
+        See also https://github.com/fastapi/fastapi/discussions/8966
+        """
         if v is not None:
             # Ensure that the allowed value is case-insensitive
             if v.lower() != "true":
