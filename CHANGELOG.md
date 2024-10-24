@@ -1,3 +1,42 @@
+# v0.4.0 (Thu Oct 24 2024)
+
+#### 💥 Breaking Changes
+
+- [REF] Split generic `/attributes` endpoints into attribute-specific routers [#358](https://github.com/neurobagel/api/pull/358) ([@alyssadai](https://github.com/alyssadai))
+- [ENH] Implemented `pipeline_version` and `pipeline_name` query fields [#345](https://github.com/neurobagel/api/pull/345) ([@rmanaem](https://github.com/rmanaem))
+
+#### 🚀 Enhancements
+
+- [ENH] Add `/pipelines` router & route for fetching available pipeline versions [#350](https://github.com/neurobagel/api/pull/350) ([@alyssadai](https://github.com/alyssadai))
+- [REF] Update README links and simplify Docker Compose instructions [#340](https://github.com/neurobagel/api/pull/340) ([@alyssadai](https://github.com/alyssadai))
+
+#### 🐛 Bug Fixes
+
+- [FIX] Allow only `"true"` or `None` for `is_control` query parameter [#364](https://github.com/neurobagel/api/pull/364) ([@alyssadai](https://github.com/alyssadai))
+- [FIX] Fixed a typo in filtering pipeline name [#351](https://github.com/neurobagel/api/pull/351) ([@rmanaem](https://github.com/rmanaem))
+- [FIX] Ensure pipeline variables are returned from the graph in an aggregate query [#349](https://github.com/neurobagel/api/pull/349) ([@alyssadai](https://github.com/alyssadai))
+
+#### 🏠 Internal
+
+- [MNT] Updated `default_neurobagel_query` [#347](https://github.com/neurobagel/api/pull/347) ([@rmanaem](https://github.com/rmanaem))
+- [MNT] Removed build docker nightly workflow file [#342](https://github.com/neurobagel/api/pull/342) ([@rmanaem](https://github.com/rmanaem))
+
+#### 📝 Documentation
+
+- [MNT] Update default Neurobagel SPARQL query file and turn into PR checkbox [#359](https://github.com/neurobagel/api/pull/359) ([@alyssadai](https://github.com/alyssadai))
+
+####  🧪 Tests
+
+- [TST] Add integration test against local test graph [#357](https://github.com/neurobagel/api/pull/357) ([@rmanaem](https://github.com/rmanaem) [@surchs](https://github.com/surchs) [@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 3
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+- Arman Jahanpour ([@rmanaem](https://github.com/rmanaem))
+- Sebastian Urchs ([@surchs](https://github.com/surchs))
+
+---
+
 # v0.3.1 (Tue Aug 13 2024)
 
 #### 🐛 Bug Fixes
