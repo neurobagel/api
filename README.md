@@ -143,12 +143,39 @@ If you get a 401 response to your API request with an `"Unauthorized: "` error m
 
 Neurobagel API utilizes [Pytest](https://docs.pytest.org/en/7.2.x/) framework for testing.
 
-To run the tests first make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
+To run the tests, first ensure you're in the repository's root directory and in the environment where the dependencies are installed.
+
+Install the submodules used by the tests:
+```bash
+git submodule init
+git submodule update
+```
 
 You can then run the tests by executing the following command in your terminal:
 
 ```bash
 pytest tests
+```
+
+To run the integration tests of SPARQL queries (skipped by default), also launch the test graph store:
+
+```bash
+docker compose up -d test_graph
+```
+
+_NOTE: Don't have a `.env` file in the root directory as it will conflict with the environment variable configuration of the docker compose file, 
+since docker compose will try to use `.env` by default._
+
+Then, run all tests using:
+```bash
+pytest -m "integration or not integration"
+# OR
+pytest -m ""
+```
+
+Or, to run only the integration tests:
+```bash
+pytest -m "integration"
 ```
 
 ## The default Neurobagel SPARQL query

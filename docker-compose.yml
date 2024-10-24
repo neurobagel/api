@@ -1,0 +1,26 @@
+services:
+  test_graph:
+    extends:
+      file: recipes/docker-compose.yml
+      service: graph
+    volumes:
+      - "graphdb_home:/opt/graphdb/home"
+      - "./recipes/scripts:/usr/src/neurobagel/scripts"
+      - ".test_env:/usr/src/neurobagel/.env"
+      - "./recipes/vocab:/usr/src/neurobagel/vocab"
+      - "./neurobagel_examples/data-upload/pheno-bids-derivatives:/data"
+    environment:
+      NB_GRAPH_USERNAME: "DBUSER"
+      NB_GRAPH_DB: "repositories/my_db"
+    secrets:
+      - db_admin_password
+      - db_user_password
+
+secrets:
+  db_admin_password:
+    file: ./recipes/secrets/NB_GRAPH_ADMIN_PASSWORD.txt
+  db_user_password:
+    file: ./recipes/secrets/NB_GRAPH_PASSWORD.txt
+
+volumes:
+  graphdb_home:

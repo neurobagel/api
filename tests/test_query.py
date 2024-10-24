@@ -619,10 +619,29 @@ def test_query_without_token_succeeds_when_auth_disabled(
     mock_successful_get,
     monkeypatch,
     disable_auth,
+    set_test_credentials,
 ):
     """
     Test that when authentication is disabled, a request to the /query route without a token succeeds.
     """
     monkeypatch.setattr(crud, "get", mock_successful_get)
+    response = test_app.get(ROUTE)
+    assert response.status_code == 200
+
+
+@pytest.mark.integration
+def test_integration_query_without_auth_succeeds(
+    test_app, monkeypatch, disable_auth, set_test_credentials
+):
+    """
+    Running a test against a real local test graph
+    should succeed when authentication is disabled.
+    """
+    # Patching the QUERY_URL directly means we don't need to worry about the constituent
+    # graph environment variables
+    monkeypatch.setattr(
+        util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
+    )
+
     response = test_app.get(ROUTE)
     assert response.status_code == 200

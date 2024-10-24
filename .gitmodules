@@ -1,0 +1,6 @@
+[submodule "recipes"]
+	path = recipes
+	url = https://github.com/neurobagel/recipes
+[submodule "neurobagel_examples"]
+	path = neurobagel_examples
+	url = https://github.com/neurobagel/neurobagel_examples

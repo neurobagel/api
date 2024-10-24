@@ -29,8 +29,8 @@ def disable_auth(monkeypatch):
 @pytest.fixture(scope="function")
 def set_test_credentials(monkeypatch):
     """Set random username and password to avoid error from startup check for set credentials."""
-    monkeypatch.setenv(util.GRAPH_USERNAME.name, "SomeUser")
-    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "SomePassword")
+    monkeypatch.setenv(util.GRAPH_USERNAME.name, "DBUSER")
+    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "DBPASSWORD")
 
 
 @pytest.fixture()
