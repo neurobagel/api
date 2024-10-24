@@ -190,18 +190,17 @@ def create_query(
             + f"{create_bound_filter(DIAGNOSIS.var)} && ?{DIAGNOSIS.var} = {diagnosis})."
         )
 
-    if is_control is not None:
-        if is_control:
-            phenotypic_session_level_filters += (
-                "\n"
-                + f"{create_bound_filter(IS_CONTROL.var)} && ?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
-            )
-        else:
-            # TODO: Revisit - this logic seems odd, since in our current data model the session should not have this edge if it's not a control.
-            phenotypic_session_level_filters += (
-                "\n"
-                + f"{create_bound_filter(IS_CONTROL.var)} && ?{IS_CONTROL.var} != {IS_CONTROL_TERM})."
-            )
+    # TODO: Simple equivalence to the URI for Healthy Control only works for the condition is_control=True,
+    # since otherwise the subject node wouldn't be expected to have the property nb:hasSubjectGroup at all.
+    # If we decide to support queries of is_control = False (i.e., give me all subjects that are *not* controls / have
+    # at least one diagnosis), we can use something like `FILTER (!BOUND(?{IS_CONTROL.var}))` to
+    # return only subjects missing the property nb:hasSubjectGroup.
+    # Related: https://github.com/neurobagel/api/issues/247
+    if is_control is True:
+        phenotypic_session_level_filters += (
+            "\n"
+            + f"{create_bound_filter(IS_CONTROL.var)} && ?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
+        )
 
     if assessment is not None:
         phenotypic_session_level_filters += (
