@@ -48,8 +48,7 @@ class QueryModel(BaseModel):
                     status_code=422,
                     detail="'is_control' must be either set to 'true' or omitted from the query",
                 )
-            else:
-                return True
+            return True
         return None
 
     @root_validator()
