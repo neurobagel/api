@@ -2,21 +2,11 @@
 
 # Neurobagel API
     
-<div>
-    <a href="https://github.com/neurobagel/api/actions/workflows/test.yaml">
-        <img src="https://img.shields.io/github/actions/workflow/status/neurobagel/api/test.yaml?color=BDB76B&label=test&style=flat-square">
-    </a>
-    <a href="https://coveralls.io/github/neurobagel/api">
-        <img src="https://img.shields.io/coverallsCoverage/github/neurobagel/api?style=flat-square&color=8FBC8F">
-    </a>
-    <a href="https://www.python.org/">
-        <img src="https://img.shields.io/badge/python-3.10-4682B4?style=flat-square" alt="Python">
-    </a>
-    <a href="LICENSE">
-        <img src="https://img.shields.io/github/license/neurobagel/api?color=CD5C5C&style=flat-square" alt="GitHub license">
-    </a>
-</div>
-<br>
+[![Tests](https://img.shields.io/github/actions/workflow/status/neurobagel/api/test.yaml?color=BDB76B&label=test&style=flat-square)](https://github.com/neurobagel/api/actions/workflows/test.yaml)
+[![Coverage](https://img.shields.io/coverallsCoverage/github/neurobagel/api?style=flat-square&color=8FBC8F)](https://coveralls.io/github/neurobagel/api)
+[![Python](https://img.shields.io/badge/python-3.10-4682B4?style=flat-square)](https://www.python.org/)
+[![License](https://img.shields.io/github/license/neurobagel/api?color=CD5C5C&style=flat-square)](LICENSE)
+
 </div>
 
 The Neurobagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [Pydantic](https://docs.pydantic.dev/).

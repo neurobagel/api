@@ -3,7 +3,7 @@
 from app.api import utility as util
 
 
-def test_unpack_http_response_json_to_dicts():
+def test_unpack_graph_response_json_to_dicts():
     """Test that given a valid httpx JSON response, the function returns a simplified list of dicts with the correct keys and values."""
     mock_response_json = {
         "head": {"vars": ["dataset_uuid", "total_subjects"]},
@@ -46,7 +46,7 @@ def test_unpack_http_response_json_to_dicts():
         },
     }
 
-    assert util.unpack_http_response_json_to_dicts(mock_response_json) == [
+    assert util.unpack_graph_response_json_to_dicts(mock_response_json) == [
         {
             "dataset_uuid": "http://neurobagel.org/vocab/ds1234",
             "total_subjects": "70",

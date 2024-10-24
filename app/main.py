@@ -12,7 +12,7 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
 from .api import utility as util
-from .api.routers import attributes, query
+from .api.routers import assessments, attributes, diagnoses, pipelines, query
 from .api.security import check_client_id
 
 app = FastAPI(
@@ -123,16 +123,16 @@ async def fetch_vocabularies_to_temp_dir():
     app.state.vocab_dir = TemporaryDirectory()
     app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
 
-    # TODO: Maybe store these paths in one dictionary on the app instance instead of separate variables?
-    app.state.cogatlas_term_lookup_path = (
+    app.state.vocab_lookup_paths = {}
+    app.state.vocab_lookup_paths["cogatlas"] = (
         app.state.vocab_dir_path / "cogatlas_task_term_labels.json"
     )
-    app.state.snomed_term_lookup_path = (
+    app.state.vocab_lookup_paths["snomed"] = (
         app.state.vocab_dir_path / "snomedct_disorder_term_labels.json"
     )
 
-    util.fetch_and_save_cogatlas(app.state.cogatlas_term_lookup_path)
-    util.create_snomed_term_lookup(app.state.snomed_term_lookup_path)
+    util.fetch_and_save_cogatlas(app.state.vocab_lookup_paths["cogatlas"])
+    util.create_snomed_term_lookup(app.state.vocab_lookup_paths["snomed"])
 
 
 @app.on_event("shutdown")
@@ -143,6 +143,9 @@ async def cleanup_temp_vocab_dir():
 
 app.include_router(query.router)
 app.include_router(attributes.router)
+app.include_router(assessments.router)
+app.include_router(diagnoses.router)
+app.include_router(pipelines.router)
 
 # Automatically start uvicorn server on execution of main.py
 if __name__ == "__main__":
