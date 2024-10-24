@@ -10,3 +10,12 @@ updates:
       - "_bot"
       - "maint:dependency"
       - "type:maintenance"
+
+  - package-ecosystem: 'gitsubmodule'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - "_bot"
+      - "maint:dependency"
+      - "type:maintenance"
