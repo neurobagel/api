@@ -276,7 +276,7 @@ def test_get_invalid_iscontrol(
     set_mock_verify_token,
     invalid_iscontrol,
 ):
-    """Given a non-boolean is_control value, returns a 422 status code."""
+    """Given an invalid is_control value, returns a 422 status code and informative error."""
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
