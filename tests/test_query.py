@@ -238,7 +238,7 @@ def test_get_invalid_diagnosis(
     assert response.status_code == 422
 
 
-@pytest.mark.parametrize("valid_iscontrol", [True, False])
+@pytest.mark.parametrize("valid_iscontrol", ["true", "True", "TRUE"])
 def test_get_valid_iscontrol(
     test_app,
     mock_successful_get,
@@ -258,16 +258,23 @@ def test_get_valid_iscontrol(
 
 
 @pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("invalid_iscontrol", ["false", "FALSE", "all"])
 def test_get_invalid_iscontrol(
-    test_app, mock_get, monkeypatch, mock_auth_header, set_mock_verify_token
+    test_app,
+    mock_get,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+    invalid_iscontrol,
 ):
     """Given a non-boolean is_control value, returns a 422 status code."""
 
     monkeypatch.setattr(crud, "get", mock_get)
     response = test_app.get(
-        f"{ROUTE}?is_control=apple", headers=mock_auth_header
+        f"{ROUTE}?is_control={invalid_iscontrol}", headers=mock_auth_header
     )
     assert response.status_code == 422
+    assert "must be either set to 'true' or omitted" in response.text
 
 
 @pytest.mark.parametrize("mock_get", [None], indirect=True)
