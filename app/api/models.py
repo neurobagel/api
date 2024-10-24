@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 from fastapi import Query
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel, constr, root_validator
+from pydantic import BaseModel, constr, root_validator, validator
 
 CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
 VERSION_REGEX = r"^([A-Za-z0-9-]+)\.(\d+)\.([A-Za-z0-9-]+)$"
@@ -18,7 +18,7 @@ class QueryModel(BaseModel):
     max_age: float = Query(default=None, ge=0)
     sex: constr(regex=CONTROLLED_TERM_REGEX) = None
     diagnosis: constr(regex=CONTROLLED_TERM_REGEX) = None
-    is_control: bool = None
+    is_control: Optional[str] = None
     min_num_imaging_sessions: int = Query(default=None, ge=0)
     min_num_phenotypic_sessions: int = Query(default=None, ge=0)
     assessment: constr(regex=CONTROLLED_TERM_REGEX) = None
@@ -26,6 +26,30 @@ class QueryModel(BaseModel):
     pipeline_name: constr(regex=CONTROLLED_TERM_REGEX) = None
     # TODO: Check back if validating using a regex is too restrictive
     pipeline_version: constr(regex=VERSION_REGEX) = None
+
+    @validator("is_control")
+    def convert_valid_is_control_values_to_bool(cls, v):
+        """
+        Convert case-insensitive values of 'true' to boolean True,
+        or raise a validation error for other string values.
+
+        TODO: If/once we migrate the n-API to Pydantic v2,
+        instead of using this approach to enforce a case-insensitive allowed value "true" and convert it to a bool,
+        we can use the new BeforeValidator method to do this directly in the query parameter definition.
+        Context: Enum and Literal both don't work well when we want allowed options of either True (bool) or None,
+        or even case-insensitive "true" (str) or None, for a FastAPI query param.
+        As a workaround, we set the type to str and do the validation/conversion afterwards.
+        See also https://github.com/fastapi/fastapi/discussions/8966
+        """
+        if v is not None:
+            # Ensure that the allowed value is case-insensitive
+            if v.lower() != "true":
+                raise HTTPException(
+                    status_code=422,
+                    detail="'is_control' must be either set to 'true' or omitted from the query",
+                )
+            return True
+        return None
 
     @root_validator()
     def check_maxage_ge_minage(cls, values):
