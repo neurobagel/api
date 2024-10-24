@@ -637,6 +637,8 @@ def test_integration_query_without_auth_succeeds(
     Running a test against a real local test graph
     should succeed when authentication is disabled.
     """
+    # Patching the QUERY_URL directly means we don't need to worry about the constituent
+    # graph environment variables
     monkeypatch.setattr(
         util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
     )
