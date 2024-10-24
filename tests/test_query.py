@@ -5,6 +5,7 @@ from fastapi import HTTPException
 
 import app.api.utility as util
 from app.api import crud
+from app.api.models import QueryModel
 
 ROUTE = "/query"
 
@@ -255,6 +256,14 @@ def test_get_valid_iscontrol(
     )
     assert response.status_code == 200
     assert response.json() != []
+
+
+@pytest.mark.parametrize("valid_iscontrol", ["true", "True", "TRUE"])
+def test_valid_iscontrol_parsed_as_bool(valid_iscontrol):
+    """Test that valid is_control values do not produce a validation error and are parsed as booleans."""
+
+    example_query = QueryModel(is_control=valid_iscontrol)
+    assert example_query.is_control is True
 
 
 @pytest.mark.parametrize("mock_get", [None], indirect=True)
