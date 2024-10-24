@@ -6,7 +6,6 @@ services:
     volumes:
       - "graphdb_home:/opt/graphdb/home"
       - "./recipes/scripts:/usr/src/neurobagel/scripts"
-      - ".test_env:/usr/src/neurobagel/.env"
       - "./recipes/vocab:/usr/src/neurobagel/vocab"
       - "./neurobagel_examples/data-upload/pheno-bids-derivatives:/data"
     environment:
