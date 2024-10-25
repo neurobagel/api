@@ -58,7 +58,7 @@ def test_get_subjects_by_query(monkeypatch):
 
 def test_null_modalities(
     test_app,
-    mock_post_query_to_graph,
+    mock_post_agg_query_to_graph,
     mock_query_matching_dataset_sizes,
     monkeypatch,
     mock_auth_header,
@@ -66,7 +66,9 @@ def test_null_modalities(
 ):
     """Given a response containing a dataset with no recorded modalities, returns an empty list for the imaging modalities."""
 
-    monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_agg_query_to_graph
+    )
     monkeypatch.setattr(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
@@ -611,7 +613,7 @@ def test_get_valid_pipeline_name_version(
 def test_aggregate_query_response_structure(
     test_app,
     set_test_credentials,
-    mock_post_query_to_graph,
+    mock_post_agg_query_to_graph,
     mock_query_matching_dataset_sizes,
     monkeypatch,
     mock_auth_header,
@@ -619,7 +621,9 @@ def test_aggregate_query_response_structure(
 ):
     """Test that when aggregate results are enabled, a cohort query response has the expected structure."""
     monkeypatch.setenv(util.RETURN_AGG.name, "true")
-    monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_agg_query_to_graph
+    )
     monkeypatch.setattr(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
