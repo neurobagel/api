@@ -120,8 +120,8 @@ def test_data():
 def mock_post_agg_query_to_graph():
     """
     Mock post_query_to_graph function that returns toy AGGREGATED matching data containing:
-    - a dataset with phenotypic data only
-    - a dataset with phenotypic, raw imaging, and pipeline data
+    - a subject with phenotypic data only
+    - a subject with phenotypic, raw imaging, and pipeline data
     """
 
     def mockreturn(query, timeout=5.0):
@@ -217,7 +217,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -248,7 +248,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -279,7 +279,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -310,7 +310,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -344,7 +344,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -378,7 +378,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -412,7 +412,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -446,7 +446,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -481,7 +481,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -516,7 +516,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -551,7 +551,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -585,7 +585,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -619,7 +619,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -653,7 +653,7 @@ def mock_post_nonagg_query_to_graph():
                     {
                         "dataset_uuid": {
                             "type": "uri",
-                            "value": "http://neurobagel.org/vocab/e0c7d08c-edcc-4c2a-816a-306878ed7be2",
+                            "value": "http://neurobagel.org/vocab/12345",
                         },
                         "dataset_name": {
                             "type": "literal",
@@ -695,8 +695,8 @@ def mock_post_nonagg_query_to_graph():
 def mock_query_matching_dataset_sizes():
     """
     Mock query_matching_dataset_sizes function that returns the total number of subjects for a toy dataset 12345.
-    Can be used together with mock_post_query_to_graph to mock both the POST step of a cohort query and the corresponding query for dataset size,
-    in order to test how the response from the graph is processed by the API (crud.get).
+    Can be used together with mock_post_*_query_to_graph fixtures to mock both the POST step of a cohort query and
+    the corresponding query for dataset size, in order to test how the response from the graph is processed by the API (crud.get).
     """
 
     def _mock_query_matching_dataset_sizes(dataset_uuids):
