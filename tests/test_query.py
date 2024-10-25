@@ -61,6 +61,7 @@ def test_null_modalities(
     mock_post_agg_query_to_graph,
     mock_query_matching_dataset_sizes,
     monkeypatch,
+    set_agg_mode,
     mock_auth_header,
     set_mock_verify_token,
 ):
@@ -616,11 +617,11 @@ def test_aggregate_query_response_structure(
     mock_post_agg_query_to_graph,
     mock_query_matching_dataset_sizes,
     monkeypatch,
+    set_agg_mode,
     mock_auth_header,
     set_mock_verify_token,
 ):
     """Test that when aggregate results are enabled, a cohort query response has the expected structure."""
-    monkeypatch.setenv(util.RETURN_AGG.name, "true")
     monkeypatch.setattr(
         crud, "post_query_to_graph", mock_post_agg_query_to_graph
     )

@@ -33,6 +33,14 @@ def set_test_credentials(monkeypatch):
     monkeypatch.setenv(util.GRAPH_PASSWORD.name, "DBPASSWORD")
 
 
+@pytest.fixture(scope="function")
+def set_agg_mode(monkeypatch):
+    """Enable aggregate mode for the API for testing."""
+    monkeypatch.setattr(
+        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, True)
+    )
+
+
 @pytest.fixture()
 def mock_verify_token():
     """Mock a successful token verification that does not raise any exceptions."""
