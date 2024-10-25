@@ -6,9 +6,8 @@ services:
     volumes:
       - "graphdb_home:/opt/graphdb/home"
       - "./recipes/scripts:/usr/src/neurobagel/scripts"
-      - ".test_env:/usr/src/neurobagel/.env"
       - "./recipes/vocab:/usr/src/neurobagel/vocab"
-      - "./neurobagel_examples/data-upload/pheno-bids-derivatives:/data"
+      - "./neurobagel_examples/data-upload/pheno-bids-derivatives-output:/data"
     environment:
       NB_GRAPH_USERNAME: "DBUSER"
       NB_GRAPH_DB: "repositories/my_db"
