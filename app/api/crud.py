@@ -199,6 +199,7 @@ async def get(
                     )
                 )
 
+                # Get the unique versions of each pipeline that was run on each session
                 pipeline_grouped_data = (
                     group.groupby(
                         [
@@ -207,27 +208,36 @@ async def get(
                             "session_type",
                             "pipeline_name",
                         ],
-                        dropna=True,
-                    )
-                    .agg(
+                        # Keep NaNs to ensure that when there are no pipeline_name values in the query result,
+                        # we don't end up with an empty dataframe for pipeline_grouped_data
+                        dropna=False,
+                    ).agg(
                         {
                             "pipeline_version": lambda x: list(
                                 x.dropna().unique()
                             )
                         }
                     )
+                    # Turn indices from the groupby back into dataframe columns
                     .reset_index()
                 )
 
+                # Aggregate the completed pipelines for each session
+                session_grouped_data = pipeline_grouped_data.groupby(
+                    ["sub_id", "session_id", "session_type"],
+                )
                 session_completed_pipeline_data = (
-                    pipeline_grouped_data.groupby(
-                        ["sub_id", "session_id", "session_type"]
+                    session_grouped_data.apply(
+                        lambda x: {
+                            pname: pvers
+                            for pname, pvers in zip(
+                                x["pipeline_name"], x["pipeline_version"]
+                            )
+                            if not pd.isnull(pname)
+                        }
                     )
-                    .apply(
-                        lambda x: dict(
-                            zip(x["pipeline_name"], x["pipeline_version"])
-                        )
-                    )
+                    # NOTE: This expects a pd.Series and will not work on a pd.DataFrame
+                    # (pd.DataFrame.reset_index() doesn't have a "name" arg)
                     .reset_index(name="completed_pipelines")
                 )
 
@@ -238,6 +248,7 @@ async def get(
                     how="left",
                 )
 
+                # TODO: Remove - no longer needed?
                 # ensure that for sessions missing completed pipeline info, completed_pipelines is still a dict rather than null/nan
                 subject_data["completed_pipelines"] = subject_data[
                     "completed_pipelines"

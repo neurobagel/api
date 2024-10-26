@@ -666,3 +666,26 @@ def test_integration_query_without_auth_succeeds(
 
     response = test_app.get(ROUTE)
     assert response.status_code == 200
+
+
+def test_missing_derivatives_info_handled_by_nonagg_api_response(
+    test_app,
+    mock_post_nonagg_query_to_graph,
+    mock_query_matching_dataset_sizes,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+):
+    """Test that when a dataset is missing pipeline information, the API response is handled correctly."""
+    monkeypatch.setattr(
+        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, False)
+    )
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_nonagg_query_to_graph
+    )
+    monkeypatch.setattr(
+        crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
+    )
+
+    response = test_app.get(ROUTE, headers=mock_auth_header)
+    assert response.status_code == 200
