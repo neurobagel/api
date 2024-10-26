@@ -222,7 +222,7 @@ async def get(
                     .reset_index()
                 )
 
-                # Aggregate the completed pipelines for each session
+                # Aggregate all completed pipelines for each session
                 session_grouped_data = pipeline_grouped_data.groupby(
                     ["sub_id", "session_id", "session_type"],
                 )
