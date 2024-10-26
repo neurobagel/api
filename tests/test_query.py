@@ -671,6 +671,39 @@ def test_integration_query_without_auth_succeeds(
     assert response.status_code == 200
 
 
+def test_derivatives_info_handled_by_agg_api_response(
+    test_app,
+    mock_post_agg_query_to_graph,
+    mock_query_matching_dataset_sizes,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+):
+    """
+    Test that in the aggregated API mode, pipeline information for matching subjects
+    is correctly parsed and formatted in the API response.
+    """
+    monkeypatch.setattr(
+        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, True)
+    )
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_agg_query_to_graph
+    )
+    monkeypatch.setattr(
+        crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
+    )
+
+    response = test_app.get(ROUTE, headers=mock_auth_header)
+    assert response.status_code == 200
+
+    matching_ds = response.json()[0]
+    assert matching_ds["available_pipelines"] == {
+        "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer": [
+            "7.3.2"
+        ]
+    }
+
+
 def test_missing_derivatives_info_handled_by_nonagg_api_response(
     test_app,
     mock_post_nonagg_query_to_graph,
