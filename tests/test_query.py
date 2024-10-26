@@ -696,8 +696,7 @@ def test_missing_derivatives_info_handled_by_nonagg_api_response(
     response = test_app.get(ROUTE, headers=mock_auth_header)
     assert response.status_code == 200
 
-    response = response.json()
-    matching_ds = response[0]
+    matching_ds = response.json()[0]
     assert matching_ds["available_pipelines"] == {}
     for session in matching_ds["subject_data"]:
         assert session["completed_pipelines"] == {}
