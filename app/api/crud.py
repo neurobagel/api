@@ -238,6 +238,7 @@ async def get(
                     )
                     # NOTE: This expects a pd.Series and will not work on a pd.DataFrame
                     # (pd.DataFrame.reset_index() doesn't have a "name" arg)
+                    # See related https://github.com/pandas-dev/pandas/issues/55225
                     .reset_index(name="completed_pipelines")
                 )
 
@@ -247,12 +248,6 @@ async def get(
                     on=["sub_id", "session_id", "session_type"],
                     how="left",
                 )
-
-                # TODO: Remove - no longer needed?
-                # ensure that for sessions missing completed pipeline info, completed_pipelines is still a dict rather than null/nan
-                subject_data["completed_pipelines"] = subject_data[
-                    "completed_pipelines"
-                ].apply(lambda x: x if isinstance(x, dict) else {})
 
                 # TODO: Revisit this as there may be a more elegant solution.
                 # The following code replaces columns with all NaN values with values of None, to ensure they show up in the final JSON as `null`.
