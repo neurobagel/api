@@ -1,3 +1,19 @@
+# v0.4.1 (Tue Oct 29 2024)
+
+#### 🐛 Bug Fixes
+
+- [FIX] Ensure non-agg API doesn't error out when all matches lack pipeline data [#369](https://github.com/neurobagel/api/pull/369) ([@alyssadai](https://github.com/alyssadai))
+
+####  🧪 Tests
+
+- [TST] Remove unneeded env file mount from test docker-compose.yml [#366](https://github.com/neurobagel/api/pull/366) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.4.0 (Thu Oct 24 2024)
 
 #### 💥 Breaking Changes
