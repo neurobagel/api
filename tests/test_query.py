@@ -58,15 +58,19 @@ def test_get_subjects_by_query(monkeypatch):
 
 def test_null_modalities(
     test_app,
-    mock_post_query_to_graph,
+    mock_post_agg_query_to_graph,
     mock_query_matching_dataset_sizes,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
 ):
     """Given a response containing a dataset with no recorded modalities, returns an empty list for the imaging modalities."""
-
-    monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
+    monkeypatch.setattr(
+        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, True)
+    )
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_agg_query_to_graph
+    )
     monkeypatch.setattr(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
@@ -611,15 +615,19 @@ def test_get_valid_pipeline_name_version(
 def test_aggregate_query_response_structure(
     test_app,
     set_test_credentials,
-    mock_post_query_to_graph,
+    mock_post_agg_query_to_graph,
     mock_query_matching_dataset_sizes,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
 ):
     """Test that when aggregate results are enabled, a cohort query response has the expected structure."""
-    monkeypatch.setenv(util.RETURN_AGG.name, "true")
-    monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
+    monkeypatch.setattr(
+        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, True)
+    )
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_agg_query_to_graph
+    )
     monkeypatch.setattr(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
@@ -661,3 +669,67 @@ def test_integration_query_without_auth_succeeds(
 
     response = test_app.get(ROUTE)
     assert response.status_code == 200
+
+
+def test_derivatives_info_handled_by_agg_api_response(
+    test_app,
+    mock_post_agg_query_to_graph,
+    mock_query_matching_dataset_sizes,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+):
+    """
+    Test that in the aggregated API mode, pipeline information for matching subjects
+    is correctly parsed and formatted in the API response.
+    """
+    monkeypatch.setattr(
+        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, True)
+    )
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_agg_query_to_graph
+    )
+    monkeypatch.setattr(
+        crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
+    )
+
+    response = test_app.get(ROUTE, headers=mock_auth_header)
+    assert response.status_code == 200
+
+    matching_ds = response.json()[0]
+    assert matching_ds["available_pipelines"] == {
+        "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer": [
+            "7.3.2"
+        ]
+    }
+
+
+def test_missing_derivatives_info_handled_by_nonagg_api_response(
+    test_app,
+    mock_post_nonagg_query_to_graph,
+    mock_query_matching_dataset_sizes,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
+):
+    """
+    Test that in the non-aggregated API mode, when all matching subjects lack pipeline information,
+    the API does not error out and pipeline variables in the API response still have the expected structure.
+    """
+    monkeypatch.setattr(
+        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, False)
+    )
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_nonagg_query_to_graph
+    )
+    monkeypatch.setattr(
+        crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
+    )
+
+    response = test_app.get(ROUTE, headers=mock_auth_header)
+    assert response.status_code == 200
+
+    matching_ds = response.json()[0]
+    assert matching_ds["available_pipelines"] == {}
+    for session in matching_ds["subject_data"]:
+        assert session["completed_pipelines"] == {}

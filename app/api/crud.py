@@ -199,6 +199,7 @@ async def get(
                     )
                 )
 
+                # Get the unique versions of each pipeline that was run on each session
                 pipeline_grouped_data = (
                     group.groupby(
                         [
@@ -207,27 +208,41 @@ async def get(
                             "session_type",
                             "pipeline_name",
                         ],
-                        dropna=True,
-                    )
-                    .agg(
+                        # We cannot drop NaNs here because sessions without pipelines (i.e., with empty values for pipeline_name)
+                        # would otherwise be completely removed and in an extreme case where no matching sessions have pipeline info,
+                        # we'd end up with an empty dataframe.
+                        dropna=False,
+                    ).agg(
                         {
                             "pipeline_version": lambda x: list(
                                 x.dropna().unique()
                             )
                         }
                     )
+                    # Turn indices from the groupby back into dataframe columns
                     .reset_index()
                 )
 
+                # Aggregate all completed pipelines for each session
+                session_grouped_data = pipeline_grouped_data.groupby(
+                    ["sub_id", "session_id", "session_type"],
+                )
                 session_completed_pipeline_data = (
-                    pipeline_grouped_data.groupby(
-                        ["sub_id", "session_id", "session_type"]
+                    session_grouped_data.apply(
+                        lambda x: {
+                            pname: pvers
+                            for pname, pvers in zip(
+                                x["pipeline_name"], x["pipeline_version"]
+                            )
+                            if not pd.isnull(pname)
+                        }
                     )
-                    .apply(
-                        lambda x: dict(
-                            zip(x["pipeline_name"], x["pipeline_version"])
-                        )
-                    )
+                    # NOTE: The below function expects a pd.Series only.
+                    # This can break if the result of the apply function is a pd.DataFrame
+                    # (pd.DataFrame.reset_index() doesn't have a "name" arg),
+                    # which can happen if the original dataframe being operated on is empty.
+                    # For example, see https://github.com/neurobagel/api/issues/367.
+                    # (Related: https://github.com/pandas-dev/pandas/issues/55225)
                     .reset_index(name="completed_pipelines")
                 )
 
@@ -237,11 +252,6 @@ async def get(
                     on=["sub_id", "session_id", "session_type"],
                     how="left",
                 )
-
-                # ensure that for sessions missing completed pipeline info, completed_pipelines is still a dict rather than null/nan
-                subject_data["completed_pipelines"] = subject_data[
-                    "completed_pipelines"
-                ].apply(lambda x: x if isinstance(x, dict) else {})
 
                 # TODO: Revisit this as there may be a more elegant solution.
                 # The following code replaces columns with all NaN values with values of None, to ensure they show up in the final JSON as `null`.
