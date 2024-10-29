@@ -208,8 +208,9 @@ async def get(
                             "session_type",
                             "pipeline_name",
                         ],
-                        # Keep NaNs to ensure that when there are no pipeline_name values in the query result,
-                        # we don't end up with an empty dataframe for pipeline_grouped_data
+                        # We cannot drop NaNs here because sessions without pipelines (i.e., with empty values for pipeline_name)
+                        # would otherwise be completely removed and in an extreme case where no matching sessions have pipeline info,
+                        # we'd end up with an empty dataframe.
                         dropna=False,
                     ).agg(
                         {
@@ -236,9 +237,12 @@ async def get(
                             if not pd.isnull(pname)
                         }
                     )
-                    # NOTE: This expects a pd.Series and will not work on a pd.DataFrame
-                    # (pd.DataFrame.reset_index() doesn't have a "name" arg)
-                    # See related https://github.com/pandas-dev/pandas/issues/55225
+                    # NOTE: The below function expects a pd.Series only.
+                    # This can break if the result of the apply function is a pd.DataFrame
+                    # (pd.DataFrame.reset_index() doesn't have a "name" arg),
+                    # which can happen if the original dataframe being operated on is empty.
+                    # For example, see https://github.com/neurobagel/api/issues/367.
+                    # (Related: https://github.com/pandas-dev/pandas/issues/55225)
                     .reset_index(name="completed_pipelines")
                 )
 
