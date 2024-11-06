@@ -740,7 +740,7 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
     test_app, monkeypatch, disable_auth, set_test_credentials
 ):
     """
-    Test that only sessions of type PhenotypicSession and ImagingSession are returned in the query response.
+    Test that only sessions of type PhenotypicSession and ImagingSession are returned in an unaggregated query response.
     """
     monkeypatch.setattr(
         util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, False)
@@ -753,14 +753,15 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
     assert response.status_code == 200
 
     matching_ds = response.json()[0]
-    sub01_data = []
-    for ses_instance in matching_ds["subject_data"]:
-        if ses_instance["sub_id"] == "sub-01":
-            sub01_data.append(ses_instance)
+    
+    sub01_sessions = [
+        ses_instance for ses_instance in matching_ds["subject_data"]
+        if ses_instance["sub_id"] == "sub-01"
+    ]
+    assert len(sub01_sessions) == 4
 
-    assert len(sub01_data) == 4
-    for ses_instance in sub01_data:
+    for ses_instance in matching_ds["subject_data"]:
         assert ses_instance["session_type"] in [
             "http://neurobagel.org/vocab/ImagingSession",
             "http://neurobagel.org/vocab/PhenotypicSession",
-        ]
+        ], f'{ses_instance["sub_id"]}, {ses_instance["session_id"]} is of type {ses_instance["session_type"]}'
