@@ -240,6 +240,7 @@ def create_query(
             ?subject a nb:Subject;
                 nb:hasLabel ?sub_id;
                 nb:hasSession ?session.
+            VALUES ?session_type {{nb:ImagingSession nb:PhenotypicSession}}
             ?session a ?session_type;
                 nb:hasLabel ?session_id.
             OPTIONAL {{
