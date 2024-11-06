@@ -178,6 +178,12 @@ Or, to run only the integration tests:
 pytest -m "integration"
 ```
 
+Once you are done with testing, you can stop and remove the test graph container:
+```bash
+docker compose stop test_graph
+docker compose rm -f test_graph
+```
+
 ## The default Neurobagel SPARQL query
 
 [`docs/default_neurobagel_query.rq`](docs/default_neurobagel_query.rq) contains a sample default SPARQL query sent by the Neurobagel API to a graph database to retrieve all available phenotypic and imaging data.
