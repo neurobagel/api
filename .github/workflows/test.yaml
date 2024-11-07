@@ -15,8 +15,20 @@ jobs:
     steps:
 
     - uses: actions/checkout@v4
-      # TODO: Check out the submodules as well and then launch a test graph with docker compose to run the
-      # integration tests
+      with:
+        submodules: recursive
+
+    - name: Launch test graph
+      run: docker compose up -d test_graph
+
+    # TODO: Check if this is necessary, since the Python dependencies setup also takes some time
+    - name: Sleep to allow graph setup
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '5s'
+
+    - name: Check running containers
+      run: docker ps
 
     - name: Set up Python 3.10
       uses: actions/setup-python@v5
@@ -38,7 +50,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        coverage run -m pytest
+        coverage run -m pytest -m "integration or not integration"
         coverage lcov -o ./coverage/lcov.info
     - name: Coveralls GitHub Action
       uses: coverallsapp/github-action@v2.3.4
