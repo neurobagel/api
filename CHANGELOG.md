@@ -1,3 +1,15 @@
+# v0.4.2 (Thu Nov 07 2024)
+
+#### 🚀 Enhancements
+
+- [FIX] Filter for only `ImagingSession`s or `PhenotypicSession`s in SPARQL query [#375](https://github.com/neurobagel/api/pull/375) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.4.1 (Tue Oct 29 2024)
 
 #### 🐛 Bug Fixes
