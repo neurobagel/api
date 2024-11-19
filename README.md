@@ -11,7 +11,7 @@
 
 The Neurobagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [Pydantic](https://docs.pydantic.dev/).
 
-Please refer to our [**official documentation**](https://neurobagel.org/api/) for more information on how to use the API.
+Please refer to our [**official documentation**](https://neurobagel.org/user_guide/api/) for more information on how to use the API.
 
 - [Quickstart](#quickstart)
 - [Local installation](#local-installation)
@@ -33,7 +33,7 @@ Interactive documentation for the API is available at https://api.neurobagel.org
 
 ## Local installation
 The below instructions assume that you have a local instance of or access to a remotely hosted graph database to be queried. 
-If this is not the case and you need to first build a graph from data, refer to our documentation for [getting started locally with a graph backend](https://neurobagel.org/getting_started/).
+If this is not the case and you need to first build a graph from data, refer to our documentation for [getting started locally with a graph backend](https://neurobagel.org/user_guide/getting_started/).
 
 ### Clone the repo
 ```bash
@@ -46,7 +46,7 @@ See the Neurobagel recipes repo for a [template `.env` file](https://github.com/
 
 To run API requests against a graph, at least two environment variables must be set: `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD`.
 
-**See our [official documentation](https://neurobagel.org/config/#environment-variables) for all the possible Neurobagel environment variables that you can set in `.env`, and to check which variables are relevant for your specific installation and setup.**
+**See our [official documentation](https://neurobagel.org/user_guide/config/#environment-variables) for all the possible Neurobagel environment variables that you can set in `.env`, and to check which variables are relevant for your specific installation and setup.**
 
 > :warning: **Important:** 
 > - Variables set in the shell environment where the API is launched **_should not be used as a replacement for the `.env` file_** to configure options for the API or graph server software.
@@ -61,7 +61,7 @@ First, [install Docker](https://docs.docker.com/get-docker/).
 You can then run a Docker container for the API in one of three ways:
 #### Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe
 
-Follow the instructions in our [official documentation](https://neurobagel.org/getting_started/) for using the template configuration files provided in our [recipes](https://github.com/neurobagel/recipes) repository to spin up a local Neurobagel API and graph backend using [Docker Compose](https://docs.docker.com/compose/install/).
+Follow the instructions in our [official documentation](https://neurobagel.org/user_guide/getting_started/) for using the template configuration files provided in our [recipes](https://github.com/neurobagel/recipes) repository to spin up a local Neurobagel API and graph backend using [Docker Compose](https://docs.docker.com/compose/install/).
 
 **TIP:** Double check that Neurobagel environment variables are resolved with your expected values using the command `docker compose config`.
 
