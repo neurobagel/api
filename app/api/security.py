@@ -12,7 +12,6 @@ CLIENT_ID = os.environ.get("NB_QUERY_CLIENT_ID", None)
 
 KEYS_URL = "https://neurobagel.ca.auth0.com/.well-known/jwks.json"
 ISSUER = "https://neurobagel.ca.auth0.com/"
-
 # We only need to define the JWKS client once because get_signing_key_from_jwt will handle key rotations
 # by automatically fetching updated keys when needed
 # See https://github.com/jpadilla/pyjwt/blob/3ebbb22f30f2b1b41727b269a08b427e9a85d6bb/jwt/jwks_client.py#L96-L115
