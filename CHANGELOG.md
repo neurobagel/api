@@ -1,3 +1,15 @@
+# v0.4.3 (Mon Dec 02 2024)
+
+#### 🏠 Internal
+
+- [REF] Manually verify ID token using PyJWT instead of google_auth [#386](https://github.com/neurobagel/api/pull/386) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.4.2 (Thu Nov 07 2024)
 
 #### 🚀 Enhancements
