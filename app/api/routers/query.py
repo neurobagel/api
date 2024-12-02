@@ -12,10 +12,12 @@ from ..security import verify_token
 router = APIRouter(prefix="/query", tags=["query"])
 
 # Adapted from info in https://github.com/tiangolo/fastapi/discussions/9137#discussioncomment-5157382
+# I believe for us this is purely for documentatation/a nice looking interactive API docs page,
+# and doesn't actually have any bearing on the ID token validation process.
 oauth2_scheme = OAuth2(
     flows={
         "implicit": {
-            "authorizationUrl": "https://accounts.google.com/o/oauth2/auth",
+            "authorizationUrl": "https://neurobagel.ca.auth0.com/authorize",
         }
     },
     # Don't automatically error out when request is not authenticated, to support optional authentication
