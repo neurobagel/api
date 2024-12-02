@@ -40,7 +40,7 @@ def verify_token(token: str):
         # Adapted from https://pyjwt.readthedocs.io/en/stable/usage.html#retrieve-rsa-signing-keys-from-a-jwks-endpoint
         signing_key = JWKS_CLIENT.get_signing_key_from_jwt(extracted_token)
 
-        id_info = jwt.decode(
+        jwt.decode(
             jwt=extracted_token,
             key=signing_key,
             options={
@@ -50,8 +50,6 @@ def verify_token(token: str):
             audience=CLIENT_ID,
             issuer=ISSUER,
         )
-        # TODO: Remove print statement or turn into logging
-        print("Token verified: ", id_info)
     except (PyJWTError, ValueError) as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
