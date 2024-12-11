@@ -1,36 +1,38 @@
 <div align="center">
 
 # Neurobagel API
-    
-[![Tests](https://img.shields.io/github/actions/workflow/status/neurobagel/api/test.yaml?color=BDB76B&label=test&style=flat)](https://github.com/neurobagel/api/actions/workflows/test.yaml)
-[![codecov](https://codecov.io/gh/neurobagel/api/graph/badge.svg?token=ZEOGQFFZMJ)](https://codecov.io/gh/neurobagel/api)
-[![Python](https://img.shields.io/badge/python-3.10-4682B4?style=flat)](https://www.python.org/)
-[![License](https://img.shields.io/github/license/neurobagel/api?color=CD5C5C&style=flat)](LICENSE)
-![Docker Image Version (tag)](https://img.shields.io/docker/v/neurobagel/api/latest?logo=docker)
 
+![GitHub branch check runs](https://img.shields.io/github/check-runs/neurobagel/api/main?style=flat-square)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/neurobagel/api/test.yaml?branch=main&style=flat-square&label=tests)
+![Codecov](https://img.shields.io/codecov/c/github/neurobagel/api?token=ZEOGQFFZMJ&style=flat-square&logo=codecov&link=https%3A%2F%2Fcodecov.io%2Fgh%2Fneurobagel%2Fapi)
+![Static Badge](https://img.shields.io/badge/python-3.10-blue?style=flat-square&logo=python)
+![GitHub License](https://img.shields.io/github/license/neurobagel/api?style=flat-square&link=LICENSE)
+![Docker Image Version (tag)](https://img.shields.io/docker/v/neurobagel/bagelcli/latest?style=flat-square&logo=docker&link=https%3A%2F%2Fhub.docker.com%2Fr%2Fneurobagel%2Fapi%2Ftags)
+![Docker Pulls](https://img.shields.io/docker/pulls/neurobagel/bagelcli?style=flat-square&logo=docker&link=https%3A%2F%2Fhub.docker.com%2Fr%2Fneurobagel%2Fapi%2Ftags)
 
 </div>
 
 The Neurobagel API is a REST API, developed in [Python](https://www.python.org/) using [FastAPI](https://fastapi.tiangolo.com/) and [Pydantic](https://docs.pydantic.dev/).
 
-Please refer to our [**official documentation**](https://neurobagel.org/user_guide/api/) for more information on how to use the API.
+Please refer to our [**official documentation**](https://neurobagel.org/api/) for more information on how to use the API.
 
-- [Quickstart](#quickstart)
-- [Local installation](#local-installation)
-  - [Clone the repo](#clone-the-repo)
-  - [Set the environment variables](#set-the-environment-variables)
-  - [Docker](#docker)
-    - [Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe](#option-1-recommended-use-the-neurobagel-docker-compose-recipe)
-    - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
-    - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
-    - [Send a test query to the API](#send-a-test-query-to-the-api)
-  - [Python](#python)
-    - [Install dependencies](#install-dependencies)
-    - [Launch the API](#launch-the-api)
-  - [Troubleshooting](#troubleshooting)
-- [Testing](#testing)
-- [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
-- [License](#license)
+- [Neurobagel API](#neurobagel-api)
+  - [Quickstart](#quickstart)
+  - [Local installation](#local-installation)
+    - [Clone the repo](#clone-the-repo)
+    - [Set the environment variables](#set-the-environment-variables)
+    - [Docker](#docker)
+      - [Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe](#option-1-recommended-use-the-neurobagel-docker-compose-recipe)
+      - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
+      - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
+      - [Send a test query to the API](#send-a-test-query-to-the-api)
+    - [Python](#python)
+      - [Install dependencies](#install-dependencies)
+      - [Launch the API](#launch-the-api)
+    - [Troubleshooting](#troubleshooting)
+  - [Testing](#testing)
+  - [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
+    - [License](#license)
 
 
 ## Quickstart
@@ -43,7 +45,7 @@ Interactive documentation for the API is available at https://api.neurobagel.org
 
 ## Local installation
 The below instructions assume that you have a local instance of or access to a remotely hosted graph database to be queried. 
-If this is not the case and you need to first build a graph from data, refer to our documentation for [getting started locally with a graph backend](https://neurobagel.org/user_guide/getting_started/).
+If this is not the case and you need to first build a graph from data, refer to our documentation for [getting started locally with a graph backend](https://neurobagel.org/getting_started/).
 
 ### Clone the repo
 ```bash
@@ -56,7 +58,7 @@ See the Neurobagel recipes repo for a [template `.env` file](https://github.com/
 
 To run API requests against a graph, at least two environment variables must be set: `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD`.
 
-**See our [official documentation](https://neurobagel.org/user_guide/config/#environment-variables) for all the possible Neurobagel environment variables that you can set in `.env`, and to check which variables are relevant for your specific installation and setup.**
+**See our [official documentation](https://neurobagel.org/config/#environment-variables) for all the possible Neurobagel environment variables that you can set in `.env`, and to check which variables are relevant for your specific installation and setup.**
 
 > :warning: **Important:** 
 > - Variables set in the shell environment where the API is launched **_should not be used as a replacement for the `.env` file_** to configure options for the API or graph server software.
@@ -71,7 +73,7 @@ First, [install Docker](https://docs.docker.com/get-docker/).
 You can then run a Docker container for the API in one of three ways:
 #### Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe
 
-Follow the instructions in our [official documentation](https://neurobagel.org/user_guide/getting_started/) for using the template configuration files provided in our [recipes](https://github.com/neurobagel/recipes) repository to spin up a local Neurobagel API and graph backend using [Docker Compose](https://docs.docker.com/compose/install/).
+Follow the instructions in our [official documentation](https://neurobagel.org/getting_started/) for using the template configuration files provided in our [recipes](https://github.com/neurobagel/recipes) repository to spin up a local Neurobagel API and graph backend using [Docker Compose](https://docs.docker.com/compose/install/).
 
 **TIP:** Double check that Neurobagel environment variables are resolved with your expected values using the command `docker compose config`.
 
