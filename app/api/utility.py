@@ -36,6 +36,9 @@ GRAPH_PORT = EnvVar("NB_GRAPH_PORT", os.environ.get("NB_GRAPH_PORT", 5820))
 RETURN_AGG = EnvVar(
     "NB_RETURN_AGG", os.environ.get("NB_RETURN_AGG", "True").lower() == "true"
 )
+MIN_CELL_SIZE = EnvVar(
+    "NB_MIN_CELL_SIZE", os.environ.get("NB_MIN_CELL_SIZE", 0)
+)
 
 QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT.val}/{GRAPH_DB.val}"
 QUERY_HEADER = {

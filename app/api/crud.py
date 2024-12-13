@@ -104,7 +104,6 @@ async def get(
     image_modal: str,
     pipeline_name: str,
     pipeline_version: str,
-    min_cell_count: int = 0,
 ) -> list[CohortQueryResponse]:
     """
     Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
@@ -175,14 +174,14 @@ async def get(
         for (dataset_uuid, dataset_name), group in results_df.groupby(
             by=dataset_cols
         ):
+            if group["sub_id"].nunique() < util.MIN_CELL_SIZE.val:
+                continue
             if util.RETURN_AGG.val:
                 subject_data = "protected"
             # TODO: The current implementation is valid in that we do not return
             # results for datasets with fewer than min_cell_count subjects. But
             # ideally we would handle this directly inside SPARQL so we don't even
             # get the results in the first place. See #267 for a solution.
-            elif group["sub_id"].nunique() < min_cell_count:
-                continue
             else:
                 subject_data = (
                     group.drop(dataset_cols, axis=1)
