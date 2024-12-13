@@ -133,8 +133,6 @@ async def get(
         Name of pipeline run on subject scans.
     pipeline_version : str
         Version of pipeline run on subject scans.
-    min_cell_count : int, optional
-        Minimum number of subjects in a dataset for it to be included in the response, by default 0.
 
     Returns
     -------
@@ -174,14 +172,14 @@ async def get(
         for (dataset_uuid, dataset_name), group in results_df.groupby(
             by=dataset_cols
         ):
-            if group["sub_id"].nunique() < util.MIN_CELL_SIZE.val:
-                continue
-            if util.RETURN_AGG.val:
-                subject_data = "protected"
             # TODO: The current implementation is valid in that we do not return
             # results for datasets with fewer than min_cell_count subjects. But
             # ideally we would handle this directly inside SPARQL so we don't even
             # get the results in the first place. See #267 for a solution.
+            if group["sub_id"].nunique() < util.MIN_CELL_SIZE.val:
+                continue
+            if util.RETURN_AGG.val:
+                subject_data = "protected"
             else:
                 subject_data = (
                     group.drop(dataset_cols, axis=1)

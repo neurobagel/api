@@ -773,7 +773,7 @@ def test_min_cell_size_removes_results(
     test_app, monkeypatch, disable_auth, set_test_credentials
 ):
     """
-    Test that only sessions of type PhenotypicSession and ImagingSession are returned in an unaggregated query response.
+    If MIN_CELL_SIZE is high enough, all results should be filtered out
     """
     monkeypatch.setattr(
         util, "MIN_CELL_SIZE", util.EnvVar(util.MIN_CELL_SIZE.name, 100)
