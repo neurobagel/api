@@ -177,7 +177,7 @@ async def get(
             # results for datasets with fewer than min_cell_count subjects. But
             # ideally we would handle this directly inside SPARQL so we don't even
             # get the results in the first place. See #267 for a solution.
-            if num_matching_subjects < util.MIN_CELL_SIZE.val:
+            if num_matching_subjects <= util.MIN_CELL_SIZE.val:
                 continue
             if util.RETURN_AGG.val:
                 subject_data = "protected"
