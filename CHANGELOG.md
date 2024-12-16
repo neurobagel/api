@@ -1,3 +1,15 @@
+# v0.5.1 (Mon Dec 16 2024)
+
+#### 📝 Documentation
+
+- [DOC] Update shortcuts in README.md [#391](https://github.com/neurobagel/api/pull/391) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.5.0 (Mon Dec 16 2024)
 
 #### 🚀 Enhancements
