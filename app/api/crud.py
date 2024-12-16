@@ -172,11 +172,12 @@ async def get(
         for (dataset_uuid, dataset_name), group in results_df.groupby(
             by=dataset_cols
         ):
+            num_matching_subjects = group["sub_id"].nunique()
             # TODO: The current implementation is valid in that we do not return
             # results for datasets with fewer than min_cell_count subjects. But
             # ideally we would handle this directly inside SPARQL so we don't even
             # get the results in the first place. See #267 for a solution.
-            if group["sub_id"].nunique() < util.MIN_CELL_SIZE.val:
+            if num_matching_subjects < util.MIN_CELL_SIZE.val:
                 continue
             if util.RETURN_AGG.val:
                 subject_data = "protected"
@@ -292,7 +293,7 @@ async def get(
                         if not group["dataset_portal_uri"].isna().any()
                         else None
                     ),
-                    num_matching_subjects=group["sub_id"].nunique(),
+                    num_matching_subjects=num_matching_subjects,
                     records_protected=util.RETURN_AGG.val,
                     subject_data=subject_data,
                     image_modals=list(
