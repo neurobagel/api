@@ -37,7 +37,7 @@ RETURN_AGG = EnvVar(
     "NB_RETURN_AGG", os.environ.get("NB_RETURN_AGG", "True").lower() == "true"
 )
 MIN_CELL_SIZE = EnvVar(
-    "NB_MIN_CELL_SIZE", os.environ.get("NB_MIN_CELL_SIZE", 0)
+    "NB_MIN_CELL_SIZE", int(os.environ.get("NB_MIN_CELL_SIZE", 0))
 )
 
 QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT.val}/{GRAPH_DB.val}"
