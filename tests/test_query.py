@@ -766,3 +766,23 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
             "http://neurobagel.org/vocab/ImagingSession",
             "http://neurobagel.org/vocab/PhenotypicSession",
         ], f'{ses_instance["sub_id"]}, {ses_instance["session_id"]} is of type {ses_instance["session_type"]}'
+
+
+@pytest.mark.integration
+def test_min_cell_size_removes_results(
+    test_app, monkeypatch, disable_auth, set_test_credentials
+):
+    """
+    If MIN_CELL_SIZE is high enough, all results should be filtered out
+    """
+    monkeypatch.setattr(
+        util, "MIN_CELL_SIZE", util.EnvVar(util.MIN_CELL_SIZE.name, 100)
+    )
+    monkeypatch.setattr(
+        util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
+    )
+
+    response = test_app.get(ROUTE)
+    assert response.status_code == 200
+
+    assert response.json() == []
