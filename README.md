@@ -16,23 +16,22 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 
 Please refer to our [**official documentation**](https://neurobagel.org/user_guide/api/) for more information on how to use the API.
 
-- [Neurobagel API](#neurobagel-api)
-  - [Quickstart](#quickstart)
-  - [Local installation](#local-installation)
-    - [Clone the repo](#clone-the-repo)
-    - [Set the environment variables](#set-the-environment-variables)
-    - [Docker](#docker)
-      - [Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe](#option-1-recommended-use-the-neurobagel-docker-compose-recipe)
-      - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
-      - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
-      - [Send a test query to the API](#send-a-test-query-to-the-api)
-    - [Python](#python)
-      - [Install dependencies](#install-dependencies)
-      - [Launch the API](#launch-the-api)
-    - [Troubleshooting](#troubleshooting)
-  - [Testing](#testing)
-  - [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
-    - [License](#license)
+- [Quickstart](#quickstart)
+- [Local installation](#local-installation)
+  - [Clone the repo](#clone-the-repo)
+  - [Set the environment variables](#set-the-environment-variables)
+  - [Docker](#docker)
+    - [Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe](#option-1-recommended-use-the-neurobagel-docker-compose-recipe)
+    - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
+    - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
+    - [Send a test query to the API](#send-a-test-query-to-the-api)
+  - [Python](#python)
+    - [Install dependencies](#install-dependencies)
+    - [Launch the API](#launch-the-api)
+  - [Troubleshooting](#troubleshooting)
+- [Testing](#testing)
+- [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
+- [License](#license)
 
 
 ## Quickstart
@@ -212,6 +211,6 @@ with open("docs/default_neurobagel_query.rq", "w") as file:
     file.write(create_query(return_agg=False))
 ```
 
-### License
+## License
 
 Neurobagel API is released under the terms of the [MIT License](LICENSE)
