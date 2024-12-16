@@ -1,3 +1,19 @@
+# v0.5.0 (Mon Dec 16 2024)
+
+#### 🚀 Enhancements
+
+- [ENH] Implement minimum cell size [#388](https://github.com/neurobagel/api/pull/388) ([@surchs](https://github.com/surchs))
+
+#### 🏠 Internal
+
+- [ENH] Add consistent badges [#387](https://github.com/neurobagel/api/pull/387) ([@surchs](https://github.com/surchs))
+
+#### Authors: 1
+
+- Sebastian Urchs ([@surchs](https://github.com/surchs))
+
+---
+
 # v0.4.3 (Mon Dec 02 2024)
 
 #### 🏠 Internal
