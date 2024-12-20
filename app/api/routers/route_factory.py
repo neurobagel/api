@@ -23,7 +23,9 @@ def create_get_instances_handler(
     return get_instances
 
 
-def create_get_vocab_handler(external_vocab: str, vocab_name: str):
+def create_get_vocab_handler(
+    external_vocab: str, vocab_name: str, namespace_prefix: str
+):
     """Create the handler function (path function) for the `/vocab` endpoint of an attribute router."""
 
     async def get_vocab(request: Request):
@@ -36,7 +38,7 @@ def create_get_vocab_handler(external_vocab: str, vocab_name: str):
                 external_vocab
             ],
             vocabulary_name=vocab_name,
-            namespace_prefix=external_vocab,
+            namespace_prefix=namespace_prefix,
         )
 
     return get_vocab

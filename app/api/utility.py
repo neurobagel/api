@@ -3,12 +3,9 @@
 import json
 import os
 import textwrap
-import warnings
 from collections import namedtuple
 from pathlib import Path
 from typing import Optional
-
-import httpx
 
 # Request constants
 EnvVar = namedtuple("EnvVar", ["name", "val"])
@@ -47,7 +44,6 @@ QUERY_HEADER = {
 }
 
 CONTEXT = {
-    "cogatlas": "https://www.cognitiveatlas.org/task/id/",
     "nb": "http://neurobagel.org/vocab/",
     "nbg": "http://neurobagel.org/graph/",  # TODO: Check if we still need this namespace.
     "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
@@ -451,54 +447,25 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 
-def fetch_and_save_cogatlas(output_path: Path):
+def create_snomed_assessment_lookup(output_path: Path):
     """
-    Fetches the Cognitive Atlas vocabulary using its native Task API and writes term ID-label mappings to a temporary lookup file.
-    If the API request fails, a backup copy of the vocabulary is used instead.
+    Reads in a file of assessment terms from the SNOMED vocabulary and writes term ID-label mappings to a temporary lookup file.
 
-    Saves a JSON with keys corresponding to Cognitive Atlas task IDs and values corresponding to human-readable task names.
+    Saves a JSON with keys corresponding to SNOMED IDs and values corresponding to human-readable term names.
 
     Parameters
     ----------
     output_path : Path
         File path to store output vocabulary lookup file.
     """
-    api_url = "https://www.cognitiveatlas.org/api/v-alpha/task?format=json"
+    vocab = load_json(BACKUP_VOCAB_DIR / "snomed_assessment.json")
 
-    try:
-        response = httpx.get(url=api_url)
-        if response.is_success:
-            vocab = response.json()
-        else:
-            warnings.warn(
-                f"""
-                The API was unable to fetch the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source and will default to using a local backup copy of the vocabulary instead.
-
-                Details of the response from the source:
-                Status code {response.status_code}
-                {response.reason_phrase}: {response.text}
-                """
-            )
-            # Use backup copy of the raw vocabulary JSON
-            vocab = load_json(BACKUP_VOCAB_DIR / "cogatlas_task.json")
-    except httpx.NetworkError as exc:
-        warnings.warn(
-            f""""
-            Fetching of the Cognitive Atlas task vocabulary (https://www.cognitiveatlas.org/tasks/a/) from the source failed due to a network error.
-            The API will default to using a local backup copy of the vocabulary instead.
-
-            Error: {exc}
-            """
-        )
-        # Use backup copy of the raw vocabulary JSON
-        vocab = load_json(BACKUP_VOCAB_DIR / "cogatlas_task.json")
-
-    term_labels = {term["id"]: term["name"] for term in vocab}
+    term_labels = {term["identifier"][7:]: term["label"] for term in vocab}
     with open(output_path, "w") as f:
         f.write(json.dumps(term_labels, indent=2))
 
 
-def create_snomed_term_lookup(output_path: Path):
+def create_snomed_disorder_lookup(output_path: Path):
     """
     Reads in a file of disorder terms from the SNOMED CT vocabulary and writes term ID-label mappings to a temporary lookup file.
 

@@ -1,4 +1,3 @@
-PREFIX cogatlas: <https://www.cognitiveatlas.org/task/id/>
 PREFIX nb: <http://neurobagel.org/vocab/>
 PREFIX nbg: <http://neurobagel.org/graph/>
 PREFIX ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
