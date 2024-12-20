@@ -124,15 +124,19 @@ async def fetch_vocabularies_to_temp_dir():
     app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
 
     app.state.vocab_lookup_paths = {}
-    app.state.vocab_lookup_paths["cogatlas"] = (
-        app.state.vocab_dir_path / "cogatlas_task_term_labels.json"
+    app.state.vocab_lookup_paths["snomed_assessment"] = (
+        app.state.vocab_dir_path / "snomedct_assessment_term_labels.json"
     )
-    app.state.vocab_lookup_paths["snomed"] = (
+    app.state.vocab_lookup_paths["snomed_disorder"] = (
         app.state.vocab_dir_path / "snomedct_disorder_term_labels.json"
     )
 
-    util.fetch_and_save_cogatlas(app.state.vocab_lookup_paths["cogatlas"])
-    util.create_snomed_term_lookup(app.state.vocab_lookup_paths["snomed"])
+    util.create_snomed_assessment_lookup(
+        app.state.vocab_lookup_paths["snomed_assessment"]
+    )
+    util.create_snomed_disorder_lookup(
+        app.state.vocab_lookup_paths["snomed_disorder"]
+    )
 
 
 @app.on_event("shutdown")
