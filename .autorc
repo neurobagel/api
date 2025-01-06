@@ -24,7 +24,7 @@
             "description": "Significant behaviour change that breaks compatibility, will increment major version (+1.0.0)",
             "releaseType": "major",
             "overwrite": true,
-            "color": "#C5000B"
+            "color": "#C1EF40"
         },
         {
             "name": "pr-minor-breaking",
@@ -32,7 +32,7 @@
             "description": "Feature or enhancement that breaks compatibility, will increment minor version (0.+1.0)",
             "releaseType": "minor",
             "overwrite": true,
-            "color": "#F1A60E"
+            "color": "#C1EF40"
         },
         {
             "name": "pr-minor",
@@ -40,7 +40,7 @@
             "description": "Non-breaking feature or enhancement, will increment minor version (0.+1.0)",
             "releaseType": "minor",
             "overwrite": true,
-            "color": "#F1A60E"
+            "color": "#C1EF40"
         },
         {
             "name": "pr-patch",
@@ -49,7 +49,7 @@
             "releaseType": "patch",
             "overwrite": true,
             "default": true,
-            "color": "#870048"
+            "color": "#C1EF40"
         },
         {
             "name": "pr-bug-fix",
@@ -57,7 +57,7 @@
             "description": "Bug fix, will increment patch version when merged (0.0.+1)",
             "releaseType": "patch",
             "overwrite": true,
-            "color": "#870048"
+            "color": "#C1EF40"
         },
         {
             "name": "pr-internal",
@@ -65,7 +65,7 @@
             "description": "Non-user-facing code improvement, will increment patch version when merged (0.0.+1)",
             "releaseType": "patch",
             "overwrite": true,
-            "color": "#696969"
+            "color": "#C1EF40"
         },
         {
             "name": "pr-performance",
@@ -73,7 +73,7 @@
             "description": "Improve performance of an existing feature, will increment patch version when merged (0.0.+1)",
             "releaseType": "patch",
             "overwrite": true,
-            "color": "#f4b2d8"
+            "color": "#C1EF40"
         },
         {
             "name": "pr-documentation",
@@ -81,7 +81,7 @@
             "description": "Change that only affects user documentation",
             "releaseType": "none",
             "overwrite": true,
-            "color": "#cfd3d7"
+            "color": "#C1EF40"
         },
         {
             "name": "pr-tests",
@@ -89,7 +89,7 @@
             "description": "Add or improve existing tests",
             "releaseType": "none",
             "overwrite": true,
-            "color": "#ffd3cc"
+            "color": "#C1EF40"
         },
         {
             "name": "pr-dependencies",
@@ -97,7 +97,7 @@
             "description": "Update one or more dependencies version",
             "releaseType": "none",
             "overwrite": true,
-            "color": "#8732bc"
+            "color": "#C1EF40"
         },
         {
             "name": "skip-release",
@@ -111,7 +111,7 @@
             "description": "Create a release when this PR is merged",
             "releaseType": "release",
             "overwrite": true,
-            "color": "#007f70"
+            "color": "#BFDADC"
         }
     ]
 }
