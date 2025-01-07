@@ -1,3 +1,15 @@
+# v0.6.0 (Tue Jan 07 2025)
+
+#### 💥 Breaking Changes
+
+- [MNT] Replaced Cognitive Atlas with SNOMED [#397](https://github.com/neurobagel/api/pull/397) ([@rmanaem](https://github.com/rmanaem))
+
+#### Authors: 1
+
+- Arman Jahanpour ([@rmanaem](https://github.com/rmanaem))
+
+---
+
 # v0.5.1 (Mon Dec 16 2024)
 
 #### 📝 Documentation
