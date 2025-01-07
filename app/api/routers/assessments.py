@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from ..models import DataElementURI, VocabLabelsResponse
 from . import route_factory
 
-EXTERNAL_VOCAB = "cogatlas"
+EXTERNAL_VOCAB = "snomed_assessment"
 router = APIRouter(prefix="/assessments", tags=["assessments"])
 
 router.add_api_route(
@@ -17,7 +17,9 @@ router.add_api_route(
 router.add_api_route(
     path="/vocab",
     endpoint=route_factory.create_get_vocab_handler(
-        external_vocab=EXTERNAL_VOCAB, vocab_name="Cognitive Atlas Tasks"
+        external_vocab=EXTERNAL_VOCAB,
+        vocab_name="SNOMED CT Assessment Scale",
+        namespace_prefix="snomed",
     ),
     methods=["GET"],
     response_model=VocabLabelsResponse,

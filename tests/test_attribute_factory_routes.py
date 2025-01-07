@@ -26,19 +26,19 @@ def test_get_instances_endpoint_with_vocab_lookup(
                 {
                     "termURL": {
                         "type": "uri",
-                        "value": "https://www.cognitiveatlas.org/task/id/tsk_U9gDp8utahAfO",
+                        "value": "http://purl.bioontology.org/ontology/SNOMEDCT/1284852002",
                     }
                 },
                 {
                     "termURL": {
                         "type": "uri",
-                        "value": "https://www.cognitiveatlas.org/task/id/not_found_id",
+                        "value": "http://purl.bioontology.org/ontology/SNOMEDCT/not_found_id",
                     }
                 },
                 {
                     "termURL": {
                         "type": "uri",
-                        "value": "https://www.notanatlas.org/task/id/tsk_alz5hjlUXp4WY",
+                        "value": "http://unknownvocab.org/123456789",
                     }
                 },
             ]
@@ -60,10 +60,10 @@ def test_get_instances_endpoint_with_vocab_lookup(
     assert response.json() == {
         "nb:Assessment": [
             {
-                "TermURL": "cogatlas:tsk_U9gDp8utahAfO",
-                "Label": "Pittsburgh Stress Battery",
+                "TermURL": "snomed:1284852002",
+                "Label": "Numeric Pain Rating Scale",
             },
-            {"TermURL": "cogatlas:not_found_id", "Label": None},
+            {"TermURL": "snomed:not_found_id", "Label": None},
         ]
     }
 
@@ -123,8 +123,8 @@ def test_get_instances_endpoint_without_vocab_lookup(
 @pytest.mark.parametrize(
     "attribute, expected_vocab_name, expected_namespace_pfx",
     [
-        ("assessments", "Cognitive Atlas Tasks", "cogatlas"),
-        ("diagnoses", "SNOMED CT", "snomed"),
+        ("assessments", "SNOMED CT Assessment Scale", "snomed"),
+        ("diagnoses", "SNOMED CT Disorder", "snomed"),
     ],
 )
 def test_get_vocab_endpoint(

@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from ..models import DataElementURI, VocabLabelsResponse
 from . import route_factory
 
-EXTERNAL_VOCAB = "snomed"
+EXTERNAL_VOCAB = "snomed_disorder"
 router = APIRouter(prefix="/diagnoses", tags=["diagnoses"])
 
 router.add_api_route(
@@ -17,7 +17,9 @@ router.add_api_route(
 router.add_api_route(
     path="/vocab",
     endpoint=route_factory.create_get_vocab_handler(
-        external_vocab=EXTERNAL_VOCAB, vocab_name="SNOMED CT"
+        external_vocab=EXTERNAL_VOCAB,
+        vocab_name="SNOMED CT Disorder",
+        namespace_prefix="snomed",
     ),
     methods=["GET"],
     response_model=VocabLabelsResponse,
