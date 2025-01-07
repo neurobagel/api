@@ -1,3 +1,6 @@
+# NOTE: A custom version of this template workflow is used in neurobagel/query-tool.
+# Any changes to this template must be applied manually to query-tool/.github/workflows/build_docker_nightly.yml
+
 name: build docker nightly
 
 on:
