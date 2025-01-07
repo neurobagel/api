@@ -117,16 +117,19 @@ def test_app_with_set_allowed_origins(
     )
 
 
+@pytest.mark.parametrize(
+    "lookup_file",
+    ["snomed_disorder", "snomed_assessment"],
+)
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_stored_vocab_lookup_file_created_on_startup(
     test_app,
     set_test_credentials,
     disable_auth,
+    lookup_file,
 ):
     """Test that on startup, a non-empty temporary lookup file is created for term ID-label mappings for the locally stored SNOMED CT vocabulary."""
     with test_app:
-        term_labels_path = test_app.app.state.vocab_lookup_paths[
-            "snomed_disorder"
-        ]
+        term_labels_path = test_app.app.state.vocab_lookup_paths[lookup_file]
         assert term_labels_path.exists()
         assert term_labels_path.stat().st_size > 0

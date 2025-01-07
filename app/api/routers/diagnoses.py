@@ -18,7 +18,7 @@ router.add_api_route(
     path="/vocab",
     endpoint=route_factory.create_get_vocab_handler(
         external_vocab=EXTERNAL_VOCAB,
-        vocab_name="SNOMED Disorder",
+        vocab_name="SNOMED CT Disorder",
         namespace_prefix="snomed",
     ),
     methods=["GET"],

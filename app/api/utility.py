@@ -45,7 +45,6 @@ QUERY_HEADER = {
 
 CONTEXT = {
     "nb": "http://neurobagel.org/vocab/",
-    "nbg": "http://neurobagel.org/graph/",  # TODO: Check if we still need this namespace.
     "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
     "nidm": "http://purl.org/nidash/nidm#",
     "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
@@ -460,7 +459,11 @@ def create_snomed_assessment_lookup(output_path: Path):
     """
     vocab = load_json(BACKUP_VOCAB_DIR / "snomed_assessment.json")
 
-    term_labels = {term["identifier"][7:]: term["label"] for term in vocab}
+    term_labels = {
+        term["identifier"].removeprefix("snomed:"): term["label"]
+        for term in vocab
+    }
+
     with open(output_path, "w") as f:
         f.write(json.dumps(term_labels, indent=2))
 

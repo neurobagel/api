@@ -38,7 +38,7 @@ def test_get_instances_endpoint_with_vocab_lookup(
                 {
                     "termURL": {
                         "type": "uri",
-                        "value": "http://notpurl.bioontology.org/ontology/SNOMEDCT/123456789",
+                        "value": "http://unknownvocab.org/123456789",
                     }
                 },
             ]
@@ -123,8 +123,8 @@ def test_get_instances_endpoint_without_vocab_lookup(
 @pytest.mark.parametrize(
     "attribute, expected_vocab_name, expected_namespace_pfx",
     [
-        ("assessments", "SNOMED Assessment", "snomed"),
-        ("diagnoses", "SNOMED Disorder", "snomed"),
+        ("assessments", "SNOMED CT Assessment Scale", "snomed"),
+        ("diagnoses", "SNOMED CT Disorder", "snomed"),
     ],
 )
 def test_get_vocab_endpoint(
