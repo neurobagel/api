@@ -10,6 +10,10 @@ from typing import Optional
 # Request constants
 EnvVar = namedtuple("EnvVar", ["name", "val"])
 
+ROOT_PATH = EnvVar(
+    "NB_NAPI_ROOT_PATH", os.environ.get("NB_NAPI_ROOT_PATH", "")
+)
+
 ALLOWED_ORIGINS = EnvVar(
     "NB_API_ALLOWED_ORIGINS", os.environ.get("NB_API_ALLOWED_ORIGINS", "")
 )
