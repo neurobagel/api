@@ -34,15 +34,15 @@ app.add_middleware(
 
 
 @app.get("/", response_class=HTMLResponse)
-def root():
+def root(request: Request):
     """
     Display a welcome message and a link to the API documentation.
     """
-    return """
+    return f"""
     <html>
         <body>
             <h1>Welcome to the Neurobagel REST API!</h1>
-            <p>Please visit the <a href="/docs">documentation</a> to view available API endpoints.</p>
+            <p>Please visit the <a href="{request.scope.get("root_path", "")}/docs">documentation</a> to view available API endpoints.</p>
         </body>
     </html>
     """
@@ -61,9 +61,8 @@ def overridden_swagger(request: Request):
     """
     Overrides the Swagger UI HTML for the "/docs" endpoint.
     """
-    root_path = request.scope.get("root_path", "")
     return get_swagger_ui_html(
-        openapi_url=f"{root_path}/openapi.json",
+        openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
         title="Neurobagel API",
         swagger_favicon_url=favicon_url,
     )
@@ -74,9 +73,8 @@ def overridden_redoc(request: Request):
     """
     Overrides the Redoc HTML for the "/redoc" endpoint.
     """
-    root_path = request.scope.get("root_path", "")
     return get_redoc_html(
-        openapi_url=f"{root_path}/openapi.json",
+        openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
         title="Neurobagel API",
         redoc_favicon_url=favicon_url,
     )
