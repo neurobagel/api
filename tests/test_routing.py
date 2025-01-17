@@ -10,13 +10,13 @@ from app.main import app
 )
 def test_root(test_app, route, monkeypatch):
     """Given a GET request to the root endpoint, Check for 200 status and expected content."""
-    # root_path determines the docs link on the welcome page
+    # root_path determines the path prefix for the docs link on the welcome page
     monkeypatch.setattr(app, "root_path", "")
     response = test_app.get(route, follow_redirects=False)
 
     assert response.status_code == 200
     assert "Welcome to the Neurobagel REST API!" in response.text
-    assert '<a href="/docs">documentation</a>' in response.text
+    assert '<a href="/docs">API documentation</a>' in response.text
 
 
 @pytest.mark.parametrize(
