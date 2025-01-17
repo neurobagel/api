@@ -104,8 +104,6 @@ async def auth_check():
 async def allowed_origins_check():
     """Raises warning if allowed origins environment variable has not been set or is an empty string."""
     if os.environ.get(util.ALLOWED_ORIGINS.name, "") == "":
-        # TODO: For debugging - remove
-        print(util.ROOT_PATH.val)
         warnings.warn(
             f"The API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment variable. "
             "This means that the API will only be accessible from the same origin it is hosted from: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy. "
