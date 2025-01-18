@@ -6,7 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
@@ -16,6 +16,7 @@ from .api.routers import assessments, attributes, diagnoses, pipelines, query
 from .api.security import check_client_id
 
 app = FastAPI(
+    root_path=util.ROOT_PATH.val,
     default_response_class=ORJSONResponse,
     docs_url=None,
     redoc_url=None,
@@ -33,15 +34,15 @@ app.add_middleware(
 
 
 @app.get("/", response_class=HTMLResponse)
-def root():
+def root(request: Request):
     """
     Display a welcome message and a link to the API documentation.
     """
-    return """
+    return f"""
     <html>
         <body>
             <h1>Welcome to the Neurobagel REST API!</h1>
-            <p>Please visit the <a href="/docs">documentation</a> to view available API endpoints.</p>
+            <p>Please visit the <a href="{request.scope.get("root_path", "")}/docs">API documentation</a> to view available API endpoints.</p>
         </body>
     </html>
     """
@@ -56,24 +57,24 @@ async def favicon():
 
 
 @app.get("/docs", include_in_schema=False)
-def overridden_swagger():
+def overridden_swagger(request: Request):
     """
     Overrides the Swagger UI HTML for the "/docs" endpoint.
     """
     return get_swagger_ui_html(
-        openapi_url="/openapi.json",
+        openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
         title="Neurobagel API",
         swagger_favicon_url=favicon_url,
     )
 
 
 @app.get("/redoc", include_in_schema=False)
-def overridden_redoc():
+def overridden_redoc(request: Request):
     """
     Overrides the Redoc HTML for the "/redoc" endpoint.
     """
     return get_redoc_html(
-        openapi_url="/openapi.json",
+        openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
         title="Neurobagel API",
         redoc_favicon_url=favicon_url,
     )

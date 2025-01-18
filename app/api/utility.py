@@ -10,6 +10,10 @@ from typing import Optional
 # Request constants
 EnvVar = namedtuple("EnvVar", ["name", "val"])
 
+ROOT_PATH = EnvVar(
+    "NB_NAPI_ROOT_PATH", os.environ.get("NB_NAPI_ROOT_PATH", "")
+)
+
 ALLOWED_ORIGINS = EnvVar(
     "NB_API_ALLOWED_ORIGINS", os.environ.get("NB_API_ALLOWED_ORIGINS", "")
 )
@@ -21,12 +25,12 @@ GRAPH_PASSWORD = EnvVar(
     "NB_GRAPH_PASSWORD", os.environ.get("NB_GRAPH_PASSWORD")
 )
 GRAPH_ADDRESS = EnvVar(
-    "NB_GRAPH_ADDRESS", os.environ.get("NB_GRAPH_ADDRESS", "206.12.99.17")
+    "NB_GRAPH_ADDRESS", os.environ.get("NB_GRAPH_ADDRESS", "127.0.0.1")
 )
 GRAPH_DB = EnvVar(
-    "NB_GRAPH_DB", os.environ.get("NB_GRAPH_DB", "test_data/query")
+    "NB_GRAPH_DB", os.environ.get("NB_GRAPH_DB", "repositories/my_db")
 )
-GRAPH_PORT = EnvVar("NB_GRAPH_PORT", os.environ.get("NB_GRAPH_PORT", 5820))
+GRAPH_PORT = EnvVar("NB_GRAPH_PORT", os.environ.get("NB_GRAPH_PORT", 7200))
 # TODO: Environment variables can't be parsed as bool so this is a workaround but isn't ideal.
 # Another option is to switch this to a command-line argument, but that would require changing the
 # Dockerfile also since Uvicorn can't accept custom command-line args.
