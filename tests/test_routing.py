@@ -34,7 +34,13 @@ def test_request_without_trailing_slash_not_redirected(
 
 @pytest.mark.parametrize(
     "invalid_route",
-    ["/query/", "/query/?min_age=20", "/attributes/nb:SomeClass/"],
+    [
+        "/query/",
+        "/query/?min_age=20",
+        "/attributes/",
+        "/assessments/",
+        "/assessments/vocab/",
+    ],
 )
 def test_request_with_trailing_slash_not_redirected(
     test_app, disable_auth, invalid_route
