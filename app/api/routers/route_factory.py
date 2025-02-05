@@ -6,7 +6,7 @@ from .. import crud
 def create_get_instances_handler(
     data_element_uri: str, external_vocab: str | None
 ):
-    """Create the handler function (path function) for the root `/` path of an attribute router."""
+    """Create the handler function (path function) for the base path of an attribute router."""
 
     async def get_instances(request: Request):
         """
