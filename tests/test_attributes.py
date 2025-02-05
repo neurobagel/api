@@ -8,7 +8,7 @@ def test_get_attributes(
     monkeypatch,
     set_test_credentials,
 ):
-    """Given a GET request to the /attributes/ endpoint, successfully returns controlled term attributes with namespaces abbrieviated and as a list."""
+    """Given a GET request to the /attributes endpoint, successfully returns controlled term attributes with namespaces abbrieviated and as a list."""
     mock_response_json = {
         "head": {"vars": ["attribute"]},
         "results": {
@@ -39,7 +39,7 @@ def test_get_attributes(
         return httpx.Response(status_code=200, json=mock_response_json)
 
     monkeypatch.setattr(httpx, "post", mock_httpx_post)
-    response = test_app.get("/attributes/")
+    response = test_app.get("/attributes")
 
     assert response.json() == [
         "nb:ControlledTerm1",
