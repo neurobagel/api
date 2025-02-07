@@ -13,7 +13,7 @@ def test_get_instances_endpoint_with_vocab_lookup(
     disable_auth,
 ):
     """
-    Given a GET request to /assessments/ (attribute with an external vocabulary lookup file available),
+    Given a GET request to /assessments (attribute with an external vocabulary lookup file available),
     test that the endpoint correctly returns graph instances as prefixed term URIs and their human-readable labels
     (where found), and excludes term URIs with unrecognized namespaces with a warning.
     """
@@ -55,7 +55,7 @@ def test_get_instances_endpoint_with_vocab_lookup(
         match="does not come from a vocabulary recognized by Neurobagel",
     ):
         with test_app:
-            response = test_app.get("/assessments/")
+            response = test_app.get("/assessments")
 
     assert response.json() == {
         "nb:Assessment": [
@@ -110,7 +110,7 @@ def test_get_instances_endpoint_without_vocab_lookup(
 
     monkeypatch.setattr(httpx, "post", mock_httpx_post)
 
-    response = test_app.get("/pipelines/")
+    response = test_app.get("/pipelines")
 
     assert response.json() == {
         "nb:Pipeline": [

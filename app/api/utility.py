@@ -11,7 +11,7 @@ from typing import Optional
 EnvVar = namedtuple("EnvVar", ["name", "val"])
 
 ROOT_PATH = EnvVar(
-    "NB_NAPI_ROOT_PATH", os.environ.get("NB_NAPI_ROOT_PATH", "")
+    "NB_NAPI_BASE_PATH", os.environ.get("NB_NAPI_BASE_PATH", "")
 )
 
 ALLOWED_ORIGINS = EnvVar(

@@ -52,6 +52,10 @@ def root(request: Request):
 async def favicon():
     """
     Overrides the default favicon with a custom one.
+
+    NOTE: When the API is behind a reverse proxy that has a stripped path prefix (and root_path is defined),
+    the custom favicon doesn't appear to work correctly for any API paths other than the docs,
+    as the path in the favicon request isn't automatically adjusted to include the root path prefix.
     """
     return RedirectResponse(url=favicon_url)
 

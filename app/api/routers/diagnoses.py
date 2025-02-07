@@ -7,7 +7,7 @@ EXTERNAL_VOCAB = "snomed_disorder"
 router = APIRouter(prefix="/diagnoses", tags=["diagnoses"])
 
 router.add_api_route(
-    path="/",
+    path="",
     endpoint=route_factory.create_get_instances_handler(
         data_element_uri=DataElementURI.diagnosis.value,
         external_vocab=EXTERNAL_VOCAB,

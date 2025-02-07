@@ -1,7 +1,7 @@
 import pytest
 
 from app.api import crud
-from app.main import app
+from app.main import app, favicon_url
 
 
 @pytest.mark.parametrize(
@@ -34,7 +34,13 @@ def test_request_without_trailing_slash_not_redirected(
 
 @pytest.mark.parametrize(
     "invalid_route",
-    ["/query/", "/query/?min_age=20", "/attributes/nb:SomeClass/"],
+    [
+        "/query/",
+        "/query/?min_age=20",
+        "/attributes/",
+        "/assessments/",
+        "/assessments/vocab/",
+    ],
 )
 def test_request_with_trailing_slash_not_redirected(
     test_app, disable_auth, invalid_route
@@ -71,3 +77,23 @@ def test_docs_work_using_defined_root_path(
     )
     assert docs_response.status_code == expected_status_code
     assert schema_response.status_code == expected_status_code
+
+
+@pytest.mark.parametrize(
+    "test_route,expected_status_code",
+    [("/favicon.ico", 307), ("/api/favicon.ico", 307)],
+)
+def test_favicon_reachable_with_defined_root_path(
+    test_app, monkeypatch, test_route, expected_status_code
+):
+    """
+    Test that when the API root_path is set to a non-empty string, the favicon is still reachable
+    with the correct root path prefix or without the prefix.
+
+    Adapted from https://github.com/fastapi/fastapi/issues/790#issuecomment-607636599
+    """
+    monkeypatch.setattr(app, "root_path", "/api")
+    # Disable follow_redirects to expose the 307 status, since the favicon route redirects to an external image URL
+    response = test_app.get(test_route, follow_redirects=False)
+    assert response.status_code == expected_status_code
+    assert response.headers["location"] == favicon_url
