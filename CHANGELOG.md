@@ -1,3 +1,16 @@
+# v0.6.1 (Fri Feb 07 2025)
+
+#### 🚀 Enhancements
+
+- [MNT] Remove trailing slashes from all paths [#408](https://github.com/neurobagel/api/pull/408) ([@alyssadai](https://github.com/alyssadai))
+- [ENH] Make `root_path` for app configurable [#400](https://github.com/neurobagel/api/pull/400) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.6.0 (Tue Jan 07 2025)
 
 #### 💥 Breaking Changes
