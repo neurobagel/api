@@ -262,12 +262,15 @@ def test_get_valid_iscontrol(
     assert response.json() != []
 
 
-@pytest.mark.parametrize("valid_iscontrol", ["true", "True", "TRUE"])
-def test_valid_iscontrol_parsed_as_bool(valid_iscontrol):
+@pytest.mark.parametrize(
+    "valid_iscontrol, expected_iscontrol",
+    [("true", True), ("True", True), ("TRUE", True), (None, None)],
+)
+def test_valid_iscontrol_parsed_as_bool(valid_iscontrol, expected_iscontrol):
     """Test that valid is_control values do not produce a validation error and are parsed as booleans."""
 
     example_query = QueryModel(is_control=valid_iscontrol)
-    assert example_query.is_control is True
+    assert example_query.is_control is expected_iscontrol
 
 
 @pytest.mark.parametrize("mock_get", [None], indirect=True)
