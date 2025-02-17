@@ -1,5 +1,7 @@
+from typing import Annotated
+
 from fastapi import APIRouter
-from pydantic import constr
+from pydantic.types import StringConstraints
 
 from .. import crud
 from .. import utility as util
@@ -19,7 +21,9 @@ router.add_api_route(
 
 @router.get("/{pipeline_term}/versions")
 async def get_pipeline_versions(
-    pipeline_term: constr(regex=CONTROLLED_TERM_REGEX),
+    pipeline_term: Annotated[
+        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
+    ],
 ):
     """
     When a GET request is sent, return a dict keyed on the specified pipeline resource, where the value is

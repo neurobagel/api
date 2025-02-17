@@ -1,58 +1,70 @@
 """Data models."""
 
 from enum import Enum
-from typing import Optional, Union
+from typing import Annotated, Literal, Optional, Union
 
 from fastapi import Query
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel, constr, root_validator, validator
+from pydantic import BaseModel, BeforeValidator, model_validator
+from pydantic.types import StringConstraints
+from typing_extensions import Self
 
 CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
 VERSION_REGEX = r"^([A-Za-z0-9-]+)\.(\d+)\.([A-Za-z0-9-]+)$"
 
 
+def convert_valid_is_control_values_to_bool(
+    value: Optional[str],
+) -> Optional[bool]:
+    """
+    Convert case-insensitive values of 'true' to boolean True,
+    or raise a validation error for other string values.
+    """
+    if value is not None:
+        if value.lower() != "true":
+            raise HTTPException(
+                status_code=422,
+                detail="'is_control' must be either set to 'true' or omitted from the query",
+            )
+        return True
+    return None
+
+
 class QueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
+    # NOTE: extra query parameters are just ignored/have no effect
+
     min_age: float = Query(default=None, ge=0)
     max_age: float = Query(default=None, ge=0)
-    sex: constr(regex=CONTROLLED_TERM_REGEX) = None
-    diagnosis: constr(regex=CONTROLLED_TERM_REGEX) = None
-    is_control: Optional[str] = None
+    sex: Annotated[str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)] = (
+        None
+    )
+    diagnosis: Annotated[
+        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
+    ] = None
+    is_control: Annotated[
+        Literal[True, None],
+        BeforeValidator(convert_valid_is_control_values_to_bool),
+    ] = None
     min_num_imaging_sessions: int = Query(default=None, ge=0)
     min_num_phenotypic_sessions: int = Query(default=None, ge=0)
-    assessment: constr(regex=CONTROLLED_TERM_REGEX) = None
-    image_modal: constr(regex=CONTROLLED_TERM_REGEX) = None
-    pipeline_name: constr(regex=CONTROLLED_TERM_REGEX) = None
+    assessment: Annotated[
+        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
+    ] = None
+    image_modal: Annotated[
+        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
+    ] = None
+    pipeline_name: Annotated[
+        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
+    ] = None
     # TODO: Check back if validating using a regex is too restrictive
-    pipeline_version: constr(regex=VERSION_REGEX) = None
+    pipeline_version: Annotated[
+        str, StringConstraints(pattern=VERSION_REGEX)
+    ] = None
 
-    @validator("is_control")
-    def convert_valid_is_control_values_to_bool(cls, v):
-        """
-        Convert case-insensitive values of 'true' to boolean True,
-        or raise a validation error for other string values.
-
-        TODO: If/once we migrate the n-API to Pydantic v2,
-        instead of using this approach to enforce a case-insensitive allowed value "true" and convert it to a bool,
-        we can use the new BeforeValidator method to do this directly in the query parameter definition.
-        Context: Enum and Literal both don't work well when we want allowed options of either True (bool) or None,
-        or even case-insensitive "true" (str) or None, for a FastAPI query param.
-        As a workaround, we set the type to str and do the validation/conversion afterwards.
-        See also https://github.com/fastapi/fastapi/discussions/8966
-        """
-        if v is not None:
-            # Ensure that the allowed value is case-insensitive
-            if v.lower() != "true":
-                raise HTTPException(
-                    status_code=422,
-                    detail="'is_control' must be either set to 'true' or omitted from the query",
-                )
-            return True
-        return None
-
-    @root_validator()
-    def check_maxage_ge_minage(cls, values):
+    @model_validator(mode="after")
+    def check_maxage_ge_minage(self) -> Self:
         """
         If both age bounds have been set to values other than their defaults (None), ensure that max_age is >= min_age.
         NOTE: HTTPException (and not ValueError) raised here to get around "Internal Server Error" raised by
@@ -62,22 +74,26 @@ class QueryModel(BaseModel):
         https://github.com/tiangolo/fastapi/discussions/3426
         https://fastapi.tiangolo.com/tutorial/handling-errors/?h=validation#requestvalidationerror-vs-validationerror
         """
-        mina, maxa = values["min_age"], values["max_age"]
-        if mina is not None and maxa is not None and (maxa < mina):
+        if (
+            self.min_age is not None
+            and self.max_age is not None
+            and (self.max_age < self.min_age)
+        ):
             raise HTTPException(
                 status_code=422,
                 detail="'max_age' must be greater than or equal to 'min_age'",
             )
-        return values
+        return self
 
-    @root_validator
-    def check_exclusive_diagnosis_or_ctrl(cls, values):
-        if values["diagnosis"] is not None and values["is_control"]:
+    @model_validator(mode="after")
+    def check_exclusive_diagnosis_or_ctrl(self) -> Self:
+        """Raise an error when a subject has both a diagnosis and is a control."""
+        if self.diagnosis is not None and self.is_control:
             raise HTTPException(
                 status_code=422,
                 detail="Subjects cannot both be healthy controls and have a diagnosis.",
             )
-        return values
+        return self
 
 
 class SessionResponse(BaseModel):

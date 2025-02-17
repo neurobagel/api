@@ -1,8 +1,8 @@
 """Router for query path operations."""
 
-from typing import List
+from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2
 
 from .. import crud, security
@@ -32,7 +32,7 @@ oauth2_scheme = OAuth2(
 # For more context, see https://github.com/neurobagel/api/issues/327.
 @router.get("", response_model=List[CohortQueryResponse])
 async def get_query(
-    query: QueryModel = Depends(QueryModel),
+    query: Annotated[QueryModel, Query()],
     token: str | None = Depends(oauth2_scheme),
 ):
     """When a GET request is sent, return list of dicts corresponding to subject-level metadata aggregated by dataset."""
