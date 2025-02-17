@@ -33,9 +33,7 @@ def convert_valid_is_control_values_to_bool(
 class QueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
-    # TODO: If desired, we can explicitly forbid & error out on extra query parameters,
-    # following the syntax documented in https://fastapi.tiangolo.com/tutorial/query-param-models/#forbid-extra-query-parameters
-    # (at the moment, extra query parameters are just ignored/have no effect)
+    # NOTE: extra query parameters are just ignored/have no effect
 
     min_age: float = Query(default=None, ge=0)
     max_age: float = Query(default=None, ge=0)
