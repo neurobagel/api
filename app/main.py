@@ -125,6 +125,9 @@ app.add_middleware(
 
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
+    """
+    Display a welcome message and a link to the API documentation.
+    """
     return f"""
     <html>
         <body>
