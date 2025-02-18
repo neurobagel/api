@@ -14,11 +14,11 @@ def test_missing_client_id_raises_error_when_auth_enabled(
     # but we set the values explicitly here for clarity
     monkeypatch.setattr("app.api.security.CLIENT_ID", None)
 
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(RuntimeError) as exc_info:
         with test_app:
             pass
 
-    assert "NB_QUERY_CLIENT_ID is not set" in str(exc_info.value)
+    assert "Authentication has been enabled (NB_ENABLE_AUTH) but the environment variable NB_QUERY_CLIENT_ID is not set." in str(exc_info.value)
 
 
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
