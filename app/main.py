@@ -169,5 +169,6 @@ app.include_router(assessments.router)
 app.include_router(diagnoses.router)
 app.include_router(pipelines.router)
 
+# Automatically start uvicorn server on execution of main.py
 if __name__ == "__main__":
     uvicorn.run("app.main:app", port=8000, reload=True)
