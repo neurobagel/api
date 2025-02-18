@@ -147,6 +147,9 @@ async def favicon():
 
 @app.get("/docs", include_in_schema=False)
 def overridden_swagger(request: Request):
+    """
+    Overrides the Swagger UI HTML for the "/docs" endpoint.
+    """
     return get_swagger_ui_html(
         openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
         title="Neurobagel API",
@@ -156,6 +159,9 @@ def overridden_swagger(request: Request):
 
 @app.get("/redoc", include_in_schema=False)
 def overridden_redoc(request: Request):
+    """
+    Overrides the Redoc HTML for the "/redoc" endpoint.
+    """
     return get_redoc_html(
         openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
         title="Neurobagel API",
