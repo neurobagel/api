@@ -13,7 +13,13 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
 from app.api import utility as util
-from app.api.routers import assessments, attributes, diagnoses, pipelines, query
+from app.api.routers import (
+    assessments,
+    attributes,
+    diagnoses,
+    pipelines,
+    query,
+)
 from app.api.security import check_client_id
 
 
@@ -47,7 +53,7 @@ def validate_environment_variables():
         )
 
 
-def initialize_vocabularies(app):
+def initialize_vocabularies():
     """
     Create and store on the app instance a temporary directory for vocabulary term lookup JSON files
     (each of which contain key-value pairings of IDs to human-readable names of terms),
@@ -74,7 +80,6 @@ def initialize_vocabularies(app):
     )
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -95,7 +100,7 @@ async def lifespan(app: FastAPI):
     check_client_id()
 
     # Initialize vocabularies
-    initialize_vocabularies(app)
+    initialize_vocabularies()
 
     yield
 
