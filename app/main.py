@@ -12,15 +12,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
-from app.api import utility as util
-from app.api.routers import (
-    assessments,
-    attributes,
-    diagnoses,
-    pipelines,
-    query,
-)
-from app.api.security import check_client_id
+from .api import utility as util
+from .api.routers import assessments, attributes, diagnoses, pipelines, query
+from .api.security import check_client_id
 
 
 def validate_environment_variables():
