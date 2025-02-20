@@ -7,6 +7,8 @@ from fastapi import HTTPException, status
 from fastapi.security.utils import get_authorization_scheme_param
 from jwt import PyJWKClient, PyJWTError
 
+from .config import Settings, settings
+
 AUTH_ENABLED = os.environ.get("NB_ENABLE_AUTH", "True").lower() == "true"
 CLIENT_ID = os.environ.get("NB_QUERY_CLIENT_ID", None)
 
@@ -21,9 +23,9 @@ JWKS_CLIENT = PyJWKClient(KEYS_URL)
 def check_client_id():
     """Check if the CLIENT_ID environment variable is set."""
     # The CLIENT_ID is needed to verify the audience claim of ID tokens.
-    if AUTH_ENABLED and CLIENT_ID is None:
+    if settings.auth_enabled and settings.client_id is None:
         raise RuntimeError(
-            "Authentication has been enabled (NB_ENABLE_AUTH) but the environment variable NB_QUERY_CLIENT_ID is not set. "
+            f"Authentication has been enabled ({Settings.model_fields['auth_enabled'].alias}) but the environment variable NB_QUERY_CLIENT_ID is not set. "
             "Please set NB_QUERY_CLIENT_ID to the client ID for your Neurobagel query tool deployment, to verify the audience claim of ID tokens."
         )
 
