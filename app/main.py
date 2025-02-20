@@ -2,6 +2,7 @@
 
 import os
 import warnings
+from functools import lru_cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -12,6 +13,7 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
 from .api import utility as util
+from .api.config import Settings
 from .api.routers import assessments, attributes, diagnoses, pipelines, query
 from .api.security import check_client_id
 
@@ -31,6 +33,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@lru_cache
+def get_settings():
+    return Settings()
 
 
 @app.get("/", response_class=HTMLResponse)
