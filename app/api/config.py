@@ -1,17 +1,30 @@
-from pydantic_settings import BaseSettings
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Data model for settings."""
 
-    nb_napi_base_path: str = ""
-    nb_api_allowed_origins: str = ""
-    nb_graph_username: str
-    nb_graph_password: str
-    nb_graph_address: str = "127.0.0.1"
-    nb_graph_db: str = "repositories/my_db"
-    nb_graph_port: int = 7200
+    # TODO: Make case-sensitive?
+    # We don't want Pydantic errors to be raised when the environment variables are not set
+    model_config = SettingsConfigDict(validate_default=False)
+
+    root_path: str = Field(alias="NB_NAPI_BASE_PATH", default="")
+    allowed_origins: str = Field(alias="NB_API_ALLOWED_ORIGINS", default="")
+    # TODO: Figure out what to do about defaults for username/password
+    graph_username: str = Field(alias="NB_GRAPH_USERNAME", default=None)
+    graph_password: str = Field(alias="NB_GRAPH_PASSWORD", default=None)
+    graph_address: str = Field(alias="NB_GRAPH_ADDRESS", default="127.0.0.1")
+    graph_db: str = Field(alias="NB_GRAPH_DB", default="repositories/my_db")
+    graph_port: int = Field(alias="NB_GRAPH_PORT", default=7200)
     # Double check how this is parsed from environment
-    nb_return_agg: bool = True
+    return_agg: bool = Field(alias="NB_RETURN_AGG", default=True)
     # Double check how this is parsed from environment
-    nb_min_cell_size: int = 0
+    min_cell_size: int = Field(alias="NB_MIN_CELL_SIZE", default=0)
+    auth_enabled: bool = Field(alias="NB_ENABLE_AUTH", default=True)
+    client_id: str = Field(alias="NB_QUERY_CLIENT_ID", default=None)
+
+    # TODO: Add query url and query header?
+
+
+settings = Settings()
