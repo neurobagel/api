@@ -14,7 +14,7 @@ def test_missing_client_id_raises_error_when_auth_enabled(
     # but we set the values explicitly here for clarity
     monkeypatch.setattr("app.api.security.CLIENT_ID", None)
 
-    with pytest.raises(ValueError) as exc_info:
+    with pytest.raises(RuntimeError) as exc_info:
         with test_app:
             pass
 

@@ -2,6 +2,7 @@
 
 import os
 import warnings
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -17,13 +18,101 @@ from .api.config import Settings
 from .api.routers import assessments, attributes, diagnoses, pipelines, query
 from .api.security import check_client_id
 
+
+def validate_environment_variables():
+    """
+    Check that all required environment variables are set.
+
+    Ensures that the username and password for the graph database are provided.
+    If not, raises a RuntimeError to prevent the application from running without valid credentials.
+
+    Also checks that ALLOWED_ORIGINS is properly set. If missing, a warning is issued, but the app continues running.
+    """
+    if (
+        os.environ.get(util.GRAPH_USERNAME.name) is None
+        or os.environ.get(util.GRAPH_PASSWORD.name) is None
+    ):
+        raise RuntimeError(
+            f"The application was launched but could not find the {util.GRAPH_USERNAME.name} and / or {util.GRAPH_PASSWORD.name} environment variables."
+        )
+
+    if os.environ.get(util.ALLOWED_ORIGINS.name, "") == "":
+        warnings.warn(
+            f"The API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment "
+            f"variable."
+            "This means that the API will only be accessible from the same origin it is hosted from: "
+            "https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy."
+            f"If you want to access the API from tools hosted at other origins such as the Neurobagel query tool, "
+            f"explicitly set the value of {util.ALLOWED_ORIGINS.name} to the origin(s) of these tools (e.g. "
+            f"http://localhost:3000)."
+            "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes."
+        )
+
+
+def initialize_vocabularies():
+    """
+    Create and store on the app instance a temporary directory for vocabulary term lookup JSON files
+    (each of which contain key-value pairings of IDs to human-readable names of terms),
+    and then fetch vocabularies using their respective native APIs and save them to the temporary directory for reuse.
+    """
+    # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
+    # to store a temporary directory object and its corresponding path. These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
+
+    app.state.vocab_dir = TemporaryDirectory()
+    app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
+
+    app.state.vocab_lookup_paths = {
+        "snomed_assessment": app.state.vocab_dir_path
+        / "snomedct_assessment_term_labels.json",
+        "snomed_disorder": app.state.vocab_dir_path
+        / "snomedct_disorder_term_labels.json",
+    }
+
+    util.create_snomed_assessment_lookup(
+        app.state.vocab_lookup_paths["snomed_assessment"]
+    )
+    util.create_snomed_disorder_lookup(
+        app.state.vocab_lookup_paths["snomed_disorder"]
+    )
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Handles application startup and shutdown events.
+
+    On startup:
+    - Validates required environment variables.
+    - Performs authentication checks.
+    - Initializes temporary directories for vocabulary lookups.
+
+    On shutdown:
+    - Cleans up temporary directories to free resources.
+    """
+    # Validate environment variables
+    validate_environment_variables()
+
+    # Authentication check
+    check_client_id()
+
+    # Initialize vocabularies
+    initialize_vocabularies()
+
+    yield
+
+    # Shutdown logic
+    app.state.vocab_dir.cleanup()
+
+
 app = FastAPI(
     root_path=util.ROOT_PATH.val,
+    lifespan=lifespan,
     default_response_class=ORJSONResponse,
     docs_url=None,
     redoc_url=None,
     redirect_slashes=False,
 )
+
 favicon_url = "https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_favicon.png"
 
 app.add_middleware(
@@ -49,7 +138,7 @@ def root(request: Request):
     <html>
         <body>
             <h1>Welcome to the Neurobagel REST API!</h1>
-            <p>Please visit the <a href="{request.scope.get("root_path", "")}/docs">API documentation</a> to view available API endpoints.</p>
+            <p>Please visit the <a href="{request.scope.get('root_path', '')}/docs">API documentation</a> to view available API endpoints.</p>
         </body>
     </html>
     """
@@ -89,72 +178,6 @@ def overridden_redoc(request: Request):
         title="Neurobagel API",
         redoc_favicon_url=favicon_url,
     )
-
-
-@app.on_event("startup")
-async def auth_check():
-    """
-    Checks whether authentication has been enabled for API queries and whether the
-    username and password environment variables for the graph backend have been set.
-
-    TODO: Refactor once startup events have been replaced by lifespan event
-    """
-    check_client_id()
-
-    if (
-        # TODO: Check if this error is still raised when variables are empty strings
-        os.environ.get(util.GRAPH_USERNAME.name) is None
-        or os.environ.get(util.GRAPH_PASSWORD.name) is None
-    ):
-        raise RuntimeError(
-            f"The application was launched but could not find the {util.GRAPH_USERNAME.name} and / or {util.GRAPH_PASSWORD.name} environment variables."
-        )
-
-
-@app.on_event("startup")
-async def allowed_origins_check():
-    """Raises warning if allowed origins environment variable has not been set or is an empty string."""
-    if os.environ.get(util.ALLOWED_ORIGINS.name, "") == "":
-        warnings.warn(
-            f"The API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment variable. "
-            "This means that the API will only be accessible from the same origin it is hosted from: https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy. "
-            f"If you want to access the API from tools hosted at other origins such as the Neurobagel query tool, explicitly set the value of {util.ALLOWED_ORIGINS.name} to the origin(s) of these tools (e.g. http://localhost:3000). "
-            "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes. "
-        )
-
-
-@app.on_event("startup")
-async def fetch_vocabularies_to_temp_dir():
-    """
-    Create and store on the app instance a temporary directory for vocabulary term lookup JSON files
-    (each of which contain key-value pairings of IDs to human-readable names of terms),
-    and then fetch vocabularies using their respective native APIs and save them to the temporary directory for reuse.
-    """
-    # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
-    # to store a temporary directory object and its corresponding path. These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
-    app.state.vocab_dir = TemporaryDirectory()
-    app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
-
-    app.state.vocab_lookup_paths = {}
-    app.state.vocab_lookup_paths["snomed_assessment"] = (
-        app.state.vocab_dir_path / "snomedct_assessment_term_labels.json"
-    )
-    app.state.vocab_lookup_paths["snomed_disorder"] = (
-        app.state.vocab_dir_path / "snomedct_disorder_term_labels.json"
-    )
-
-    util.create_snomed_assessment_lookup(
-        app.state.vocab_lookup_paths["snomed_assessment"]
-    )
-    util.create_snomed_disorder_lookup(
-        app.state.vocab_lookup_paths["snomed_disorder"]
-    )
-
-
-@app.on_event("shutdown")
-async def cleanup_temp_vocab_dir():
-    """Clean up the temporary directory created on startup."""
-    app.state.vocab_dir.cleanup()
 
 
 app.include_router(query.router)
