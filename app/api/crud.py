@@ -12,7 +12,7 @@ from fastapi import HTTPException, status
 from . import utility as util
 from .models import CohortQueryResponse, SessionResponse, VocabLabelsResponse
 
-ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.__fields__.keys()) + [
+ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
     "dataset_uuid",
     "dataset_name",
     "dataset_portal_uri",
