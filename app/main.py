@@ -131,8 +131,9 @@ def root(request: Request):
     <html>
         <body>
             <h1>Welcome to the Neurobagel REST API!</h1>
-            <p>Please visit the <a href="{request.scope.get('root_path', '')}/docs">API documentation</a> to view
-            available API endpoints.</p> </body> </html>"""
+            <p>Please visit the <a href="{request.scope.get('root_path', '')}/docs">API documentation</a> to view available API endpoints.</p>
+        </body>
+    </html>"""
 
 
 @app.get("/favicon.ico", include_in_schema=False)
