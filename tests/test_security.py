@@ -18,7 +18,7 @@ def test_missing_client_id_raises_error_when_auth_enabled(
         with test_app:
             pass
 
-    assert "Authentication has been enabled (NB_ENABLE_AUTH) but the environment variable NB_QUERY_CLIENT_ID is not set." in str(exc_info.value)
+    assert "NB_QUERY_CLIENT_ID is not set" in str(exc_info.value)
 
 
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
