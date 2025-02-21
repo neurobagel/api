@@ -1,31 +1,35 @@
 """Test events occurring on app startup or shutdown."""
 
-import os
 import warnings
 
 import httpx
 import pytest
 
 from app.api import utility as util
+from app.main import settings
 
 
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_start_app_without_environment_vars_fails(
-    test_app, monkeypatch, disable_auth
+    test_app, disable_auth, monkeypatch
 ):
     """Given non-existing username and password environment variables, raises an informative RuntimeError."""
-    monkeypatch.delenv(util.GRAPH_USERNAME.name, raising=False)
-    monkeypatch.delenv(util.GRAPH_PASSWORD.name, raising=False)
+    monkeypatch.setattr(settings, "graph_username", None)
+    monkeypatch.setattr(settings, "graph_password", None)
 
     with pytest.raises(RuntimeError) as e_info:
         with test_app:
             pass
     assert (
-        f"could not find the {util.GRAPH_USERNAME.name} and / or {util.GRAPH_PASSWORD.name} environment variables"
+        "could not find the NB_GRAPH_USERNAME and / or NB_GRAPH_PASSWORD environment variables"
         in str(e_info.value)
     )
 
 
+# TODO: Check that this test is actually useful - it assumes that a graph user already exists.
+# This would probably make more sense as an integration test
+# Previously, this test was likely passing because the monkeypatched environment variables were not actually being used
+# due to import order issues?
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_app_with_invalid_environment_vars(
     test_app, monkeypatch, mock_auth_header, set_mock_verify_token
@@ -44,23 +48,20 @@ def test_app_with_invalid_environment_vars(
 
 def test_app_with_unset_allowed_origins(
     test_app,
-    monkeypatch,
-    set_test_credentials,
     disable_auth,
+    monkeypatch,
 ):
     """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses a default value."""
-    monkeypatch.delenv(util.ALLOWED_ORIGINS.name, raising=False)
+    monkeypatch.setattr(settings, "allowed_origins", "")
 
     with pytest.warns(
         UserWarning,
-        match=f"API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment variable",
+        match="API was launched without providing any values for the NB_API_ALLOWED_ORIGINS environment variable",
     ):
         with test_app:
             pass
 
-    assert util.parse_origins_as_list(
-        os.environ.get(util.ALLOWED_ORIGINS.name, "")
-    ) == [""]
+    assert util.parse_origins_as_list(settings.allowed_origins) == [""]
 
 
 @pytest.mark.parametrize(
@@ -71,7 +72,7 @@ def test_app_with_unset_allowed_origins(
             [""],
             pytest.warns(
                 UserWarning,
-                match=f"API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment variable",
+                match="API was launched without providing any values for the NB_API_ALLOWED_ORIGINS environment variable",
             ),
         ),
         (
@@ -94,7 +95,6 @@ def test_app_with_unset_allowed_origins(
 def test_app_with_set_allowed_origins(
     test_app,
     monkeypatch,
-    set_test_credentials,
     allowed_origins,
     parsed_origins,
     expectation,
@@ -104,16 +104,14 @@ def test_app_with_set_allowed_origins(
     Test that when the environment variable for allowed origins has been explicitly set, the app correctly parses it into a list
     and raises a warning if the value is an empty string.
     """
-    monkeypatch.setenv(util.ALLOWED_ORIGINS.name, allowed_origins)
+    monkeypatch.setattr(settings, "allowed_origins", allowed_origins)
 
     with expectation:
         with test_app:
             pass
 
     assert set(parsed_origins).issubset(
-        util.parse_origins_as_list(
-            os.environ.get(util.ALLOWED_ORIGINS.name, "")
-        )
+        util.parse_origins_as_list(settings.allowed_origins)
     )
 
 
@@ -124,7 +122,6 @@ def test_app_with_set_allowed_origins(
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_stored_vocab_lookup_file_created_on_startup(
     test_app,
-    set_test_credentials,
     disable_auth,
     lookup_file,
 ):

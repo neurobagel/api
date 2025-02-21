@@ -1,8 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from app.api import utility as util
-from app.main import app
+from app.main import app, settings
 
 
 @pytest.fixture(scope="module")
@@ -14,7 +13,7 @@ def test_app():
 @pytest.fixture
 def enable_auth(monkeypatch):
     """Enable the authentication requirement for the API."""
-    monkeypatch.setattr("app.api.security.AUTH_ENABLED", True)
+    monkeypatch.setattr(settings, "auth_enabled", True)
 
 
 @pytest.fixture
@@ -23,14 +22,15 @@ def disable_auth(monkeypatch):
     Disable the authentication requirement for the API to skip startup checks
     (for when the tested route does not require authentication).
     """
-    monkeypatch.setattr("app.api.security.AUTH_ENABLED", False)
+    monkeypatch.setattr(settings, "auth_enabled", False)
 
 
+# TODO: See if we can remove this fixture now that we are using pytest.ini
 @pytest.fixture(scope="function")
 def set_test_credentials(monkeypatch):
     """Set random username and password to avoid error from startup check for set credentials."""
-    monkeypatch.setenv(util.GRAPH_USERNAME.name, "DBUSER")
-    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "DBPASSWORD")
+    monkeypatch.setattr(settings, "graph_username", "DBUSER")
+    monkeypatch.setattr(settings, "graph_password", "DBPASSWORD")
 
 
 @pytest.fixture()
