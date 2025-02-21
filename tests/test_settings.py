@@ -12,10 +12,10 @@ def test_settings_read_correctly():
     assert settings.auth_enabled is True
     assert settings.client_id is None
 
-    # Check that set environment variables are read correctly
+    # Check that set environment variables are read and typed correctly
     assert settings.allowed_origins == "*"
-    assert settings.graph_username == "bic_user"
-    assert settings.graph_password == "12345"
+    assert settings.graph_username == "DBUSER"
+    assert settings.graph_password == "DBPASSWORD"
     assert settings.graph_port == 7201
     assert settings.return_agg is False
     assert settings.min_cell_size == 1
