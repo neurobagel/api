@@ -1,16 +1,11 @@
 """Functions for handling authentication. Same ones as used in Neurobagel's federation API."""
 
-import os
-
 import jwt
 from fastapi import HTTPException, status
 from fastapi.security.utils import get_authorization_scheme_param
 from jwt import PyJWKClient, PyJWTError
 
 from .config import Settings, settings
-
-AUTH_ENABLED = os.environ.get("NB_ENABLE_AUTH", "True").lower() == "true"
-CLIENT_ID = os.environ.get("NB_QUERY_CLIENT_ID", None)
 
 KEYS_URL = "https://neurobagel.ca.auth0.com/.well-known/jwks.json"
 ISSUER = "https://neurobagel.ca.auth0.com/"
@@ -21,8 +16,8 @@ JWKS_CLIENT = PyJWKClient(KEYS_URL)
 
 
 def check_client_id():
-    """Check if the CLIENT_ID environment variable is set."""
-    # The CLIENT_ID is needed to verify the audience claim of ID tokens.
+    """Check if the app client ID environment variable is set."""
+    # The client ID is needed to verify the audience claim of ID tokens.
     if settings.auth_enabled and settings.client_id is None:
         raise RuntimeError(
             f"Authentication has been enabled ({Settings.model_fields['auth_enabled'].alias}) but the environment variable NB_QUERY_CLIENT_ID is not set. "
@@ -49,7 +44,7 @@ def verify_token(token: str):
                 "verify_signature": True,
                 "require": ["aud", "iss", "exp", "iat"],
             },
-            audience=CLIENT_ID,
+            audience=settings.client_id,
             issuer=ISSUER,
         )
     except (PyJWTError, ValueError) as exc:

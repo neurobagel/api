@@ -1,6 +1,7 @@
 import pytest
 from fastapi import HTTPException
 
+from app.api.config import settings
 from app.api.security import verify_token
 
 
@@ -9,10 +10,10 @@ def test_missing_client_id_raises_error_when_auth_enabled(
     monkeypatch, test_app, enable_auth
 ):
     """Test that a missing client ID raises an error on startup when authentication is enabled."""
-    # We're using what should be default values of CLIENT_ID and AUTH_ENABLED here
+    # We're using what should be default values of client_id and auth_enabled here
     # (if the corresponding environment variables are unset),
     # but we set the values explicitly here for clarity
-    monkeypatch.setattr("app.api.security.CLIENT_ID", None)
+    monkeypatch.setattr(settings, "client_id", None)
 
     with pytest.raises(RuntimeError) as exc_info:
         with test_app:
@@ -24,8 +25,8 @@ def test_missing_client_id_raises_error_when_auth_enabled(
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_missing_client_id_ignored_when_auth_disabled(monkeypatch, test_app):
     """Test that a missing client ID does not raise an error when authentication is disabled."""
-    monkeypatch.setattr("app.api.security.CLIENT_ID", None)
-    monkeypatch.setattr("app.api.security.AUTH_ENABLED", False)
+    monkeypatch.setattr(settings, "client_id", None)
+    monkeypatch.setattr(settings, "auth_enabled", False)
 
     with test_app:
         pass
@@ -59,7 +60,7 @@ def test_query_with_malformed_auth_header_fails(
     Test that when authentication is enabled, a request to the /query route with a
     missing or malformed authorization header fails.
     """
-    monkeypatch.setattr("app.api.security.CLIENT_ID", "foo.id")
+    monkeypatch.setattr(settings, "client_id", "foo.id")
 
     response = test_app.get(
         "/query",

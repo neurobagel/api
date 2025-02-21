@@ -1,6 +1,5 @@
 """CRUD functions called by path operations."""
 
-import os
 import warnings
 from pathlib import Path
 
@@ -10,6 +9,7 @@ import pandas as pd
 from fastapi import HTTPException, status
 
 from . import utility as util
+from .config import settings
 from .models import CohortQueryResponse, SessionResponse, VocabLabelsResponse
 
 ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
@@ -45,8 +45,8 @@ def post_query_to_graph(query: str, timeout: float = None) -> dict:
             content=query,
             headers=util.QUERY_HEADER,
             auth=httpx.BasicAuth(
-                os.environ.get(util.GRAPH_USERNAME.name),
-                os.environ.get(util.GRAPH_PASSWORD.name),
+                settings.graph_username,
+                settings.graph_password,
             ),
             timeout=timeout,
         )
@@ -141,7 +141,7 @@ async def get(
     """
     results = post_query_to_graph(
         util.create_query(
-            return_agg=util.RETURN_AGG.val,
+            return_agg=settings.return_agg,
             age=(min_age, max_age),
             sex=sex,
             diagnosis=diagnosis,
@@ -177,9 +177,9 @@ async def get(
             # results for datasets with fewer than min_cell_count subjects. But
             # ideally we would handle this directly inside SPARQL so we don't even
             # get the results in the first place. See #267 for a solution.
-            if num_matching_subjects <= util.MIN_CELL_SIZE.val:
+            if num_matching_subjects <= settings.min_cell_size:
                 continue
-            if util.RETURN_AGG.val:
+            if settings.return_agg:
                 subject_data = "protected"
             else:
                 subject_data = (
@@ -294,7 +294,7 @@ async def get(
                         else None
                     ),
                     num_matching_subjects=num_matching_subjects,
-                    records_protected=util.RETURN_AGG.val,
+                    records_protected=settings.return_agg,
                     subject_data=subject_data,
                     image_modals=list(
                         group["image_modal"][

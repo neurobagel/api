@@ -5,7 +5,8 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2
 
-from .. import crud, security
+from .. import crud
+from ..config import settings
 from ..models import CohortQueryResponse, QueryModel
 from ..security import verify_token
 
@@ -36,7 +37,7 @@ async def get_query(
     token: str | None = Depends(oauth2_scheme),
 ):
     """When a GET request is sent, return list of dicts corresponding to subject-level metadata aggregated by dataset."""
-    if security.AUTH_ENABLED:
+    if settings.auth_enabled:
         if token is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

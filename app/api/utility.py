@@ -9,21 +9,6 @@ from typing import Optional
 
 # Request constants
 EnvVar = namedtuple("EnvVar", ["name", "val"])
-
-ROOT_PATH = EnvVar(
-    "NB_NAPI_BASE_PATH", os.environ.get("NB_NAPI_BASE_PATH", "")
-)
-
-ALLOWED_ORIGINS = EnvVar(
-    "NB_API_ALLOWED_ORIGINS", os.environ.get("NB_API_ALLOWED_ORIGINS", "")
-)
-
-GRAPH_USERNAME = EnvVar(
-    "NB_GRAPH_USERNAME", os.environ.get("NB_GRAPH_USERNAME")
-)
-GRAPH_PASSWORD = EnvVar(
-    "NB_GRAPH_PASSWORD", os.environ.get("NB_GRAPH_PASSWORD")
-)
 GRAPH_ADDRESS = EnvVar(
     "NB_GRAPH_ADDRESS", os.environ.get("NB_GRAPH_ADDRESS", "127.0.0.1")
 )
@@ -31,15 +16,6 @@ GRAPH_DB = EnvVar(
     "NB_GRAPH_DB", os.environ.get("NB_GRAPH_DB", "repositories/my_db")
 )
 GRAPH_PORT = EnvVar("NB_GRAPH_PORT", os.environ.get("NB_GRAPH_PORT", 7200))
-# TODO: Environment variables can't be parsed as bool so this is a workaround but isn't ideal.
-# Another option is to switch this to a command-line argument, but that would require changing the
-# Dockerfile also since Uvicorn can't accept custom command-line args.
-RETURN_AGG = EnvVar(
-    "NB_RETURN_AGG", os.environ.get("NB_RETURN_AGG", "True").lower() == "true"
-)
-MIN_CELL_SIZE = EnvVar(
-    "NB_MIN_CELL_SIZE", int(os.environ.get("NB_MIN_CELL_SIZE", 0))
-)
 
 QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT.val}/{GRAPH_DB.val}"
 QUERY_HEADER = {
@@ -303,7 +279,7 @@ def create_query(
     """
     )
 
-    # The query defined above will return all subject-level attributes from the graph. If RETURN_AGG variable has been set to true,
+    # The query defined above will return all subject-level attributes from the graph. If aggregate results have been enabled,
     # wrap query in an aggregating statement so data returned from graph include only attributes needed for dataset-level aggregate metadata.
     if return_agg:
         query_string = (

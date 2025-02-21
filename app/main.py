@@ -30,7 +30,7 @@ def validate_environment_variables():
     Ensures that the username and password for the graph database are provided.
     If not, raises a RuntimeError to prevent the application from running without valid credentials.
 
-    Also checks that ALLOWED_ORIGINS is properly set. If missing, a warning is issued, but the app continues running.
+    Also checks that allowed origins are properly set. If missing, a warning is issued, but the app continues running.
     """
     if settings.graph_username is None or settings.graph_password is None:
         raise RuntimeError(

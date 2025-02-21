@@ -35,8 +35,8 @@ def test_app_with_invalid_environment_vars(
     test_app, monkeypatch, mock_auth_header, set_mock_verify_token
 ):
     """Given invalid environment variables for the graph, returns a 401 status code."""
-    monkeypatch.setenv(util.GRAPH_USERNAME.name, "something")
-    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "cool")
+    monkeypatch.setattr(settings, "graph_username", "something")
+    monkeypatch.setattr(settings, "graph_password", "cool")
 
     def mock_httpx_post(**kwargs):
         return httpx.Response(status_code=401)
