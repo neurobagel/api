@@ -649,18 +649,15 @@ def test_query_without_token_succeeds_when_auth_disabled(
 
 @pytest.mark.integration
 def test_integration_query_without_auth_succeeds(
-    test_app, monkeypatch, disable_auth
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
 ):
     """
     Running a test against a real local test graph
     should succeed when authentication is disabled.
     """
-    # Patching the query URL directly means we don't need to worry about the constituent
-    # graph environment variables
-    monkeypatch.setattr(
-        settings, "query_url", "http://localhost:7200/repositories/my_db"
-    )
-
     response = test_app.get(ROUTE)
     assert response.status_code == 200
 
@@ -727,15 +724,15 @@ def test_missing_derivatives_info_handled_by_nonagg_api_response(
 
 @pytest.mark.integration
 def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
-    test_app, monkeypatch, disable_auth
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
 ):
     """
     Test that only sessions of type PhenotypicSession and ImagingSession are returned in an unaggregated query response.
     """
     monkeypatch.setattr(settings, "return_agg", False)
-    monkeypatch.setattr(
-        settings, "query_url", "http://localhost:7200/repositories/my_db"
-    )
 
     response = test_app.get(ROUTE)
     assert response.status_code == 200
@@ -757,14 +754,16 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
 
 
 @pytest.mark.integration
-def test_min_cell_size_removes_results(test_app, monkeypatch, disable_auth):
+def test_min_cell_size_removes_results(
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
+):
     """
     If the minimum cell size is large enough, all results should be filtered out
     """
     monkeypatch.setattr(settings, "min_cell_size", 100)
-    monkeypatch.setattr(
-        settings, "query_url", "http://localhost:7200/repositories/my_db"
-    )
 
     response = test_app.get(ROUTE)
     assert response.status_code == 200

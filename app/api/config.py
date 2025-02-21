@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     client_id: str | None = Field(alias="NB_QUERY_CLIENT_ID", default=None)
 
     @computed_field
+    @property
     def query_url(self) -> str:
         """Construct the URL of the graph store to be queried."""
         return f"http://{self.graph_address}:{self.graph_port}/{self.graph_db}"
