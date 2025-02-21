@@ -3,9 +3,7 @@ from app.api import crud
 BASE_ROUTE = "/pipelines"
 
 
-def test_get_pipeline_versions_response(
-    test_app, monkeypatch, set_test_credentials
-):
+def test_get_pipeline_versions_response(test_app, monkeypatch):
     """
     Given a request to /pipelines/{pipeline_term}/versions with a valid pipeline name,
     returns a dict where the key is the pipeline resource and the value is a list of pipeline versions.

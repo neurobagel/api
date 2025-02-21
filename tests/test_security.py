@@ -6,7 +6,7 @@ from app.api.security import verify_token
 
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_missing_client_id_raises_error_when_auth_enabled(
-    monkeypatch, test_app, set_test_credentials, enable_auth
+    monkeypatch, test_app, enable_auth
 ):
     """Test that a missing client ID raises an error on startup when authentication is enabled."""
     # We're using what should be default values of CLIENT_ID and AUTH_ENABLED here
@@ -22,9 +22,7 @@ def test_missing_client_id_raises_error_when_auth_enabled(
 
 
 @pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
-def test_missing_client_id_ignored_when_auth_disabled(
-    monkeypatch, test_app, set_test_credentials
-):
+def test_missing_client_id_ignored_when_auth_disabled(monkeypatch, test_app):
     """Test that a missing client ID does not raise an error when authentication is disabled."""
     monkeypatch.setattr("app.api.security.CLIENT_ID", None)
     monkeypatch.setattr("app.api.security.AUTH_ENABLED", False)

@@ -617,7 +617,6 @@ def test_get_valid_pipeline_name_version(
 
 def test_aggregate_query_response_structure(
     test_app,
-    set_test_credentials,
     mock_post_agg_query_to_graph,
     mock_query_matching_dataset_sizes,
     monkeypatch,
@@ -642,11 +641,7 @@ def test_aggregate_query_response_structure(
 
 
 def test_query_without_token_succeeds_when_auth_disabled(
-    test_app,
-    mock_successful_get,
-    monkeypatch,
-    disable_auth,
-    set_test_credentials,
+    test_app, mock_successful_get, monkeypatch, disable_auth
 ):
     """
     Test that when authentication is disabled, a request to the /query route without a token succeeds.
@@ -658,7 +653,7 @@ def test_query_without_token_succeeds_when_auth_disabled(
 
 @pytest.mark.integration
 def test_integration_query_without_auth_succeeds(
-    test_app, monkeypatch, disable_auth, set_test_credentials
+    test_app, monkeypatch, disable_auth
 ):
     """
     Running a test against a real local test graph
@@ -740,7 +735,7 @@ def test_missing_derivatives_info_handled_by_nonagg_api_response(
 
 @pytest.mark.integration
 def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
-    test_app, monkeypatch, disable_auth, set_test_credentials
+    test_app, monkeypatch, disable_auth
 ):
     """
     Test that only sessions of type PhenotypicSession and ImagingSession are returned in an unaggregated query response.
@@ -772,9 +767,7 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
 
 
 @pytest.mark.integration
-def test_min_cell_size_removes_results(
-    test_app, monkeypatch, disable_auth, set_test_credentials
-):
+def test_min_cell_size_removes_results(test_app, monkeypatch, disable_auth):
     """
     If MIN_CELL_SIZE is high enough, all results should be filtered out
     """

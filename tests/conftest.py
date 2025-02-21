@@ -25,14 +25,6 @@ def disable_auth(monkeypatch):
     monkeypatch.setattr(settings, "auth_enabled", False)
 
 
-# TODO: See if we can remove this fixture now that we are using pytest.ini
-@pytest.fixture(scope="function")
-def set_test_credentials(monkeypatch):
-    """Set random username and password to avoid error from startup check for set credentials."""
-    monkeypatch.setattr(settings, "graph_username", "DBUSER")
-    monkeypatch.setattr(settings, "graph_password", "DBPASSWORD")
-
-
 @pytest.fixture()
 def mock_verify_token():
     """Mock a successful token verification that does not raise any exceptions."""
