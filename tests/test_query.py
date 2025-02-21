@@ -648,6 +648,19 @@ def test_query_without_token_succeeds_when_auth_disabled(
 
 
 @pytest.mark.integration
+@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
+def test_app_with_invalid_environment_vars(
+    test_app, monkeypatch, mock_auth_header, set_mock_verify_token
+):
+    """Given invalid credentials for the graph, returns a 401 status code."""
+    monkeypatch.setattr(settings, "graph_username", "wrong_username")
+    monkeypatch.setattr(settings, "graph_password", "wrong_password")
+
+    response = test_app.get("/query", headers=mock_auth_header)
+    assert response.status_code == 401
+
+
+@pytest.mark.integration
 def test_integration_query_without_auth_succeeds(
     test_app,
     monkeypatch,

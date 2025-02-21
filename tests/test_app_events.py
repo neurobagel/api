@@ -2,7 +2,6 @@
 
 import warnings
 
-import httpx
 import pytest
 
 from app.api import utility as util
@@ -24,26 +23,6 @@ def test_start_app_without_environment_vars_fails(
         "could not find the NB_GRAPH_USERNAME and / or NB_GRAPH_PASSWORD environment variables"
         in str(e_info.value)
     )
-
-
-# TODO: Check that this test is actually useful - it assumes that a graph user already exists.
-# This would probably make more sense as an integration test
-# Previously, this test was likely passing because the monkeypatched environment variables were not actually being used
-# due to import order issues?
-@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
-def test_app_with_invalid_environment_vars(
-    test_app, monkeypatch, mock_auth_header, set_mock_verify_token
-):
-    """Given invalid environment variables for the graph, returns a 401 status code."""
-    monkeypatch.setattr(settings, "graph_username", "something")
-    monkeypatch.setattr(settings, "graph_password", "cool")
-
-    def mock_httpx_post(**kwargs):
-        return httpx.Response(status_code=401)
-
-    monkeypatch.setattr(httpx, "post", mock_httpx_post)
-    response = test_app.get("/query", headers=mock_auth_header)
-    assert response.status_code == 401
 
 
 def test_app_with_unset_allowed_origins(
