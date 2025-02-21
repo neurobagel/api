@@ -18,4 +18,4 @@ def test_settings_read_correctly():
     assert settings.graph_password == "12345"
     assert settings.graph_port == 7201
     assert settings.return_agg is False
-    assert settings.min_cell_size == 5
+    assert settings.min_cell_size == 1
