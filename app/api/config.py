@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings
 
 
@@ -6,9 +6,6 @@ class Settings(BaseSettings):
     """Data model for settings."""
 
     # TODO: Make case-sensitive?
-    # We don't want Pydantic errors to be raised when the environment variables are not set
-    # model_config = SettingsConfigDict(validate_default=False)
-
     root_path: str = Field(alias="NB_NAPI_BASE_PATH", default="")
     allowed_origins: str = Field(alias="NB_API_ALLOWED_ORIGINS", default="")
     # TODO: Figure out what to do about defaults for username/password
@@ -24,7 +21,9 @@ class Settings(BaseSettings):
     auth_enabled: bool = Field(alias="NB_ENABLE_AUTH", default=True)
     client_id: str | None = Field(alias="NB_QUERY_CLIENT_ID", default=None)
 
-    # TODO: Add query url as computed field and query header as constant
+    @computed_field
+    def query_url(self) -> str:
+        return f"http://{self.graph_address}:{self.graph_port}/{self.graph_db}"
 
 
 settings = Settings()

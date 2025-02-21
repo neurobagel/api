@@ -3,7 +3,6 @@
 import pytest
 from fastapi import HTTPException
 
-import app.api.utility as util
 from app.api import crud
 from app.api.models import QueryModel
 from app.main import settings
@@ -656,10 +655,10 @@ def test_integration_query_without_auth_succeeds(
     Running a test against a real local test graph
     should succeed when authentication is disabled.
     """
-    # Patching the QUERY_URL directly means we don't need to worry about the constituent
+    # Patching the query URL directly means we don't need to worry about the constituent
     # graph environment variables
     monkeypatch.setattr(
-        util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
+        settings, "query_url", "http://localhost:7200/repositories/my_db"
     )
 
     response = test_app.get(ROUTE)
@@ -735,7 +734,7 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
     """
     monkeypatch.setattr(settings, "return_agg", False)
     monkeypatch.setattr(
-        util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
+        settings, "query_url", "http://localhost:7200/repositories/my_db"
     )
 
     response = test_app.get(ROUTE)
@@ -764,7 +763,7 @@ def test_min_cell_size_removes_results(test_app, monkeypatch, disable_auth):
     """
     monkeypatch.setattr(settings, "min_cell_size", 100)
     monkeypatch.setattr(
-        util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
+        settings, "query_url", "http://localhost:7200/repositories/my_db"
     )
 
     response = test_app.get(ROUTE)

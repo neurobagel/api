@@ -1,23 +1,11 @@
 """Constants for graph server connection and utility functions for writing the SPARQL query."""
 
 import json
-import os
 import textwrap
 from collections import namedtuple
 from pathlib import Path
 from typing import Optional
 
-# Request constants
-EnvVar = namedtuple("EnvVar", ["name", "val"])
-GRAPH_ADDRESS = EnvVar(
-    "NB_GRAPH_ADDRESS", os.environ.get("NB_GRAPH_ADDRESS", "127.0.0.1")
-)
-GRAPH_DB = EnvVar(
-    "NB_GRAPH_DB", os.environ.get("NB_GRAPH_DB", "repositories/my_db")
-)
-GRAPH_PORT = EnvVar("NB_GRAPH_PORT", os.environ.get("NB_GRAPH_PORT", 7200))
-
-QUERY_URL = f"http://{GRAPH_ADDRESS.val}:{GRAPH_PORT.val}/{GRAPH_DB.val}"
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",

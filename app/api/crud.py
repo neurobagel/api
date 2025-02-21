@@ -41,7 +41,7 @@ def post_query_to_graph(query: str, timeout: float = None) -> dict:
     """
     try:
         response = httpx.post(
-            url=util.QUERY_URL,
+            url=settings.query_url,
             content=query,
             headers=util.QUERY_HEADER,
             auth=httpx.BasicAuth(
