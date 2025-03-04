@@ -9,7 +9,11 @@ class Settings(BaseSettings):
 
     # NOTE: Environment variables are case-insensitive by default
     # (see https://docs.pydantic.dev/latest/concepts/pydantic_settings/#case-sensitivity)
-    root_path: str = Field(alias="NB_NAPI_BASE_PATH", default="")
+    root_path: str = Field(
+        alias="NB_NAPI_BASE_PATH",
+        default="",
+        description="The base URL path prefix for the API. When deployed behind a reverse proxy, set this to the subpath at which the app is mounted (if any), and configure the proxy to strip this prefix from incoming requests.",
+    )
     allowed_origins: str = Field(alias="NB_API_ALLOWED_ORIGINS", default="")
     graph_username: str | None = Field(alias="NB_GRAPH_USERNAME", default=None)
     graph_password: str | None = Field(alias="NB_GRAPH_PASSWORD", default=None)
