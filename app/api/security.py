@@ -20,8 +20,8 @@ def check_client_id():
     # The client ID is needed to verify the audience claim of ID tokens.
     if settings.auth_enabled and settings.client_id is None:
         raise RuntimeError(
-            f"Authentication has been enabled ({Settings.model_fields['auth_enabled'].alias}) but the environment variable NB_QUERY_CLIENT_ID is not set. "
-            "Please set NB_QUERY_CLIENT_ID to the client ID for your Neurobagel query tool deployment, to verify the audience claim of ID tokens."
+            f"Authentication has been enabled ({Settings.model_fields['auth_enabled'].alias}) but the environment variable {Settings.model_fields['client_id'].alias} is not set. "
+            f"Please set {Settings.model_fields['client_id'].alias} to the client ID for your Neurobagel query tool deployment, to verify the audience claim of ID tokens."
         )
 
 
