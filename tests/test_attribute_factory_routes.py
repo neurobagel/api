@@ -7,7 +7,6 @@ from app.api import utility as util
 def test_get_instances_endpoint_with_vocab_lookup(
     test_app,
     monkeypatch,
-    set_test_credentials,
     # Since this test runs the API startup events to fetch the vocabularies used in the test,
     # we need to disable auth to avoid startup errors about unset auth-related environment variables.
     disable_auth,
@@ -68,9 +67,7 @@ def test_get_instances_endpoint_with_vocab_lookup(
     }
 
 
-def test_get_instances_endpoint_without_vocab_lookup(
-    test_app, monkeypatch, set_test_credentials
-):
+def test_get_instances_endpoint_without_vocab_lookup(test_app, monkeypatch):
     """
     Given a GET request to /pipelines/ (attribute without a vocabulary lookup file available),
     test that the endpoint correctly returns the found graph instances as prefixed term URIs with empty label fields.
@@ -130,7 +127,6 @@ def test_get_instances_endpoint_without_vocab_lookup(
 def test_get_vocab_endpoint(
     test_app,
     monkeypatch,
-    set_test_credentials,
     attribute,
     expected_vocab_name,
     expected_namespace_pfx,
