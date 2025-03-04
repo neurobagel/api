@@ -2,8 +2,6 @@
 
 import warnings
 from contextlib import asynccontextmanager
-
-# from functools import lru_cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -17,10 +15,6 @@ from .api import utility as util
 from .api.config import Settings, settings
 from .api.routers import assessments, attributes, diagnoses, pipelines, query
 from .api.security import check_client_id
-
-# @lru_cache
-# def get_settings():
-#     return Settings()
 
 
 def validate_environment_variables():
