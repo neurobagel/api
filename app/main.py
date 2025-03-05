@@ -1,6 +1,5 @@
 """Main app."""
 
-import os
 import warnings
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -13,6 +12,7 @@ from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
 from .api import utility as util
+from .api.config import Settings, settings
 from .api.routers import assessments, attributes, diagnoses, pipelines, query
 from .api.security import check_client_id
 
@@ -24,24 +24,21 @@ def validate_environment_variables():
     Ensures that the username and password for the graph database are provided.
     If not, raises a RuntimeError to prevent the application from running without valid credentials.
 
-    Also checks that ALLOWED_ORIGINS is properly set. If missing, a warning is issued, but the app continues running.
+    Also checks that allowed origins are properly set. If missing, a warning is issued, but the app continues running.
     """
-    if (
-        os.environ.get(util.GRAPH_USERNAME.name) is None
-        or os.environ.get(util.GRAPH_PASSWORD.name) is None
-    ):
+    if settings.graph_username is None or settings.graph_password is None:
         raise RuntimeError(
-            f"The application was launched but could not find the {util.GRAPH_USERNAME.name} and / or {util.GRAPH_PASSWORD.name} environment variables."
+            f"The application was launched but could not find the {Settings.model_fields['graph_username'].alias} and / or {Settings.model_fields['graph_password'].alias} environment variables."
         )
 
-    if os.environ.get(util.ALLOWED_ORIGINS.name, "") == "":
+    if settings.allowed_origins == "":
         warnings.warn(
-            f"The API was launched without providing any values for the {util.ALLOWED_ORIGINS.name} environment "
+            f"The API was launched without providing any values for the {Settings.model_fields['allowed_origins'].alias} environment "
             f"variable."
             "This means that the API will only be accessible from the same origin it is hosted from: "
             "https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy."
             f"If you want to access the API from tools hosted at other origins such as the Neurobagel query tool, "
-            f"explicitly set the value of {util.ALLOWED_ORIGINS.name} to the origin(s) of these tools (e.g. "
+            f"explicitly set the value of {Settings.model_fields['allowed_origins'].alias} to the origin(s) of these tools (e.g. "
             f"http://localhost:3000)."
             "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes."
         )
@@ -103,7 +100,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    root_path=util.ROOT_PATH.val,
+    root_path=settings.root_path,
     lifespan=lifespan,
     default_response_class=ORJSONResponse,
     docs_url=None,
@@ -115,7 +112,7 @@ favicon_url = "https://raw.githubusercontent.com/neurobagel/documentation/main/d
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=util.parse_origins_as_list(util.ALLOWED_ORIGINS.val),
+    allow_origins=util.parse_origins_as_list(settings.allowed_origins),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

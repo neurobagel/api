@@ -1,8 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from app.api import utility as util
-from app.main import app
+from app.main import app, settings
 
 
 @pytest.fixture(scope="module")
@@ -14,7 +13,7 @@ def test_app():
 @pytest.fixture
 def enable_auth(monkeypatch):
     """Enable the authentication requirement for the API."""
-    monkeypatch.setattr("app.api.security.AUTH_ENABLED", True)
+    monkeypatch.setattr(settings, "auth_enabled", True)
 
 
 @pytest.fixture
@@ -23,14 +22,7 @@ def disable_auth(monkeypatch):
     Disable the authentication requirement for the API to skip startup checks
     (for when the tested route does not require authentication).
     """
-    monkeypatch.setattr("app.api.security.AUTH_ENABLED", False)
-
-
-@pytest.fixture(scope="function")
-def set_test_credentials(monkeypatch):
-    """Set random username and password to avoid error from startup check for set credentials."""
-    monkeypatch.setenv(util.GRAPH_USERNAME.name, "DBUSER")
-    monkeypatch.setenv(util.GRAPH_PASSWORD.name, "DBPASSWORD")
+    monkeypatch.setattr(settings, "auth_enabled", False)
 
 
 @pytest.fixture()
@@ -55,6 +47,19 @@ def set_mock_verify_token(monkeypatch, mock_verify_token):
 def mock_auth_header() -> dict:
     """Create an authorization header with a mock token that is well-formed for testing purposes."""
     return {"Authorization": "Bearer foo"}
+
+
+@pytest.fixture()
+def set_graph_url_vars_for_integration_tests(monkeypatch):
+    """
+    Set the graph URL to the default value for integration tests.
+
+    NOTE: These should correspond to the default configuration values, but are set explicitly here for clarity and
+    to override any environment defined in pytest.ini.
+    """
+    monkeypatch.setattr(settings, "graph_address", "localhost")
+    monkeypatch.setattr(settings, "graph_port", 7200)
+    monkeypatch.setattr(settings, "graph_db", "repositories/my_db")
 
 
 @pytest.fixture()

@@ -6,7 +6,6 @@ import httpx
 def test_get_attributes(
     test_app,
     monkeypatch,
-    set_test_credentials,
 ):
     """Given a GET request to the /attributes endpoint, successfully returns controlled term attributes with namespaces abbrieviated and as a list."""
     mock_response_json = {

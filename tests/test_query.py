@@ -3,9 +3,9 @@
 import pytest
 from fastapi import HTTPException
 
-import app.api.utility as util
 from app.api import crud
 from app.api.models import QueryModel
+from app.main import settings
 
 ROUTE = "/query"
 
@@ -65,9 +65,7 @@ def test_null_modalities(
     set_mock_verify_token,
 ):
     """Given a response containing a dataset with no recorded modalities, returns an empty list for the imaging modalities."""
-    monkeypatch.setattr(
-        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, True)
-    )
+    monkeypatch.setattr(settings, "return_agg", True)
     monkeypatch.setattr(
         crud, "post_query_to_graph", mock_post_agg_query_to_graph
     )
@@ -617,7 +615,6 @@ def test_get_valid_pipeline_name_version(
 
 def test_aggregate_query_response_structure(
     test_app,
-    set_test_credentials,
     mock_post_agg_query_to_graph,
     mock_query_matching_dataset_sizes,
     monkeypatch,
@@ -625,9 +622,7 @@ def test_aggregate_query_response_structure(
     set_mock_verify_token,
 ):
     """Test that when aggregate results are enabled, a cohort query response has the expected structure."""
-    monkeypatch.setattr(
-        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, True)
-    )
+    monkeypatch.setattr(settings, "return_agg", True)
     monkeypatch.setattr(
         crud, "post_query_to_graph", mock_post_agg_query_to_graph
     )
@@ -642,11 +637,7 @@ def test_aggregate_query_response_structure(
 
 
 def test_query_without_token_succeeds_when_auth_disabled(
-    test_app,
-    mock_successful_get,
-    monkeypatch,
-    disable_auth,
-    set_test_credentials,
+    test_app, mock_successful_get, monkeypatch, disable_auth
 ):
     """
     Test that when authentication is disabled, a request to the /query route without a token succeeds.
@@ -657,19 +648,32 @@ def test_query_without_token_succeeds_when_auth_disabled(
 
 
 @pytest.mark.integration
+@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
+def test_app_with_invalid_environment_vars(
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
+):
+    """Given invalid credentials for the graph, returns a 401 status code."""
+    monkeypatch.setattr(settings, "graph_username", "wrong_username")
+    monkeypatch.setattr(settings, "graph_password", "wrong_password")
+
+    response = test_app.get("/query")
+    assert response.status_code == 401
+
+
+@pytest.mark.integration
 def test_integration_query_without_auth_succeeds(
-    test_app, monkeypatch, disable_auth, set_test_credentials
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
 ):
     """
     Running a test against a real local test graph
     should succeed when authentication is disabled.
     """
-    # Patching the QUERY_URL directly means we don't need to worry about the constituent
-    # graph environment variables
-    monkeypatch.setattr(
-        util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
-    )
-
     response = test_app.get(ROUTE)
     assert response.status_code == 200
 
@@ -686,9 +690,7 @@ def test_derivatives_info_handled_by_agg_api_response(
     Test that in the aggregated API mode, pipeline information for matching subjects
     is correctly parsed and formatted in the API response.
     """
-    monkeypatch.setattr(
-        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, True)
-    )
+    monkeypatch.setattr(settings, "return_agg", True)
     monkeypatch.setattr(
         crud, "post_query_to_graph", mock_post_agg_query_to_graph
     )
@@ -719,9 +721,7 @@ def test_missing_derivatives_info_handled_by_nonagg_api_response(
     Test that in the non-aggregated API mode, when all matching subjects lack pipeline information,
     the API does not error out and pipeline variables in the API response still have the expected structure.
     """
-    monkeypatch.setattr(
-        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, False)
-    )
+    monkeypatch.setattr(settings, "return_agg", False)
     monkeypatch.setattr(
         crud, "post_query_to_graph", mock_post_nonagg_query_to_graph
     )
@@ -740,17 +740,15 @@ def test_missing_derivatives_info_handled_by_nonagg_api_response(
 
 @pytest.mark.integration
 def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
-    test_app, monkeypatch, disable_auth, set_test_credentials
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
 ):
     """
     Test that only sessions of type PhenotypicSession and ImagingSession are returned in an unaggregated query response.
     """
-    monkeypatch.setattr(
-        util, "RETURN_AGG", util.EnvVar(util.RETURN_AGG.name, False)
-    )
-    monkeypatch.setattr(
-        util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
-    )
+    monkeypatch.setattr(settings, "return_agg", False)
 
     response = test_app.get(ROUTE)
     assert response.status_code == 200
@@ -773,17 +771,15 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
 
 @pytest.mark.integration
 def test_min_cell_size_removes_results(
-    test_app, monkeypatch, disable_auth, set_test_credentials
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
 ):
     """
-    If MIN_CELL_SIZE is high enough, all results should be filtered out
+    If the minimum cell size is large enough, all results should be filtered out
     """
-    monkeypatch.setattr(
-        util, "MIN_CELL_SIZE", util.EnvVar(util.MIN_CELL_SIZE.name, 100)
-    )
-    monkeypatch.setattr(
-        util, "QUERY_URL", "http://localhost:7200/repositories/my_db"
-    )
+    monkeypatch.setattr(settings, "min_cell_size", 100)
 
     response = test_app.get(ROUTE)
     assert response.status_code == 200
