@@ -5,7 +5,8 @@ def test_settings_read_correctly():
     """Ensure that settings are read correctly from environment variables, with correct types and default values."""
     settings = Settings()
 
-    # Check that defaults are applied correctly for undefined environment variables
+    # Check that defaults are applied correctly for environment variables that are undefined
+    # or have been set to empty strings
     assert settings.root_path == ""
     assert settings.graph_address == "127.0.0.1"
     assert settings.graph_db == "repositories/my_db"

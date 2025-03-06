@@ -1,7 +1,5 @@
 """Test events occurring on app startup or shutdown."""
 
-import warnings
-
 import pytest
 
 from app.api import utility as util
@@ -30,8 +28,8 @@ def test_app_with_unset_allowed_origins(
     disable_auth,
     monkeypatch,
 ):
-    """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses a default value."""
-    monkeypatch.setattr(settings, "allowed_origins", "")
+    """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses an empty list."""
+    monkeypatch.setattr(settings, "allowed_origins", None)
 
     with pytest.warns(
         UserWarning,
@@ -40,34 +38,20 @@ def test_app_with_unset_allowed_origins(
         with test_app:
             pass
 
-    assert util.parse_origins_as_list(settings.allowed_origins) == [""]
+    assert util.parse_origins_as_list(settings.allowed_origins) == []
 
 
 @pytest.mark.parametrize(
-    "allowed_origins, parsed_origins, expectation",
+    "allowed_origins, parsed_origins",
     [
-        (
-            "",
-            [""],
-            pytest.warns(
-                UserWarning,
-                match="API was launched without providing any values for the NB_API_ALLOWED_ORIGINS environment variable",
-            ),
-        ),
-        (
-            "http://localhost:3000",
-            ["http://localhost:3000"],
-            warnings.catch_warnings(),
-        ),
+        ("http://localhost:3000", ["http://localhost:3000"]),
         (
             "http://localhost:3000 https://localhost:3000",
             ["http://localhost:3000", "https://localhost:3000"],
-            warnings.catch_warnings(),
         ),
         (
             " http://localhost:3000 https://localhost:3000  ",
             ["http://localhost:3000", "https://localhost:3000"],
-            warnings.catch_warnings(),
         ),
     ],
 )
@@ -76,7 +60,6 @@ def test_app_with_set_allowed_origins(
     monkeypatch,
     allowed_origins,
     parsed_origins,
-    expectation,
     disable_auth,
 ):
     """
@@ -85,9 +68,8 @@ def test_app_with_set_allowed_origins(
     """
     monkeypatch.setattr(settings, "allowed_origins", allowed_origins)
 
-    with expectation:
-        with test_app:
-            pass
+    with test_app:
+        pass
 
     assert set(parsed_origins).issubset(
         util.parse_origins_as_list(settings.allowed_origins)
