@@ -1,11 +1,14 @@
 """Configuration environment variables for the API."""
 
 from pydantic import Field, computed_field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     """Data model for configurable API settings."""
+
+    # Ignore environment variables that are set to empty strings
+    model_config = SettingsConfigDict(env_ignore_empty=True)
 
     # NOTE: Environment variables are case-insensitive by default
     # (see https://docs.pydantic.dev/latest/concepts/pydantic_settings/#case-sensitivity)
