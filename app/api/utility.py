@@ -42,9 +42,9 @@ BACKUP_VOCAB_DIR = (
 )
 
 
-def parse_origins_as_list(allowed_origins: str) -> list:
+def parse_origins_as_list(allowed_origins: str | None) -> list:
     """Returns user-defined allowed origins as a list."""
-    return list(allowed_origins.split(" "))
+    return list(allowed_origins.split(" ")) if allowed_origins else []
 
 
 def create_context() -> str:

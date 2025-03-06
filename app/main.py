@@ -31,7 +31,7 @@ def validate_environment_variables():
             f"The application was launched but could not find the {Settings.model_fields['graph_username'].alias} and / or {Settings.model_fields['graph_password'].alias} environment variables."
         )
 
-    if settings.allowed_origins == "":
+    if settings.allowed_origins is None:
         warnings.warn(
             f"The API was launched without providing any values for the {Settings.model_fields['allowed_origins'].alias} environment "
             f"variable."
