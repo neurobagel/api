@@ -1,3 +1,29 @@
+# v0.6.2 (Mon Mar 10 2025)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Khushi Jitendra Rajurkar ([@KhushiRajurkar](https://github.com/KhushiRajurkar)), for all your work!
+
+#### 🐛 Bug Fixes
+
+- [FIX] Ensure defaults are correctly applied for environment variables set to empty strings [#418](https://github.com/neurobagel/api/pull/418) ([@alyssadai](https://github.com/alyssadai))
+
+#### 🏠 Internal
+
+- [REF] Move environment variable handling to Pydantic `BaseSettings` class [#416](https://github.com/neurobagel/api/pull/416) ([@alyssadai](https://github.com/alyssadai))
+- [REF] Refactor startup/shutdown events to lifespan events [#407](https://github.com/neurobagel/api/pull/407) ([@KhushiRajurkar](https://github.com/KhushiRajurkar) [@alyssadai](https://github.com/alyssadai))
+
+#### 🔩 Dependency Updates
+
+- [REF] Upgrade to Pydantic>2 [#413](https://github.com/neurobagel/api/pull/413) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 2
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+- Khushi Jitendra Rajurkar ([@KhushiRajurkar](https://github.com/KhushiRajurkar))
+
+---
+
 # v0.6.1 (Fri Feb 07 2025)
 
 #### 🚀 Enhancements
