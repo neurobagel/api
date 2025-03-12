@@ -48,6 +48,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v6
         with:
+          platforms: linux/arm64, linux/amd64
           context: .
           file: ./Dockerfile
           push: true
