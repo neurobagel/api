@@ -1,5 +1,73 @@
 [
   {
+    "identifier": "snomed:1303696008",
+    "label": "Robson Ten Group Classification System"
+  },
+  {
+    "identifier": "snomed:1304062007",
+    "label": "Malnutrition Screening Tool"
+  },
+  {
+    "identifier": "snomed:1332329009",
+    "label": "Interviewer led Chronic Respiratory Questionnaire"
+  },
+  {
+    "identifier": "snomed:1332330004",
+    "label": "Self-reported Chronic Respiratory Questionnaire"
+  },
+  {
+    "identifier": "snomed:1332336005",
+    "label": "Interviewer led Chronic Respiratory Questionnaire dyspnea subscale"
+  },
+  {
+    "identifier": "snomed:1332337001",
+    "label": "Self-reported Chronic Respiratory Questionnaire dyspnea subscale"
+  },
+  {
+    "identifier": "snomed:1332338006",
+    "label": "Interviewer led Chronic Respiratory Questionnaire emotional function subscale"
+  },
+  {
+    "identifier": "snomed:1332339003",
+    "label": "Self-reported Chronic Respiratory Questionnaire emotional function subscale"
+  },
+  {
+    "identifier": "snomed:1332340001",
+    "label": "Interviewer led Chronic Respiratory Questionnaire fatigue subscale"
+  },
+  {
+    "identifier": "snomed:1332341002",
+    "label": "Self-reported Chronic Respiratory Questionnaire fatigue subscale"
+  },
+  {
+    "identifier": "snomed:1332342009",
+    "label": "Self-reported Chronic Respiratory Questionnaire mastery subscale"
+  },
+  {
+    "identifier": "snomed:1332343004",
+    "label": "Interviewer led Chronic Respiratory Questionnaire mastery subscale"
+  },
+  {
+    "identifier": "snomed:2037811000000101",
+    "label": "Postpartum Bonding Questionnaire"
+  },
+  {
+    "identifier": "snomed:2068481000000100",
+    "label": "Medical Emergencies in Eating Disorders (MEED) risk assessment framework"
+  },
+  {
+    "identifier": "snomed:2160711000000106",
+    "label": "Breathing Pattern Assessment Tool"
+  },
+  {
+    "identifier": "snomed:2181281000000100",
+    "label": "Arm Activity measure questionnaire"
+  },
+  {
+    "identifier": "snomed:2201631000000102",
+    "label": "SPADE (Spondyloarthritis Diagnosis Evaluation) tool"
+  },
+  {
     "identifier": "snomed:1231439001",
     "label": "Calgary Depression Scale for Schizophrenia"
   },
@@ -380,30 +448,6 @@
     "label": "Postpartum Depression Screening Scale"
   },
   {
-    "identifier": "snomed:1024821000000102",
-    "label": "Mothers' Object Relations Scale - Short Form"
-  },
-  {
-    "identifier": "snomed:1024961000000104",
-    "label": "Amyotrophic Lateral Sclerosis Functional Rating Scale - Revised"
-  },
-  {
-    "identifier": "snomed:1025061000000104",
-    "label": "STOPP - Screening Tool of Older Person's Prescriptions"
-  },
-  {
-    "identifier": "snomed:1025081000000108",
-    "label": "START - Screening Tool to Alert doctors to Right Treatment"
-  },
-  {
-    "identifier": "snomed:1025121000000106",
-    "label": "Neurological Disorders Depression Inventory in Epilepsy"
-  },
-  {
-    "identifier": "snomed:1025191000000109",
-    "label": "IPOS (Integrated Palliative care Outcome Scale) - Staff Version (3 day recall period)"
-  },
-  {
     "identifier": "snomed:1025571000000101",
     "label": "Leicester Diabetes Risk Score"
   },
@@ -412,48 +456,8 @@
     "label": "PsAID-9 (Psoriatic Arthritis Impact of Disease 9) questionnaire"
   },
   {
-    "identifier": "snomed:1032411000000100",
-    "label": "IPOS-5 (Integrated Palliative care Outcome Scale 5) - Staff Version (3 day recall period)"
-  },
-  {
     "identifier": "snomed:1032451000000101",
     "label": "Derby Outcome Measure"
-  },
-  {
-    "identifier": "snomed:1033311000000102",
-    "label": "IPOS (Integrated Palliative care Outcome Scale) - Patient Version (3 day recall period)"
-  },
-  {
-    "identifier": "snomed:1033371000000107",
-    "label": "IPOS-5 (Integrated Palliative care Outcome Scale 5) - Patient Version (3 day recall period)"
-  },
-  {
-    "identifier": "snomed:1033391000000106",
-    "label": "IPOS-5 (Integrated Palliative care Outcome Scale 5) - Patient Version (1 week recall period)"
-  },
-  {
-    "identifier": "snomed:1033411000000106",
-    "label": "IPOS (Integrated Palliative care Outcome Scale) - Patient Version (1 week recall period)"
-  },
-  {
-    "identifier": "snomed:1033431000000103",
-    "label": "IPOS-5 (Integrated Palliative care Outcome Scale 5) - Staff Version (1 week recall period)"
-  },
-  {
-    "identifier": "snomed:1033451000000105",
-    "label": "IPOS (Integrated Palliative care Outcome Scale) - Staff Version (1 week recall period)"
-  },
-  {
-    "identifier": "snomed:1033671000000104",
-    "label": "Dyadic Assessment of Naturalistic Caregiver-child Experiences"
-  },
-  {
-    "identifier": "snomed:1034341000000104",
-    "label": "QPR - Questionnaire about the Process of Recovery"
-  },
-  {
-    "identifier": "snomed:1034661000000109",
-    "label": "DIALOG"
   },
   {
     "identifier": "snomed:1035241000000107",
@@ -464,14 +468,6 @@
     "label": "ESQ (Experience of Service Questionnaire) self-report for 12-18 year olds"
   },
   {
-    "identifier": "snomed:1035451000000109",
-    "label": "CAARMS - Comprehensive Assessment of At-Risk Mental States"
-  },
-  {
-    "identifier": "snomed:1036231000000106",
-    "label": "Child Session Rating Scale"
-  },
-  {
     "identifier": "snomed:1036421000000105",
     "label": "Me and My Feelings Questionnaire"
   },
@@ -480,32 +476,8 @@
     "label": "MSK-HQ (Musculoskeletal Health Questionnaire)"
   },
   {
-    "identifier": "snomed:1036761000000109",
-    "label": "SOFA (Sequential Organ Failure Assessment)"
-  },
-  {
-    "identifier": "snomed:1037071000000103",
-    "label": "CIWA-B (Clinical Institute Withdrawal Assessment for Benzodiazepines) scale"
-  },
-  {
     "identifier": "snomed:1037941000000108",
     "label": "howRthey rating scale"
-  },
-  {
-    "identifier": "snomed:1038581000000106",
-    "label": "Lower Extremity Functional Scale"
-  },
-  {
-    "identifier": "snomed:1038621000000106",
-    "label": "Lysholm Knee Scoring Scale"
-  },
-  {
-    "identifier": "snomed:1044531000000104",
-    "label": "POEM - Patient-Oriented Eczema Measure"
-  },
-  {
-    "identifier": "snomed:1046471000000108",
-    "label": "Patient-Specific Functional Scale"
   },
   {
     "identifier": "snomed:1047141000000109",
@@ -522,18 +494,6 @@
   {
     "identifier": "snomed:1048571000000108",
     "label": "CHAT (Comprehensive Health Assessment Tool) - Young people in the Secure Estate"
-  },
-  {
-    "identifier": "snomed:1049171000000105",
-    "label": "OPHI-II (Occupational Performance History Interview II) Version 2.1 - occupational identity scale"
-  },
-  {
-    "identifier": "snomed:1049181000000107",
-    "label": "OPHI-II (Occupational Performance History Interview II) Version 2.1 - occupational competence scale"
-  },
-  {
-    "identifier": "snomed:1049191000000109",
-    "label": "OPHI-II (Occupational Performance History Interview II) Version 2.1 - occupational settings (environment) scale"
   },
   {
     "identifier": "snomed:1052121000000102",
@@ -656,14 +616,6 @@
     "label": "PHQ-15 - Patient Health Questionnaire 15"
   },
   {
-    "identifier": "snomed:1076581000000105",
-    "label": "CPAx - Chelsea Critical Care Physical Assessment tool"
-  },
-  {
-    "identifier": "snomed:1076621000000105",
-    "label": "PASS - Postural Assessment Scale for Stroke Patients"
-  },
-  {
     "identifier": "snomed:1077341000000105",
     "label": "DiADeM (Diagnosing Advanced Dementia Mandate) Tool"
   },
@@ -680,44 +632,12 @@
     "label": "PURPOSE T - Pressure Ulcer Risk Primary or Secondary Evaluation Tool"
   },
   {
-    "identifier": "snomed:1078931000000103",
-    "label": "Anticholinergic Cognitive Burden Scale"
-  },
-  {
     "identifier": "snomed:1079401000000109",
     "label": "Foot Posture Index"
   },
   {
-    "identifier": "snomed:1079701000000100",
-    "label": "Bristol Foot Score"
-  },
-  {
-    "identifier": "snomed:1079731000000106",
-    "label": "S(AD) SAD (Size (area, depth) Sepsis, Arteriopathy, Denervation) system"
-  },
-  {
-    "identifier": "snomed:1079861000000105",
-    "label": "Leeds Foot Impact Scale"
-  },
-  {
-    "identifier": "snomed:1079951000000102",
-    "label": "Footwear Suitability Scale"
-  },
-  {
-    "identifier": "snomed:1080041000000104",
-    "label": "PEDIS (Perfusion, Extent, Depth, Infection and Sensation) scoring system"
-  },
-  {
-    "identifier": "snomed:1081841000000102",
-    "label": "DEPA (Depth, Extent, Phase and Associated etiology) Score"
-  },
-  {
     "identifier": "snomed:1081871000000108",
     "label": "Swindon Foot and Ankle Questionnaire"
-  },
-  {
-    "identifier": "snomed:1081901000000108",
-    "label": "Patient Global Impression of Improvement"
   },
   {
     "identifier": "snomed:1081931000000102",
@@ -726,30 +646,6 @@
   {
     "identifier": "snomed:1081961000000107",
     "label": "PSQ-10 - Patient Satisfaction Questionnaire 10"
-  },
-  {
-    "identifier": "snomed:1082001000000103",
-    "label": "Manchester Scale for grading hallux valgus"
-  },
-  {
-    "identifier": "snomed:1082031000000109",
-    "label": "University of Texas Wound Classification System"
-  },
-  {
-    "identifier": "snomed:1082071000000106",
-    "label": "Foot Function Index"
-  },
-  {
-    "identifier": "snomed:1082111000000100",
-    "label": "MOxFQ (Manchester-Oxford Foot Questionnaire) (foot)"
-  },
-  {
-    "identifier": "snomed:1082141000000104",
-    "label": "MOxFQ (Manchester-Oxford Foot Questionnaire) (foot and ankle)"
-  },
-  {
-    "identifier": "snomed:1082171000000105",
-    "label": "SAFE (Salford Rheumatoid Arthritis Foot Evaluation) Instrument"
   },
   {
     "identifier": "snomed:1082731000000107",
@@ -762,10 +658,6 @@
   {
     "identifier": "snomed:1085141000000105",
     "label": "6CIT - Six Item Cognitive Impairment Test"
-  },
-  {
-    "identifier": "snomed:1085161000000106",
-    "label": "QRISK2 cardiovascular disease 10 year risk calculator"
   },
   {
     "identifier": "snomed:1085771000000100",
@@ -790,10 +682,6 @@
   {
     "identifier": "snomed:1087591000000100",
     "label": "FeverPAIN (Fever in last 24 hours, Purulence, Attend rapidly under 3 days, Inflamed tonsils, No cough and/or coryza) Clinical Score"
-  },
-  {
-    "identifier": "snomed:1088031000000106",
-    "label": "Abbey Pain Scale"
   },
   {
     "identifier": "snomed:1089951000000108",
@@ -1344,10 +1232,6 @@
     "label": "Allen cognitive level screening tool"
   },
   {
-    "identifier": "snomed:273268009",
-    "label": "Allen cognitive performance test"
-  },
-  {
     "identifier": "snomed:273269001",
     "label": "Alzheimer's Disease Assessment Scale"
   },
@@ -1358,10 +1242,6 @@
   {
     "identifier": "snomed:273271001",
     "label": "Amsterdam-Nijmegen Everyday Language Test"
-  },
-  {
-    "identifier": "snomed:273272008",
-    "label": "Anomalous sentence repetition test - Weeks"
   },
   {
     "identifier": "snomed:273273003",
@@ -1392,10 +1272,6 @@
     "label": "Arizona battery for communication disorders of dementia"
   },
   {
-    "identifier": "snomed:273281002",
-    "label": "Arthritis impact measurement scale I"
-  },
-  {
     "identifier": "snomed:273282009",
     "label": "Arthritis Impact Measurement Scales 2"
   },
@@ -1408,16 +1284,8 @@
     "label": "Ashworth assessment scale"
   },
   {
-    "identifier": "snomed:273285006",
-    "label": "Assessing reading difficulties"
-  },
-  {
     "identifier": "snomed:273286007",
     "label": "Assessment and therapy program for dysfluent children"
-  },
-  {
-    "identifier": "snomed:273287003",
-    "label": "Assessment of intelligibility"
   },
   {
     "identifier": "snomed:273288008",
@@ -1474,10 +1342,6 @@
   {
     "identifier": "snomed:273302005",
     "label": "Barthel index"
-  },
-  {
-    "identifier": "snomed:273303000",
-    "label": "Bay area functional assessment"
   },
   {
     "identifier": "snomed:273305007",
@@ -1598,10 +1462,6 @@
   {
     "identifier": "snomed:273335000",
     "label": "British ability scales"
-  },
-  {
-    "identifier": "snomed:273336004",
-    "label": "British ability scales - revised"
   },
   {
     "identifier": "snomed:273337008",
@@ -1756,10 +1616,6 @@
     "label": "Cognitive failures questionnaire"
   },
   {
-    "identifier": "snomed:273377000",
-    "label": "Communicative abilities in daily living"
-  },
-  {
     "identifier": "snomed:273378005",
     "label": "Composite international diagnostic interview"
   },
@@ -1864,10 +1720,6 @@
     "label": "Depression self rating scale"
   },
   {
-    "identifier": "snomed:273420000",
-    "label": "Disability assessment schedule"
-  },
-  {
     "identifier": "snomed:273408008",
     "label": "Dermatology life quality index"
   },
@@ -1942,10 +1794,6 @@
   {
     "identifier": "snomed:273428007",
     "label": "Duke UNC health profile"
-  },
-  {
-    "identifier": "snomed:273429004",
-    "label": "Dundee cardiovascular risk score"
   },
   {
     "identifier": "snomed:273430009",
@@ -2124,10 +1972,6 @@
     "label": "Galveston orientation and amnesia test"
   },
   {
-    "identifier": "snomed:273475007",
-    "label": "Gathercole - non-word repetition task"
-  },
-  {
     "identifier": "snomed:273477004",
     "label": "General assessment of neurological impairment"
   },
@@ -2278,18 +2122,6 @@
   {
     "identifier": "snomed:273517005",
     "label": "Hidden figures test"
-  },
-  {
-    "identifier": "snomed:273518000",
-    "label": "Hoehn and Yahr grades"
-  },
-  {
-    "identifier": "snomed:273507000",
-    "label": "Hanen early language program"
-  },
-  {
-    "identifier": "snomed:273519008",
-    "label": "Holborn sentence reading test"
   },
   {
     "identifier": "snomed:273533008",
@@ -2452,10 +2284,6 @@
     "label": "Leeds scales for the self-assessment of anxiety and depression"
   },
   {
-    "identifier": "snomed:273563004",
-    "label": "Cormack and Lehane score"
-  },
-  {
     "identifier": "snomed:273564005",
     "label": "Leiter international performance scale"
   },
@@ -2526,10 +2354,6 @@
   {
     "identifier": "snomed:273582008",
     "label": "MacAndrew scale"
-  },
-  {
-    "identifier": "snomed:273583003",
-    "label": "MacMillan reading test"
   },
   {
     "identifier": "snomed:273584009",
@@ -2676,10 +2500,6 @@
     "label": "Modified word learning test"
   },
   {
-    "identifier": "snomed:273626002",
-    "label": "Monterey fluency program"
-  },
-  {
     "identifier": "snomed:273627006",
     "label": "Mood adjective checklist"
   },
@@ -2772,10 +2592,6 @@
     "label": "Norris functional scale"
   },
   {
-    "identifier": "snomed:273650000",
-    "label": "Northwest syntax screening test"
-  },
-  {
     "identifier": "snomed:273651001",
     "label": "Northwick Park index of independence in ADL"
   },
@@ -2866,10 +2682,6 @@
   {
     "identifier": "snomed:273675001",
     "label": "Oswestry disability index"
-  },
-  {
-    "identifier": "snomed:273676000",
-    "label": "Oswestry pain questionnaire"
   },
   {
     "identifier": "snomed:273677009",
@@ -2984,10 +2796,6 @@
     "label": "Pre-speech assessment scale"
   },
   {
-    "identifier": "snomed:273710009",
-    "label": "Pre-verbal communication schedule"
-  },
-  {
     "identifier": "snomed:273711008",
     "label": "Preschool language scale"
   },
@@ -3050,10 +2858,6 @@
   {
     "identifier": "snomed:273726005",
     "label": "Quality of wellbeing scale"
-  },
-  {
-    "identifier": "snomed:273727001",
-    "label": "Rancho scale - levels of cognitive functioning"
   },
   {
     "identifier": "snomed:273728006",
@@ -3172,10 +2976,6 @@
     "label": "Ritchie articular index"
   },
   {
-    "identifier": "snomed:273759008",
-    "label": "Rivermead ADL index"
-  },
-  {
     "identifier": "snomed:273761004",
     "label": "Rivermead behavioral memory test"
   },
@@ -3284,14 +3084,6 @@
     "label": "Schofield equation"
   },
   {
-    "identifier": "snomed:273789001",
-    "label": "Schonell graded word reading test"
-  },
-  {
-    "identifier": "snomed:273790005",
-    "label": "Schonell graded word spelling test"
-  },
-  {
     "identifier": "snomed:273791009",
     "label": "Scissor skills checklist"
   },
@@ -3352,10 +3144,6 @@
     "label": "Sickness impact profile"
   },
   {
-    "identifier": "snomed:273808003",
-    "label": "Silent reading test"
-  },
-  {
     "identifier": "snomed:273809006",
     "label": "Silvers cerebral function test"
   },
@@ -3394,10 +3182,6 @@
   {
     "identifier": "snomed:273820006",
     "label": "Social support questionnaire"
-  },
-  {
-    "identifier": "snomed:273821005",
-    "label": "Social use of language program"
   },
   {
     "identifier": "snomed:273822003",
@@ -3514,10 +3298,6 @@
   {
     "identifier": "snomed:273850003",
     "label": "Substance use disorder diagnostic schedule"
-  },
-  {
-    "identifier": "snomed:273851004",
-    "label": "Sue Spence assessment"
   },
   {
     "identifier": "snomed:273852006",
@@ -3728,10 +3508,6 @@
     "label": "Visual object and spatial perception test"
   },
   {
-    "identifier": "snomed:273907007",
-    "label": "Vocal profile analysis"
-  },
-  {
     "identifier": "snomed:273908002",
     "label": "Voice assessment sheet - Martin"
   },
@@ -3884,14 +3660,6 @@
     "label": "Short form McGill pain questionnaire"
   },
   {
-    "identifier": "snomed:278921000000107",
-    "label": "Peter and the cat narrative assessment"
-  },
-  {
-    "identifier": "snomed:278931000000109",
-    "label": "Phonological awareness profile"
-  },
-  {
     "identifier": "snomed:278941000000100",
     "label": "Revised SCAN-C test for auditory processing disorders in children"
   },
@@ -3920,40 +3688,16 @@
     "label": "Reynell developmental language scales III"
   },
   {
-    "identifier": "snomed:279061000000109",
-    "label": "Strong narrative assessment procedure"
-  },
-  {
-    "identifier": "snomed:279071000000102",
-    "label": "Wiig criterion referenced inventory of language"
-  },
-  {
     "identifier": "snomed:279081000000100",
     "label": "Test of pretend play"
-  },
-  {
-    "identifier": "snomed:279091000000103",
-    "label": "Developmental, dimensional and diagnostic interview"
   },
   {
     "identifier": "snomed:279101002",
     "label": "Verbal rating scale"
   },
   {
-    "identifier": "snomed:279111000000108",
-    "label": "Play observation kit"
-  },
-  {
     "identifier": "snomed:279201000000102",
     "label": "Assessment of comprehension and expression 6-11"
-  },
-  {
-    "identifier": "snomed:279211000000100",
-    "label": "Children's communication checklist (second edition)"
-  },
-  {
-    "identifier": "snomed:279221000000106",
-    "label": "Test for reception of grammar (second edition)"
   },
   {
     "identifier": "snomed:281113000",
@@ -4110,10 +3854,6 @@
   {
     "identifier": "snomed:300991009",
     "label": "Webster Scale"
-  },
-  {
-    "identifier": "snomed:302029005",
-    "label": "Ferriman and Galway score"
   },
   {
     "identifier": "snomed:302331000000106",
@@ -4508,10 +4248,6 @@
     "label": "Doors and people assessment"
   },
   {
-    "identifier": "snomed:311471009",
-    "label": "Extended 2 & 7 test"
-  },
-  {
     "identifier": "snomed:311472002",
     "label": "Alphabet number alteration test"
   },
@@ -4636,20 +4372,12 @@
     "label": "Search for the odd shape"
   },
   {
-    "identifier": "snomed:311872006",
-    "label": "Wisconsin card sorting test (revised)"
-  },
-  {
     "identifier": "snomed:312311000000100",
     "label": "Child 7 - 9 month hearing screen questionnaire"
   },
   {
     "identifier": "snomed:312971000000109",
     "label": "Clinical Outcomes in Routine Evaluation Outcome Measure"
-  },
-  {
-    "identifier": "snomed:313221000000108",
-    "label": "Generalised anxiety disorder 7 item score"
   },
   {
     "identifier": "snomed:315037004",
@@ -4682,14 +4410,6 @@
   {
     "identifier": "snomed:324691000000104",
     "label": "Clinical Outcomes in Routine Evaluation - 10"
-  },
-  {
-    "identifier": "snomed:325121000000105",
-    "label": "Framingham type B behaviour pattern measure"
-  },
-  {
-    "identifier": "snomed:326781000000101",
-    "label": "Insomnia severity index"
   },
   {
     "identifier": "snomed:3311000175102",
@@ -4760,10 +4480,6 @@
     "label": "Unified Parkinsons disease rating scale score"
   },
   {
-    "identifier": "snomed:342941000000109",
-    "label": "Easy-care assessment tool"
-  },
-  {
     "identifier": "snomed:343451000000108",
     "label": "Occupational therapy interest checklist - United Kingdom"
   },
@@ -4782,10 +4498,6 @@
   {
     "identifier": "snomed:380151000000104",
     "label": "Modified Oxford grading scale for pelvic floor muscle strength"
-  },
-  {
-    "identifier": "snomed:386554004",
-    "label": "Glasgow coma scale"
   },
   {
     "identifier": "snomed:395070003",
@@ -4810,10 +4522,6 @@
   {
     "identifier": "snomed:396244002",
     "label": "Physical self maintenance scale"
-  },
-  {
-    "identifier": "snomed:396293007",
-    "label": "Nottingham index"
   },
   {
     "identifier": "snomed:396295000",
@@ -4848,10 +4556,6 @@
     "label": "Elderly mobility scale"
   },
   {
-    "identifier": "snomed:405645000",
-    "label": "Outcome severity scale"
-  },
-  {
     "identifier": "snomed:405646004",
     "label": "Preventability scale"
   },
@@ -4868,24 +4572,12 @@
     "label": "Framingham coronary heart disease 10 year adjusted risk score"
   },
   {
-    "identifier": "snomed:408554006",
-    "label": "Medley pressure ulcer risk score"
-  },
-  {
     "identifier": "snomed:408846002",
     "label": "Stages of retinopathy of prematurity"
   },
   {
-    "identifier": "snomed:413139004",
-    "label": "Braden assessment scale"
-  },
-  {
     "identifier": "snomed:414648004",
     "label": "Malnutrition universal screening tool"
-  },
-  {
-    "identifier": "snomed:414750000",
-    "label": "Mini mental state score"
   },
   {
     "identifier": "snomed:414879002",
@@ -4930,10 +4622,6 @@
   {
     "identifier": "snomed:428433009",
     "label": "International prostate symptom score"
-  },
-  {
-    "identifier": "snomed:429021004",
-    "label": "Post anesthesia recovery scale"
   },
   {
     "identifier": "snomed:429389007",
@@ -5020,10 +4708,6 @@
     "label": "Binary individualized outcome measure"
   },
   {
-    "identifier": "snomed:439821000124100",
-    "label": "Asthma treatment assessment questionnaire"
-  },
-  {
     "identifier": "snomed:439827008",
     "label": "QRISK cardiovascular disease risk score"
   },
@@ -5032,20 +4716,12 @@
     "label": "Work environment impact scale version 2.0"
   },
   {
-    "identifier": "snomed:439921008",
-    "label": "World Health Organisation (WHO) FRAX 10 year hip fracture probability score"
-  },
-  {
     "identifier": "snomed:439924000",
     "label": "Occupational self assessment version 2.2"
   },
   {
     "identifier": "snomed:439943000",
     "label": "Social functioning scale"
-  },
-  {
-    "identifier": "snomed:439968003",
-    "label": "World Health Organisation FRAX osteoporotic fracture probability assessment tool"
   },
   {
     "identifier": "snomed:439971006",
@@ -5102,10 +4778,6 @@
   {
     "identifier": "snomed:441941004",
     "label": "Edinburgh claudication questionnaire"
-  },
-  {
-    "identifier": "snomed:442663009",
-    "label": "International consultation on incontinence questionnaire short form"
   },
   {
     "identifier": "snomed:443116001",
@@ -5298,10 +4970,6 @@
   {
     "identifier": "snomed:444218000",
     "label": "Moberg pickup test"
-  },
-  {
-    "identifier": "snomed:444219008",
-    "label": "Kessler psychological distress scale"
   },
   {
     "identifier": "snomed:444415004",
@@ -5512,10 +5180,6 @@
     "label": "Eating disorder examination questionnaire"
   },
   {
-    "identifier": "snomed:447234009",
-    "label": "Subgroups for targeted treatment back screening tool"
-  },
-  {
     "identifier": "snomed:447271006",
     "label": "Checklist for autism in toddlers"
   },
@@ -5574,10 +5238,6 @@
   {
     "identifier": "snomed:449251000000104",
     "label": "Wechsler adult intelligence scale UK (United Kingdom)"
-  },
-  {
-    "identifier": "snomed:449349006",
-    "label": "Chronic respiratory disease questionnaire"
   },
   {
     "identifier": "snomed:450355004",
@@ -5690,10 +5350,6 @@
   {
     "identifier": "snomed:456741000124109",
     "label": "Friedman classification"
-  },
-  {
-    "identifier": "snomed:457011000124109",
-    "label": "COPD assessment test"
   },
   {
     "identifier": "snomed:457441000124102",
@@ -5904,10 +5560,6 @@
     "label": "Kansas City cardiomyopathy questionnaire"
   },
   {
-    "identifier": "snomed:471591000124104",
-    "label": "Disabilities of the arm, shoulder and hand questionnaire"
-  },
-  {
     "identifier": "snomed:471601000124107",
     "label": "Frequency, intensity, and burden of side effects rating scale"
   },
@@ -5972,22 +5624,6 @@
     "label": "Ages and Stages Questionnaires Third Edition problem solving subscale"
   },
   {
-    "identifier": "snomed:473339009",
-    "label": "Chronic respiratory disease questionnaire dyspnea subscale"
-  },
-  {
-    "identifier": "snomed:473340006",
-    "label": "Chronic respiratory disease questionnaire emotional function subscale"
-  },
-  {
-    "identifier": "snomed:473341005",
-    "label": "Chronic respiratory disease questionnaire fatigue subscale"
-  },
-  {
-    "identifier": "snomed:473343008",
-    "label": "Chronic respiratory disease questionnaire mastery subscale"
-  },
-  {
     "identifier": "snomed:473349007",
     "label": "Eating disorder examination questionnaire eating concern subscale"
   },
@@ -6018,10 +5654,6 @@
   {
     "identifier": "snomed:493331000000105",
     "label": "Emergency admission risk likelihood index"
-  },
-  {
-    "identifier": "snomed:493361000000100",
-    "label": "Glasgow coma scale, original version"
   },
   {
     "identifier": "snomed:493371000000107",
@@ -6072,20 +5704,12 @@
     "label": "Rheumatoid arthritis work instability scale"
   },
   {
-    "identifier": "snomed:494451000000108",
-    "label": "Disabilities of the Arm, Shoulder and Hand outcome measurement"
-  },
-  {
     "identifier": "snomed:494461000000106",
     "label": "Quick disabilities of the arm shoulder and hand outcome measurement"
   },
   {
     "identifier": "snomed:494471000000104",
     "label": "Patient rated wrist evaluation scale"
-  },
-  {
-    "identifier": "snomed:494481000000102",
-    "label": "PSEQ - Pain Self-Efficacy Questionnaire"
   },
   {
     "identifier": "snomed:494491000000100",
@@ -6154,10 +5778,6 @@
   {
     "identifier": "snomed:504391000000101",
     "label": "Age, blood pressure, clinical features, duration, diabetes 2 stroke risk score"
-  },
-  {
-    "identifier": "snomed:506671000000104",
-    "label": "QRISK2 cardiovascular disease 10 year risk score"
   },
   {
     "identifier": "snomed:507801000000108",
@@ -6301,7 +5921,7 @@
   },
   {
     "identifier": "snomed:7121000122100",
-    "label": "Pain Assessment in Advanced Dementia Scale"
+    "label": "Pain Assessment in Advanced Dementia scale"
   },
   {
     "identifier": "snomed:712351000000100",
@@ -6716,20 +6336,36 @@
     "label": "Process of Recovery Questionnaire"
   },
   {
+    "identifier": "snomed:718730003",
+    "label": "RCADS-P (Revised Children's Anxiety and Depression Scale Parent Version) Panic Disorder subscale"
+  },
+  {
+    "identifier": "snomed:718731004",
+    "label": "RCADS-P (Revised Children's Anxiety and Depression Scale Parent Version) Obsessive Compulsive Disorder subscale"
+  },
+  {
+    "identifier": "snomed:718734007",
+    "label": "RCADS (Revised Children's Anxiety and Depression Scale) Parent Version Major Depressive Disorder subscale"
+  },
+  {
+    "identifier": "snomed:718739002",
+    "label": "RCADS (Revised Children's Anxiety and Depression Scale) Major Depressive Disorder subscale"
+  },
+  {
+    "identifier": "snomed:718741001",
+    "label": "RCADS (Revised Children's Anxiety and Depression Scale) Panic Disorder subscale"
+  },
+  {
+    "identifier": "snomed:718744009",
+    "label": "RCADS (Revised Children's Anxiety and Depression Scale) Obsessive Compulsive Disorder subscale"
+  },
+  {
     "identifier": "snomed:718728000",
     "label": "RCADS-P - Revised Children's Anxiety and Depression Scale Parent Version"
   },
   {
     "identifier": "snomed:718729008",
     "label": "RCADS-P (Revised Children's Anxiety and Depression Scale Parent Version) social phobia subscale"
-  },
-  {
-    "identifier": "snomed:718730003",
-    "label": "RCADS-P (Revised Children's Anxiety and Depression Scale Parent Version) panic subscale"
-  },
-  {
-    "identifier": "snomed:718731004",
-    "label": "RCADS-P (Revised Children's Anxiety and Depression Scale Parent Version) obsession compulsion subscale"
   },
   {
     "identifier": "snomed:718732006",
@@ -6740,10 +6376,6 @@
     "label": "RCADS-P (Revised Children's Anxiety and Depression Scale Parent Version) generalized anxiety subscale"
   },
   {
-    "identifier": "snomed:718734007",
-    "label": "RCADS-P (Revised Children's Anxiety and Depression Scale Parent Version) depression subscale"
-  },
-  {
     "identifier": "snomed:718735008",
     "label": "RCADS-P (Revised Children's Anxiety and Depression Scale Parent Version) total anxiety and depression subscale"
   },
@@ -6752,24 +6384,12 @@
     "label": "RCADS - Revised Children's Anxiety and Depression Scale"
   },
   {
-    "identifier": "snomed:718739002",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) depression subscale"
-  },
-  {
-    "identifier": "snomed:718741001",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) panic subscale"
-  },
-  {
     "identifier": "snomed:718742008",
     "label": "CADS (Revised Children's Anxiety and Depression Scale) social phobia subscale"
   },
   {
     "identifier": "snomed:718743003",
     "label": "RCADS (Revised Children's Anxiety and Depression Scale) total anxiety subscale"
-  },
-  {
-    "identifier": "snomed:718744009",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) obsession compulsion subscale"
   },
   {
     "identifier": "snomed:718745005",
@@ -7340,20 +6960,12 @@
     "label": "Rockall risk score"
   },
   {
-    "identifier": "snomed:794051000000105",
-    "label": "HAS-BLED (hypertension, abnormal renal and/or liver function, stroke, bleeding history or predisposition, labile INR (international normalised ratio), elderly over 65, and drugs and/or alcohol concomitantly) score"
-  },
-  {
     "identifier": "snomed:805421000000105",
     "label": "Diabetes UK diabetes risk score"
   },
   {
     "identifier": "snomed:805431000000107",
     "label": "Safeguarding children and young people toolkit for general practice (2009 revision)"
-  },
-  {
-    "identifier": "snomed:805631000000109",
-    "label": "Biopsychosocial assessment"
   },
   {
     "identifier": "snomed:809291000000109",
@@ -7382,10 +6994,6 @@
   {
     "identifier": "snomed:821531000000101",
     "label": "EuroQol five dimension five level scale"
-  },
-  {
-    "identifier": "snomed:823061000000101",
-    "label": "World Health Organisation (five) well-being index"
   },
   {
     "identifier": "snomed:824471000000102",
@@ -7556,20 +7164,12 @@
     "label": "Developmental behaviour checklist"
   },
   {
-    "identifier": "snomed:858731000000100",
-    "label": "Nisonger child behaviour rating form"
-  },
-  {
     "identifier": "snomed:858711000000108",
     "label": "Sheffield learning disabilities outcome measure"
   },
   {
     "identifier": "snomed:858831000000106",
     "label": "DD-CGAS (Developmental Disabilities - Children's Global Assessment Scale)"
-  },
-  {
-    "identifier": "snomed:859261000000108",
-    "label": "National Early Warning Score - Royal College of Physicians"
   },
   {
     "identifier": "snomed:859231000000103",
@@ -7756,32 +7356,8 @@
     "label": "QAdmissions emergency admission risk calculator"
   },
   {
-    "identifier": "snomed:880141000000104",
-    "label": "Stroke Impact Scale version 3.0"
-  },
-  {
-    "identifier": "snomed:881471000000106",
-    "label": "Gross Motor Function Classification System for Cerebral Palsy"
-  },
-  {
-    "identifier": "snomed:883371000000101",
-    "label": "Leeds Revised Acne Grading System"
-  },
-  {
-    "identifier": "snomed:883881000000107",
-    "label": "LYMQOL (Lymphoedema Quality of Life Tool) - arm"
-  },
-  {
     "identifier": "snomed:883961000000109",
     "label": "Thrombolysis In Myocardial Infarction risk score for unstable angina or non-ST-segment-elevation myocardial infarction"
-  },
-  {
-    "identifier": "snomed:885491000000107",
-    "label": "Warwick-Edinburgh Mental Well-being Scale"
-  },
-  {
-    "identifier": "snomed:886051000000104",
-    "label": "OCAIRS (Occupational Circumstances Assessment Interview and Rating Scale) version 4.0"
   },
   {
     "identifier": "snomed:886191000000106",
@@ -7790,14 +7366,6 @@
   {
     "identifier": "snomed:886331000000108",
     "label": "GULP Dehydration Risk Screening Tool"
-  },
-  {
-    "identifier": "snomed:888371000000106",
-    "label": "LYMQOL (Lymphoedema Quality of Life Tool) - leg"
-  },
-  {
-    "identifier": "snomed:889001000000109",
-    "label": "HCL-32-R1 - hypomania checklist 32 item revised"
   },
   {
     "identifier": "snomed:889291000000108",
@@ -7826,10 +7394,6 @@
   {
     "identifier": "snomed:897117004",
     "label": "Frequency, Intensity, and Burden of Side Effects Ratings scale"
-  },
-  {
-    "identifier": "snomed:897121000000109",
-    "label": "Westley Croup Score"
   },
   {
     "identifier": "snomed:897479004",
@@ -7866,10 +7430,6 @@
   {
     "identifier": "snomed:902441000000104",
     "label": "Palliative Care Problem Severity Score"
-  },
-  {
-    "identifier": "snomed:904311000000100",
-    "label": "Bath Ankylosing Spondylitis Functional Index"
   },
   {
     "identifier": "snomed:905271000000101",
@@ -7992,38 +7552,6 @@
     "label": "SINBAD (site, ischaemia, neuropathy, bacterial infection and depth) wound classification"
   },
   {
-    "identifier": "snomed:921961000000106",
-    "label": "DemTect scale"
-  },
-  {
-    "identifier": "snomed:922031000000108",
-    "label": "SURE (Sure of myself, Understand information, Risk-benefit ratio, Encouragement) test"
-  },
-  {
-    "identifier": "snomed:922511000000105",
-    "label": "GFI - Groningen Frailty Indicator"
-  },
-  {
-    "identifier": "snomed:922531000000102",
-    "label": "FI - Frailty Index"
-  },
-  {
-    "identifier": "snomed:922571000000100",
-    "label": "Mini-Cog"
-  },
-  {
-    "identifier": "snomed:925401000000103",
-    "label": "PAM - Patient Activation Measure"
-  },
-  {
-    "identifier": "snomed:927321000000106",
-    "label": "Short Physical Performance Battery"
-  },
-  {
-    "identifier": "snomed:927551000000107",
-    "label": "Oxford Cognitive Screen"
-  },
-  {
     "identifier": "snomed:928751000000101",
     "label": "Generic Risk Indicators (National Risk Framework to Support the Assessment of Children and Young People)"
   },
@@ -8038,14 +7566,6 @@
   {
     "identifier": "snomed:931231000000108",
     "label": "My World Triangle assessment tool"
-  },
-  {
-    "identifier": "snomed:931551000000103",
-    "label": "Carer Support Needs Assessment Tool"
-  },
-  {
-    "identifier": "snomed:931681000000105",
-    "label": "Measure Yourself Medical Outcome Profile"
   },
   {
     "identifier": "snomed:932461000000105",
@@ -8072,20 +7592,12 @@
     "label": "Malcomess Care Aims Model"
   },
   {
-    "identifier": "snomed:934131000000103",
-    "label": "Everyday Cognition questionnaire"
-  },
-  {
     "identifier": "snomed:936091000000107",
     "label": "QBleed risk calculator"
   },
   {
     "identifier": "snomed:938731000000105",
     "label": "ELF (Enhanced Liver Fibrosis) score"
-  },
-  {
-    "identifier": "snomed:938951000000101",
-    "label": "FIB-4 (Fibrosis-4) index"
   },
   {
     "identifier": "snomed:939291000000108",
@@ -8096,18 +7608,6 @@
     "label": "Severity of Alopecia Tool"
   },
   {
-    "identifier": "snomed:939991000000101",
-    "label": "Parenting Daily Hassles Scale"
-  },
-  {
-    "identifier": "snomed:940031000000105",
-    "label": "Social Satisfaction Questionnaire"
-  },
-  {
-    "identifier": "snomed:944681000000109",
-    "label": "Clinical Outcomes in Routine Evaluation - Learning Disabilities"
-  },
-  {
     "identifier": "snomed:951681000000109",
     "label": "Dizziness Handicap Inventory"
   },
@@ -8116,64 +7616,16 @@
     "label": "ChildSafe Trigger Tool"
   },
   {
-    "identifier": "snomed:955141000000105",
-    "label": "Centor criteria"
-  },
-  {
-    "identifier": "snomed:956991000000107",
-    "label": "PCS - Pain Catastrophizing Scale"
-  },
-  {
-    "identifier": "snomed:958061000000101",
-    "label": "Revised Children's Anxiety and Depression Scale"
-  },
-  {
-    "identifier": "snomed:958071000000108",
-    "label": "Revised Children's Anxiety and Depression Scale - Parent Version"
-  },
-  {
     "identifier": "snomed:959531000000108",
     "label": "Eating Disorder Examination Questionnaire - Adolescents, 14-16 years"
-  },
-  {
-    "identifier": "snomed:959651000000102",
-    "label": "SCORE Index of Family Function and Change - 15"
   },
   {
     "identifier": "snomed:959921000000103",
     "label": "Goal Progress Chart - Child/Young Person"
   },
   {
-    "identifier": "snomed:960161000000109",
-    "label": "Revised Child Impact of Events Scale"
-  },
-  {
-    "identifier": "snomed:960191000000103",
-    "label": "MAMS (Me and My School) Questionnaire"
-  },
-  {
-    "identifier": "snomed:960231000000107",
-    "label": "Outcome Rating Scale"
-  },
-  {
     "identifier": "snomed:960301000000107",
     "label": "Child Outcome Rating Scale"
-  },
-  {
-    "identifier": "snomed:960401000000102",
-    "label": "Modified Strengths and Difficulties Questionnaire 8"
-  },
-  {
-    "identifier": "snomed:960431000000108",
-    "label": "Session Rating Scale"
-  },
-  {
-    "identifier": "snomed:960491000000109",
-    "label": "Young Person's Clinical Outcomes in Routine Evaluation"
-  },
-  {
-    "identifier": "snomed:960951000000109",
-    "label": "Brief Parental Self-Efficacy Scale"
   },
   {
     "identifier": "snomed:961211000000107",
@@ -8184,20 +7636,8 @@
     "label": "Modified Strengths and Difficulties Questionnaire 8 - Parent"
   },
   {
-    "identifier": "snomed:961271000000102",
-    "label": "Strengths and Difficulties Questionnaire, self-rated for 11-17 year olds"
-  },
-  {
-    "identifier": "snomed:961291000000103",
-    "label": "Strengths and Difficulties Questionnaire for parents or educators of 2-4 year olds"
-  },
-  {
     "identifier": "snomed:961141000000103",
     "label": "ESQ (Experience of Service Questionnaire) for parent or carer"
-  },
-  {
-    "identifier": "snomed:961301000000104",
-    "label": "Strengths and Difficulties Questionnaire for parents or teachers of 4-17 year olds"
   },
   {
     "identifier": "snomed:961331000000105",
@@ -8220,84 +7660,16 @@
     "label": "POPS - Paediatric Observation Priority Score"
   },
   {
-    "identifier": "snomed:968081000000101",
-    "label": "Apraxia Battery for Adults - Second Edition"
-  },
-  {
     "identifier": "snomed:973221000000109",
     "label": "Prisma 7 Questionnaire"
-  },
-  {
-    "identifier": "snomed:975361000000106",
-    "label": "Communication Assessment Profile"
-  },
-  {
-    "identifier": "snomed:975521000000107",
-    "label": "MacMillan Readers Level Test"
   },
   {
     "identifier": "snomed:977141000000100",
     "label": "STOPBang questionnaire"
   },
   {
-    "identifier": "snomed:977221000000103",
-    "label": "WHODAS (World Health Organization Disability Assessment Schedule) 2.0"
-  },
-  {
-    "identifier": "snomed:977241000000105",
-    "label": "New Reynell Developmental Language Scales"
-  },
-  {
-    "identifier": "snomed:977261000000106",
-    "label": "Graded Word Spelling Test"
-  },
-  {
-    "identifier": "snomed:977291000000100",
-    "label": "SPI (Stuttering Prediction Instrument) for Young Children"
-  },
-  {
-    "identifier": "snomed:977301000000101",
-    "label": "SSI (Stuttering Severity Instrument) for Children and Adults"
-  },
-  {
     "identifier": "snomed:977311000000104",
     "label": "CVLT-II (California Verbal Learning Test Second Edition)"
-  },
-  {
-    "identifier": "snomed:977321000000105",
-    "label": "CVLT-C (California Verbal Learning Test - Children's Version)"
-  },
-  {
-    "identifier": "snomed:978481000000100",
-    "label": "St. Mark's incontinence score"
-  },
-  {
-    "identifier": "snomed:978971000000107",
-    "label": "Buffalo III Voice Profile"
-  },
-  {
-    "identifier": "snomed:979121000000103",
-    "label": "STDAS-2 (Screening Test for Developmental Apraxia of Speech - Second Edition)"
-  },
-  {
-    "identifier": "snomed:979211000000101",
-    "label": "FCP-R (Functional Communication Profile Revised)"
-  },
-  {
-    "identifier": "snomed:979241000000100",
-    "label": "GHQ-12 (General Health Questionnaire 12)"
-  },
-  {
-    "identifier": "snomed:979261000000104",
-    "label": "GHQ-20 (General Health Questionnaire 20)"
-  },
-  {
-    "identifier": "snomed:979291000000105",
-    "label": "GHQ-28 (General Health Questionnaire 28)"
-  },
-  {
-    "identifier": "snomed:979331000000103",
-    "label": "GHQ-30 (General Health Questionnaire 30)"
   },
   {
     "identifier": "snomed:979521000000109",
@@ -8346,26 +7718,6 @@
   {
     "identifier": "snomed:979631000000107",
     "label": "HoNOS (Health of the Nation Outcome Scales) for working age adults rating scale 12 - problems with occupation and activities"
-  },
-  {
-    "identifier": "snomed:979781000000103",
-    "label": "TWF-3 (Test of Word Finding - Third Edition)"
-  },
-  {
-    "identifier": "snomed:979881000000107",
-    "label": "GFTA-2 (Goldman-Fristoe Test for Articulation - 2)"
-  },
-  {
-    "identifier": "snomed:979901000000105",
-    "label": "GFTA-3 (Goldman-Fristoe Test for Articulation - Third Edition)"
-  },
-  {
-    "identifier": "snomed:980231000000109",
-    "label": "Revised Kendrick Battery for detection of dementia in the elderly"
-  },
-  {
-    "identifier": "snomed:980291000000105",
-    "label": "NSST - Northwestern Syntax Screening Test"
   },
   {
     "identifier": "snomed:980351000000105",
@@ -8480,10 +7832,6 @@
     "label": "HoNOSCA (Health of the Nation Outcome Scales for Children and Adolescents) rating scale 9 - emotional and related symptoms"
   },
   {
-    "identifier": "snomed:981311000000104",
-    "label": "M-WCST - Modified Wisconsin Card Sorting Test"
-  },
-  {
     "identifier": "snomed:981341000000103",
     "label": "NARA (Neale Analysis of Reading Ability) - Revised Edition"
   },
@@ -8494,22 +7842,6 @@
   {
     "identifier": "snomed:981371000000109",
     "label": "HoNOSCA (Health of the Nation Outcome Scales for Children and Adolescents) section B"
-  },
-  {
-    "identifier": "snomed:981561000000109",
-    "label": "IPTA-3 (Illinois Test of Psycholinguistic Abilities - Third Edition)"
-  },
-  {
-    "identifier": "snomed:981611000000106",
-    "label": "RCBA-2 (Reading Comprehension Battery for Aphasia - Second Edition)"
-  },
-  {
-    "identifier": "snomed:981641000000107",
-    "label": "TACL-3 (Test for Auditory Comprehension of Language - Third Edition)"
-  },
-  {
-    "identifier": "snomed:981671000000101",
-    "label": "TACL-4 (Test for Auditory Comprehension of Language - Fourth Edition)"
   },
   {
     "identifier": "snomed:981711000000100",
@@ -8524,60 +7856,8 @@
     "label": "GSRT (Gray Silent Reading Tests)"
   },
   {
-    "identifier": "snomed:981901000000100",
-    "label": "SON-R (Snijders-Oomen Non-verbal Intelligence Scale - Revised) 2.5-7"
-  },
-  {
-    "identifier": "snomed:981911000000103",
-    "label": "SON-R (Snijders-Oomen Non-verbal Intelligence Scale - Revised) 6-40"
-  },
-  {
-    "identifier": "snomed:982311000000105",
-    "label": "TAPS-3 (Test of Auditory Processing Skills - Third Edition)"
-  },
-  {
-    "identifier": "snomed:982511000000102",
-    "label": "REEL-2 (Receptive Expressive Emergent Language Scale - Second Edition)"
-  },
-  {
-    "identifier": "snomed:982521000000108",
-    "label": "REEL-3 (Receptive Expressive Emergent Language Test - Third Edition)"
-  },
-  {
-    "identifier": "snomed:982571000000107",
-    "label": "RBMT-3 (Rivermead Behavioral Memory Test - Third Edition)"
-  },
-  {
-    "identifier": "snomed:982601000000100",
-    "label": "TOLD-4 (Test of Language Development - Fourth Edition)"
-  },
-  {
-    "identifier": "snomed:982631000000106",
-    "label": "Vineland Adaptive Behavior Scales - Second Edition"
-  },
-  {
-    "identifier": "snomed:982661000000101",
-    "label": "WAB-R (Western Aphasia Battery - Revised)"
-  },
-  {
-    "identifier": "snomed:982761000000106",
-    "label": "SCAN-C Test for Auditory Processing Disorders in Children"
-  },
-  {
-    "identifier": "snomed:982791000000100",
-    "label": "SCAN-A Test for Auditory Processing Disorders in Adolescents and Adults"
-  },
-  {
-    "identifier": "snomed:982821000000105",
-    "label": "SCAN-3C Test for Auditory Processing Disorders in Children"
-  },
-  {
     "identifier": "snomed:982851000000100",
     "label": "SCAN-3A Test for Auditory Processing Disorders in Children"
-  },
-  {
-    "identifier": "snomed:982881000000106",
-    "label": "TTFC-2 (Token Test for Children - Second Edition)"
   },
   {
     "identifier": "snomed:982981000000104",
@@ -8596,104 +7876,24 @@
     "label": "EDE-A (Eating Disorder Examination Questionnaire - Adolescents) 14-16 years - weight concern subscale"
   },
   {
-    "identifier": "snomed:983021000000107",
-    "label": "Wepman Auditory Discrimination Test - Second Edition"
-  },
-  {
-    "identifier": "snomed:983051000000102",
-    "label": "DDST-II (Denver Developmental Screening Test - Second Edition)"
-  },
-  {
-    "identifier": "snomed:983101000000102",
-    "label": "CADL-2 (Communication Abilities of Daily Living - Second Edition)"
-  },
-  {
-    "identifier": "snomed:983131000000108",
-    "label": "PLS-4 (Preschool Language Scale - Fourth Edition)"
-  },
-  {
-    "identifier": "snomed:983171000000105",
-    "label": "PLS-5 (Preschool Language Scale - Fifth Edition)"
-  },
-  {
-    "identifier": "snomed:983201000000106",
-    "label": "MAMS (Me and My School) Questionnaire behavioural difficulties subscale"
-  },
-  {
-    "identifier": "snomed:983231000000100",
-    "label": "Assessment of Intelligibility of Dysarthric Speech"
-  },
-  {
     "identifier": "snomed:983271000000103",
     "label": "Modified Strengths and Difficulties Questionnaire 8 - Parent - Impact subscale"
-  },
-  {
-    "identifier": "snomed:983391000000107",
-    "label": "BBCS - Bracken Basic Concept Scale"
-  },
-  {
-    "identifier": "snomed:983411000000107",
-    "label": "BBCS:E - Bracken Basic Concept Scale: Expressive"
-  },
-  {
-    "identifier": "snomed:983421000000101",
-    "label": "BBCS-3:R - Bracken Basic Concept Scale - Third Edition: Receptive"
-  },
-  {
-    "identifier": "snomed:983531000000103",
-    "label": "Renfrew Action Picture Test - Revised"
-  },
-  {
-    "identifier": "snomed:983561000000108",
-    "label": "VIP (Voice Impact Profile)"
-  },
-  {
-    "identifier": "snomed:983591000000102",
-    "label": "Yale Swallow Protocol"
-  },
-  {
-    "identifier": "snomed:983771000000109",
-    "label": "VPAS - Vocal Profile Analysis Scheme"
-  },
-  {
-    "identifier": "snomed:983881000000102",
-    "label": "BEST-2 (Bedside Evaluation Screening Test - Second Edition)"
   },
   {
     "identifier": "snomed:983981000000109",
     "label": "Listening Checklist"
   },
   {
-    "identifier": "snomed:984171000000108",
-    "label": "Raven's Advanced Progressive Matrices"
-  },
-  {
     "identifier": "snomed:984341000000100",
     "label": "CELF-4UK - Clinical Evaluation of Language Fundamentals - Fourth Edition UK"
-  },
-  {
-    "identifier": "snomed:984351000000102",
-    "label": "CELF-5 - Clinical Evaluation of Language Fundamentals - Fifth Edition"
   },
   {
     "identifier": "snomed:984441000000106",
     "label": "BAS-II - British Ability Scales - Second Edition"
   },
   {
-    "identifier": "snomed:984451000000109",
-    "label": "BAS-3 - British Ability Scales - Third Edition"
-  },
-  {
-    "identifier": "snomed:984591000000100",
-    "label": "MARS - Moss Attention Rating Scale"
-  },
-  {
     "identifier": "snomed:984711000000102",
     "label": "Rutter A2 scale"
-  },
-  {
-    "identifier": "snomed:984721000000108",
-    "label": "Boehm-3 Preschool"
   },
   {
     "identifier": "snomed:984731000000105",
@@ -8802,14 +8002,6 @@
   {
     "identifier": "snomed:985761000000101",
     "label": "CELF-3UK - Clinical Evaluation of Language Fundamentals - Third Edition UK"
-  },
-  {
-    "identifier": "snomed:985841000000109",
-    "label": "New Salford Sentence Reading Test"
-  },
-  {
-    "identifier": "snomed:986411000000100",
-    "label": "CNRep - Children's Test of Nonword Repetition"
   },
   {
     "identifier": "snomed:986731000000100",
@@ -8960,14 +8152,6 @@
     "label": "Current View Education, Employment, Training - attainment difficulties"
   },
   {
-    "identifier": "snomed:987581000000106",
-    "label": "GDO-R - Gesell Developmental Observation-Revised"
-  },
-  {
-    "identifier": "snomed:987631000000108",
-    "label": "Holborn Reading Scale"
-  },
-  {
     "identifier": "snomed:987661000000103",
     "label": "HoNOS-LD (Health of the Nation Outcome Scales for People with Learning Disabilities) rating scale 3A - behaviour destructive to property"
   },
@@ -8988,44 +8172,12 @@
     "label": "HoNOS-LD (Health of the Nation Outcome Scales for People with Learning Disabilities) rating scale 3E - others"
   },
   {
-    "identifier": "snomed:987961000000105",
-    "label": "Stanford Binet intelligence scales - fifth edition"
-  },
-  {
     "identifier": "snomed:988041000000106",
     "label": "Brighton criteria for joint hypermobility syndrome"
   },
   {
-    "identifier": "snomed:988691000000105",
-    "label": "Hoehn and Yahr Scale"
-  },
-  {
     "identifier": "snomed:988701000000105",
     "label": "Modified Hoehn and Yahr Scale"
-  },
-  {
-    "identifier": "snomed:989231000000102",
-    "label": "Merrill-Palmer-Revised Scales of Development"
-  },
-  {
-    "identifier": "snomed:989261000000107",
-    "label": "PAT-2 - Phonological Awareness Test - Second Edition"
-  },
-  {
-    "identifier": "snomed:989291000000101",
-    "label": "ASA - Auditory Skills Assessment"
-  },
-  {
-    "identifier": "snomed:989321000000106",
-    "label": "ICS - Intelligibility in Context Scale"
-  },
-  {
-    "identifier": "snomed:989351000000101",
-    "label": "CAPE-V - Consensus Auditory-Perceptual Evaluation of Voice"
-  },
-  {
-    "identifier": "snomed:989381000000107",
-    "label": "Boone Voice Program for Children"
   },
   {
     "identifier": "snomed:989581000000101",
@@ -9036,120 +8188,8 @@
     "label": "HoNOS-CR (Health of the Nation Outcome Scales for Children and Adolescents - clinician-rated)"
   },
   {
-    "identifier": "snomed:1024881000000101",
-    "label": "Mothers' Object Relations Scale - Short Form - Warmth Subscale"
-  },
-  {
-    "identifier": "snomed:1024901000000103",
-    "label": "Mothers' Object Relations Scale - Short Form - Invasiveness Subscale"
-  },
-  {
-    "identifier": "snomed:342951000000107",
-    "label": "Easy-care assessment tool weighted disability score"
-  },
-  {
-    "identifier": "snomed:960371000000104",
-    "label": "Young Child Outcome Rating Scale"
-  },
-  {
-    "identifier": "snomed:960461000000103",
-    "label": "Short Warwick-Edinburgh Mental Well-being Scale"
-  },
-  {
-    "identifier": "snomed:960671000000107",
-    "label": "Group Session Rating Scale"
-  },
-  {
-    "identifier": "snomed:960741000000109",
-    "label": "Child Group Session Rating Scale"
-  },
-  {
-    "identifier": "snomed:978521000000100",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Depression subscale"
-  },
-  {
-    "identifier": "snomed:978531000000103",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Generalized Anxiety subscale"
-  },
-  {
-    "identifier": "snomed:978541000000107",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Obsessions/Compulsions subscale"
-  },
-  {
-    "identifier": "snomed:978551000000105",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Panic subscale"
-  },
-  {
-    "identifier": "snomed:978561000000108",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Separation Anxiety subscale"
-  },
-  {
-    "identifier": "snomed:978571000000101",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Social Phobia subscale"
-  },
-  {
-    "identifier": "snomed:978581000000104",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Total Anxiety and Depression subscale"
-  },
-  {
-    "identifier": "snomed:978591000000102",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Total Anxiety subscale"
-  },
-  {
-    "identifier": "snomed:978601000000108",
-    "label": "RCADS-P (Revised Children's Anxiety and Depression Scale - Parent Version) - Depression subscale"
-  },
-  {
-    "identifier": "snomed:978611000000105",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Parent Version - Generalized Anxiety subscale"
-  },
-  {
-    "identifier": "snomed:978621000000104",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Parent Version - Obsessions/Compulsions subscale"
-  },
-  {
-    "identifier": "snomed:978631000000102",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Parent Version - Panic subscale"
-  },
-  {
-    "identifier": "snomed:978641000000106",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Parent Version - Separation Anxiety subscale"
-  },
-  {
-    "identifier": "snomed:978651000000109",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Parent Version - Social Phobia subscale"
-  },
-  {
-    "identifier": "snomed:978661000000107",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Parent Version - Total Anxiety and Depression subscale"
-  },
-  {
-    "identifier": "snomed:978671000000100",
-    "label": "RCADS (Revised Children's Anxiety and Depression Scale) - Parent Version - Total Anxiety subscale"
-  },
-  {
-    "identifier": "snomed:983261000000105",
-    "label": "Modified Strengths and Difficulties Questionnaire 8 - Impact subscale"
-  },
-  {
-    "identifier": "snomed:983971000000107",
-    "label": "SCORE Index of Family Function and Change - 15 - Dimension 1 - strengths and adaptability"
-  },
-  {
-    "identifier": "snomed:984011000000104",
-    "label": "SCORE Index of Family Function and Change - 15 - Dimension 2 - overwhelmed by difficulties"
-  },
-  {
-    "identifier": "snomed:984041000000103",
-    "label": "SCORE Index of Family Function and Change - 15 - Dimension 3 - disrupted communication"
-  },
-  {
     "identifier": "snomed:858111000000107",
     "label": "ESQ - Experience of Service Questionnaire"
-  },
-  {
-    "identifier": "snomed:904511000000108",
-    "label": "Bath Ankylosing Spondylitis Metrology Index"
   },
   {
     "identifier": "snomed:1287726005",
@@ -9282,65 +8322,5 @@
   {
     "identifier": "snomed:751111000124106",
     "label": "Asthma Therapy Assessment Questionnaire for children and adolescents"
-  },
-  {
-    "identifier": "snomed:1079441000000107",
-    "label": "NAFLD (Non-Alcoholic Fatty Liver Disease) fibrosis score"
-  },
-  {
-    "identifier": "snomed:1087241000000107",
-    "label": "Trauma Screening Questionnaire"
-  },
-  {
-    "identifier": "snomed:1087341000000100",
-    "label": "GDS - Global Deterioration Scale"
-  },
-  {
-    "identifier": "snomed:1095731000000101",
-    "label": "SAC - Standardized Assessment of Concussion"
-  },
-  {
-    "identifier": "snomed:1099341000000108",
-    "label": "mMRC (modified Medical Research Council) dyspnoea scale"
-  },
-  {
-    "identifier": "snomed:1092051000000101",
-    "label": "EQ-5D-Y (EuroQol Five Dimension (Youth)) instrument"
-  },
-  {
-    "identifier": "snomed:1104941000000100",
-    "label": "PHQ-4 - Patient Health Questionnaire-4"
-  },
-  {
-    "identifier": "snomed:1092521000000104",
-    "label": "GAS-Light (Goal Attainment Scaling-Light)"
-  },
-  {
-    "identifier": "snomed:1092711000000103",
-    "label": "PAR (Post Anaesthetic Recovery) score"
-  },
-  {
-    "identifier": "snomed:1092861000000105",
-    "label": "Modified Balance Error Scoring System"
-  },
-  {
-    "identifier": "snomed:201721000000109",
-    "label": "Beck depression inventory second edition score"
-  },
-  {
-    "identifier": "snomed:504121000000102",
-    "label": "General practitioner assessment of cognition tool"
-  },
-  {
-    "identifier": "snomed:509531000000106",
-    "label": "Braden pressure sore risk scale"
-  },
-  {
-    "identifier": "snomed:527361000000107",
-    "label": "Chronic obstructive pulmonary disease assessment test"
-  },
-  {
-    "identifier": "snomed:835131000000107",
-    "label": "Modified Rankin scale"
   }
 ]
