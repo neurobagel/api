@@ -1,3 +1,15 @@
+# v0.6.3 (Fri Mar 14 2025)
+
+#### 🐛 Bug Fixes
+
+- [FIX] update assessments to SNOMED v20250227 and exclude non-standard terms [#421](https://github.com/neurobagel/api/pull/421) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.6.2 (Mon Mar 10 2025)
 
 :tada: This release contains work from a new contributor! :tada:
