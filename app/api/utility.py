@@ -37,10 +37,6 @@ CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
 
 IS_CONTROL_TERM = "ncit:C94342"
 
-BACKUP_VOCAB_DIR = (
-    Path(__file__).absolute().parents[2] / "vocab/backup_external"
-)
-
 
 def parse_origins_as_list(allowed_origins: str | None) -> list:
     """Returns user-defined allowed origins as a list."""
@@ -414,44 +410,45 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 
-def create_snomed_assessment_lookup(output_path: Path):
+def create_snomed_terms_lookup(vocab_path: Path, lookup_path: Path):
     """
-    Reads in a file of assessment terms from the SNOMED vocabulary and writes term ID-label mappings to a temporary lookup file.
+    Reads in a file containing terms from the SNOMED CT vocabulary and writes term ID-label mappings to a temporary lookup file.
 
     Saves a JSON with keys corresponding to SNOMED IDs and values corresponding to human-readable term names.
 
     Parameters
     ----------
-    output_path : Path
+    lookup_path : Path
         File path to store output vocabulary lookup file.
     """
-    vocab = load_json(BACKUP_VOCAB_DIR / "snomed_assessment.json")
+    # vocab = load_json(BACKUP_VOCAB_DIR / "snomed_assessment.json")
+    vocab = load_json(vocab_path)
 
     term_labels = {
         term["identifier"].removeprefix("snomed:"): term["label"]
         for term in vocab
     }
 
-    with open(output_path, "w") as f:
+    with open(lookup_path, "w") as f:
         f.write(json.dumps(term_labels, indent=2))
 
 
-def create_snomed_disorder_lookup(output_path: Path):
-    """
-    Reads in a file of disorder terms from the SNOMED CT vocabulary and writes term ID-label mappings to a temporary lookup file.
+# def create_snomed_disorder_lookup(output_path: Path):
+#     """
+#     Reads in a file of disorder terms from the SNOMED CT vocabulary and writes term ID-label mappings to a temporary lookup file.
 
-    Saves a JSON with keys corresponding to SNOMED CT IDs and values corresponding to human-readable term names.
+#     Saves a JSON with keys corresponding to SNOMED CT IDs and values corresponding to human-readable term names.
 
-    Parameters
-    ----------
-    output_path : Path
-        File path to store output vocabulary lookup file.
-    """
-    vocab = load_json(BACKUP_VOCAB_DIR / "snomedct_disorder.json")
+#     Parameters
+#     ----------
+#     output_path : Path
+#         File path to store output vocabulary lookup file.
+#     """
+#     vocab = load_json(BACKUP_VOCAB_DIR / "snomedct_disorder.json")
 
-    term_labels = {term["sctid"]: term["preferred_name"] for term in vocab}
-    with open(output_path, "w") as f:
-        f.write(json.dumps(term_labels, indent=2))
+#     term_labels = {term["sctid"]: term["preferred_name"] for term in vocab}
+#     with open(output_path, "w") as f:
+#         f.write(json.dumps(term_labels, indent=2))
 
 
 def create_pipeline_versions_query(pipeline: str) -> str:

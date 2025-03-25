@@ -16,6 +16,10 @@ from .api.config import Settings, settings
 from .api.routers import assessments, attributes, diagnoses, pipelines, query
 from .api.security import check_client_id
 
+BACKUP_VOCAB_DIR = (
+    Path(__file__).absolute().parents[1] / "vocab/backup_external"
+)
+
 
 def validate_environment_variables():
     """
@@ -63,11 +67,13 @@ def initialize_vocabularies():
         / "snomedct_disorder_term_labels.json",
     }
 
-    util.create_snomed_assessment_lookup(
-        app.state.vocab_lookup_paths["snomed_assessment"]
+    util.create_snomed_terms_lookup(
+        vocab_path=BACKUP_VOCAB_DIR / "snomed_assessment.json",
+        lookup_path=app.state.vocab_lookup_paths["snomed_assessment"],
     )
-    util.create_snomed_disorder_lookup(
-        app.state.vocab_lookup_paths["snomed_disorder"]
+    util.create_snomed_terms_lookup(
+        vocab_path=BACKUP_VOCAB_DIR / "snomedct_disorder.json",
+        lookup_path=app.state.vocab_lookup_paths["snomed_disorder"],
     )
 
 
