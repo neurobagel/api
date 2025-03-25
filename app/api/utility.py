@@ -421,7 +421,6 @@ def create_snomed_terms_lookup(vocab_path: Path, lookup_path: Path):
     lookup_path : Path
         File path to store output vocabulary lookup file.
     """
-    # vocab = load_json(BACKUP_VOCAB_DIR / "snomed_assessment.json")
     vocab = load_json(vocab_path)
 
     term_labels = {
@@ -431,24 +430,6 @@ def create_snomed_terms_lookup(vocab_path: Path, lookup_path: Path):
 
     with open(lookup_path, "w") as f:
         f.write(json.dumps(term_labels, indent=2))
-
-
-# def create_snomed_disorder_lookup(output_path: Path):
-#     """
-#     Reads in a file of disorder terms from the SNOMED CT vocabulary and writes term ID-label mappings to a temporary lookup file.
-
-#     Saves a JSON with keys corresponding to SNOMED CT IDs and values corresponding to human-readable term names.
-
-#     Parameters
-#     ----------
-#     output_path : Path
-#         File path to store output vocabulary lookup file.
-#     """
-#     vocab = load_json(BACKUP_VOCAB_DIR / "snomedct_disorder.json")
-
-#     term_labels = {term["sctid"]: term["preferred_name"] for term in vocab}
-#     with open(output_path, "w") as f:
-#         f.write(json.dumps(term_labels, indent=2))
 
 
 def create_pipeline_versions_query(pipeline: str) -> str:

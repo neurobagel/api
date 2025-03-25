@@ -68,7 +68,7 @@ def initialize_vocabularies():
     }
 
     util.create_snomed_terms_lookup(
-        vocab_path=BACKUP_VOCAB_DIR / "snomed_assessment.json",
+        vocab_path=BACKUP_VOCAB_DIR / "snomedct_assessment.json",
         lookup_path=app.state.vocab_lookup_paths["snomed_assessment"],
     )
     util.create_snomed_terms_lookup(
