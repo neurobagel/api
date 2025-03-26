@@ -410,9 +410,12 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 
-def create_snomed_terms_lookup(vocab_path: Path, lookup_path: Path):
+def reformat_snomed_terms_for_lookup(
+    input_terms_path: Path, output_terms_path: Path
+):
     """
-    Reads in a file containing terms from the SNOMED CT vocabulary and writes term ID-label mappings to a temporary lookup file.
+    Reads in a file containing terms from the SNOMED CT vocabulary, strips the SNOMED prefix from term URIS,
+    and writes the resulting term ID-label mappings to a temporary lookup file.
 
     Saves a JSON with keys corresponding to SNOMED IDs and values corresponding to human-readable term names.
 
@@ -421,14 +424,14 @@ def create_snomed_terms_lookup(vocab_path: Path, lookup_path: Path):
     lookup_path : Path
         File path to store output vocabulary lookup file.
     """
-    vocab = load_json(vocab_path)
+    vocab = load_json(input_terms_path)
 
     term_labels = {
         term["identifier"].removeprefix("snomed:"): term["label"]
         for term in vocab
     }
 
-    with open(lookup_path, "w") as f:
+    with open(output_terms_path, "w") as f:
         f.write(json.dumps(term_labels, indent=2))
 
 
