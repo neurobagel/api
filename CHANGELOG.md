@@ -1,3 +1,15 @@
+# v0.6.4 (Wed Mar 26 2025)
+
+#### 🚀 Enhancements
+
+- [MNT] Update diagnosis terms to SNOMED v20250227 and standardize vocab file format [#427](https://github.com/neurobagel/api/pull/427) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.6.3 (Fri Mar 14 2025)
 
 #### 🐛 Bug Fixes
