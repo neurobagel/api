@@ -4,13 +4,12 @@ import warnings
 from pathlib import Path
 
 import httpx
-import numpy as np
 import pandas as pd
 from fastapi import HTTPException, status
 
 from . import utility as util
 from .config import settings
-from .models import CohortQueryResponse, SessionResponse, VocabLabelsResponse
+from .models import SessionResponse, VocabLabelsResponse
 
 ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
     "dataset_uuid",
@@ -104,7 +103,8 @@ async def get(
     image_modal: str,
     pipeline_name: str,
     pipeline_version: str,
-) -> list[CohortQueryResponse]:
+    is_datasets_query: bool,
+) -> list[dict]:
     """
     Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
     matching the given query parameters, as well as the total number of subjects in each matching dataset.
@@ -133,6 +133,8 @@ async def get(
         Name of pipeline run on subject scans.
     pipeline_version : str
         Version of pipeline run on subject scans.
+    is_datasets_query : bool
+        Whether the query is for matching dataset metadata only (used by the /datasets path).
 
     Returns
     -------
@@ -141,7 +143,7 @@ async def get(
     """
     results = post_query_to_graph(
         util.create_query(
-            return_agg=settings.return_agg,
+            return_agg=is_datasets_query or settings.return_agg,
             age=(min_age, max_age),
             sex=sex,
             diagnosis=diagnosis,
@@ -169,141 +171,71 @@ async def get(
     response_obj = []
     dataset_cols = ["dataset_uuid", "dataset_name"]
     if not results_df.empty:
-        for (dataset_uuid, dataset_name), group in results_df.groupby(
-            by=dataset_cols
-        ):
-            num_matching_subjects = group["sub_id"].nunique()
+        for (
+            dataset_uuid,
+            dataset_name,
+        ), dataset_matching_records in results_df.groupby(by=dataset_cols):
+            num_matching_subjects = dataset_matching_records[
+                "sub_id"
+            ].nunique()
             # TODO: The current implementation is valid in that we do not return
             # results for datasets with fewer than min_cell_count subjects. But
             # ideally we would handle this directly inside SPARQL so we don't even
             # get the results in the first place. See #267 for a solution.
             if num_matching_subjects <= settings.min_cell_size:
                 continue
-            if settings.return_agg:
-                subject_data = "protected"
-            else:
-                subject_data = (
-                    group.drop(dataset_cols, axis=1)
-                    .groupby(
-                        by=["sub_id", "session_id", "session_type"],
-                        dropna=True,
-                    )
-                    .agg(
-                        {
-                            "sub_id": "first",
-                            "session_id": "first",
-                            "num_matching_phenotypic_sessions": "first",
-                            "num_matching_imaging_sessions": "first",
-                            "session_type": "first",
-                            "age": "first",
-                            "sex": "first",
-                            "diagnosis": lambda x: list(x.unique()),
-                            "subject_group": "first",
-                            "assessment": lambda x: list(x.unique()),
-                            "image_modal": lambda x: list(x.unique()),
-                            "session_file_path": "first",
-                        }
-                    )
-                )
-
-                # Get the unique versions of each pipeline that was run on each session
-                pipeline_grouped_data = (
-                    group.groupby(
-                        [
-                            "sub_id",
-                            "session_id",
-                            "session_type",
-                            "pipeline_name",
-                        ],
-                        # We cannot drop NaNs here because sessions without pipelines (i.e., with empty values for pipeline_name)
-                        # would otherwise be completely removed and in an extreme case where no matching sessions have pipeline info,
-                        # we'd end up with an empty dataframe.
-                        dropna=False,
-                    ).agg(
-                        {
-                            "pipeline_version": lambda x: list(
-                                x.dropna().unique()
-                            )
-                        }
-                    )
-                    # Turn indices from the groupby back into dataframe columns
-                    .reset_index()
-                )
-
-                # Aggregate all completed pipelines for each session
-                session_grouped_data = pipeline_grouped_data.groupby(
-                    ["sub_id", "session_id", "session_type"],
-                )
-                session_completed_pipeline_data = (
-                    session_grouped_data.apply(
-                        lambda x: {
-                            pname: pvers
-                            for pname, pvers in zip(
-                                x["pipeline_name"], x["pipeline_version"]
-                            )
-                            if not pd.isnull(pname)
-                        }
-                    )
-                    # NOTE: The below function expects a pd.Series only.
-                    # This can break if the result of the apply function is a pd.DataFrame
-                    # (pd.DataFrame.reset_index() doesn't have a "name" arg),
-                    # which can happen if the original dataframe being operated on is empty.
-                    # For example, see https://github.com/neurobagel/api/issues/367.
-                    # (Related: https://github.com/pandas-dev/pandas/issues/55225)
-                    .reset_index(name="completed_pipelines")
-                )
-
-                subject_data = pd.merge(
-                    subject_data.reset_index(drop=True),
-                    session_completed_pipeline_data,
-                    on=["sub_id", "session_id", "session_type"],
-                    how="left",
-                )
-
-                # TODO: Revisit this as there may be a more elegant solution.
-                # The following code replaces columns with all NaN values with values of None, to ensure they show up in the final JSON as `null`.
-                # This is needed as the above .agg() seems to turn NaN into None for object-type columns (which have some non-missing values)
-                # but not for columns with all NaN, which end up with a column type of float64. This is a problem because
-                # if the column corresponds to a SessionResponse attribute with an expected str type, then the column values will be converted
-                # to the string "nan" in the response JSON, which we don't want.
-                all_nan_columns = subject_data.columns[
-                    subject_data.isna().all()
-                ]
-                subject_data[all_nan_columns] = subject_data[
-                    all_nan_columns
-                ].replace({np.nan: None})
-
-                subject_data = list(subject_data.to_dict("records"))
 
             dataset_available_pipelines = (
-                group.groupby("pipeline_name", dropna=True)["pipeline_version"]
+                dataset_matching_records.groupby("pipeline_name", dropna=True)[
+                    "pipeline_version"
+                ]
                 .apply(lambda x: list(x.dropna().unique()))
                 .to_dict()
             )
 
-            response_obj.append(
-                CohortQueryResponse(
-                    dataset_uuid=dataset_uuid,
-                    dataset_name=dataset_name,
-                    dataset_total_subjects=matching_dataset_sizes[
-                        dataset_uuid
-                    ],
-                    dataset_portal_uri=(
-                        group["dataset_portal_uri"].iloc[0]
-                        if not group["dataset_portal_uri"].isna().any()
-                        else None
-                    ),
-                    num_matching_subjects=num_matching_subjects,
-                    records_protected=settings.return_agg,
-                    subject_data=subject_data,
-                    image_modals=list(
-                        group["image_modal"][
-                            group["image_modal"].notna()
-                        ].unique()
-                    ),
-                    available_pipelines=dataset_available_pipelines,
-                )
-            )
+            dataset_response = {
+                "dataset_uuid": dataset_uuid,
+                "dataset_name": dataset_name,
+                "dataset_total_subjects": matching_dataset_sizes[dataset_uuid],
+                "dataset_portal_uri": (
+                    dataset_matching_records["dataset_portal_uri"].iloc[0]
+                    if not dataset_matching_records["dataset_portal_uri"]
+                    .isna()
+                    .any()
+                    else None
+                ),
+                "num_matching_subjects": num_matching_subjects,
+                "records_protected": settings.return_agg,
+                "image_modals": list(
+                    dataset_matching_records["image_modal"][
+                        dataset_matching_records["image_modal"].notna()
+                    ].unique()
+                ),
+                "available_pipelines": dataset_available_pipelines,
+            }
+
+            if is_datasets_query:
+                # TODO: need to append as response model instance?
+                response_obj.append(dataset_response)
+            else:
+                if settings.return_agg:
+                    subject_data = "protected"
+                else:
+                    dataset_matching_records = dataset_matching_records.drop(
+                        dataset_cols, axis=1
+                    )
+                    subject_data = (
+                        util.construct_matching_sub_results_for_dataset(
+                            dataset_matching_records
+                        )
+                    )
+
+                subject_response = {
+                    **dataset_response,
+                    "subject_data": subject_data,
+                }
+                # TODO: need to append as response model instance?
+                response_obj.append(subject_response)
 
     return response_obj
 

@@ -45,18 +45,20 @@ async def get_query(
             )
         verify_token(token)
 
+    # TODO: See if we can pass the query object directly to crud.get() instead of unpacking it
     response = await crud.get(
-        query.min_age,
-        query.max_age,
-        query.sex,
-        query.diagnosis,
-        query.is_control,
-        query.min_num_imaging_sessions,
-        query.min_num_phenotypic_sessions,
-        query.assessment,
-        query.image_modal,
-        query.pipeline_name,
-        query.pipeline_version,
+        min_age=query.min_age,
+        max_age=query.max_age,
+        sex=query.sex,
+        diagnosis=query.diagnosis,
+        is_control=query.is_control,
+        min_num_imaging_sessions=query.min_num_imaging_sessions,
+        min_num_phenotypic_sessions=query.min_num_phenotypic_sessions,
+        assessment=query.assessment,
+        image_modal=query.image_modal,
+        pipeline_name=query.pipeline_name,
+        pipeline_version=query.pipeline_version,
+        is_datasets_query=False,
     )
 
     return response
