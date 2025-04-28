@@ -1,5 +1,3 @@
-"""Router for query path operations."""
-
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -7,14 +5,11 @@ from fastapi.security import OAuth2
 
 from .. import crud
 from ..config import settings
-from ..models import QueryModel, SubjectsQueryResponse
+from ..models import DatasetQueryResponse, QueryModel
 from ..security import verify_token
 
-router = APIRouter(prefix="/query", tags=["query"])
+router = APIRouter(prefix="/datasets", tags=["datasets"])
 
-# Adapted from info in https://github.com/tiangolo/fastapi/discussions/9137#discussioncomment-5157382
-# I believe for us this is purely for documentatation/a nice looking interactive API docs page,
-# and doesn't actually have any bearing on the ID token validation process.
 oauth2_scheme = OAuth2(
     flows={
         "implicit": {
@@ -26,12 +21,7 @@ oauth2_scheme = OAuth2(
 )
 
 
-# We (unconventionally) use an "" path prefix here because we have globally disabled
-# redirection of trailing slashes in the main app file. We use an empty string here
-# to ensure that a request without a trailing slash (e.g., to /query instead of /query/)
-# is correctly routed to this endpoint.
-# For more context, see https://github.com/neurobagel/api/issues/327.
-@router.get("", response_model=List[SubjectsQueryResponse])
+@router.get("", response_model=List[DatasetQueryResponse])
 async def get_query(
     query: Annotated[QueryModel, Query()],
     token: str | None = Depends(oauth2_scheme),

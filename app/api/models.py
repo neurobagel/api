@@ -114,8 +114,8 @@ class SessionResponse(BaseModel):
     completed_pipelines: dict
 
 
-class CohortQueryResponse(BaseModel):
-    """Data model for query results for one matching dataset (i.e., a cohort)."""
+class DatasetQueryResponse(BaseModel):
+    """Data model for metadata of datasets matching a query."""
 
     dataset_uuid: str
     # dataset_file_path: str  # TODO: Revisit this field once we have datasets without imaging info/sessions.
@@ -124,9 +124,14 @@ class CohortQueryResponse(BaseModel):
     dataset_total_subjects: int
     records_protected: bool
     num_matching_subjects: int
-    subject_data: Union[list[SessionResponse], str]
     image_modals: list
     available_pipelines: dict
+
+
+class SubjectsQueryResponse(DatasetQueryResponse):
+    """Data model for subject data matching a query."""
+
+    subject_data: Union[list[SessionResponse], str]
 
 
 class DataElementURI(str, Enum):
