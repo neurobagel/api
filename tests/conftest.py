@@ -726,6 +726,7 @@ def mock_get_with_exception(request):
         image_modal,
         pipeline_version,
         pipeline_name,
+        is_datasets_query,
     ):
         raise request.param
 
@@ -756,6 +757,7 @@ def mock_get(request):
         image_modal,
         pipeline_version,
         pipeline_name,
+        is_datasets_query,
     ):
         return request.param
 
@@ -778,6 +780,7 @@ def mock_successful_get(test_data):
         image_modal,
         pipeline_version,
         pipeline_name,
+        is_datasets_query,
     ):
         return test_data
 
