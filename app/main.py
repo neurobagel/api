@@ -13,7 +13,14 @@ from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
 from .api import utility as util
 from .api.config import Settings, settings
-from .api.routers import assessments, attributes, diagnoses, pipelines, query
+from .api.routers import (
+    assessments,
+    attributes,
+    datasets,
+    diagnoses,
+    pipelines,
+    query,
+)
 from .api.security import check_client_id
 
 BACKUP_VOCAB_DIR = (
@@ -177,6 +184,7 @@ def overridden_redoc(request: Request):
 
 
 app.include_router(query.router)
+app.include_router(datasets.router)
 app.include_router(attributes.router)
 app.include_router(assessments.router)
 app.include_router(diagnoses.router)
