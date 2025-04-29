@@ -21,9 +21,9 @@ oauth2_scheme = OAuth2(
 )
 
 
-@router.get("", response_model=List[DatasetQueryResponse])
-async def get_query(
-    query: Annotated[QueryModel, Query()],
+@router.post("", response_model=List[DatasetQueryResponse])
+async def post_datasets_query(
+    query: QueryModel,
     token: str | None = Depends(oauth2_scheme),
 ):
     """When a GET request is sent, return list of dicts corresponding to subject-level metadata aggregated by dataset."""

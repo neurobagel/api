@@ -16,7 +16,7 @@ def test_datasets_response_structure(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
 
-    response = test_app.get("/datasets")
+    response = test_app.post("/datasets", json={})
     assert response.status_code == 200
     assert all(
         "subject_data" not in matching_dataset
