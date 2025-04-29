@@ -45,8 +45,8 @@ async def get_query(
             )
         verify_token(token)
 
-    # TODO: See if we can pass the query object directly to crud.get() instead of unpacking it
-    response = await crud.get(
+    # TODO: See if we can pass the query object directly to crud.query_records() instead of unpacking it
+    response = await crud.query_records(
         min_age=query.min_age,
         max_age=query.max_age,
         sex=query.sex,

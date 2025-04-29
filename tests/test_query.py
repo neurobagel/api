@@ -88,7 +88,7 @@ def test_get_all(
 ):
     """Given no input for any query parameters, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(ROUTE, headers=mock_auth_header)
     assert response.status_code == 200
     assert response.json() != []
@@ -109,7 +109,7 @@ def test_get_valid_age_range(
 ):
     """Given a valid age range, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?min_age={valid_min_age}&max_age={valid_max_age}",
         headers=mock_auth_header,
@@ -132,7 +132,7 @@ def test_get_valid_age_single_bound(
 ):
     """Given only a valid lower/upper age bound, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(f"{ROUTE}?{age_keyval}", headers=mock_auth_header)
     assert response.status_code == 200
     assert response.json() != []
@@ -158,7 +158,7 @@ def test_get_invalid_age(
 ):
     """Given an invalid age range, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?min_age={invalid_min_age}&max_age={invalid_max_age}",
         headers=mock_auth_header,
@@ -180,7 +180,7 @@ def test_get_valid_sex(
 ):
     """Given a valid sex string, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?sex={valid_sex}", headers=mock_auth_header
     )
@@ -194,7 +194,7 @@ def test_get_invalid_sex(
 ):
     """Given an invalid sex string, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(f"{ROUTE}?sex=apple", headers=mock_auth_header)
     assert response.status_code == 422
 
@@ -212,7 +212,7 @@ def test_get_valid_diagnosis(
 ):
     """Given a valid diagnosis, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?diagnosis={valid_diagnosis}", headers=mock_auth_header
     )
@@ -234,7 +234,7 @@ def test_get_invalid_diagnosis(
 ):
     """Given an invalid diagnosis, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?diagnosis={invalid_diagnosis}", headers=mock_auth_header
     )
@@ -252,7 +252,7 @@ def test_get_valid_iscontrol(
 ):
     """Given a valid is_control value, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?is_control={valid_iscontrol}", headers=mock_auth_header
     )
@@ -283,7 +283,7 @@ def test_get_invalid_iscontrol(
 ):
     """Given an invalid is_control value, returns a 422 status code and informative error."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?is_control={invalid_iscontrol}", headers=mock_auth_header
     )
@@ -297,7 +297,7 @@ def test_get_invalid_control_diagnosis_pair(
 ):
     """Given a non-default diagnosis value and is_control value of True, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?diagnosis=snomed:35489007&is_control=True",
         headers=mock_auth_header,
@@ -326,7 +326,7 @@ def test_get_valid_min_num_sessions(
 ):
     """Given a valid minimum number of imaging sessions, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?{session_param}={valid_min_num_sessions}",
         headers=mock_auth_header,
@@ -352,7 +352,7 @@ def test_get_invalid_min_num_sessions(
 ):
     """Given an invalid minimum number of imaging sessions, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?{session_param}={invalid_min_num_sessions}",
         headers=mock_auth_header,
@@ -369,7 +369,7 @@ def test_get_valid_assessment(
 ):
     """Given a valid assessment, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?assessment=nb:cogAtlas-1234", headers=mock_auth_header
     )
@@ -391,7 +391,7 @@ def test_get_invalid_assessment(
 ):
     """Given an invalid assessment, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?assessment={invalid_assessment}", headers=mock_auth_header
     )
@@ -418,7 +418,7 @@ def test_get_valid_available_image_modal(
 ):
     """Given a valid and available image modality, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?image_modal={valid_available_image_modal}",
         headers=mock_auth_header,
@@ -442,7 +442,7 @@ def test_get_valid_unavailable_image_modal(
 ):
     """Given a valid, pre-defined, and unavailable image modality, returns a 200 status code and an empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?image_modal={valid_unavailable_image_modal}",
         headers=mock_auth_header,
@@ -466,7 +466,7 @@ def test_get_invalid_image_modal(
 ):
     """Given an invalid image modality, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?image_modal={invalid_image_modal}", headers=mock_auth_header
     )
@@ -490,7 +490,7 @@ def test_get_undefined_prefix_image_modal(
 ):
     """Given a valid and undefined prefix image modality, returns a 500 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get_with_exception)
+    monkeypatch.setattr(crud, "query_records", mock_get_with_exception)
     response = test_app.get(
         f"{ROUTE}?image_modal={undefined_prefix_image_modal}",
         headers=mock_auth_header,
@@ -511,7 +511,7 @@ def test_get_valid_pipeline_version(
 ):
     """Given a valid pipeline version, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?pipeline_version={valid_pipeline_version}",
         headers=mock_auth_header,
@@ -532,7 +532,7 @@ def test_get_invalid_pipeline_version(
 ):
     """Given an invalid pipeline version, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?pipeline_version={invalid_pipeline_version}",
         headers=mock_auth_header,
@@ -553,7 +553,7 @@ def test_get_valid_pipeline_name(
 ):
     """Given a valid pipeline name, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?pipeline_name={valid_pipeline_name}",
         headers=mock_auth_header,
@@ -576,7 +576,7 @@ def test_get_invalid_pipeline_name(
 ):
     """Given an invalid pipeline name, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "get", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_get)
     response = test_app.get(
         f"{ROUTE}?pipeline_name={invalid_pipeline_name}",
         headers=mock_auth_header,
@@ -604,7 +604,7 @@ def test_get_valid_pipeline_name_version(
 ):
     """Given a valid pipeline name and version, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(
         f"{ROUTE}?pipeline_name={valid_pipeline_name}&pipeline_version={valid_pipeline_version}",
         headers=mock_auth_header,
@@ -642,7 +642,7 @@ def test_query_without_token_succeeds_when_auth_disabled(
     """
     Test that when authentication is disabled, a request to the /query route without a token succeeds.
     """
-    monkeypatch.setattr(crud, "get", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_get)
     response = test_app.get(ROUTE)
     assert response.status_code == 200
 

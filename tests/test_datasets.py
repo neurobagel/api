@@ -8,7 +8,7 @@ def test_datasets_response_structure(
     disable_auth,
     monkeypatch,
 ):
-    """Test that the datasets endpoint returns a list of dicts with the expected keys."""
+    """Test that the datasets endpoint does not include subject data in the response."""
     monkeypatch.setattr(
         crud, "post_query_to_graph", mock_post_agg_query_to_graph
     )

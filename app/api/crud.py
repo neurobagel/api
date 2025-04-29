@@ -91,7 +91,7 @@ def query_matching_dataset_sizes(dataset_uuids: list) -> dict:
     }
 
 
-async def get(
+async def query_records(
     min_age: float,
     max_age: float,
     sex: str,

@@ -26,7 +26,7 @@ async def post_datasets_query(
     query: QueryModel,
     token: str | None = Depends(oauth2_scheme),
 ):
-    """When a GET request is sent, return list of dicts corresponding to subject-level metadata aggregated by dataset."""
+    """When a POST request is sent, return list of dicts corresponding to metadata for datasets matching the query."""
     if settings.auth_enabled:
         if token is None:
             raise HTTPException(
@@ -35,8 +35,8 @@ async def post_datasets_query(
             )
         verify_token(token)
 
-    # TODO: See if we can pass the query object directly to crud.get() instead of unpacking it
-    response = await crud.get(
+    # TODO: See if we can pass the query object directly to crud.query_records() instead of unpacking it
+    response = await crud.query_records(
         min_age=query.min_age,
         max_age=query.max_age,
         sex=query.sex,
