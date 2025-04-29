@@ -4,7 +4,7 @@ from enum import Enum
 from typing import Annotated, Literal, Optional, Union
 
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel, BeforeValidator, model_validator, Field
+from pydantic import BaseModel, BeforeValidator, Field, model_validator
 from typing_extensions import Self
 
 CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
@@ -37,23 +37,35 @@ class QueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
     # NOTE: extra query parameters are just ignored/have no effect
-    # NOTE: Explicit examples are needed for fields requiring a URI to avoid random-string examples being generated 
+    # NOTE: Explicit examples are needed for fields requiring a URI to avoid random-string examples being generated
     # for the example request body in the interactive docs
 
     min_age: float = Field(default=None, ge=0)
     max_age: float = Field(default=None, ge=0)
-    sex: str = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
-    diagnosis: str = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
+    sex: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    diagnosis: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
     is_control: Annotated[
         Literal[True, None],
         BeforeValidator(convert_valid_is_control_values_to_bool),
     ] = None
     min_num_imaging_sessions: int = Field(default=None, ge=0)
     min_num_phenotypic_sessions: int = Field(default=None, ge=0)
-    assessment: str = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
-    image_modal: str = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
-    pipeline_name: str = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
-    pipeline_version: str = Field(default=None, pattern=VERSION_REGEX, examples=["1.0.0"])
+    assessment: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    image_modal: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    pipeline_name: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    pipeline_version: str = Field(
+        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
+    )
 
     @model_validator(mode="after")
     def check_maxage_ge_minage(self) -> Self:
