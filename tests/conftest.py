@@ -693,7 +693,7 @@ def mock_query_matching_dataset_sizes():
     """
     Mock query_matching_dataset_sizes function that returns the total number of subjects for a toy dataset 12345.
     Can be used together with mock_post_*_query_to_graph fixtures to mock both the POST step of a cohort query and
-    the corresponding query for dataset size, in order to test how the response from the graph is processed by the API (crud.get).
+    the corresponding query for dataset size, in order to test how the response from the graph is processed by the API (crud.query_records).
     """
 
     def _mock_query_matching_dataset_sizes(dataset_uuids):
@@ -726,6 +726,7 @@ def mock_get_with_exception(request):
         image_modal,
         pipeline_version,
         pipeline_name,
+        is_datasets_query,
     ):
         raise request.param
 
@@ -756,6 +757,7 @@ def mock_get(request):
         image_modal,
         pipeline_version,
         pipeline_name,
+        is_datasets_query,
     ):
         return request.param
 
@@ -778,6 +780,7 @@ def mock_successful_get(test_data):
         image_modal,
         pipeline_version,
         pipeline_name,
+        is_datasets_query,
     ):
         return test_data
 

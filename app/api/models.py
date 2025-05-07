@@ -3,13 +3,16 @@
 from enum import Enum
 from typing import Annotated, Literal, Optional, Union
 
-from fastapi import Query
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel, BeforeValidator, model_validator
-from pydantic.types import StringConstraints
+from pydantic import BaseModel, BeforeValidator, Field, model_validator
 from typing_extensions import Self
 
 CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
+
+# TODO: Check if version regex is too restrictive
+# Constrain version numbers to be in the following format:
+# Exactly three dot-separated segments, where the first and third segments can be letters, numbers, or hyphens (at least one character each),
+# and the middle segment must be purely digits (one or more).
 VERSION_REGEX = r"^([A-Za-z0-9-]+)\.(\d+)\.([A-Za-z0-9-]+)$"
 
 
@@ -34,34 +37,35 @@ class QueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
     # NOTE: extra query parameters are just ignored/have no effect
+    # NOTE: Explicit examples are needed for fields requiring a URI to avoid random-string examples being generated
+    # for the example request body in the interactive docs
 
-    min_age: float = Query(default=None, ge=0)
-    max_age: float = Query(default=None, ge=0)
-    sex: Annotated[str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)] = (
-        None
+    min_age: float = Field(default=None, ge=0)
+    max_age: float = Field(default=None, ge=0)
+    sex: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    diagnosis: Annotated[
-        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
-    ] = None
+    diagnosis: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
     is_control: Annotated[
         Literal[True, None],
         BeforeValidator(convert_valid_is_control_values_to_bool),
     ] = None
-    min_num_imaging_sessions: int = Query(default=None, ge=0)
-    min_num_phenotypic_sessions: int = Query(default=None, ge=0)
-    assessment: Annotated[
-        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
-    ] = None
-    image_modal: Annotated[
-        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
-    ] = None
-    pipeline_name: Annotated[
-        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
-    ] = None
-    # TODO: Check back if validating using a regex is too restrictive
-    pipeline_version: Annotated[
-        str, StringConstraints(pattern=VERSION_REGEX)
-    ] = None
+    min_num_imaging_sessions: int = Field(default=None, ge=0)
+    min_num_phenotypic_sessions: int = Field(default=None, ge=0)
+    assessment: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    image_modal: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    pipeline_name: str = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    pipeline_version: str = Field(
+        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
+    )
 
     @model_validator(mode="after")
     def check_maxage_ge_minage(self) -> Self:
@@ -114,8 +118,8 @@ class SessionResponse(BaseModel):
     completed_pipelines: dict
 
 
-class CohortQueryResponse(BaseModel):
-    """Data model for query results for one matching dataset (i.e., a cohort)."""
+class DatasetQueryResponse(BaseModel):
+    """Data model for metadata of datasets matching a query."""
 
     dataset_uuid: str
     # dataset_file_path: str  # TODO: Revisit this field once we have datasets without imaging info/sessions.
@@ -124,9 +128,14 @@ class CohortQueryResponse(BaseModel):
     dataset_total_subjects: int
     records_protected: bool
     num_matching_subjects: int
-    subject_data: Union[list[SessionResponse], str]
     image_modals: list
     available_pipelines: dict
+
+
+class SubjectsQueryResponse(DatasetQueryResponse):
+    """Data model for subject data matching a query."""
+
+    subject_data: Union[list[SessionResponse], str]
 
 
 class DataElementURI(str, Enum):

@@ -1,20 +1,15 @@
-"""Router for query path operations."""
+from typing import List
 
-from typing import Annotated, List
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2
 
 from .. import crud
 from ..config import settings
-from ..models import QueryModel, SubjectsQueryResponse
+from ..models import DatasetQueryResponse, QueryModel
 from ..security import verify_token
 
-router = APIRouter(prefix="/query", tags=["query"])
+router = APIRouter(prefix="/datasets", tags=["datasets"])
 
-# Adapted from info in https://github.com/tiangolo/fastapi/discussions/9137#discussioncomment-5157382
-# I believe for us this is purely for documentatation/a nice looking interactive API docs page,
-# and doesn't actually have any bearing on the ID token validation process.
 oauth2_scheme = OAuth2(
     flows={
         "implicit": {
@@ -26,17 +21,12 @@ oauth2_scheme = OAuth2(
 )
 
 
-# We (unconventionally) use an "" path prefix here because we have globally disabled
-# redirection of trailing slashes in the main app file. We use an empty string here
-# to ensure that a request without a trailing slash (e.g., to /query instead of /query/)
-# is correctly routed to this endpoint.
-# For more context, see https://github.com/neurobagel/api/issues/327.
-@router.get("", response_model=List[SubjectsQueryResponse])
-async def get_query(
-    query: Annotated[QueryModel, Query()],
+@router.post("", response_model=List[DatasetQueryResponse])
+async def post_datasets_query(
+    query: QueryModel,
     token: str | None = Depends(oauth2_scheme),
 ):
-    """When a GET request is sent, return list of dicts corresponding to subject-level metadata aggregated by dataset."""
+    """When a POST request is sent, return list of dicts corresponding to metadata for datasets matching the query."""
     if settings.auth_enabled:
         if token is None:
             raise HTTPException(
@@ -58,7 +48,7 @@ async def get_query(
         image_modal=query.image_modal,
         pipeline_name=query.pipeline_name,
         pipeline_version=query.pipeline_version,
-        is_datasets_query=False,
+        is_datasets_query=True,
     )
 
     return response

@@ -6,6 +6,9 @@ from collections import namedtuple
 from pathlib import Path
 from typing import Optional
 
+import numpy as np
+import pandas as pd
+
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",
@@ -294,6 +297,99 @@ def create_multidataset_size_query(dataset_uuids: list) -> str:
     """
 
     return "\n".join([create_context(), query_string])
+
+
+def construct_matching_sub_results_for_dataset(
+    matching_records: pd.DataFrame,
+) -> list:
+    subject_data = matching_records.groupby(
+        by=["sub_id", "session_id", "session_type"],
+        dropna=True,
+    ).agg(
+        {
+            "sub_id": "first",
+            "session_id": "first",
+            "num_matching_phenotypic_sessions": "first",
+            "num_matching_imaging_sessions": "first",
+            "session_type": "first",
+            "age": "first",
+            "sex": "first",
+            "diagnosis": lambda record_group: list(record_group.unique()),
+            "subject_group": "first",
+            "assessment": lambda record_group: list(record_group.unique()),
+            "image_modal": lambda record_group: list(record_group.unique()),
+            "session_file_path": "first",
+        }
+    )
+
+    # Get the unique versions of each pipeline that was run on each session
+    pipeline_grouped_data = (
+        matching_records.groupby(
+            [
+                "sub_id",
+                "session_id",
+                "session_type",
+                "pipeline_name",
+            ],
+            # We cannot drop NaNs here because sessions without pipelines (i.e., with empty values for pipeline_name)
+            # would otherwise be completely removed and in an extreme case where no matching sessions have pipeline info,
+            # we'd end up with an empty dataframe.
+            dropna=False,
+        ).agg(
+            {
+                "pipeline_version": lambda record_group: list(
+                    record_group.dropna().unique()
+                )
+            }
+        )
+        # Turn indices from the groupby back into dataframe columns
+        .reset_index()
+    )
+
+    # Aggregate all completed pipelines for each session
+    session_grouped_data = pipeline_grouped_data.groupby(
+        ["sub_id", "session_id", "session_type"],
+    )
+    session_completed_pipeline_data = (
+        session_grouped_data.apply(
+            lambda x: {
+                pname: pvers
+                for pname, pvers in zip(
+                    x["pipeline_name"], x["pipeline_version"]
+                )
+                if not pd.isnull(pname)
+            }
+        )
+        # NOTE: The below function expects a pd.Series only.
+        # This can break if the result of the apply function is a pd.DataFrame
+        # (pd.DataFrame.reset_index() doesn't have a "name" arg),
+        # which can happen if the original dataframe being operated on is empty.
+        # For example, see https://github.com/neurobagel/api/issues/367.
+        # (Related: https://github.com/pandas-dev/pandas/issues/55225)
+        .reset_index(name="completed_pipelines")
+    )
+
+    subject_data = pd.merge(
+        subject_data.reset_index(drop=True),
+        session_completed_pipeline_data,
+        on=["sub_id", "session_id", "session_type"],
+        how="left",
+    )
+
+    # TODO: Revisit this as there may be a more elegant solution.
+    # The following code replaces columns with all NaN values with values of None, to ensure they show up in the final JSON as `null`.
+    # This is needed as the above .agg() seems to turn NaN into None for object-type columns (which have some non-missing values)
+    # but not for columns with all NaN, which end up with a column type of float64. This is a problem because
+    # if the column corresponds to a SessionResponse attribute with an expected str type, then the column values will be converted
+    # to the string "nan" in the response JSON, which we don't want.
+    all_nan_columns = subject_data.columns[subject_data.isna().all()]
+    subject_data[all_nan_columns] = subject_data[all_nan_columns].replace(
+        {np.nan: None}
+    )
+
+    subject_data = list(subject_data.to_dict("records"))
+
+    return subject_data
 
 
 def create_terms_query(data_element_URI: str) -> str:
