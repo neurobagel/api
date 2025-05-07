@@ -314,10 +314,10 @@ def construct_matching_sub_results_for_dataset(
             "session_type": "first",
             "age": "first",
             "sex": "first",
-            "diagnosis": lambda x: list(x.unique()),
+            "diagnosis": lambda record_group: list(record_group.unique()),
             "subject_group": "first",
-            "assessment": lambda x: list(x.unique()),
-            "image_modal": lambda x: list(x.unique()),
+            "assessment": lambda record_group: list(record_group.unique()),
+            "image_modal": lambda record_group: list(record_group.unique()),
             "session_file_path": "first",
         }
     )
@@ -335,7 +335,13 @@ def construct_matching_sub_results_for_dataset(
             # would otherwise be completely removed and in an extreme case where no matching sessions have pipeline info,
             # we'd end up with an empty dataframe.
             dropna=False,
-        ).agg({"pipeline_version": lambda x: list(x.dropna().unique())})
+        ).agg(
+            {
+                "pipeline_version": lambda record_group: list(
+                    record_group.dropna().unique()
+                )
+            }
+        )
         # Turn indices from the groupby back into dataframe columns
         .reset_index()
     )
