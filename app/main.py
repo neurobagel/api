@@ -20,6 +20,7 @@ from .api.routers import (
     diagnoses,
     pipelines,
     query,
+    subjects,
 )
 from .api.security import check_client_id
 
@@ -185,6 +186,7 @@ def overridden_redoc(request: Request):
 
 app.include_router(query.router)
 app.include_router(datasets.router)
+app.include_router(subjects.router)
 app.include_router(attributes.router)
 app.include_router(assessments.router)
 app.include_router(diagnoses.router)
