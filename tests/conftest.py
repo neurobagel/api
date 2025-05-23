@@ -734,18 +734,18 @@ def mock_get_with_exception(request):
 
 
 @pytest.fixture
-def mock_get(request):
+def mock_query_records(request):
     """
     Mock get function that returns an arbitrary response or value (can be None). Can be used to testing error handling of bad requests.
 
     A parameter passed to this fixture via indirect parametrization is received by the internal factory function before it is passed to a test.
 
     Example usage in test function:
-        @pytest.mark.parametrize("mock_get", [None], indirect=True)
-        (this tells mock_get to return None)
+        @pytest.mark.parametrize("mock_query_records", [None], indirect=True)
+        (this tells mock_query_records to return None)
     """
 
-    async def _mock_get(
+    async def _mock_query_records(
         min_age,
         max_age,
         sex,
@@ -761,14 +761,14 @@ def mock_get(request):
     ):
         return request.param
 
-    return _mock_get
+    return _mock_query_records
 
 
 @pytest.fixture
-def mock_successful_get(test_data):
-    """Mock get function that returns non-empty, valid aggregate query result data."""
+def mock_successful_query_records(test_data):
+    """Mock CRUD function that returns non-empty, valid aggregate query result data."""
 
-    async def _mock_successful_get(
+    async def _mock_successful_query_records(
         min_age,
         max_age,
         sex,
@@ -784,4 +784,4 @@ def mock_successful_get(test_data):
     ):
         return test_data
 
-    return _mock_successful_get
+    return _mock_successful_query_records
