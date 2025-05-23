@@ -5,7 +5,7 @@ from fastapi.security import OAuth2
 
 from .. import crud
 from ..config import settings
-from ..models import QueryModel, SubjectsQueryResponse
+from ..models import SubjectsQueryModel, SubjectsQueryResponse
 from ..security import verify_token
 
 router = APIRouter(prefix="/subjects", tags=["subjects"])
@@ -23,7 +23,7 @@ oauth2_scheme = OAuth2(
 
 @router.post("", response_model=List[SubjectsQueryResponse])
 async def post_subjects_query(
-    query: QueryModel,
+    query: SubjectsQueryModel,
     token: str | None = Depends(oauth2_scheme),
 ):
     """When a POST request is sent, return list of dicts corresponding to (meta)data of subject-sessions matching the query, grouped by dataset."""

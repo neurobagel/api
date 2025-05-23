@@ -33,6 +33,7 @@ def convert_valid_is_control_values_to_bool(
     return None
 
 
+# TODO: Consider renaming to DatasetsQueryModel once we deprecate the /query endpoint
 class QueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
@@ -98,6 +99,10 @@ class QueryModel(BaseModel):
                 detail="Subjects cannot both be healthy controls and have a diagnosis.",
             )
         return self
+
+
+class SubjectsQueryModel(QueryModel):
+    datasets: list[str] = []
 
 
 class SessionResponse(BaseModel):
