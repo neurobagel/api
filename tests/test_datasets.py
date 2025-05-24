@@ -36,6 +36,12 @@ def test_post_valid_iscontrol(
     disable_auth,
     monkeypatch,
 ):
+    """
+    Ensure the 'is_control' request body field accepts allowed bool, string, and null values without errors.
+
+    NOTE: These test cases are not covered by test_get_valid_iscontrol because request body values are not
+    parsed as strings by default, unlike query parameters.
+    """
     monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.post(ROUTE, json={"is_control": valid_iscontrol})
     assert response.status_code == 200
@@ -47,10 +53,16 @@ def test_post_valid_iscontrol(
 def test_post_invalid_iscontrol(
     test_app, mock_query_records, invalid_iscontrol, disable_auth, monkeypatch
 ):
+    """
+    Ensure the 'is_control' request body field rejects invalid objects with an informative error message.
+
+    NOTE: These test cases are not covered by test_get_valid_iscontrol because request body values are not
+    parsed as strings by default, unlike query parameters.
+    """
     monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.post(ROUTE, json={"is_control": invalid_iscontrol})
     assert response.status_code == 422
     assert (
         "'is_control' must be either set to 'true' or omitted from the query"
-        in response.json()
+        in response.text
     )
