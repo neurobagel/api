@@ -110,7 +110,7 @@ class QueryModel(BaseModel):
 class SubjectsQueryModel(QueryModel):
     # TODO: At the moment datasets always appears as the last field, after all other query parameters.
     # Revisit if we want to modify the order.
-    dataset_uuids: list[str] = []
+    dataset_uuids: list[str] | None = None
 
 
 class SessionResponse(BaseModel):
