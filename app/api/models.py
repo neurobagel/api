@@ -55,10 +55,14 @@ class QueryModel(BaseModel):
     diagnosis: str = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
+    # We explicitly use None instead of True as the example value for is_control to ensure that
+    # if a user tries the example query provided in the interactive docs, they do not
+    # get an error about both diagnosis and is_control being set
     is_control: Annotated[
         Literal[True, None],
         BeforeValidator(convert_valid_is_control_values_to_bool),
-    ] = None
+        Field(default=None, examples=[None]),
+    ]
     min_num_imaging_sessions: int = Field(default=None, ge=0)
     min_num_phenotypic_sessions: int = Field(default=None, ge=0)
     assessment: str = Field(
