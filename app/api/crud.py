@@ -121,8 +121,8 @@ async def query_records(
         Sex of subject.
     diagnosis : str
         Subject diagnosis.
-    is_control : bool
-        Whether or not subject is a control.
+    is_control : {True, None}
+        If True, return only healthy control subjects.
     min_num_imaging_sessions : int
         Subject minimum number of imaging sessions.
     min_num_phenotypic_sessions : int
@@ -137,6 +137,8 @@ async def query_records(
         Version of pipeline run on subject scans.
     is_datasets_query : bool
         Whether the query is for matching dataset metadata only (used by the /datasets path).
+    dataset_uuids : list[str]
+        List of datasets to restrict the query to.
 
     Returns
     -------

@@ -100,8 +100,9 @@ def create_query(
         Subject sex, by default None.
     diagnosis : str, optional
         Subject diagnosis, by default None.
-    is_control : bool, optional
-        Whether or not subject is a control, by default None.
+    is_control : {True, None}, optional
+        If True, return only healthy control subjects.
+        If None (default), return all matching subjects.
     min_num_imaging_sessions : int, optional
         Subject minimum number of imaging sessions, by default None.
     min_num_phenotypic_sessions : int, optional
@@ -114,6 +115,8 @@ def create_query(
         Name of pipeline run on subject scans, by default None.
     pipeline_version : str, optional
         Version of pipeline run on subject scans, by default None.
+    dataset_uuids : list[str], optional
+        List of datasets to restrict the query to, by default None (all datasets).
 
     Returns
     -------
