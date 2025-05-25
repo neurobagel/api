@@ -702,6 +702,7 @@ def mock_query_matching_dataset_sizes():
     return _mock_query_matching_dataset_sizes
 
 
+# TODO: Consider renaming fixture once /query endpoint is removed
 @pytest.fixture
 def mock_get_with_exception(request):
     """
