@@ -35,19 +35,8 @@ async def post_datasets_query(
             )
         verify_token(token)
 
-    # TODO: See if we can pass the query object directly to crud.query_records() instead of unpacking it
     response = await crud.query_records(
-        min_age=query.min_age,
-        max_age=query.max_age,
-        sex=query.sex,
-        diagnosis=query.diagnosis,
-        is_control=query.is_control,
-        min_num_imaging_sessions=query.min_num_imaging_sessions,
-        min_num_phenotypic_sessions=query.min_num_phenotypic_sessions,
-        assessment=query.assessment,
-        image_modal=query.image_modal,
-        pipeline_name=query.pipeline_name,
-        pipeline_version=query.pipeline_version,
+        **query.model_dump(),
         is_datasets_query=True,
         dataset_uuids=None,
     )
