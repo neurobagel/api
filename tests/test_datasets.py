@@ -29,7 +29,7 @@ def test_datasets_response_structure(
 
 
 @pytest.mark.parametrize("valid_iscontrol", ["true", True, None])
-def test_post_valid_iscontrol(
+def test_post_valid_iscontrol_does_not_error(
     test_app,
     mock_successful_query_records,
     valid_iscontrol,
@@ -50,7 +50,7 @@ def test_post_valid_iscontrol(
 
 @pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 @pytest.mark.parametrize("invalid_iscontrol", [False, 0, []])
-def test_post_invalid_iscontrol(
+def test_post_invalid_iscontrol_raises_error(
     test_app, mock_query_records, invalid_iscontrol, disable_auth, monkeypatch
 ):
     """
