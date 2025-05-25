@@ -1,5 +1,4 @@
 PREFIX nb: <http://neurobagel.org/vocab/>
-PREFIX nbg: <http://neurobagel.org/graph/>
 PREFIX ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
 PREFIX nidm: <http://purl.org/nidash/nidm#>
 PREFIX snomed: <http://purl.bioontology.org/ontology/SNOMEDCT/>
@@ -9,6 +8,7 @@ SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?se
 ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions
 ?session_id ?session_type ?assessment ?image_modal ?session_file_path ?pipeline_name ?pipeline_version
 WHERE {
+
     ?dataset_uuid a nb:Dataset;
         nb:hasLabel ?dataset_name;
         nb:hasSamples ?subject.
