@@ -727,6 +727,7 @@ def mock_get_with_exception(request):
         pipeline_version,
         pipeline_name,
         is_datasets_query,
+        dataset_uuids,
     ):
         raise request.param
 
@@ -758,6 +759,7 @@ def mock_query_records(request):
         pipeline_version,
         pipeline_name,
         is_datasets_query,
+        dataset_uuids,
     ):
         return request.param
 
@@ -781,6 +783,7 @@ def mock_successful_query_records(test_data):
         pipeline_version,
         pipeline_name,
         is_datasets_query,
+        dataset_uuids,
     ):
         return test_data
 
