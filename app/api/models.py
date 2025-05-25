@@ -110,6 +110,7 @@ class QueryModel(BaseModel):
 class SubjectsQueryModel(QueryModel):
     # TODO: At the moment datasets always appears as the last field, after all other query parameters.
     # Revisit if we want to modify the order.
+    # TODO: If we want to restrict the format of UUIDs further, we could use AnyURL or AnyHttpUrl
     dataset_uuids: list[str] | None = None
 
 
