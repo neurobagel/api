@@ -2,6 +2,7 @@
 
 import warnings
 from pathlib import Path
+from typing import Literal
 
 import httpx
 import pandas as pd
@@ -96,7 +97,7 @@ async def query_records(
     max_age: float,
     sex: str,
     diagnosis: str,
-    is_control: bool,
+    is_control: Literal[True, None],
     min_num_imaging_sessions: int,
     min_num_phenotypic_sessions: int,
     assessment: str,

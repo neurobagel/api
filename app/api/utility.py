@@ -4,7 +4,7 @@ import json
 import textwrap
 from collections import namedtuple
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -78,7 +78,7 @@ def create_query(
     age: Optional[tuple] = (None, None),
     sex: Optional[str] = None,
     diagnosis: Optional[str] = None,
-    is_control: Optional[bool] = None,
+    is_control: Literal[True, None] = None,
     min_num_imaging_sessions: Optional[int] = None,
     min_num_phenotypic_sessions: Optional[int] = None,
     assessment: Optional[str] = None,
