@@ -104,6 +104,7 @@ async def query_records(
     pipeline_name: str,
     pipeline_version: str,
     is_datasets_query: bool,
+    dataset_uuids: list[str],
 ) -> list[dict]:
     """
     Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
@@ -154,6 +155,7 @@ async def query_records(
             image_modal=image_modal,
             pipeline_version=pipeline_version,
             pipeline_name=pipeline_name,
+            dataset_uuids=dataset_uuids,
         )
     )
 

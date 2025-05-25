@@ -49,6 +49,7 @@ async def post_datasets_query(
         pipeline_name=query.pipeline_name,
         pipeline_version=query.pipeline_version,
         is_datasets_query=True,
+        dataset_uuids=None,
     )
 
     return response

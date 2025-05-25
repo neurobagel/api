@@ -49,6 +49,7 @@ async def post_subjects_query(
         pipeline_name=query.pipeline_name,
         pipeline_version=query.pipeline_version,
         is_datasets_query=False,
+        dataset_uuids=query.dataset_uuids,
     )
 
     return response

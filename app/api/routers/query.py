@@ -59,6 +59,7 @@ async def get_query(
         pipeline_name=query.pipeline_name,
         pipeline_version=query.pipeline_version,
         is_datasets_query=False,
+        dataset_uuids=None,
     )
 
     return response
