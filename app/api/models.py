@@ -1,7 +1,7 @@
 """Data models."""
 
 from enum import Enum
-from typing import Annotated, Literal, Optional, Union
+from typing import Annotated, Any, Literal, Optional, Union
 
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, BeforeValidator, Field, model_validator
@@ -17,22 +17,29 @@ VERSION_REGEX = r"^([A-Za-z0-9-]+)\.(\d+)\.([A-Za-z0-9-]+)$"
 
 
 def convert_valid_is_control_values_to_bool(
-    value: Optional[str],
+    value: Any,
 ) -> Optional[bool]:
     """
-    Convert case-insensitive values of 'true' to boolean True,
-    or raise a validation error for other string values.
+    Ensure that allowed values for the 'is_control' query parameter are converted to boolean True.
+
+    Accept:
+      - None → returns None
+      - any-case "true" (string) → returns True
+      - boolean True → returns True
+
+    Otherwise raise a validation error.
     """
-    if value is not None:
-        if value.lower() != "true":
-            raise HTTPException(
-                status_code=422,
-                detail="'is_control' must be either set to 'true' or omitted from the query",
-            )
+    if value is None:
+        return None
+    if (isinstance(value, str) and value.lower() == "true") or value is True:
         return True
-    return None
+    raise HTTPException(
+        status_code=422,
+        detail="'is_control' must be either set to 'true' or omitted from the query",
+    )
 
 
+# TODO: Consider renaming to DatasetsQueryModel once we deprecate the /query endpoint
 class QueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
@@ -48,10 +55,14 @@ class QueryModel(BaseModel):
     diagnosis: str = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
+    # We explicitly use None instead of True as the example value for is_control to ensure that
+    # if a user tries the example query provided in the interactive docs, they do not
+    # get an error about both diagnosis and is_control being set
     is_control: Annotated[
         Literal[True, None],
         BeforeValidator(convert_valid_is_control_values_to_bool),
-    ] = None
+        Field(default=None, examples=[None]),
+    ]
     min_num_imaging_sessions: int = Field(default=None, ge=0)
     min_num_phenotypic_sessions: int = Field(default=None, ge=0)
     assessment: str = Field(
@@ -98,6 +109,13 @@ class QueryModel(BaseModel):
                 detail="Subjects cannot both be healthy controls and have a diagnosis.",
             )
         return self
+
+
+class SubjectsQueryModel(QueryModel):
+    # TODO: At the moment datasets always appears as the last field, after all other query parameters.
+    # Revisit if we want to modify the order.
+    # TODO: If we want to restrict the format of UUIDs further, we could use AnyURL or AnyHttpUrl
+    dataset_uuids: list[str] | None = None
 
 
 class SessionResponse(BaseModel):

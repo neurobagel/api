@@ -81,14 +81,14 @@ def test_null_modalities(
 
 def test_get_all(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
 ):
     """Given no input for any query parameters, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(ROUTE, headers=mock_auth_header)
     assert response.status_code == 200
     assert response.json() != []
@@ -100,7 +100,7 @@ def test_get_all(
 )
 def test_get_valid_age_range(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     valid_min_age,
     valid_max_age,
     monkeypatch,
@@ -109,7 +109,7 @@ def test_get_valid_age_range(
 ):
     """Given a valid age range, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?min_age={valid_min_age}&max_age={valid_max_age}",
         headers=mock_auth_header,
@@ -124,7 +124,7 @@ def test_get_valid_age_range(
 )
 def test_get_valid_age_single_bound(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     age_keyval,
     monkeypatch,
     mock_auth_header,
@@ -132,13 +132,13 @@ def test_get_valid_age_single_bound(
 ):
     """Given only a valid lower/upper age bound, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(f"{ROUTE}?{age_keyval}", headers=mock_auth_header)
     assert response.status_code == 200
     assert response.json() != []
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 @pytest.mark.parametrize(
     "invalid_min_age, invalid_max_age",
     [
@@ -149,7 +149,7 @@ def test_get_valid_age_single_bound(
 )
 def test_get_invalid_age(
     test_app,
-    mock_get,
+    mock_query_records,
     invalid_min_age,
     invalid_max_age,
     monkeypatch,
@@ -158,7 +158,7 @@ def test_get_invalid_age(
 ):
     """Given an invalid age range, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?min_age={invalid_min_age}&max_age={invalid_max_age}",
         headers=mock_auth_header,
@@ -172,7 +172,7 @@ def test_get_invalid_age(
 )
 def test_get_valid_sex(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     valid_sex,
     monkeypatch,
     mock_auth_header,
@@ -180,7 +180,7 @@ def test_get_valid_sex(
 ):
     """Given a valid sex string, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?sex={valid_sex}", headers=mock_auth_header
     )
@@ -188,13 +188,17 @@ def test_get_valid_sex(
     assert response.json() != []
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 def test_get_invalid_sex(
-    test_app, mock_get, monkeypatch, mock_auth_header, set_mock_verify_token
+    test_app,
+    mock_query_records,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
 ):
     """Given an invalid sex string, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(f"{ROUTE}?sex=apple", headers=mock_auth_header)
     assert response.status_code == 422
 
@@ -204,7 +208,7 @@ def test_get_invalid_sex(
 )
 def test_get_valid_diagnosis(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     valid_diagnosis,
     monkeypatch,
     mock_auth_header,
@@ -212,7 +216,7 @@ def test_get_valid_diagnosis(
 ):
     """Given a valid diagnosis, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?diagnosis={valid_diagnosis}", headers=mock_auth_header
     )
@@ -220,13 +224,13 @@ def test_get_valid_diagnosis(
     assert response.json() != []
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 @pytest.mark.parametrize(
     "invalid_diagnosis", ["sn0med:35489007", "apple", ":123456"]
 )
 def test_get_invalid_diagnosis(
     test_app,
-    mock_get,
+    mock_query_records,
     invalid_diagnosis,
     monkeypatch,
     mock_auth_header,
@@ -234,17 +238,17 @@ def test_get_invalid_diagnosis(
 ):
     """Given an invalid diagnosis, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?diagnosis={invalid_diagnosis}", headers=mock_auth_header
     )
     assert response.status_code == 422
 
 
-@pytest.mark.parametrize("valid_iscontrol", ["true", "True", "TRUE"])
+@pytest.mark.parametrize("valid_iscontrol", ["true", "True", "TRUE", True])
 def test_get_valid_iscontrol(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     valid_iscontrol,
     monkeypatch,
     mock_auth_header,
@@ -252,7 +256,7 @@ def test_get_valid_iscontrol(
 ):
     """Given a valid is_control value, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?is_control={valid_iscontrol}", headers=mock_auth_header
     )
@@ -271,11 +275,11 @@ def test_valid_iscontrol_parsed_as_bool(valid_iscontrol, expected_iscontrol):
     assert example_query.is_control is expected_iscontrol
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
-@pytest.mark.parametrize("invalid_iscontrol", ["false", "FALSE", "all"])
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
+@pytest.mark.parametrize("invalid_iscontrol", ["false", "FALSE", "all", 0, []])
 def test_get_invalid_iscontrol(
     test_app,
-    mock_get,
+    mock_query_records,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
@@ -283,7 +287,7 @@ def test_get_invalid_iscontrol(
 ):
     """Given an invalid is_control value, returns a 422 status code and informative error."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?is_control={invalid_iscontrol}", headers=mock_auth_header
     )
@@ -291,13 +295,17 @@ def test_get_invalid_iscontrol(
     assert "must be either set to 'true' or omitted" in response.text
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 def test_get_invalid_control_diagnosis_pair(
-    test_app, mock_get, monkeypatch, mock_auth_header, set_mock_verify_token
+    test_app,
+    mock_query_records,
+    monkeypatch,
+    mock_auth_header,
+    set_mock_verify_token,
 ):
     """Given a non-default diagnosis value and is_control value of True, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?diagnosis=snomed:35489007&is_control=True",
         headers=mock_auth_header,
@@ -317,7 +325,7 @@ def test_get_invalid_control_diagnosis_pair(
 @pytest.mark.parametrize("valid_min_num_sessions", [0, 1, 2, 4, 7])
 def test_get_valid_min_num_sessions(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     session_param,
     valid_min_num_sessions,
     monkeypatch,
@@ -326,7 +334,7 @@ def test_get_valid_min_num_sessions(
 ):
     """Given a valid minimum number of imaging sessions, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?{session_param}={valid_min_num_sessions}",
         headers=mock_auth_header,
@@ -335,7 +343,7 @@ def test_get_valid_min_num_sessions(
     assert response.json() != []
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 @pytest.mark.parametrize(
     "session_param",
     ["min_num_phenotypic_sessions", "min_num_imaging_sessions"],
@@ -343,7 +351,7 @@ def test_get_valid_min_num_sessions(
 @pytest.mark.parametrize("invalid_min_num_sessions", [-3, 2.5, "apple"])
 def test_get_invalid_min_num_sessions(
     test_app,
-    mock_get,
+    mock_query_records,
     session_param,
     invalid_min_num_sessions,
     monkeypatch,
@@ -352,7 +360,7 @@ def test_get_invalid_min_num_sessions(
 ):
     """Given an invalid minimum number of imaging sessions, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?{session_param}={invalid_min_num_sessions}",
         headers=mock_auth_header,
@@ -362,14 +370,14 @@ def test_get_invalid_min_num_sessions(
 
 def test_get_valid_assessment(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
 ):
     """Given a valid assessment, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?assessment=nb:cogAtlas-1234", headers=mock_auth_header
     )
@@ -377,13 +385,13 @@ def test_get_valid_assessment(
     assert response.json() != []
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 @pytest.mark.parametrize(
     "invalid_assessment", ["bg01:cogAtlas-1234", "cogAtlas-1234"]
 )
 def test_get_invalid_assessment(
     test_app,
-    mock_get,
+    mock_query_records,
     invalid_assessment,
     monkeypatch,
     mock_auth_header,
@@ -391,7 +399,7 @@ def test_get_invalid_assessment(
 ):
     """Given an invalid assessment, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?assessment={invalid_assessment}", headers=mock_auth_header
     )
@@ -410,7 +418,7 @@ def test_get_invalid_assessment(
 )
 def test_get_valid_available_image_modal(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     valid_available_image_modal,
     monkeypatch,
     mock_auth_header,
@@ -418,7 +426,7 @@ def test_get_valid_available_image_modal(
 ):
     """Given a valid and available image modality, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?image_modal={valid_available_image_modal}",
         headers=mock_auth_header,
@@ -427,7 +435,7 @@ def test_get_valid_available_image_modal(
     assert response.json() != []
 
 
-@pytest.mark.parametrize("mock_get", [[]], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [[]], indirect=True)
 @pytest.mark.parametrize(
     "valid_unavailable_image_modal",
     ["nidm:Flair", "owl:sameAs", "nb:FlowWeighted", "snomed:something"],
@@ -435,14 +443,14 @@ def test_get_valid_available_image_modal(
 def test_get_valid_unavailable_image_modal(
     test_app,
     valid_unavailable_image_modal,
-    mock_get,
+    mock_query_records,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
 ):
     """Given a valid, pre-defined, and unavailable image modality, returns a 200 status code and an empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?image_modal={valid_unavailable_image_modal}",
         headers=mock_auth_header,
@@ -452,13 +460,13 @@ def test_get_valid_unavailable_image_modal(
     assert response.json() == []
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 @pytest.mark.parametrize(
     "invalid_image_modal", ["2nim:EEG", "apple", "some_thing:cool"]
 )
 def test_get_invalid_image_modal(
     test_app,
-    mock_get,
+    mock_query_records,
     invalid_image_modal,
     monkeypatch,
     mock_auth_header,
@@ -466,7 +474,7 @@ def test_get_invalid_image_modal(
 ):
     """Given an invalid image modality, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?image_modal={invalid_image_modal}", headers=mock_auth_header
     )
@@ -503,7 +511,7 @@ def test_get_undefined_prefix_image_modal(
 )
 def test_get_valid_pipeline_version(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
@@ -511,7 +519,7 @@ def test_get_valid_pipeline_version(
 ):
     """Given a valid pipeline version, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?pipeline_version={valid_pipeline_version}",
         headers=mock_auth_header,
@@ -520,11 +528,11 @@ def test_get_valid_pipeline_version(
     assert response.json() != []
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 @pytest.mark.parametrize("invalid_pipeline_version", ["latest", "7.2", "23"])
 def test_get_invalid_pipeline_version(
     test_app,
-    mock_get,
+    mock_query_records,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
@@ -532,7 +540,7 @@ def test_get_invalid_pipeline_version(
 ):
     """Given an invalid pipeline version, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?pipeline_version={invalid_pipeline_version}",
         headers=mock_auth_header,
@@ -545,7 +553,7 @@ def test_get_invalid_pipeline_version(
 )
 def test_get_valid_pipeline_name(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
@@ -553,7 +561,7 @@ def test_get_valid_pipeline_name(
 ):
     """Given a valid pipeline name, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?pipeline_name={valid_pipeline_name}",
         headers=mock_auth_header,
@@ -562,13 +570,13 @@ def test_get_valid_pipeline_name(
     assert response.json() != []
 
 
-@pytest.mark.parametrize("mock_get", [None], indirect=True)
+@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
 @pytest.mark.parametrize(
     "invalid_pipeline_name", ["n2p:coolpipeline", "apple", "some_thing:cool"]
 )
 def test_get_invalid_pipeline_name(
     test_app,
-    mock_get,
+    mock_query_records,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
@@ -576,7 +584,7 @@ def test_get_invalid_pipeline_name(
 ):
     """Given an invalid pipeline name, returns a 422 status code."""
 
-    monkeypatch.setattr(crud, "query_records", mock_get)
+    monkeypatch.setattr(crud, "query_records", mock_query_records)
     response = test_app.get(
         f"{ROUTE}?pipeline_name={invalid_pipeline_name}",
         headers=mock_auth_header,
@@ -595,7 +603,7 @@ def test_get_invalid_pipeline_name(
 )
 def test_get_valid_pipeline_name_version(
     test_app,
-    mock_successful_get,
+    mock_successful_query_records,
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
@@ -604,7 +612,7 @@ def test_get_valid_pipeline_name_version(
 ):
     """Given a valid pipeline name and version, returns a 200 status code and a non-empty list of results."""
 
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?pipeline_name={valid_pipeline_name}&pipeline_version={valid_pipeline_version}",
         headers=mock_auth_header,
@@ -637,12 +645,12 @@ def test_aggregate_query_response_structure(
 
 
 def test_query_without_token_succeeds_when_auth_disabled(
-    test_app, mock_successful_get, monkeypatch, disable_auth
+    test_app, mock_successful_query_records, monkeypatch, disable_auth
 ):
     """
     Test that when authentication is disabled, a request to the /query route without a token succeeds.
     """
-    monkeypatch.setattr(crud, "query_records", mock_successful_get)
+    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(ROUTE)
     assert response.status_code == 200
 

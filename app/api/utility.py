@@ -4,7 +4,7 @@ import json
 import textwrap
 from collections import namedtuple
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 
 import numpy as np
 import pandas as pd
@@ -78,13 +78,14 @@ def create_query(
     age: Optional[tuple] = (None, None),
     sex: Optional[str] = None,
     diagnosis: Optional[str] = None,
-    is_control: Optional[bool] = None,
+    is_control: Literal[True, None] = None,
     min_num_imaging_sessions: Optional[int] = None,
     min_num_phenotypic_sessions: Optional[int] = None,
     assessment: Optional[str] = None,
     image_modal: Optional[str] = None,
     pipeline_name: Optional[str] = None,
     pipeline_version: Optional[str] = None,
+    dataset_uuids: Optional[list] = None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
@@ -99,8 +100,9 @@ def create_query(
         Subject sex, by default None.
     diagnosis : str, optional
         Subject diagnosis, by default None.
-    is_control : bool, optional
-        Whether or not subject is a control, by default None.
+    is_control : {True, None}, optional
+        If True, return only healthy control subjects.
+        If None (default), return all matching subjects.
     min_num_imaging_sessions : int, optional
         Subject minimum number of imaging sessions, by default None.
     min_num_phenotypic_sessions : int, optional
@@ -113,6 +115,8 @@ def create_query(
         Name of pipeline run on subject scans, by default None.
     pipeline_version : str, optional
         Version of pipeline run on subject scans, by default None.
+    dataset_uuids : list[str], optional
+        List of datasets to restrict the query to, by default None (all datasets).
 
     Returns
     -------
@@ -120,6 +124,16 @@ def create_query(
         The SPARQL query.
     """
     subject_level_filters = ""
+    datasets_filter = ""
+
+    # Include all datasets when the user does not provide the dataset_uuids parameter/field,
+    # or if they explicitly provide an empty list
+    if dataset_uuids:
+        datasets_filter = (
+            "\n"
+            + f"VALUES ?dataset_uuid {{ {' '.join([f'<{uuid}>' for uuid in dataset_uuids])} }}"
+        )
+
     if min_num_phenotypic_sessions is not None:
         subject_level_filters += (
             "\n"
@@ -199,6 +213,7 @@ def create_query(
         ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions
         ?session_id ?session_type ?assessment ?image_modal ?session_file_path ?pipeline_name ?pipeline_version
         WHERE {{
+            {datasets_filter}
             ?dataset_uuid a nb:Dataset;
                 nb:hasLabel ?dataset_name;
                 nb:hasSamples ?subject.
