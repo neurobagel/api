@@ -2,6 +2,7 @@
 
 import warnings
 from pathlib import Path
+from typing import Literal
 
 import httpx
 import pandas as pd
@@ -96,7 +97,7 @@ async def query_records(
     max_age: float,
     sex: str,
     diagnosis: str,
-    is_control: bool,
+    is_control: Literal[True, None],
     min_num_imaging_sessions: int,
     min_num_phenotypic_sessions: int,
     assessment: str,
@@ -104,6 +105,7 @@ async def query_records(
     pipeline_name: str,
     pipeline_version: str,
     is_datasets_query: bool,
+    dataset_uuids: list[str],
 ) -> list[dict]:
     """
     Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
@@ -119,8 +121,8 @@ async def query_records(
         Sex of subject.
     diagnosis : str
         Subject diagnosis.
-    is_control : bool
-        Whether or not subject is a control.
+    is_control : {True, None}
+        If True, return only healthy control subjects.
     min_num_imaging_sessions : int
         Subject minimum number of imaging sessions.
     min_num_phenotypic_sessions : int
@@ -135,6 +137,8 @@ async def query_records(
         Version of pipeline run on subject scans.
     is_datasets_query : bool
         Whether the query is for matching dataset metadata only (used by the /datasets path).
+    dataset_uuids : list[str]
+        List of datasets to restrict the query to.
 
     Returns
     -------
@@ -154,6 +158,7 @@ async def query_records(
             image_modal=image_modal,
             pipeline_version=pipeline_version,
             pipeline_name=pipeline_name,
+            dataset_uuids=dataset_uuids,
         )
     )
 
