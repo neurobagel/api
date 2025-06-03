@@ -276,7 +276,9 @@ def test_valid_iscontrol_parsed_as_bool(valid_iscontrol, expected_iscontrol):
 
 
 @pytest.mark.parametrize("mock_query_records", [None], indirect=True)
-@pytest.mark.parametrize("invalid_iscontrol", ["false", "FALSE", "all", 0, []])
+@pytest.mark.parametrize(
+    "invalid_iscontrol", ["false", "FALSE", False, "all", 0, []]
+)
 def test_get_invalid_iscontrol(
     test_app,
     mock_query_records,
