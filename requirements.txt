@@ -1,6 +1,6 @@
 annotated-types==0.7.0
 anyio==3.6.2
-attrs==22.1.0
+attrs==22.2.0
 cachetools==5.3.3
 certifi==2024.7.4
 cffi==1.17.1
@@ -14,7 +14,7 @@ distlib==0.3.7
 exceptiongroup==1.0.4
 fastapi==0.115.4
 filelock==3.12.2
-h11==0.16.0
+h11==0.14.0
 httpcore==0.16.2
 httpx==0.23.1
 identify==2.5.9
@@ -23,7 +23,7 @@ iniconfig==1.1.1
 nodeenv==1.7.0
 numpy==1.26.4
 orjson==3.9.15
-packaging==21.3
+packaging==23.2
 pandas==1.5.2
 platformdirs==3.9.1
 pluggy==1.5.0
