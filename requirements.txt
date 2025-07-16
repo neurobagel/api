@@ -13,7 +13,7 @@ cryptography==44.0.1
 distlib==0.3.7
 exceptiongroup==1.0.4
 fastapi==0.115.4
-filelock==3.8.0
+filelock==3.12.2
 h11==0.14.0
 httpcore==0.16.2
 httpx==0.23.1
