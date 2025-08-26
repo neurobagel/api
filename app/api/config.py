@@ -3,6 +3,8 @@
 from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+DEFAULT_NEUROBAGEL_CONFIG = "Neurobagel"
+
 
 class Settings(BaseSettings):
     """Data model for configurable API settings."""
@@ -15,7 +17,8 @@ class Settings(BaseSettings):
     root_path: str = Field(
         alias="NB_NAPI_BASE_PATH",
         default="",
-        description="The base URL path prefix for the API. When deployed behind a reverse proxy, set this to the subpath at which the app is mounted (if any), and configure the proxy to strip this prefix from incoming requests.",
+        description="The base URL path prefix for the API. When deployed behind a reverse proxy, set this to the subpath at which the app is mounted (if any), "
+        "and configure the proxy to strip this prefix from incoming requests.",
     )
     allowed_origins: str | None = Field(
         alias="NB_API_ALLOWED_ORIGINS", default=None
@@ -29,6 +32,11 @@ class Settings(BaseSettings):
     min_cell_size: int = Field(alias="NB_MIN_CELL_SIZE", default=0)
     auth_enabled: bool = Field(alias="NB_ENABLE_AUTH", default=True)
     client_id: str | None = Field(alias="NB_QUERY_CLIENT_ID", default=None)
+    config: str = Field(
+        alias="NB_CONFIG",
+        default=DEFAULT_NEUROBAGEL_CONFIG,
+        description="The name of the vocabulary configuration to use to query the graph data.",
+    )
 
     @computed_field
     @property

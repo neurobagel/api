@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import httpx
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,6 +28,29 @@ from .api.security import check_client_id
 BACKUP_VOCAB_DIR = (
     Path(__file__).absolute().parents[1] / "vocab/backup_external"
 )
+NEUROBAGEL_CONFIGS_API_URL = (
+    "https://api.github.com/repos/neurobagel/communities/contents/configs"
+)
+
+
+def fetch_neurobagel_configs(url: str) -> list[str]:
+    try:
+        with httpx.Client() as client:
+            response = client.get(url)
+            response.raise_for_status()
+            config_names = [
+                item["name"]
+                for item in response.json()
+                if item["type"] == "dir"
+            ]
+    except httpx.HTTPError as request_err:
+        raise RuntimeError(
+            f"Failed to fetch available Neurobagel configurations: {request_err}.\n"
+            "Please check that you have an internet connection. "
+            "If the problem persists, please open an issue in https://github.com/neurobagel/api/issues."
+        ) from request_err
+    print(config_names)
+    return config_names
 
 
 def validate_environment_variables():
@@ -53,6 +77,13 @@ def validate_environment_variables():
             f"explicitly set the value of {Settings.model_fields['allowed_origins'].alias} to the origin(s) of these tools (e.g. "
             f"http://localhost:3000)."
             "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes."
+        )
+
+    available_configs = fetch_neurobagel_configs(NEUROBAGEL_CONFIGS_API_URL)
+    if settings.config not in available_configs:
+        raise RuntimeError(
+            f"'{settings.config}' is not a recognized Neurobagel configuration. "
+            f"Available configurations: {', '.join(available_configs)}"
         )
 
 
