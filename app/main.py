@@ -1,9 +1,12 @@
 """Main app."""
 
+import base64
+import json
 import warnings
 from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Any
 
 import httpx
 import uvicorn
@@ -33,34 +36,38 @@ NEUROBAGEL_CONFIGS_API_URL = (
 )
 
 
-def fetch_neurobagel_configs(url: str) -> list[str]:
+# TODO: Consider using PyGitHub
+def request_data(url: str) -> Any:
+    with httpx.Client() as client:
+        response = client.get(url)
+        response.raise_for_status()
+        data = response.json()
+
+    if isinstance(data, dict) and "content" in data:
+        data = base64.b64decode(data["content"]).decode("utf-8")
+
+    return data
+
+
+def fetch_available_neurobagel_configs(config_dir_url: str) -> list[str]:
     try:
-        with httpx.Client() as client:
-            response = client.get(url)
-            response.raise_for_status()
-            config_names = [
-                item["name"]
-                for item in response.json()
-                if item["type"] == "dir"
-            ]
+        response = request_data(config_dir_url)
+        config_names = [
+            item["name"] for item in response if item["type"] == "dir"
+        ]
     except httpx.HTTPError as request_err:
         raise RuntimeError(
             f"Failed to fetch available Neurobagel configurations: {request_err}.\n"
             "Please check that you have an internet connection. "
             "If the problem persists, please open an issue in https://github.com/neurobagel/api/issues."
         ) from request_err
-    print(config_names)
+
     return config_names
 
 
 def validate_environment_variables():
     """
-    Check that all required environment variables are set.
-
-    Ensures that the username and password for the graph database are provided.
-    If not, raises a RuntimeError to prevent the application from running without valid credentials.
-
-    Also checks that allowed origins are properly set. If missing, a warning is issued, but the app continues running.
+    Check that all required environment variables are set, and exits the app if any are missing or invalid.
     """
     if settings.graph_username is None or settings.graph_password is None:
         raise RuntimeError(
@@ -79,12 +86,63 @@ def validate_environment_variables():
             "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes."
         )
 
-    available_configs = fetch_neurobagel_configs(NEUROBAGEL_CONFIGS_API_URL)
+    available_configs = fetch_available_neurobagel_configs(
+        NEUROBAGEL_CONFIGS_API_URL
+    )
     if settings.config not in available_configs:
         raise RuntimeError(
             f"'{settings.config}' is not a recognized Neurobagel configuration. "
             f"Available configurations: {', '.join(available_configs)}"
         )
+
+
+def refactor_terms_file_for_lookup(terms_file: list) -> dict:
+    for namespace in terms_file:
+        term_label_mapping = {}
+        for term in namespace["terms"]:
+            term_label_mapping[term["id"]] = term["name"]
+        namespace["terms"] = term_label_mapping
+
+    return terms_file
+
+
+def fetch_vocabularies(configs_url: str, config: str):
+    customizable_vocab_vars = ["Assessment", "Diagnosis"]
+    config_dir_url = f"{configs_url}/{config}"
+
+    # TODO: Error catching
+    vocab_config = request_data(f"{config_dir_url}/config.json")
+    # TODO: For now we only consider the first entry in config.json since
+    # we only support a single namespace for standardized variables (the Neurobagel vocab)
+    # - refactor once we support custom standardized variables from potentially >1 namespaces
+    vocab_config = vocab_config[0]
+
+    app.state.vocab_dir = TemporaryDirectory()
+    app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
+
+    vocab_lookup_paths = {}
+    for var_id in customizable_vocab_vars:
+        terms_file_name = next(
+            (
+                var["terms_file"]
+                for var in vocab_config["standardized_variables"]
+                if var["id"] == var_id
+            ),
+            None,
+        )
+        if terms_file_name is not None:
+            # TODO: Error catching
+            terms_file = request_data(f"{config_dir_url}/{terms_file_name}")
+            terms_file = refactor_terms_file_for_lookup(terms_file)
+
+            with open(terms_file_name, "w") as f:
+                f.write(json.dumps(terms_file, indent=2))
+
+            vocab_lookup_paths[
+                f"{vocab_config['namespace_prefix']}:{var_id}"
+            ] = (app.state.vocab_dir_path / terms_file_name)
+
+    app.state.vocab_lookup_paths = vocab_lookup_paths
 
 
 def initialize_vocabularies():
@@ -136,7 +194,8 @@ async def lifespan(app: FastAPI):
     check_client_id()
 
     # Initialize vocabularies
-    initialize_vocabularies()
+    # initialize_vocabularies()
+    fetch_vocabularies(NEUROBAGEL_CONFIGS_API_URL, settings.config)
 
     yield
 
