@@ -1,14 +1,11 @@
 """Main app."""
 
-import base64
 import json
 import warnings
 from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any
 
-import httpx
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -36,31 +33,13 @@ NEUROBAGEL_CONFIGS_API_URL = (
 )
 
 
-# TODO: Consider using PyGitHub
-def request_data(url: str) -> Any:
-    with httpx.Client() as client:
-        response = client.get(url)
-        response.raise_for_status()
-        data = response.json()
-
-    if isinstance(data, dict) and "content" in data:
-        data = base64.b64decode(data["content"]).decode("utf-8")
-
-    return data
-
-
 def fetch_available_neurobagel_configs(config_dir_url: str) -> list[str]:
-    try:
-        response = request_data(config_dir_url)
-        config_names = [
-            item["name"] for item in response if item["type"] == "dir"
-        ]
-    except httpx.HTTPError as request_err:
-        raise RuntimeError(
-            f"Failed to fetch available Neurobagel configurations: {request_err}.\n"
-            "Please check that you have an internet connection. "
-            "If the problem persists, please open an issue in https://github.com/neurobagel/api/issues."
-        ) from request_err
+    response = util.request_data(
+        config_dir_url, "Failed to fetch available Neurobagel configurations."
+    )
+    config_names = [
+        item["name"] for item in response if item.get("type") == "dir"
+    ]
 
     return config_names
 
@@ -96,51 +75,44 @@ def validate_environment_variables():
         )
 
 
-def refactor_terms_file_for_lookup(terms_file: list) -> dict:
-    for namespace in terms_file:
-        term_label_mapping = {}
-        for term in namespace["terms"]:
-            term_label_mapping[term["id"]] = term["name"]
-        namespace["terms"] = term_label_mapping
-
-    return terms_file
-
-
-def fetch_vocabularies(configs_url: str, config: str):
+def fetch_vocabularies(configs_url: str, config_name: str):
     customizable_vocab_vars = ["Assessment", "Diagnosis"]
-    config_dir_url = f"{configs_url}/{config}"
+    config_dir_url = f"{configs_url}/{config_name}"
 
-    # TODO: Error catching
-    vocab_config = request_data(f"{config_dir_url}/config.json")
+    config = util.request_data(
+        f"{config_dir_url}/config.json",
+        f"Failed to fetch the {config_name if config_name != 'Neurobagel' else 'base'} configuration for Neurobagel.",
+    )
     # TODO: For now we only consider the first entry in config.json since
     # we only support a single namespace for standardized variables (the Neurobagel vocab)
     # - refactor once we support custom standardized variables from potentially >1 namespaces
-    vocab_config = vocab_config[0]
+    config = config[0]
 
     app.state.vocab_dir = TemporaryDirectory()
     app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
-
     vocab_lookup_paths = {}
     for var_id in customizable_vocab_vars:
+        var_uri = f"{config['namespace_prefix']}:{var_id}"
         terms_file_name = next(
             (
                 var["terms_file"]
-                for var in vocab_config["standardized_variables"]
+                for var in config["standardized_variables"]
                 if var["id"] == var_id
             ),
             None,
         )
-        if terms_file_name is not None:
-            # TODO: Error catching
-            terms_file = request_data(f"{config_dir_url}/{terms_file_name}")
-            terms_file = refactor_terms_file_for_lookup(terms_file)
+        if terms_file_name:
+            terms_file = util.request_data(
+                f"{config_dir_url}/{terms_file_name}",
+                f"Failed to fetch vocabulary for {var_uri}.",
+            )
 
-            with open(terms_file_name, "w") as f:
+            with open(app.state.vocab_dir_path / terms_file_name, "w") as f:
                 f.write(json.dumps(terms_file, indent=2))
 
-            vocab_lookup_paths[
-                f"{vocab_config['namespace_prefix']}:{var_id}"
-            ] = (app.state.vocab_dir_path / terms_file_name)
+            vocab_lookup_paths[var_uri] = (
+                app.state.vocab_dir_path / terms_file_name
+            )
 
     app.state.vocab_lookup_paths = vocab_lookup_paths
 
@@ -194,7 +166,6 @@ async def lifespan(app: FastAPI):
     check_client_id()
 
     # Initialize vocabularies
-    # initialize_vocabularies()
     fetch_vocabularies(NEUROBAGEL_CONFIGS_API_URL, settings.config)
 
     yield

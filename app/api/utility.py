@@ -1,11 +1,13 @@
 """Constants for graph server connection and utility functions for writing the SPARQL query."""
 
+import base64
 import json
 import textwrap
 from collections import namedtuple
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
+import httpx
 import numpy as np
 import pandas as pd
 
@@ -44,6 +46,28 @@ IS_CONTROL_TERM = "ncit:C94342"
 def parse_origins_as_list(allowed_origins: str | None) -> list:
     """Returns user-defined allowed origins as a list."""
     return list(allowed_origins.split(" ")) if allowed_origins else []
+
+
+# TODO: Consider switching to PyGitHub if we need more complex operations
+def request_data(url: str, err_message: str) -> Any:
+    try:
+        with httpx.Client() as client:
+            response = client.get(url)
+            response.raise_for_status()
+            data = response.json()
+
+        if isinstance(data, dict) and data.get("type") == "file":
+            data = json.loads(
+                base64.b64decode(data["content"]).decode("utf-8")
+            )
+
+        return data
+    except httpx.HTTPError as e:
+        raise RuntimeError(
+            f"{err_message}. Error: {e}\n"
+            "Please check that you have an internet connection. "
+            "If the problem persists, please open an issue in https://github.com/neurobagel/api/issues."
+        ) from e
 
 
 def create_context() -> str:
