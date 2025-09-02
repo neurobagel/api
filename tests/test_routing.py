@@ -15,7 +15,7 @@ def test_root(test_app, route, monkeypatch):
     response = test_app.get(route, follow_redirects=False)
 
     assert response.status_code == 200
-    assert "Welcome to the Neurobagel REST API!" in response.text
+    assert "<h1>Welcome to the Neurobagel REST API!</h1>" in response.text
     assert '<a href="/docs">API documentation</a>' in response.text
 
 
