@@ -4,7 +4,6 @@ import base64
 import json
 import textwrap
 from collections import namedtuple
-from pathlib import Path
 from typing import Any, Literal, Optional
 
 import httpx
@@ -481,7 +480,6 @@ def is_term_namespace_in_context(term_url: str) -> bool:
     return False
 
 
-# TODO: Refactor to remove fallback
 def strip_namespace_from_term_uri(
     term: str, has_prefix: bool = False
 ) -> tuple[str | None, str]:
@@ -502,12 +500,12 @@ def strip_namespace_from_term_uri(
     """
     if has_prefix:
         term_prefix, term_id = term.rsplit(":", 1)
-        if term_prefix in CONTEXT:
-            return term_prefix, term_id
-    else:
-        for term_url in CONTEXT.values():
-            if term_url in term:
-                return term_url, term[len(term_url) :]
+        return term_prefix, term_id
+
+    for term_url in CONTEXT.values():
+        if term_url in term:
+            return term_url, term[len(term_url) :]
+
     # If no match found within the context, return original term
     return None, term
 
@@ -534,43 +532,18 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
     return url
 
 
-def load_json(path: Path) -> dict:
-    """
-    Loads a user-specified JSON file.
-
-    Parameters
-    ----------
-    path : Path
-        Path to JSON file.
-    """
-    with open(path, "r") as f:
-        return json.load(f)
-
-
 # TODO: Remove function
-def reformat_snomed_terms_for_lookup(
-    input_terms_path: Path, output_terms_path: Path
-):
-    """
-    Reads in a file containing terms from the SNOMED CT vocabulary, strips the SNOMED prefix from term URIS,
-    and writes the resulting term ID-label mappings to a temporary lookup file.
+# def load_json(path: Path) -> dict:
+#     """
+#     Loads a user-specified JSON file.
 
-    Saves a JSON with keys corresponding to SNOMED IDs and values corresponding to human-readable term names.
-
-    Parameters
-    ----------
-    lookup_path : Path
-        File path to store output vocabulary lookup file.
-    """
-    vocab = load_json(input_terms_path)
-
-    term_labels = {
-        term["identifier"].removeprefix("snomed:"): term["label"]
-        for term in vocab
-    }
-
-    with open(output_terms_path, "w") as f:
-        f.write(json.dumps(term_labels, indent=2))
+#     Parameters
+#     ----------
+#     path : Path
+#         Path to JSON file.
+#     """
+#     with open(path, "r") as f:
+#         return json.load(f)
 
 
 def create_pipeline_versions_query(pipeline: str) -> str:

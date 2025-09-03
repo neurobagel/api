@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from ..models import DataElementURI, VocabLabelsResponse
+from ..models import DataElementURI, VocabResponse
 from . import route_factory
 
 EXTERNAL_VOCAB = "snomed_disorder"
@@ -22,5 +22,5 @@ router.add_api_route(
         namespace_prefix="snomed",
     ),
     methods=["GET"],
-    response_model=VocabLabelsResponse,
+    response_model=VocabResponse,
 )

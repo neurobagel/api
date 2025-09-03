@@ -1,7 +1,7 @@
 from fastapi import Request
 
 from .. import crud
-from ..models import VocabLabelsResponse
+from ..models import VocabResponse
 
 
 def create_get_instances_handler(data_element_uri: str):
@@ -23,10 +23,10 @@ def create_get_vocab_handler(data_element_uri: str):
 
     async def get_vocab(request: Request):
         """
-        When a GET request is sent, return a dict containing the name, namespace info,
-        and all term ID-label mappings for the vocabulary of the specified variable.
+        When a GET request is sent, return a list of namespace objects, where each object includes
+        the metadata and terms of a namespace used in the vocabulary for the specified variable.
         """
         terms_vocab = request.app.state.all_vocabs.get(data_element_uri)
-        return VocabLabelsResponse(**terms_vocab)
+        return VocabResponse(**terms_vocab)
 
     return get_vocab

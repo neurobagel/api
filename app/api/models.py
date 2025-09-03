@@ -169,8 +169,8 @@ class DataElementURI(str, Enum):
     diagnosis = "nb:Diagnosis"
 
 
-class TermsVocab(BaseModel):
-    """Data model for response to a request for all term labels for a vocabulary."""
+class NamespaceTerms(BaseModel):
+    """Data model for a single vocabulary namespace, containing metadata of the namespace itself and all its terms."""
 
     vocabulary_name: str
     namespace_url: str
@@ -179,5 +179,7 @@ class TermsVocab(BaseModel):
     terms: list[dict]
 
 
-class VocabLabelsResponse(RootModel[list[TermsVocab]]):
+class VocabResponse(RootModel[list[NamespaceTerms]]):
+    """Data model for response to a request for all terms in a vocabulary."""
+
     pass

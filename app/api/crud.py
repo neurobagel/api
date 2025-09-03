@@ -9,7 +9,7 @@ from fastapi import HTTPException, status
 
 from . import utility as util
 from .config import settings
-from .models import SessionResponse, VocabLabelsResponse
+from .models import SessionResponse
 
 ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
     "dataset_uuid",
@@ -252,8 +252,9 @@ async def get_terms(data_element_URI: str, terms_vocab: list | None) -> dict:
     ----------
     data_element_URI : str
         Controlled term of neurobagel class for which all the available terms should be retrieved.
-    term_labels_path : Path
-        Path to JSON file containing term-label mappings for the vocabulary of the data element URI.
+    terms_vocab : list | None
+        List of vocabulary namespaces and their corresponding standardized terms for the data element URI.
+        Corresponds to the contents of the terms file for a specific standardized variable.
 
     Returns
     -------
@@ -338,17 +339,3 @@ async def get_controlled_term_attributes() -> list:
     ]
 
     return results_list
-
-
-# TODO: Remove function
-async def get_term_labels_for_vocab(
-    terms_vocab: list,
-) -> VocabLabelsResponse:
-    """
-    Returns the term-label mappings along with the vocabulary namespace details for the specified vocabulary.
-
-    Returns
-    -------
-    VocabLabelsResponse
-    """
-    return VocabLabelsResponse(**terms_vocab)

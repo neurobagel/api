@@ -2,8 +2,6 @@
 
 import warnings
 from contextlib import asynccontextmanager
-from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -24,15 +22,13 @@ from .api.routers import (
 )
 from .api.security import check_client_id
 
-BACKUP_VOCAB_DIR = (
-    Path(__file__).absolute().parents[1] / "vocab/backup_external"
-)
 NEUROBAGEL_CONFIGS_API_URL = (
     "https://api.github.com/repos/neurobagel/communities/contents/configs"
 )
 
 
 def fetch_available_neurobagel_configs(config_dir_url: str) -> list[str]:
+    """Fetch available Neurobagel configuration names from the specified URL."""
     response = util.request_data(
         config_dir_url, "Failed to fetch available Neurobagel configurations."
     )
@@ -75,6 +71,9 @@ def validate_environment_variables():
 
 
 def fetch_vocabularies(configs_url: str, config_name: str):
+    """
+    Fetch all terms JSON files for the specified configuration from GitHub and store them on the app instance.
+    """
     customizable_vocab_vars = ["Assessment", "Diagnosis"]
     config_dir_url = f"{configs_url}/{config_name}"
 
@@ -105,37 +104,9 @@ def fetch_vocabularies(configs_url: str, config_name: str):
             )
             all_vocabs[var_uri] = terms_file
 
-    app.state.all_vocabs = all_vocabs
-
-
-# TODO: Remove function
-def initialize_vocabularies():
-    """
-    Create and store on the app instance a temporary directory for vocabulary term lookup JSON files
-    (each of which contain key-value pairings of IDs to human-readable names of terms),
-    and then fetch vocabularies using their respective native APIs and save them to the temporary directory for reuse.
-    """
     # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
-    # to store a temporary directory object and its corresponding path. These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
-
-    app.state.vocab_dir = TemporaryDirectory()
-    app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
-
-    app.state.vocab_lookup_paths = {
-        "snomed_assessment": app.state.vocab_dir_path
-        / "snomedct_assessment_term_labels.json",
-        "snomed_disorder": app.state.vocab_dir_path
-        / "snomedct_disorder_term_labels.json",
-    }
-
-    util.reformat_snomed_terms_for_lookup(
-        input_terms_path=BACKUP_VOCAB_DIR / "snomedct_assessment.json",
-        output_terms_path=app.state.vocab_lookup_paths["snomed_assessment"],
-    )
-    util.reformat_snomed_terms_for_lookup(
-        input_terms_path=BACKUP_VOCAB_DIR / "snomedct_disorder.json",
-        output_terms_path=app.state.vocab_lookup_paths["snomed_disorder"],
-    )
+    # These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
+    app.state.all_vocabs = all_vocabs
 
 
 @asynccontextmanager
@@ -146,7 +117,7 @@ async def lifespan(app: FastAPI):
     On startup:
     - Validates required environment variables.
     - Performs authentication checks.
-    - Initializes temporary directories for vocabulary lookups.
+    - Fetches vocabularies for standardized variables.
 
     On shutdown:
     - Cleans up temporary directories to free resources.
