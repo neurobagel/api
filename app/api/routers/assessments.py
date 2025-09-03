@@ -9,8 +9,7 @@ router = APIRouter(prefix="/assessments", tags=["assessments"])
 router.add_api_route(
     path="",
     endpoint=route_factory.create_get_instances_handler(
-        data_element_uri=DataElementURI.assessment.value,
-        external_vocab=EXTERNAL_VOCAB,
+        data_element_uri=DataElementURI.assessment.value
     ),
     methods=["GET"],
 )

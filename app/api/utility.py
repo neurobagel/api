@@ -481,33 +481,35 @@ def is_term_namespace_in_context(term_url: str) -> bool:
     return False
 
 
-def strip_namespace_from_term_uri(term: str, has_prefix: bool = False) -> str:
+# TODO: Refactor to remove fallback
+def strip_namespace_from_term_uri(
+    term: str, has_prefix: bool = False
+) -> tuple[str | None, str]:
     """
-    Removes namespace URI or prefix from a term URI if the namespace is recognized.
+    Removes namespace URL or prefix from a term URI if the namespace is recognized.
 
     Parameters
     ----------
     term : str
         A controlled term URI.
     has_prefix : bool, optional
-        Whether the term URI includes a namespace prefix (as opposed to the full namespace URI), by default False.
+        Whether the term URI includes a namespace prefix (as opposed to the full namespace URL), by default False.
 
     Returns
     -------
-    str
-        The unique term ID.
+    tuple[str, str]
+        The stripped namespace URL/prefix and the term ID.
     """
     if has_prefix:
-        term_split = term.rsplit(":", 1)
-        if term_split[0] in CONTEXT:
-            return term_split[1]
+        term_prefix, term_id = term.rsplit(":", 1)
+        if term_prefix in CONTEXT:
+            return term_prefix, term_id
     else:
-        for uri in CONTEXT.values():
-            if uri in term:
-                return term.replace(uri, "")
-
+        for term_url in CONTEXT.values():
+            if term_url in term:
+                return term_url, term[len(term_url) :]
     # If no match found within the context, return original term
-    return term
+    return None, term
 
 
 def replace_namespace_uri_with_prefix(url: str) -> str:
@@ -545,6 +547,7 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 
+# TODO: Remove function
 def reformat_snomed_terms_for_lookup(
     input_terms_path: Path, output_terms_path: Path
 ):

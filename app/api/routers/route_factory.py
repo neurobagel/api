@@ -3,9 +3,7 @@ from fastapi import Request
 from .. import crud
 
 
-def create_get_instances_handler(
-    data_element_uri: str, external_vocab: str | None
-):
+def create_get_instances_handler(data_element_uri: str):
     """Create the handler function (path function) for the base path of an attribute router."""
 
     async def get_instances(request: Request):
@@ -13,10 +11,8 @@ def create_get_instances_handler(
         When a GET request is sent, return a dict with the only key corresponding to the controlled term of a neurobagel class,
         and the value being a list of dictionaries each corresponding to an available class instance term from the graph.
         """
-        term_labels_path = (
-            request.app.state.vocab_lookup_paths[external_vocab]
-            if external_vocab is not None
-            else None
+        term_labels_path = request.app.state.vocab_lookup_paths.get(
+            data_element_uri
         )
         return await crud.get_terms(data_element_uri, term_labels_path)
 

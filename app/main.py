@@ -117,6 +117,7 @@ def fetch_vocabularies(configs_url: str, config_name: str):
     app.state.vocab_lookup_paths = vocab_lookup_paths
 
 
+# TODO: Remove function
 def initialize_vocabularies():
     """
     Create and store on the app instance a temporary directory for vocabulary term lookup JSON files

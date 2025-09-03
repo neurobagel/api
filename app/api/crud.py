@@ -270,9 +270,9 @@ async def get_terms(
     )
 
     if term_labels_path is not None:
-        vocab_term_lookup = util.load_json(term_labels_path)
+        terms_vocab = util.load_json(term_labels_path)
     else:
-        vocab_term_lookup = {}
+        terms_vocab = []
 
     term_label_dicts = []
     for result in term_url_results["results"]["bindings"]:
@@ -280,8 +280,24 @@ async def get_terms(
         # First, check whether the found instance of the data element contains a recognized namespace
         if util.is_term_namespace_in_context(term_url):
             # Then, attempt to get the label for the term
-            term_label = vocab_term_lookup.get(
-                util.strip_namespace_from_term_uri(term_url), None
+            namespace_url, term_id = util.strip_namespace_from_term_uri(
+                term_url
+            )
+            namespace_terms = next(
+                (
+                    namespace["terms"]
+                    for namespace in terms_vocab
+                    if namespace["namespace_url"] == namespace_url
+                ),
+                [],
+            )
+            term_label = next(
+                (
+                    term["label"]
+                    for term in namespace_terms
+                    if term["id"] == term_id
+                ),
+                None,
             )
             term_label_dicts.append(
                 {
