@@ -1,6 +1,5 @@
 """Main app."""
 
-import json
 import warnings
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -88,9 +87,7 @@ def fetch_vocabularies(configs_url: str, config_name: str):
     # - refactor once we support custom standardized variables from potentially >1 namespaces
     config = config[0]
 
-    app.state.vocab_dir = TemporaryDirectory()
-    app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
-    all_vocab_paths = {}
+    all_vocabs = {}
     for var_id in customizable_vocab_vars:
         var_uri = f"{config['namespace_prefix']}:{var_id}"
         terms_file_name = next(
@@ -106,15 +103,9 @@ def fetch_vocabularies(configs_url: str, config_name: str):
                 f"{config_dir_url}/{terms_file_name}",
                 f"Failed to fetch vocabulary for {var_uri}.",
             )
+            all_vocabs[var_uri] = terms_file
 
-            with open(app.state.vocab_dir_path / terms_file_name, "w") as f:
-                f.write(json.dumps(terms_file, indent=2))
-
-            all_vocab_paths[var_uri] = (
-                app.state.vocab_dir_path / terms_file_name
-            )
-
-    app.state.all_vocab_paths = all_vocab_paths
+    app.state.all_vocabs = all_vocabs
 
 
 # TODO: Remove function
