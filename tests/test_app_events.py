@@ -88,6 +88,6 @@ def test_stored_vocab_lookup_file_created_on_startup(
 ):
     """Test that on startup, a non-empty temporary lookup file is created for term ID-label mappings for the locally stored SNOMED CT vocabulary."""
     with test_app:
-        term_labels_path = test_app.app.state.vocab_lookup_paths[lookup_file]
+        term_labels_path = test_app.app.state.all_vocab_paths[lookup_file]
         assert term_labels_path.exists()
         assert term_labels_path.stat().st_size > 0

@@ -11,17 +11,15 @@ def create_get_instances_handler(data_element_uri: str):
         When a GET request is sent, return a dict with the only key corresponding to the controlled term of a neurobagel class,
         and the value being a list of dictionaries each corresponding to an available class instance term from the graph.
         """
-        term_labels_path = request.app.state.vocab_lookup_paths.get(
+        terms_vocab_path = request.app.state.all_vocab_paths.get(
             data_element_uri
         )
-        return await crud.get_terms(data_element_uri, term_labels_path)
+        return await crud.get_terms(data_element_uri, terms_vocab_path)
 
     return get_instances
 
 
-def create_get_vocab_handler(
-    external_vocab: str, vocab_name: str, namespace_prefix: str
-):
+def create_get_vocab_handler(data_element_uri: str):
     """Create the handler function (path function) for the `/vocab` endpoint of an attribute router."""
 
     async def get_vocab(request: Request):
@@ -29,12 +27,11 @@ def create_get_vocab_handler(
         When a GET request is sent, return a dict containing the name, namespace info,
         and all term ID-label mappings for the vocabulary of the specified variable.
         """
+        terms_vocab_path = request.app.state.all_vocab_paths.get(
+            data_element_uri
+        )
         return await crud.get_term_labels_for_vocab(
-            term_labels_path=request.app.state.vocab_lookup_paths[
-                external_vocab
-            ],
-            vocabulary_name=vocab_name,
-            namespace_prefix=namespace_prefix,
+            terms_vocab_path=terms_vocab_path
         )
 
     return get_vocab

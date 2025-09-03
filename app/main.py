@@ -90,7 +90,7 @@ def fetch_vocabularies(configs_url: str, config_name: str):
 
     app.state.vocab_dir = TemporaryDirectory()
     app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
-    vocab_lookup_paths = {}
+    all_vocab_paths = {}
     for var_id in customizable_vocab_vars:
         var_uri = f"{config['namespace_prefix']}:{var_id}"
         terms_file_name = next(
@@ -110,11 +110,11 @@ def fetch_vocabularies(configs_url: str, config_name: str):
             with open(app.state.vocab_dir_path / terms_file_name, "w") as f:
                 f.write(json.dumps(terms_file, indent=2))
 
-            vocab_lookup_paths[var_uri] = (
+            all_vocab_paths[var_uri] = (
                 app.state.vocab_dir_path / terms_file_name
             )
 
-    app.state.vocab_lookup_paths = vocab_lookup_paths
+    app.state.all_vocab_paths = all_vocab_paths
 
 
 # TODO: Remove function
