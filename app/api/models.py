@@ -163,7 +163,7 @@ class SubjectsQueryResponse(DatasetQueryResponse):
 
 
 class DataElementURI(str, Enum):
-    """Data model for data element URIs that have available vocabulary lookups."""
+    """Data model for data element URIs that have available vocabularies."""
 
     assessment = "nb:Assessment"
     diagnosis = "nb:Diagnosis"

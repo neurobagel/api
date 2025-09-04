@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic.types import StringConstraints
 
 from .. import crud
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/pipelines", tags=["pipelines"])
 router.add_api_route(
     path="",
     endpoint=route_factory.create_get_instances_handler(
-        data_element_uri="nb:Pipeline", external_vocab=None
+        data_element_uri="nb:Pipeline"
     ),
     methods=["GET"],
 )
@@ -24,13 +24,16 @@ async def get_pipeline_versions(
     pipeline_term: Annotated[
         str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
     ],
+    request: Request,
 ):
     """
     When a GET request is sent, return a dict keyed on the specified pipeline resource, where the value is
     list of pipeline versions available in the graph for that pipeline.
     """
     results = crud.post_query_to_graph(
-        util.create_pipeline_versions_query(pipeline_term)
+        util.create_pipeline_versions_query(
+            pipeline_term, request.app.state.context
+        )
     )
     results_dict = {
         pipeline_term: [

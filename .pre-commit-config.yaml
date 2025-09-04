@@ -43,7 +43,6 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
-        exclude: ^vocab/backup_external/
 
   - repo: https://github.com/iamthefij/docker-pre-commit
     rev: v3.0.1
