@@ -13,7 +13,11 @@ def create_get_instances_handler(data_element_uri: str):
         and the value being a list of dictionaries each corresponding to an available class instance term from the graph.
         """
         terms_vocab = request.app.state.all_vocabs.get(data_element_uri)
-        return await crud.get_terms(data_element_uri, terms_vocab)
+        return await crud.get_terms(
+            data_element_URI=data_element_uri,
+            terms_vocab=terms_vocab,
+            context=request.app.state.context,
+        )
 
     return get_instances
 

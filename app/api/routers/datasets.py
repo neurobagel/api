@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2
 
 from .. import crud
@@ -23,6 +23,7 @@ oauth2_scheme = OAuth2(
 
 @router.post("", response_model=List[DatasetQueryResponse])
 async def post_datasets_query(
+    request: Request,
     query: QueryModel,
     token: str | None = Depends(oauth2_scheme),
 ):
@@ -39,6 +40,7 @@ async def post_datasets_query(
         **query.model_dump(),
         is_datasets_query=True,
         dataset_uuids=None,
+        context=request.app.state.context,
     )
 
     return response

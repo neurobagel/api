@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2
 
 from .. import crud
@@ -23,6 +23,7 @@ oauth2_scheme = OAuth2(
 
 @router.post("", response_model=List[SubjectsQueryResponse])
 async def post_subjects_query(
+    request: Request,
     query: SubjectsQueryModel,
     token: str | None = Depends(oauth2_scheme),
 ):
@@ -38,6 +39,7 @@ async def post_subjects_query(
     response = await crud.query_records(
         **query.model_dump(),
         is_datasets_query=False,
+        context=request.app.state.context,
     )
 
     return response

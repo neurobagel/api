@@ -2,7 +2,7 @@
 
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.security import OAuth2
 
 from .. import crud
@@ -33,6 +33,7 @@ oauth2_scheme = OAuth2(
 # For more context, see https://github.com/neurobagel/api/issues/327.
 @router.get("", response_model=List[SubjectsQueryResponse])
 async def get_query(
+    request: Request,
     query: Annotated[QueryModel, Query()],
     token: str | None = Depends(oauth2_scheme),
 ):
@@ -49,6 +50,7 @@ async def get_query(
         **query.model_dump(),
         is_datasets_query=False,
         dataset_uuids=None,
+        context=request.app.state.context,
     )
 
     return response

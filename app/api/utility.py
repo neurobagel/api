@@ -15,14 +15,6 @@ QUERY_HEADER = {
     "Accept": "application/sparql-results+json",
 }
 
-CONTEXT = {
-    "nb": "http://neurobagel.org/vocab/",
-    "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
-    "nidm": "http://purl.org/nidash/nidm#",
-    "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
-    "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/",
-}
-
 # Store domains in named tuples
 Domain = namedtuple("Domain", ["var", "pred"])
 # Core domains
@@ -69,10 +61,10 @@ def request_data(url: str, err_message: str) -> Any:
         ) from e
 
 
-def create_context() -> str:
-    """Creates a SPARQL query context string from the CONTEXT dictionary."""
+def create_query_context(context: dict) -> str:
+    """Creates a SPARQL query context string from the context dictionary."""
     return "\n".join(
-        [f"PREFIX {prefix}: <{uri}>" for prefix, uri in CONTEXT.items()]
+        [f"PREFIX {prefix}: <{uri}>" for prefix, uri in context.items()]
     )
 
 
@@ -97,6 +89,7 @@ def create_bound_filter(var: str) -> str:
 
 
 def create_query(
+    context: dict,
     return_agg: bool,
     age: Optional[tuple] = (None, None),
     sex: Optional[str] = None,
@@ -115,6 +108,8 @@ def create_query(
 
     Parameters
     ----------
+    context : dict
+        A dictionary of recognized namespace prefixes and URLs.
     return_agg : bool
         Whether to return only aggregate query results (and not subject-level attributes besides file paths).
     age : tuple, optional
@@ -317,10 +312,10 @@ def create_query(
             + "} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal ?pipeline_version ?pipeline_name"
         )
 
-    return "\n".join([create_context(), query_string])
+    return "\n".join([create_query_context(context), query_string])
 
 
-def create_multidataset_size_query(dataset_uuids: list) -> str:
+def create_multidataset_size_query(dataset_uuids: list, context: dict) -> str:
     """Construct a SPARQL query to retrieve the number of subjects in each dataset in a list of dataset UUIDs."""
     dataset_uuids_string = "\n".join([f"<{uuid}>" for uuid in dataset_uuids])
     query_string = f"""
@@ -334,7 +329,7 @@ def create_multidataset_size_query(dataset_uuids: list) -> str:
         }} GROUP BY ?dataset_uuid
     """
 
-    return "\n".join([create_context(), query_string])
+    return "\n".join([create_query_context(context), query_string])
 
 
 def construct_matching_sub_results_for_dataset(
@@ -430,7 +425,7 @@ def construct_matching_sub_results_for_dataset(
     return subject_data
 
 
-def create_terms_query(data_element_URI: str) -> str:
+def create_terms_query(data_element_URI: str, context: dict) -> str:
     """
     Creates a SPARQL query using a simple query template to retrieve term URLS for a given data element.
 
@@ -438,15 +433,13 @@ def create_terms_query(data_element_URI: str) -> str:
     ----------
     data_element_URI : str
         The URI of the data element for which to retrieve the URIs of all connected term.
+    context : dict
+        A dictionary of recognized namespace prefixes and URLs.
 
     Returns
     -------
     str
         The SPARQL query.
-
-    Examples
-    --------
-    get_terms_query("nb:Assessment")
     """
 
     query_string = f"""
@@ -457,10 +450,10 @@ def create_terms_query(data_element_URI: str) -> str:
     }}
     """
 
-    return "\n".join([create_context(), query_string])
+    return "\n".join([create_query_context(context), query_string])
 
 
-def is_term_namespace_in_context(term_url: str) -> bool:
+def is_term_namespace_in_context(term_url: str, context: dict) -> bool:
     """
     Performs basic check for if a term URL contains a namespace URI from the context.
 
@@ -468,26 +461,30 @@ def is_term_namespace_in_context(term_url: str) -> bool:
     ----------
     term_url : str
         A controlled term URI.
+    context : dict
+        A dictionary of recognized namespace prefixes and URLs.
 
     Returns
     -------
     bool
         True if the term URL contains a namespace URI from the context, False otherwise.
     """
-    for uri in CONTEXT.values():
+    for uri in context.values():
         if uri in term_url:
             return True
     return False
 
 
 def strip_namespace_from_term_uri(
-    term: str, has_prefix: bool = False
+    context: dict, term: str, has_prefix: bool = False
 ) -> tuple[str | None, str]:
     """
     Removes namespace URL or prefix from a term URI if the namespace is recognized.
 
     Parameters
     ----------
+    context : dict
+        A dictionary of recognized namespace prefixes and URLs.
     term : str
         A controlled term URI.
     has_prefix : bool, optional
@@ -502,7 +499,7 @@ def strip_namespace_from_term_uri(
         term_prefix, term_id = term.rsplit(":", 1)
         return term_prefix, term_id
 
-    for term_url in CONTEXT.values():
+    for term_url in context.values():
         if term_url in term:
             return term_url, term[len(term_url) :]
 
@@ -510,7 +507,7 @@ def strip_namespace_from_term_uri(
     return None, term
 
 
-def replace_namespace_uri_with_prefix(url: str) -> str:
+def replace_namespace_uri_with_prefix(url: str, context: dict) -> str:
     """
     Replaces namespace URIs in term URLs with corresponding prefixes from the context.
 
@@ -518,13 +515,15 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
     ----------
     url : str
         A controlled term URL.
+    context : dict
+        A dictionary of recognized namespace prefixes and URLs.
 
     Returns
     -------
     str
         The term with namespace URIs replaced with prefixes if found in the context, or the original URL.
     """
-    for prefix, uri in CONTEXT.items():
+    for prefix, uri in context.items():
         if uri in url:
             return url.replace(uri, f"{prefix}:")
 
@@ -546,7 +545,7 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
 #         return json.load(f)
 
 
-def create_pipeline_versions_query(pipeline: str) -> str:
+def create_pipeline_versions_query(pipeline: str, context: dict) -> str:
     """Create a SPARQL query for all versions of a pipeline available in a graph."""
     query_string = textwrap.dedent(
         f"""\
@@ -557,4 +556,4 @@ def create_pipeline_versions_query(pipeline: str) -> str:
             nb:hasPipelineVersion ?pipeline_version.
     }}"""
     )
-    return "\n".join([create_context(), query_string])
+    return "\n".join([create_query_context(context), query_string])

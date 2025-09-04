@@ -25,6 +25,7 @@ from .api.security import check_client_id
 NEUROBAGEL_CONFIGS_API_URL = (
     "https://api.github.com/repos/neurobagel/communities/contents/configs"
 )
+NEUROBAGEL_CONFIG_NAMESPACES_API_URL = "https://api.github.com/repos/neurobagel/communities/contents/config_metadata/config_namespace_map.json"
 
 
 def fetch_available_neurobagel_configs(config_dir_url: str) -> list[str]:
@@ -70,7 +71,7 @@ def validate_environment_variables():
         )
 
 
-def fetch_vocabularies(configs_url: str, config_name: str):
+def fetch_vocabularies(configs_url: str, config_name: str) -> dict:
     """
     Fetch all terms JSON files for the specified configuration from GitHub and store them on the app instance.
     """
@@ -104,9 +105,32 @@ def fetch_vocabularies(configs_url: str, config_name: str):
             )
             all_vocabs[var_uri] = terms_file
 
-    # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
-    # These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
-    app.state.all_vocabs = all_vocabs
+    return all_vocabs
+
+
+def fetch_supported_namespaces_for_config(
+    config_namespaces_url: str, config_name: str
+) -> dict:
+    """
+    Return a dictionary of supported namespace prefixes and their corresponding full URLs for a given community configuration.
+    """
+    config_namespaces_mapping = util.request_data(
+        config_namespaces_url,
+        "Failed to fetch the recognized namespaces for Neurobagel configurations.",
+    )
+
+    config_namespaces = next(
+        config["namespaces"]
+        for config in config_namespaces_mapping
+        if config["config_name"] == config_name
+    )
+
+    context = {}
+    for namespace_group in config_namespaces.values():
+        for namespace in namespace_group:
+            context[namespace["namespace_prefix"]] = namespace["namespace_url"]
+
+    return context
 
 
 @asynccontextmanager
@@ -129,7 +153,15 @@ async def lifespan(app: FastAPI):
     check_client_id()
 
     # Initialize vocabularies
-    fetch_vocabularies(NEUROBAGEL_CONFIGS_API_URL, settings.config)
+    # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
+    # These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
+    app.state.all_vocabs = fetch_vocabularies(
+        NEUROBAGEL_CONFIGS_API_URL, settings.config
+    )
+    # Create context
+    app.state.context = fetch_supported_namespaces_for_config(
+        NEUROBAGEL_CONFIG_NAMESPACES_API_URL, settings.config
+    )
 
     yield
 
