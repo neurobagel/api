@@ -522,20 +522,6 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
     return url
 
 
-# TODO: Remove function
-# def load_json(path: Path) -> dict:
-#     """
-#     Loads a user-specified JSON file.
-
-#     Parameters
-#     ----------
-#     path : Path
-#         Path to JSON file.
-#     """
-#     with open(path, "r") as f:
-#         return json.load(f)
-
-
 def create_pipeline_versions_query(pipeline: str) -> str:
     """Create a SPARQL query for all versions of a pipeline available in a graph."""
     query_string = textwrap.dedent(

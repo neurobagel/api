@@ -154,8 +154,6 @@ async def lifespan(app: FastAPI):
     check_client_id()
 
     # Initialize vocabularies
-    # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
-    # These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
     config.ALL_VOCABS = fetch_vocabularies(
         NEUROBAGEL_CONFIGS_API_URL, settings.config
     )
@@ -165,6 +163,10 @@ async def lifespan(app: FastAPI):
     )
 
     yield
+
+    # Cleanup
+    config.ALL_VOCABS.clear()
+    config.CONTEXT.clear()
 
 
 app = FastAPI(
