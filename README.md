@@ -205,7 +205,11 @@ the API will always talk to the graph on behalf of the user.
 To regenerate this sample query when the API query template is updated, run the following commands from the repository root in an interactive Python terminal:
 
 ```python
+from app.main import fetch_supported_namespaces_for_config, NEUROBAGEL_CONFIG_NAMESPACES_API_URL
+from app.api import config
 from app.api.utility import create_query
+
+config.CONTEXT = fetch_supported_namespaces_for_config(NEUROBAGEL_CONFIG_NAMESPACES_API_URL, config.DEFAULT_NEUROBAGEL_CONFIG) 
 
 with open("docs/default_neurobagel_query.rq", "w") as file:
     file.write(create_query(return_agg=False))
