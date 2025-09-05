@@ -1,9 +1,10 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2
 
-from .. import config, crud
+from .. import crud
+from ..config import settings
 from ..models import DatasetQueryResponse, QueryModel
 from ..security import verify_token
 
@@ -22,12 +23,11 @@ oauth2_scheme = OAuth2(
 
 @router.post("", response_model=List[DatasetQueryResponse])
 async def post_datasets_query(
-    request: Request,
     query: QueryModel,
     token: str | None = Depends(oauth2_scheme),
 ):
     """When a POST request is sent, return list of dicts corresponding to metadata for datasets matching the query."""
-    if config.settings.auth_enabled:
+    if settings.auth_enabled:
         if token is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -36,10 +36,7 @@ async def post_datasets_query(
         verify_token(token)
 
     response = await crud.query_records(
-        **query.model_dump(),
-        is_datasets_query=True,
-        dataset_uuids=None,
-        context=config.CONTEXT,
+        **query.model_dump(), is_datasets_query=True, dataset_uuids=None
     )
 
     return response

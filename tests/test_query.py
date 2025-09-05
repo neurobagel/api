@@ -12,13 +12,6 @@ ROUTE = "/query"
 
 def test_get_subjects_by_query(monkeypatch):
     """Test that graph results for dataset size queries are correctly parsed into a dictionary."""
-    mock_context = {
-        "nb": "http://neurobagel.org/vocab/",
-        "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
-        "nidm": "http://purl.org/nidash/nidm#",
-        "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
-        "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/",
-    }
 
     def mock_post_query_to_graph(query, timeout=5.0):
         return {
@@ -56,8 +49,7 @@ def test_get_subjects_by_query(monkeypatch):
         [
             "http://neurobagel.org/vocab/ds1234",
             "http://neurobagel.org/vocab/ds2345",
-        ],
-        mock_context,
+        ]
     ) == {
         "http://neurobagel.org/vocab/ds1234": 70,
         "http://neurobagel.org/vocab/ds2345": 40,

@@ -2,10 +2,11 @@
 
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2
 
-from .. import config, crud
+from .. import crud
+from ..config import settings
 from ..models import QueryModel, SubjectsQueryResponse
 from ..security import verify_token
 
@@ -32,12 +33,11 @@ oauth2_scheme = OAuth2(
 # For more context, see https://github.com/neurobagel/api/issues/327.
 @router.get("", response_model=List[SubjectsQueryResponse])
 async def get_query(
-    request: Request,
     query: Annotated[QueryModel, Query()],
     token: str | None = Depends(oauth2_scheme),
 ):
     """When a GET request is sent, return list of dicts corresponding to subject-level metadata aggregated by dataset."""
-    if config.settings.auth_enabled:
+    if settings.auth_enabled:
         if token is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -46,10 +46,7 @@ async def get_query(
         verify_token(token)
 
     response = await crud.query_records(
-        **query.model_dump(),
-        is_datasets_query=False,
-        dataset_uuids=None,
-        context=config.CONTEXT,
+        **query.model_dump(), is_datasets_query=False, dataset_uuids=None
     )
 
     return response

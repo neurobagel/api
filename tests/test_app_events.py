@@ -126,5 +126,5 @@ def test_neurobagel_namespaces_fetched_successfully(
     with test_app:
         pass
 
-    assert config.CONTEXT != {}
+    assert config.CONTEXT
     assert "nb" in config.CONTEXT
