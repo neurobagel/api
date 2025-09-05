@@ -1,6 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
+from app.api import config
 from app.main import app, settings
 
 
@@ -60,6 +61,21 @@ def set_graph_url_vars_for_integration_tests(monkeypatch):
     monkeypatch.setattr(settings, "graph_address", "localhost")
     monkeypatch.setattr(settings, "graph_port", 7200)
     monkeypatch.setattr(settings, "graph_db", "repositories/my_db")
+
+
+@pytest.fixture()
+def set_test_context(monkeypatch):
+    monkeypatch.setattr(
+        config,
+        "CONTEXT",
+        {
+            "nb": "http://neurobagel.org/vocab/",
+            "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
+            "nidm": "http://purl.org/nidash/nidm#",
+            "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
+            "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/",
+        },
+    )
 
 
 @pytest.fixture()
