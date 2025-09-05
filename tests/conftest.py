@@ -64,7 +64,8 @@ def set_graph_url_vars_for_integration_tests(monkeypatch):
 
 
 @pytest.fixture()
-def set_test_context(monkeypatch):
+def mock_context(monkeypatch):
+    """Create a mock context for testing to avoid unnecessary requests to GitHub for supported namespaces."""
     monkeypatch.setattr(
         config,
         "CONTEXT",
@@ -712,7 +713,7 @@ def mock_query_matching_dataset_sizes():
     the corresponding query for dataset size, in order to test how the response from the graph is processed by the API (crud.query_records).
     """
 
-    def _mock_query_matching_dataset_sizes(dataset_uuids):
+    def _mock_query_matching_dataset_sizes(**kwargs):
         return {"http://neurobagel.org/vocab/12345": 200}
 
     return _mock_query_matching_dataset_sizes

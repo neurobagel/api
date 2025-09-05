@@ -10,7 +10,7 @@ def test_get_instances_endpoint_with_vocab_lookup(
     # Since this test runs the API startup events to fetch the vocabularies used in the test,
     # we need to disable auth to avoid startup errors about unset auth-related environment variables.
     disable_auth,
-    set_test_context,
+    mock_context,
 ):
     """
     Given a GET request to /assessments (attribute with a vocabulary lookup available),

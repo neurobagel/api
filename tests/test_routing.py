@@ -32,8 +32,7 @@ def test_request_without_trailing_slash_not_redirected(
 ):
     """Test that a request to a route without a / is not redirected to have a trailing slash."""
     monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
-    with test_app:
-        response = test_app.get(valid_route, follow_redirects=False)
+    response = test_app.get(valid_route, follow_redirects=False)
     assert response.status_code == 200
 
 

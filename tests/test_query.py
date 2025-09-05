@@ -12,6 +12,13 @@ ROUTE = "/query"
 
 def test_get_subjects_by_query(monkeypatch):
     """Test that graph results for dataset size queries are correctly parsed into a dictionary."""
+    mock_context = {
+        "nb": "http://neurobagel.org/vocab/",
+        "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
+        "nidm": "http://purl.org/nidash/nidm#",
+        "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
+        "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/",
+    }
 
     def mock_post_query_to_graph(query, timeout=5.0):
         return {
@@ -49,7 +56,8 @@ def test_get_subjects_by_query(monkeypatch):
         [
             "http://neurobagel.org/vocab/ds1234",
             "http://neurobagel.org/vocab/ds2345",
-        ]
+        ],
+        mock_context,
     ) == {
         "http://neurobagel.org/vocab/ds1234": 70,
         "http://neurobagel.org/vocab/ds2345": 40,
@@ -760,7 +768,9 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
     """
     monkeypatch.setattr(settings, "return_agg", False)
 
-    response = test_app.get(ROUTE)
+    with test_app:
+        response = test_app.get(ROUTE)
+
     assert response.status_code == 200
 
     matching_ds = response.json()[0]
@@ -791,7 +801,26 @@ def test_min_cell_size_removes_results(
     """
     monkeypatch.setattr(settings, "min_cell_size", 100)
 
-    response = test_app.get(ROUTE)
-    assert response.status_code == 200
+    with test_app:
+        response = test_app.get(ROUTE)
 
+    assert response.status_code == 200
     assert response.json() == []
+
+
+@pytest.mark.integration
+def test_fetched_context_used_during_sparql_query(
+    test_app, disable_auth, set_graph_url_vars_for_integration_tests
+):
+    """
+    Test that a filtered query using a compact URI is correctly expanded in the SPARQL query
+    (using the context fetched on startup), resulting in at least 1 matching subject.
+    """
+    modality_with_prefix = "nidm:T1Weighted"
+    with test_app:
+        response = test_app.get(f"{ROUTE}?image_modal={modality_with_prefix}")
+
+    matching_ds = response.json()[0]
+
+    assert response.status_code == 200
+    assert matching_ds["num_matching_subjects"] > 0

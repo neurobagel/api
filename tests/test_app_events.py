@@ -3,6 +3,7 @@
 import pytest
 
 from app import main
+from app.api import config
 from app.api import utility as util
 from app.main import settings
 
@@ -107,8 +108,8 @@ def test_neurobagel_vocabularies_fetched_successfully(
     with test_app:
         pass
 
-    assert test_app.app.state.all_vocabs != {}
-    for var, vocab in test_app.app.state.all_vocabs.items():
+    assert config.ALL_VOCABS != {}
+    for var, vocab in config.ALL_VOCABS.items():
         assert "nb:" in var
         assert isinstance(vocab, list)
         assert "terms" in vocab[0]
@@ -125,5 +126,5 @@ def test_neurobagel_namespaces_fetched_successfully(
     with test_app:
         pass
 
-    assert test_app.app.state.context != {}
-    assert "nb" in test_app.app.state.context
+    assert config.CONTEXT != {}
+    assert "nb" in config.CONTEXT
