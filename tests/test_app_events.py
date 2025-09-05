@@ -2,6 +2,7 @@
 
 import pytest
 
+from app import main
 from app.api import utility as util
 from app.main import settings
 
@@ -76,18 +77,53 @@ def test_app_with_set_allowed_origins(
     )
 
 
-@pytest.mark.parametrize(
-    "lookup_file",
-    ["snomed_disorder", "snomed_assessment"],
-)
-@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
-def test_stored_vocab_lookup_file_created_on_startup(
-    test_app,
-    disable_auth,
-    lookup_file,
+def fetched_configs_includes_neurobagel(test_app, disable_app):
+    """Test that "Neurobagel" is included among the available configuration names fetched from GitHub."""
+    assert "Neurobagel" in main.fetch_available_neurobagel_configs(
+        main.NEUROBAGEL_CONFIGS_API_URL
+    )
+
+
+def test_app_exits_when_config_unrecognized(
+    test_app, disable_auth, monkeypatch
 ):
-    """Test that on startup, a non-empty temporary lookup file is created for term ID-label mappings for the locally stored SNOMED CT vocabulary."""
+    """Test that when the configuration is set to an unrecognized name, the app raises an error."""
+    monkeypatch.setattr(settings, "config", "Unknown-Config")
+
+    with pytest.raises(RuntimeError) as e_info:
+        with test_app:
+            pass
+    assert "not a recognized Neurobagel configuration" in str(e_info.value)
+
+
+def test_neurobagel_vocabularies_fetched_successfully(
+    test_app, disable_auth, monkeypatch
+):
+    """
+    Test that for a given configuration, the term vocabularies are fetched and stored
+    in the correct shape on the app instance.
+    """
+    monkeypatch.setattr(settings, "config", "Neurobagel")
     with test_app:
-        term_labels_path = test_app.app.state.all_vocab_paths[lookup_file]
-        assert term_labels_path.exists()
-        assert term_labels_path.stat().st_size > 0
+        pass
+
+    assert test_app.app.state.all_vocabs != {}
+    for var, vocab in test_app.app.state.all_vocabs.items():
+        assert "nb:" in var
+        assert isinstance(vocab, list)
+        assert "terms" in vocab[0]
+
+
+def test_neurobagel_namespaces_fetched_successfully(
+    test_app, disable_auth, monkeypatch
+):
+    """
+    Test that for a given configuration, the recognized term namespaces are fetched and stored
+    in the correct shape on the app instance.
+    """
+    monkeypatch.setattr(settings, "config", "Neurobagel")
+    with test_app:
+        pass
+
+    assert test_app.app.state.context != {}
+    assert "nb" in test_app.app.state.context

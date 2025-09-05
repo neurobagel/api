@@ -165,9 +165,6 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # Shutdown logic
-    app.state.vocab_dir.cleanup()
-
 
 app = FastAPI(
     root_path=settings.root_path,
