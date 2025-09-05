@@ -5,6 +5,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_NEUROBAGEL_CONFIG = "Neurobagel"
 
+CONTEXT = {}
+ALL_VOCABS = {}
+
 
 class Settings(BaseSettings):
     """Data model for configurable API settings."""

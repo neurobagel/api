@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 
-from .. import crud
+from .. import config, crud
 
 router = APIRouter(prefix="/attributes", tags=["attributes"])
 
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/attributes", tags=["attributes"])
 async def get_attributes(request: Request):
     """When a GET request is sent, return a list of the harmonized controlled term attributes."""
     response = await crud.get_controlled_term_attributes(
-        context=request.app.state.context
+        context=config.CONTEXT
     )
 
     return response

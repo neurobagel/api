@@ -3,8 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2
 
-from .. import crud
-from ..config import settings
+from .. import config, crud
 from ..models import SubjectsQueryModel, SubjectsQueryResponse
 from ..security import verify_token
 
@@ -28,7 +27,7 @@ async def post_subjects_query(
     token: str | None = Depends(oauth2_scheme),
 ):
     """When a POST request is sent, return list of dicts corresponding to (meta)data of subject-sessions matching the query, grouped by dataset."""
-    if settings.auth_enabled:
+    if config.settings.auth_enabled:
         if token is None:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -39,7 +38,7 @@ async def post_subjects_query(
     response = await crud.query_records(
         **query.model_dump(),
         is_datasets_query=False,
-        context=request.app.state.context,
+        context=config.CONTEXT,
     )
 
     return response

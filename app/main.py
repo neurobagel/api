@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
+from .api import config
 from .api import utility as util
 from .api.config import Settings, settings
 from .api.routers import (
@@ -78,22 +79,22 @@ def fetch_vocabularies(configs_url: str, config_name: str) -> dict:
     customizable_vocab_vars = ["Assessment", "Diagnosis"]
     config_dir_url = f"{configs_url}/{config_name}"
 
-    config = util.request_data(
+    vars_config = util.request_data(
         f"{config_dir_url}/config.json",
         f"Failed to fetch the {config_name if config_name != 'Neurobagel' else 'base'} configuration for Neurobagel.",
     )
     # TODO: For now we only consider the first entry in config.json since
     # we only support a single namespace for standardized variables (the Neurobagel vocab)
     # - refactor once we support custom standardized variables from potentially >1 namespaces
-    config = config[0]
+    vars_config = vars_config[0]
 
     all_vocabs = {}
     for var_id in customizable_vocab_vars:
-        var_uri = f"{config['namespace_prefix']}:{var_id}"
+        var_uri = f"{vars_config['namespace_prefix']}:{var_id}"
         terms_file_name = next(
             (
                 var["terms_file"]
-                for var in config["standardized_variables"]
+                for var in vars_config["standardized_variables"]
                 if var["id"] == var_id
             ),
             None,
@@ -119,14 +120,14 @@ def fetch_supported_namespaces_for_config(
         "Failed to fetch the recognized namespaces for Neurobagel configurations.",
     )
 
-    config_namespaces = next(
-        config["namespaces"]
-        for config in config_namespaces_mapping
-        if config["config_name"] == config_name
+    namespaces_for_config = next(
+        _config["namespaces"]
+        for _config in config_namespaces_mapping
+        if _config["config_name"] == config_name
     )
 
     context = {}
-    for namespace_group in config_namespaces.values():
+    for namespace_group in namespaces_for_config.values():
         for namespace in namespace_group:
             context[namespace["namespace_prefix"]] = namespace["namespace_url"]
 
@@ -155,11 +156,11 @@ async def lifespan(app: FastAPI):
     # Initialize vocabularies
     # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
     # These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
-    app.state.all_vocabs = fetch_vocabularies(
+    config.ALL_VOCABS = fetch_vocabularies(
         NEUROBAGEL_CONFIGS_API_URL, settings.config
     )
     # Create context
-    app.state.context = fetch_supported_namespaces_for_config(
+    config.CONTEXT = fetch_supported_namespaces_for_config(
         NEUROBAGEL_CONFIG_NAMESPACES_API_URL, settings.config
     )
 
