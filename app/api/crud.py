@@ -299,7 +299,7 @@ async def get_terms(
             )
             term_label = next(
                 (
-                    term["label"]
+                    term["name"]
                     for term in namespace_terms
                     if term["id"] == term_id
                 ),
