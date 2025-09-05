@@ -715,21 +715,7 @@ def mock_get_with_exception(request):
         (this tells mock_get_with_exception to raise an HTTPException)
     """
 
-    async def _mock_get_with_exception(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_imaging_sessions,
-        min_num_phenotypic_sessions,
-        assessment,
-        image_modal,
-        pipeline_version,
-        pipeline_name,
-        is_datasets_query,
-        dataset_uuids,
-    ):
+    async def _mock_get_with_exception(**kwargs):
         raise request.param
 
     return _mock_get_with_exception
@@ -747,21 +733,7 @@ def mock_query_records(request):
         (this tells mock_query_records to return None)
     """
 
-    async def _mock_query_records(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_imaging_sessions,
-        min_num_phenotypic_sessions,
-        assessment,
-        image_modal,
-        pipeline_version,
-        pipeline_name,
-        is_datasets_query,
-        dataset_uuids,
-    ):
+    async def _mock_query_records(**kwargs):
         return request.param
 
     return _mock_query_records
@@ -771,21 +743,7 @@ def mock_query_records(request):
 def mock_successful_query_records(test_data):
     """Mock CRUD function that returns non-empty, valid aggregate query result data."""
 
-    async def _mock_successful_query_records(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_imaging_sessions,
-        min_num_phenotypic_sessions,
-        assessment,
-        image_modal,
-        pipeline_version,
-        pipeline_name,
-        is_datasets_query,
-        dataset_uuids,
-    ):
+    async def _mock_successful_query_records(**kwargs):
         return test_data
 
     return _mock_successful_query_records
