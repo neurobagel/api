@@ -3,10 +3,7 @@
 import httpx
 
 
-def test_get_attributes(
-    test_app,
-    monkeypatch,
-):
+def test_get_attributes(test_app, monkeypatch, mock_context):
     """Given a GET request to the /attributes endpoint, successfully returns controlled term attributes with namespaces abbrieviated and as a list."""
     mock_response_json = {
         "head": {"vars": ["attribute"]},

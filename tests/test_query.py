@@ -669,7 +669,8 @@ def test_app_with_invalid_environment_vars(
     monkeypatch.setattr(settings, "graph_username", "wrong_username")
     monkeypatch.setattr(settings, "graph_password", "wrong_password")
 
-    response = test_app.get("/query")
+    with test_app:
+        response = test_app.get("/query")
     assert response.status_code == 401
 
 
@@ -684,7 +685,8 @@ def test_integration_query_without_auth_succeeds(
     Running a test against a real local test graph
     should succeed when authentication is disabled.
     """
-    response = test_app.get(ROUTE)
+    with test_app:
+        response = test_app.get(ROUTE)
     assert response.status_code == 200
 
 
@@ -760,7 +762,9 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
     """
     monkeypatch.setattr(settings, "return_agg", False)
 
-    response = test_app.get(ROUTE)
+    with test_app:
+        response = test_app.get(ROUTE)
+
     assert response.status_code == 200
 
     matching_ds = response.json()[0]
@@ -791,7 +795,26 @@ def test_min_cell_size_removes_results(
     """
     monkeypatch.setattr(settings, "min_cell_size", 100)
 
-    response = test_app.get(ROUTE)
-    assert response.status_code == 200
+    with test_app:
+        response = test_app.get(ROUTE)
 
+    assert response.status_code == 200
     assert response.json() == []
+
+
+@pytest.mark.integration
+def test_fetched_context_used_during_sparql_query(
+    test_app, disable_auth, set_graph_url_vars_for_integration_tests
+):
+    """
+    Test that a filtered query using a compact URI is correctly expanded in the SPARQL query
+    (using the context fetched on startup), resulting in at least 1 matching subject.
+    """
+    modality_with_prefix = "nidm:T1Weighted"
+    with test_app:
+        response = test_app.get(f"{ROUTE}?image_modal={modality_with_prefix}")
+
+    matching_ds = response.json()[0]
+
+    assert response.status_code == 200
+    assert matching_ds["num_matching_subjects"] > 0

@@ -23,6 +23,7 @@ def test_settings_read_correctly(monkeypatch):
     assert settings.graph_address == "127.0.0.1"
     assert settings.auth_enabled is True
     assert settings.client_id is None
+    assert settings.config == "Neurobagel"
 
     # Check that defaults are applied correctly for environment variables that
     # have been set to empty strings

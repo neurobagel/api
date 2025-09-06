@@ -2,8 +2,6 @@
 
 import warnings
 from contextlib import asynccontextmanager
-from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import uvicorn
 from fastapi import FastAPI, Request
@@ -11,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
+from .api import config
 from .api import utility as util
 from .api.config import Settings, settings
 from .api.routers import (
@@ -24,19 +23,34 @@ from .api.routers import (
 )
 from .api.security import check_client_id
 
-BACKUP_VOCAB_DIR = (
-    Path(__file__).absolute().parents[1] / "vocab/backup_external"
-)
+NEUROBAGEL_CONFIG_REPO = "neurobagel/communities"
+
+
+def create_gh_raw_content_url(repo: str, content_path: str) -> str:
+    """
+    Create a raw content URL for a given path in a specific GitHub repository.
+
+    NOTE: We use raw URLs instead of the GitHub API to avoid rate limits when working without a token.
+    """
+    return f"https://raw.githubusercontent.com/{repo}/refs/heads/main/{content_path}"
+
+
+def fetch_available_neurobagel_configs() -> list[str]:
+    """Fetch available Neurobagel configuration names from the specified URL."""
+    response = util.request_data(
+        create_gh_raw_content_url(
+            NEUROBAGEL_CONFIG_REPO, "config_metadata/config_namespace_map.json"
+        ),
+        "Failed to fetch available Neurobagel configurations.",
+    )
+    config_names = [_config["config_name"] for _config in response]
+
+    return config_names
 
 
 def validate_environment_variables():
     """
-    Check that all required environment variables are set.
-
-    Ensures that the username and password for the graph database are provided.
-    If not, raises a RuntimeError to prevent the application from running without valid credentials.
-
-    Also checks that allowed origins are properly set. If missing, a warning is issued, but the app continues running.
+    Check that all required environment variables are set, and exits the app if any are missing or invalid.
     """
     if settings.graph_username is None or settings.graph_password is None:
         raise RuntimeError(
@@ -55,34 +69,76 @@ def validate_environment_variables():
             "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes."
         )
 
+    available_configs = fetch_available_neurobagel_configs()
+    if settings.config not in available_configs:
+        raise RuntimeError(
+            f"'{settings.config}' is not a recognized Neurobagel configuration. "
+            f"Available configurations: {', '.join(available_configs)}"
+        )
 
-def initialize_vocabularies():
+
+def fetch_vocabularies(config_name: str) -> dict:
     """
-    Create and store on the app instance a temporary directory for vocabulary term lookup JSON files
-    (each of which contain key-value pairings of IDs to human-readable names of terms),
-    and then fetch vocabularies using their respective native APIs and save them to the temporary directory for reuse.
+    Fetch all terms JSON files for the specified configuration from GitHub and store them on the app instance.
     """
-    # We use Starlette's ability (FastAPI is Starlette underneath) to store arbitrary state on the app instance (https://www.starlette.io/applications/#storing-state-on-the-app-instance)
-    # to store a temporary directory object and its corresponding path. These data are local to the instance and will be recreated on every app launch (i.e. not persisted).
-
-    app.state.vocab_dir = TemporaryDirectory()
-    app.state.vocab_dir_path = Path(app.state.vocab_dir.name)
-
-    app.state.vocab_lookup_paths = {
-        "snomed_assessment": app.state.vocab_dir_path
-        / "snomedct_assessment_term_labels.json",
-        "snomed_disorder": app.state.vocab_dir_path
-        / "snomedct_disorder_term_labels.json",
-    }
-
-    util.reformat_snomed_terms_for_lookup(
-        input_terms_path=BACKUP_VOCAB_DIR / "snomedct_assessment.json",
-        output_terms_path=app.state.vocab_lookup_paths["snomed_assessment"],
+    customizable_vocab_vars = ["Assessment", "Diagnosis"]
+    config_dir_url = create_gh_raw_content_url(
+        NEUROBAGEL_CONFIG_REPO, f"configs/{config_name}"
     )
-    util.reformat_snomed_terms_for_lookup(
-        input_terms_path=BACKUP_VOCAB_DIR / "snomedct_disorder.json",
-        output_terms_path=app.state.vocab_lookup_paths["snomed_disorder"],
+
+    vars_config = util.request_data(
+        f"{config_dir_url}/config.json",
+        f"Failed to fetch the {config_name if config_name != 'Neurobagel' else 'base'} configuration for Neurobagel.",
     )
+    # TODO: For now we only consider the first entry in config.json since
+    # we only support a single namespace for standardized variables (the Neurobagel vocab)
+    # - refactor once we support custom standardized variables from potentially >1 namespaces
+    vars_config = vars_config[0]
+
+    all_vocabs = {}
+    for var_id in customizable_vocab_vars:
+        var_uri = f"{vars_config['namespace_prefix']}:{var_id}"
+        terms_file_name = next(
+            (
+                var["terms_file"]
+                for var in vars_config["standardized_variables"]
+                if var["id"] == var_id
+            ),
+            None,
+        )
+        if terms_file_name:
+            terms_file = util.request_data(
+                f"{config_dir_url}/{terms_file_name}",
+                f"Failed to fetch vocabulary for {var_uri}.",
+            )
+            all_vocabs[var_uri] = terms_file
+
+    return all_vocabs
+
+
+def fetch_supported_namespaces_for_config(config_name: str) -> dict:
+    """
+    Return a dictionary of supported namespace prefixes and their corresponding full URLs for a given community configuration.
+    """
+    config_namespaces_mapping = util.request_data(
+        create_gh_raw_content_url(
+            NEUROBAGEL_CONFIG_REPO, "config_metadata/config_namespace_map.json"
+        ),
+        "Failed to fetch the recognized namespaces for Neurobagel configurations.",
+    )
+
+    namespaces_for_config = next(
+        _config["namespaces"]
+        for _config in config_namespaces_mapping
+        if _config["config_name"] == config_name
+    )
+
+    context = {}
+    for namespace_group in namespaces_for_config.values():
+        for namespace in namespace_group:
+            context[namespace["namespace_prefix"]] = namespace["namespace_url"]
+
+    return context
 
 
 @asynccontextmanager
@@ -93,7 +149,7 @@ async def lifespan(app: FastAPI):
     On startup:
     - Validates required environment variables.
     - Performs authentication checks.
-    - Initializes temporary directories for vocabulary lookups.
+    - Fetches vocabularies for standardized variables.
 
     On shutdown:
     - Cleans up temporary directories to free resources.
@@ -105,12 +161,15 @@ async def lifespan(app: FastAPI):
     check_client_id()
 
     # Initialize vocabularies
-    initialize_vocabularies()
+    config.ALL_VOCABS = fetch_vocabularies(settings.config)
+    # Create context
+    config.CONTEXT = fetch_supported_namespaces_for_config(settings.config)
 
     yield
 
-    # Shutdown logic
-    app.state.vocab_dir.cleanup()
+    # Cleanup
+    config.ALL_VOCABS.clear()
+    config.CONTEXT.clear()
 
 
 app = FastAPI(
