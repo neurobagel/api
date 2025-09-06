@@ -194,7 +194,7 @@ async def query_records(
                 dataset_matching_records.groupby("pipeline_name", dropna=True)[
                     "pipeline_version"
                 ]
-                .apply(lambda x: list(x.dropna().unique()))
+                .agg(lambda x: list(x.dropna().unique()))
                 .to_dict()
             )
 
