@@ -669,7 +669,8 @@ def test_app_with_invalid_environment_vars(
     monkeypatch.setattr(settings, "graph_username", "wrong_username")
     monkeypatch.setattr(settings, "graph_password", "wrong_password")
 
-    response = test_app.get("/query")
+    with test_app:
+        response = test_app.get("/query")
     assert response.status_code == 401
 
 
@@ -684,7 +685,8 @@ def test_integration_query_without_auth_succeeds(
     Running a test against a real local test graph
     should succeed when authentication is disabled.
     """
-    response = test_app.get(ROUTE)
+    with test_app:
+        response = test_app.get(ROUTE)
     assert response.status_code == 200
 
 
