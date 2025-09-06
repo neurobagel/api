@@ -1,7 +1,5 @@
 """Constants for graph server connection and utility functions for writing the SPARQL query."""
 
-import base64
-import json
 import textwrap
 from collections import namedtuple
 from typing import Any, Literal, Optional
@@ -48,11 +46,6 @@ def request_data(url: str, err_message: str) -> Any:
             response = client.get(url)
             response.raise_for_status()
             data = response.json()
-
-        if isinstance(data, dict) and data.get("type") == "file":
-            data = json.loads(
-                base64.b64decode(data["content"]).decode("utf-8")
-            )
 
         return data
     except httpx.HTTPError as e:

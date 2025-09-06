@@ -80,9 +80,7 @@ def test_app_with_set_allowed_origins(
 
 def fetched_configs_includes_neurobagel(test_app, disable_app):
     """Test that "Neurobagel" is included among the available configuration names fetched from GitHub."""
-    assert "Neurobagel" in main.fetch_available_neurobagel_configs(
-        main.NEUROBAGEL_CONFIGS_API_URL
-    )
+    assert "Neurobagel" in main.fetch_available_neurobagel_configs()
 
 
 def test_app_exits_when_config_unrecognized(
@@ -106,10 +104,10 @@ def test_neurobagel_vocabularies_fetched_successfully(
     """
     monkeypatch.setattr(settings, "config", "Neurobagel")
     with test_app:
-        pass
+        fetched_vocabs = config.ALL_VOCABS.copy()
 
-    assert config.ALL_VOCABS != {}
-    for var, vocab in config.ALL_VOCABS.items():
+    assert fetched_vocabs != {}
+    for var, vocab in fetched_vocabs.items():
         assert "nb:" in var
         assert isinstance(vocab, list)
         assert "terms" in vocab[0]
@@ -124,7 +122,7 @@ def test_neurobagel_namespaces_fetched_successfully(
     """
     monkeypatch.setattr(settings, "config", "Neurobagel")
     with test_app:
-        pass
+        fetched_context = config.CONTEXT.copy()
 
-    assert config.CONTEXT
-    assert "nb" in config.CONTEXT
+    assert fetched_context
+    assert "nb" in fetched_context

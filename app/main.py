@@ -23,20 +23,27 @@ from .api.routers import (
 )
 from .api.security import check_client_id
 
-NEUROBAGEL_CONFIGS_API_URL = (
-    "https://api.github.com/repos/neurobagel/communities/contents/configs"
-)
-NEUROBAGEL_CONFIG_NAMESPACES_API_URL = "https://api.github.com/repos/neurobagel/communities/contents/config_metadata/config_namespace_map.json"
+NEUROBAGEL_CONFIG_REPO = "neurobagel/communities"
 
 
-def fetch_available_neurobagel_configs(config_dir_url: str) -> list[str]:
+def create_gh_raw_content_url(repo: str, content_path: str) -> str:
+    """
+    Create a raw content URL for a given path in a specific GitHub repository.
+
+    NOTE: We use raw URLs instead of the GitHub API to avoid rate limits when working without a token.
+    """
+    return f"https://raw.githubusercontent.com/{repo}/refs/heads/main/{content_path}"
+
+
+def fetch_available_neurobagel_configs() -> list[str]:
     """Fetch available Neurobagel configuration names from the specified URL."""
     response = util.request_data(
-        config_dir_url, "Failed to fetch available Neurobagel configurations."
+        create_gh_raw_content_url(
+            NEUROBAGEL_CONFIG_REPO, "config_metadata/config_namespace_map.json"
+        ),
+        "Failed to fetch available Neurobagel configurations.",
     )
-    config_names = [
-        item["name"] for item in response if item.get("type") == "dir"
-    ]
+    config_names = [_config["config_name"] for _config in response]
 
     return config_names
 
@@ -62,9 +69,7 @@ def validate_environment_variables():
             "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes."
         )
 
-    available_configs = fetch_available_neurobagel_configs(
-        NEUROBAGEL_CONFIGS_API_URL
-    )
+    available_configs = fetch_available_neurobagel_configs()
     if settings.config not in available_configs:
         raise RuntimeError(
             f"'{settings.config}' is not a recognized Neurobagel configuration. "
@@ -72,12 +77,14 @@ def validate_environment_variables():
         )
 
 
-def fetch_vocabularies(configs_url: str, config_name: str) -> dict:
+def fetch_vocabularies(config_name: str) -> dict:
     """
     Fetch all terms JSON files for the specified configuration from GitHub and store them on the app instance.
     """
     customizable_vocab_vars = ["Assessment", "Diagnosis"]
-    config_dir_url = f"{configs_url}/{config_name}"
+    config_dir_url = create_gh_raw_content_url(
+        NEUROBAGEL_CONFIG_REPO, f"configs/{config_name}"
+    )
 
     vars_config = util.request_data(
         f"{config_dir_url}/config.json",
@@ -109,14 +116,14 @@ def fetch_vocabularies(configs_url: str, config_name: str) -> dict:
     return all_vocabs
 
 
-def fetch_supported_namespaces_for_config(
-    config_namespaces_url: str, config_name: str
-) -> dict:
+def fetch_supported_namespaces_for_config(config_name: str) -> dict:
     """
     Return a dictionary of supported namespace prefixes and their corresponding full URLs for a given community configuration.
     """
     config_namespaces_mapping = util.request_data(
-        config_namespaces_url,
+        create_gh_raw_content_url(
+            NEUROBAGEL_CONFIG_REPO, "config_metadata/config_namespace_map.json"
+        ),
         "Failed to fetch the recognized namespaces for Neurobagel configurations.",
     )
 
@@ -154,13 +161,9 @@ async def lifespan(app: FastAPI):
     check_client_id()
 
     # Initialize vocabularies
-    config.ALL_VOCABS = fetch_vocabularies(
-        NEUROBAGEL_CONFIGS_API_URL, settings.config
-    )
+    config.ALL_VOCABS = fetch_vocabularies(settings.config)
     # Create context
-    config.CONTEXT = fetch_supported_namespaces_for_config(
-        NEUROBAGEL_CONFIG_NAMESPACES_API_URL, settings.config
-    )
+    config.CONTEXT = fetch_supported_namespaces_for_config(settings.config)
 
     yield
 
