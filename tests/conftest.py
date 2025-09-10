@@ -1,7 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from app.api import config
+from app.api import env_settings
 from app.main import app, settings
 
 
@@ -67,7 +67,7 @@ def set_graph_url_vars_for_integration_tests(monkeypatch):
 def mock_context(monkeypatch):
     """Create a mock context for testing to avoid unnecessary requests to GitHub for supported namespaces."""
     monkeypatch.setattr(
-        config,
+        env_settings,
         "CONTEXT",
         {
             "nb": "http://neurobagel.org/vocab/",

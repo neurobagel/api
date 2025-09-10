@@ -8,7 +8,7 @@ import httpx
 import numpy as np
 import pandas as pd
 
-from . import config
+from . import env_settings
 
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
@@ -304,7 +304,9 @@ def create_query(
             + "} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal ?pipeline_version ?pipeline_name"
         )
 
-    return "\n".join([create_query_context(config.CONTEXT), query_string])
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )
 
 
 def create_multidataset_size_query(dataset_uuids: list) -> str:
@@ -321,7 +323,9 @@ def create_multidataset_size_query(dataset_uuids: list) -> str:
         }} GROUP BY ?dataset_uuid
     """
 
-    return "\n".join([create_query_context(config.CONTEXT), query_string])
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )
 
 
 def construct_matching_sub_results_for_dataset(
@@ -440,7 +444,9 @@ def create_terms_query(data_element_URI: str) -> str:
     }}
     """
 
-    return "\n".join([create_query_context(config.CONTEXT), query_string])
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )
 
 
 def is_term_namespace_in_context(term_url: str) -> bool:
@@ -457,7 +463,7 @@ def is_term_namespace_in_context(term_url: str) -> bool:
     bool
         True if the term URL contains a namespace URI from the context, False otherwise.
     """
-    for uri in config.CONTEXT.values():
+    for uri in env_settings.CONTEXT.values():
         if uri in term_url:
             return True
     return False
@@ -485,7 +491,7 @@ def split_namespace_from_term_uri(
         term_prefix, term_id = term.rsplit(":", 1)
         return term_prefix, term_id
 
-    for term_url in config.CONTEXT.values():
+    for term_url in env_settings.CONTEXT.values():
         if term_url in term:
             return term_url, term[len(term_url) :]
 
@@ -507,7 +513,7 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
     str
         The term with namespace URIs replaced with prefixes if found in the context, or the original URL.
     """
-    for prefix, uri in config.CONTEXT.items():
+    for prefix, uri in env_settings.CONTEXT.items():
         if uri in url:
             return url.replace(uri, f"{prefix}:")
 
@@ -526,4 +532,6 @@ def create_pipeline_versions_query(pipeline: str) -> str:
             nb:hasPipelineVersion ?pipeline_version.
     }}"""
     )
-    return "\n".join([create_query_context(config.CONTEXT), query_string])
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )

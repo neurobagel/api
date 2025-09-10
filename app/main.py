@@ -9,9 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
-from .api import config
+from .api import env_settings
 from .api import utility as util
-from .api.config import Settings, settings
+from .api.env_settings import Settings, settings
 from .api.routers import (
     assessments,
     attributes,
@@ -163,15 +163,17 @@ async def lifespan(app: FastAPI):
     check_client_id()
 
     # Initialize vocabularies
-    config.ALL_VOCABS = fetch_vocabularies(settings.config)
+    env_settings.ALL_VOCABS = fetch_vocabularies(settings.config)
     # Create context
-    config.CONTEXT = fetch_supported_namespaces_for_config(settings.config)
+    env_settings.CONTEXT = fetch_supported_namespaces_for_config(
+        settings.config
+    )
 
     yield
 
     # Cleanup
-    config.ALL_VOCABS.clear()
-    config.CONTEXT.clear()
+    env_settings.ALL_VOCABS.clear()
+    env_settings.CONTEXT.clear()
 
 
 app = FastAPI(

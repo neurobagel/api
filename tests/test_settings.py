@@ -1,4 +1,4 @@
-from app.api.config import Settings
+from app.api.env_settings import Settings
 
 
 def test_settings_read_correctly(monkeypatch):

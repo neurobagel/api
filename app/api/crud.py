@@ -7,9 +7,9 @@ import httpx
 import pandas as pd
 from fastapi import HTTPException, status
 
-from . import config
+from . import env_settings
 from . import utility as util
-from .config import settings
+from .env_settings import settings
 from .models import SessionResponse
 
 ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
@@ -333,7 +333,7 @@ async def get_controlled_term_attributes() -> list:
         List of TermURLs of all available controlled term attributes, with abbrieviated namespace prefixes.
     """
     attributes_query = f"""
-    {util.create_query_context(config.CONTEXT)}
+    {util.create_query_context(env_settings.CONTEXT)}
 
     SELECT DISTINCT ?attribute
     WHERE {{

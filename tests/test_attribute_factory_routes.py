@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from app.api import config
+from app.api import env_settings
 
 
 def test_get_instances_endpoint_with_vocab_lookup(
@@ -18,7 +18,7 @@ def test_get_instances_endpoint_with_vocab_lookup(
     (where found), and excludes term URIs with unrecognized namespaces with a warning.
     """
     monkeypatch.setattr(
-        config,
+        env_settings,
         "ALL_VOCABS",
         {
             "nb:Assessment": [
@@ -98,7 +98,7 @@ def test_get_instances_endpoint_without_vocab_lookup(
     """
     # Ensure that the API knows about some fake ontologies (with no vocabulary lookups)
     monkeypatch.setattr(
-        config,
+        env_settings,
         "CONTEXT",
         {
             "cko": "https://www.coolknownontology.org/task/id/",
@@ -192,7 +192,7 @@ def test_get_vocab_endpoint(
         ],
     }
 
-    monkeypatch.setattr(config, "ALL_VOCABS", mock_all_vocabs)
+    monkeypatch.setattr(env_settings, "ALL_VOCABS", mock_all_vocabs)
 
     response = test_app.get(f"/{attribute}/vocab")
 

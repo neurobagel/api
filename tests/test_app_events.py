@@ -3,7 +3,7 @@
 import pytest
 
 from app import main
-from app.api import config
+from app.api import env_settings
 from app.api import utility as util
 from app.main import settings
 
@@ -106,7 +106,7 @@ def test_neurobagel_vocabularies_fetched_successfully(
     """
     monkeypatch.setattr(settings, "config", "Neurobagel")
     with test_app:
-        fetched_vocabs = config.ALL_VOCABS.copy()
+        fetched_vocabs = env_settings.ALL_VOCABS.copy()
 
     assert fetched_vocabs != {}
     for var, vocab in fetched_vocabs.items():
@@ -124,7 +124,7 @@ def test_neurobagel_namespaces_fetched_successfully(
     """
     monkeypatch.setattr(settings, "config", "Neurobagel")
     with test_app:
-        fetched_context = config.CONTEXT.copy()
+        fetched_context = env_settings.CONTEXT.copy()
 
     assert fetched_context
     assert "nb" in fetched_context

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2
 
 from .. import crud
-from ..config import settings
+from ..env_settings import settings
 from ..models import SubjectsQueryModel, SubjectsQueryResponse
 from ..security import verify_token
 

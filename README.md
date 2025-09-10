@@ -206,10 +206,10 @@ To regenerate this sample query when the API query template is updated, run the 
 
 ```python
 from app.main import fetch_supported_namespaces_for_config
-from app.api import config
+from app.api import env_settings
 from app.api.utility import create_query
 
-config.CONTEXT = fetch_supported_namespaces_for_config(config.DEFAULT_NEUROBAGEL_CONFIG)
+env_settings.CONTEXT = fetch_supported_namespaces_for_config(env_settings.DEFAULT_NEUROBAGEL_CONFIG)
 
 with open("docs/default_neurobagel_query.rq", "w") as file:
     file.write(create_query(return_agg=False))
