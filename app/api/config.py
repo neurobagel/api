@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     config: str = Field(
         alias="NB_CONFIG",
         default=DEFAULT_NEUROBAGEL_CONFIG,
-        description="The name of the vocabulary configuration to use to query the graph data.",
+        description="The name of the community configuration to use to query the graph data.",
     )
 
     @computed_field

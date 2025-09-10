@@ -169,8 +169,11 @@ class DataElementURI(str, Enum):
     diagnosis = "nb:Diagnosis"
 
 
-class NamespaceTerms(BaseModel):
-    """Data model for a single vocabulary namespace, containing metadata of the namespace itself and all its terms."""
+class StandardizedTermVocabularyNamespace(BaseModel):
+    """
+    Data model for the terms and metadata for a single namespace used in a standardized term vocabulary.
+    This includes a list of standardized terms belonging to a standardized variable that all share the same namespace.
+    """
 
     vocabulary_name: str
     namespace_url: str
@@ -179,7 +182,9 @@ class NamespaceTerms(BaseModel):
     terms: list[dict]
 
 
-class VocabResponse(RootModel[list[NamespaceTerms]]):
+class StandardizedTermVocabularyResponse(
+    RootModel[list[StandardizedTermVocabularyNamespace]]
+):
     """Data model for response to a request for all terms in a vocabulary."""
 
     pass

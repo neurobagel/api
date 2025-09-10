@@ -80,7 +80,7 @@ def test_app_with_set_allowed_origins(
 
 def fetched_configs_includes_neurobagel(test_app, disable_app):
     """Test that "Neurobagel" is included among the available configuration names fetched from GitHub."""
-    assert "Neurobagel" in main.fetch_available_neurobagel_configs()
+    assert "Neurobagel" in main.fetch_available_community_config_names()
 
 
 def test_app_exits_when_config_unrecognized(
@@ -92,7 +92,9 @@ def test_app_exits_when_config_unrecognized(
     with pytest.raises(RuntimeError) as e_info:
         with test_app:
             pass
-    assert "not a recognized Neurobagel configuration" in str(e_info.value)
+    assert "not a recognized Neurobagel community configuration" in str(
+        e_info.value
+    )
 
 
 def test_neurobagel_vocabularies_fetched_successfully(

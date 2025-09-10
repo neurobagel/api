@@ -1,5 +1,5 @@
 from .. import config, crud
-from ..models import VocabResponse
+from ..models import StandardizedTermVocabularyResponse
 
 
 def create_get_instances_handler(data_element_uri: str):
@@ -12,7 +12,7 @@ def create_get_instances_handler(data_element_uri: str):
         """
         terms_vocab = config.ALL_VOCABS.get(data_element_uri)
         return await crud.get_terms(
-            data_element_URI=data_element_uri, terms_vocab=terms_vocab
+            data_element_URI=data_element_uri, std_trm_vocab=terms_vocab
         )
 
     return get_instances
@@ -27,6 +27,6 @@ def create_get_vocab_handler(data_element_uri: str):
         the metadata and terms of a namespace used in the vocabulary for the specified variable.
         """
         terms_vocab = config.ALL_VOCABS.get(data_element_uri)
-        return VocabResponse(terms_vocab)
+        return StandardizedTermVocabularyResponse(terms_vocab)
 
     return get_vocab

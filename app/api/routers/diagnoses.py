@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from ..models import DataElementURI, VocabResponse
+from ..models import DataElementURI, StandardizedTermVocabularyResponse
 from . import route_factory
 
 router = APIRouter(prefix="/diagnoses", tags=["diagnoses"])
@@ -18,5 +18,5 @@ router.add_api_route(
         data_element_uri=DataElementURI.diagnosis.value
     ),
     methods=["GET"],
-    response_model=VocabResponse,
+    response_model=StandardizedTermVocabularyResponse,
 )

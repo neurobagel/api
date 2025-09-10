@@ -463,11 +463,11 @@ def is_term_namespace_in_context(term_url: str) -> bool:
     return False
 
 
-def strip_namespace_from_term_uri(
+def split_namespace_from_term_uri(
     term: str, has_prefix: bool = False
 ) -> tuple[str | None, str]:
     """
-    Removes namespace URL or prefix from a term URI if the namespace is recognized.
+    Splits namespace URI or prefix from a term URI if the namespace is recognized.
 
     Parameters
     ----------

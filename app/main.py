@@ -35,13 +35,14 @@ def create_gh_raw_content_url(repo: str, content_path: str) -> str:
     return f"https://raw.githubusercontent.com/{repo}/refs/heads/main/{content_path}"
 
 
-def fetch_available_neurobagel_configs() -> list[str]:
-    """Fetch available Neurobagel configuration names from the specified URL."""
+# TODO: Move to utility module or elsewhere
+def fetch_available_community_config_names() -> list[str]:
+    """Fetch available Neurobagel community configuration names from the specified URL."""
     response = util.request_data(
         create_gh_raw_content_url(
             NEUROBAGEL_CONFIG_REPO, "config_metadata/config_namespace_map.json"
         ),
-        "Failed to fetch available Neurobagel configurations.",
+        "Failed to fetch available Neurobagel community configurations.",
     )
     config_names = [_config["config_name"] for _config in response]
 
@@ -69,51 +70,52 @@ def validate_environment_variables():
             "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes."
         )
 
-    available_configs = fetch_available_neurobagel_configs()
+    available_configs = fetch_available_community_config_names()
     if settings.config not in available_configs:
         raise RuntimeError(
-            f"'{settings.config}' is not a recognized Neurobagel configuration. "
-            f"Available configurations: {', '.join(available_configs)}"
+            f"'{settings.config}' is not a recognized Neurobagel community configuration. "
+            f"Available community configurations: {', '.join(available_configs)}"
         )
 
 
 def fetch_vocabularies(config_name: str) -> dict:
     """
-    Fetch all terms JSON files for the specified configuration from GitHub and store them on the app instance.
+    Fetch all standardized term configuration files for the specified community configuration from GitHub.
     """
-    customizable_vocab_vars = ["Assessment", "Diagnosis"]
+    # These are the ID parts of standardized variable URIs, which will later be prefixed with the namespace prefix defined in config.json
+    configurable_std_var_ids = ["Assessment", "Diagnosis"]
     config_dir_url = create_gh_raw_content_url(
         NEUROBAGEL_CONFIG_REPO, f"configs/{config_name}"
     )
 
-    vars_config = util.request_data(
+    std_var_config = util.request_data(
         f"{config_dir_url}/config.json",
-        f"Failed to fetch the {config_name if config_name != 'Neurobagel' else 'base'} configuration for Neurobagel.",
+        f"Failed to fetch the {config_name if config_name != 'Neurobagel' else 'base'} Neurobagel community configuration.",
     )
     # TODO: For now we only consider the first entry in config.json since
     # we only support a single namespace for standardized variables (the Neurobagel vocab)
     # - refactor once we support custom standardized variables from potentially >1 namespaces
-    vars_config = vars_config[0]
+    std_var_config = std_var_config[0]
 
-    all_vocabs = {}
-    for var_id in customizable_vocab_vars:
-        var_uri = f"{vars_config['namespace_prefix']}:{var_id}"
-        terms_file_name = next(
+    all_std_trm_vocabs = {}
+    for var_id in configurable_std_var_ids:
+        var_uri = f"{std_var_config['namespace_prefix']}:{var_id}"
+        std_trm_vocab_file_name = next(
             (
                 var["terms_file"]
-                for var in vars_config["standardized_variables"]
+                for var in std_var_config["standardized_variables"]
                 if var["id"] == var_id
             ),
             None,
         )
-        if terms_file_name:
-            terms_file = util.request_data(
-                f"{config_dir_url}/{terms_file_name}",
-                f"Failed to fetch vocabulary for {var_uri}.",
+        if std_trm_vocab_file_name:
+            std_trm_vocab = util.request_data(
+                f"{config_dir_url}/{std_trm_vocab_file_name}",
+                f"Failed to fetch standardized term vocabulary for {var_uri}.",
             )
-            all_vocabs[var_uri] = terms_file
+            all_std_trm_vocabs[var_uri] = std_trm_vocab
 
-    return all_vocabs
+    return all_std_trm_vocabs
 
 
 def fetch_supported_namespaces_for_config(config_name: str) -> dict:
@@ -124,7 +126,7 @@ def fetch_supported_namespaces_for_config(config_name: str) -> dict:
         create_gh_raw_content_url(
             NEUROBAGEL_CONFIG_REPO, "config_metadata/config_namespace_map.json"
         ),
-        "Failed to fetch the recognized namespaces for Neurobagel configurations.",
+        "Failed to fetch the recognized namespaces for Neurobagel community configurations.",
     )
 
     namespaces_for_config = next(
