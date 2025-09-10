@@ -39,7 +39,15 @@ def parse_origins_as_list(allowed_origins: str | None) -> list:
     return list(allowed_origins.split(" ")) if allowed_origins else []
 
 
-# TODO: Consider switching to PyGitHub if we need more complex operations
+def create_gh_raw_content_url(repo: str, content_path: str) -> str:
+    """
+    Create a raw content URL for a given path in a specific GitHub repository.
+
+    NOTE: We use raw URLs instead of the GitHub API to avoid rate limits when working without a token.
+    """
+    return f"https://raw.githubusercontent.com/{repo}/refs/heads/main/{content_path}"
+
+
 def request_data(url: str, err_message: str) -> Any:
     try:
         with httpx.Client() as client:

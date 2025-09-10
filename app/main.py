@@ -23,24 +23,13 @@ from .api.routers import (
 )
 from .api.security import check_client_id
 
-NEUROBAGEL_CONFIG_REPO = "neurobagel/communities"
 
-
-def create_gh_raw_content_url(repo: str, content_path: str) -> str:
-    """
-    Create a raw content URL for a given path in a specific GitHub repository.
-
-    NOTE: We use raw URLs instead of the GitHub API to avoid rate limits when working without a token.
-    """
-    return f"https://raw.githubusercontent.com/{repo}/refs/heads/main/{content_path}"
-
-
-# TODO: Move to utility module or elsewhere
 def fetch_available_community_config_names() -> list[str]:
     """Fetch available Neurobagel community configuration names from the specified URL."""
     response = util.request_data(
-        create_gh_raw_content_url(
-            NEUROBAGEL_CONFIG_REPO, "config_metadata/config_namespace_map.json"
+        util.create_gh_raw_content_url(
+            env_settings.NEUROBAGEL_CONFIG_REPO,
+            "config_metadata/config_namespace_map.json",
         ),
         "Failed to fetch available Neurobagel community configurations.",
     )
@@ -84,8 +73,8 @@ def fetch_vocabularies(config_name: str) -> dict:
     """
     # These are the ID parts of standardized variable URIs, which will later be prefixed with the namespace prefix defined in config.json
     configurable_std_var_ids = ["Assessment", "Diagnosis"]
-    config_dir_url = create_gh_raw_content_url(
-        NEUROBAGEL_CONFIG_REPO, f"configs/{config_name}"
+    config_dir_url = util.create_gh_raw_content_url(
+        env_settings.NEUROBAGEL_CONFIG_REPO, f"configs/{config_name}"
     )
 
     std_var_config = util.request_data(
@@ -123,8 +112,9 @@ def fetch_supported_namespaces_for_config(config_name: str) -> dict:
     Return a dictionary of supported namespace prefixes and their corresponding full URLs for a given community configuration.
     """
     config_namespaces_mapping = util.request_data(
-        create_gh_raw_content_url(
-            NEUROBAGEL_CONFIG_REPO, "config_metadata/config_namespace_map.json"
+        util.create_gh_raw_content_url(
+            env_settings.NEUROBAGEL_CONFIG_REPO,
+            "config_metadata/config_namespace_map.json",
         ),
         "Failed to fetch the recognized namespaces for Neurobagel community configurations.",
     )

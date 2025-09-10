@@ -3,6 +3,7 @@
 from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+NEUROBAGEL_CONFIG_REPO = "neurobagel/communities"
 DEFAULT_NEUROBAGEL_CONFIG = "Neurobagel"
 
 # NOTE: We store the context and vocabularies fetched from GitHub on app startup in globals
