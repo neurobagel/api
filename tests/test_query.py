@@ -203,7 +203,7 @@ def test_get_invalid_sex(
 
 
 @pytest.mark.parametrize(
-    "valid_diagnosis", ["snomed:35489007", "snomed:49049000"]
+    "valid_diagnosis", ["snomed:35489007", "snomed:49049000", "ncit:C94342"]
 )
 def test_get_valid_diagnosis(
     test_app,

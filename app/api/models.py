@@ -82,6 +82,8 @@ class SubjectsQueryModel(QueryModel):
     dataset_uuids: list[str] | None = None
 
 
+# we are keeping SubjectGroup in for now since our graph data model supports it (and we may use it in the future),
+# but we expect the query result to be null since the Neurobagel (default) config currently doesn't have any terms for SubjectGroup
 class SessionResponse(BaseModel):
     """Data model for a single session available for a matching subject."""
 

@@ -1,3 +1,6 @@
+# NOTE: we are keeping SubjectGroup in for now since our graph data model supports it (and we may use it in the future),
+# but we expect the query result to be null since the Neurobagel (default) config currently doesn't have any terms for SubjectGroup
+
 PREFIX nb: <http://neurobagel.org/vocab/>
 PREFIX ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
 PREFIX nidm: <http://purl.org/nidash/nidm#>
