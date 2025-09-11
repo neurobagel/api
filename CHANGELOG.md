@@ -1,3 +1,22 @@
+# v0.7.0 (Thu Sep 11 2025)
+
+#### 💥 Breaking Changes
+
+- [MNT] Removed `is_control` query parameter [#475](https://github.com/neurobagel/api/pull/475) ([@rmanaem](https://github.com/rmanaem))
+
+#### 🚀 Enhancements
+
+- [ENH] Add POST `/subjects` endpoint that allows querying for specific datasets [#445](https://github.com/neurobagel/api/pull/445) ([@alyssadai](https://github.com/alyssadai))
+- [ENH] Create `POST /datasets` endpoint [#441](https://github.com/neurobagel/api/pull/441) ([@alyssadai](https://github.com/alyssadai))
+- [ENH] Added bells and whistles to the root ui [#465](https://github.com/neurobagel/api/pull/465) ([@rmanaem](https://github.com/rmanaem))
+
+#### Authors: 2
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+- Arman Jahanpour ([@rmanaem](https://github.com/rmanaem))
+
+---
+
 # v0.6.4 (Wed Mar 26 2025)
 
 #### 🚀 Enhancements
