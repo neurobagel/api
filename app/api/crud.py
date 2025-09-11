@@ -1,7 +1,6 @@
 """CRUD functions called by path operations."""
 
 import warnings
-from typing import Literal
 
 import httpx
 import pandas as pd
@@ -97,7 +96,6 @@ async def query_records(
     max_age: float,
     sex: str,
     diagnosis: str,
-    is_control: Literal[True, None],
     min_num_imaging_sessions: int,
     min_num_phenotypic_sessions: int,
     assessment: str,
@@ -121,8 +119,6 @@ async def query_records(
         Sex of subject.
     diagnosis : str
         Subject diagnosis.
-    is_control : {True, None}
-        If True, return only healthy control subjects.
     min_num_imaging_sessions : int
         Subject minimum number of imaging sessions.
     min_num_phenotypic_sessions : int
@@ -151,7 +147,6 @@ async def query_records(
             age=(min_age, max_age),
             sex=sex,
             diagnosis=diagnosis,
-            is_control=is_control,
             min_num_phenotypic_sessions=min_num_phenotypic_sessions,
             min_num_imaging_sessions=min_num_imaging_sessions,
             assessment=assessment,

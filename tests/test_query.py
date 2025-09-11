@@ -4,7 +4,6 @@ import pytest
 from fastapi import HTTPException
 
 from app.api import crud
-from app.api.models import QueryModel
 from app.main import settings
 
 ROUTE = "/query"
@@ -243,80 +242,6 @@ def test_get_invalid_diagnosis(
         f"{ROUTE}?diagnosis={invalid_diagnosis}", headers=mock_auth_header
     )
     assert response.status_code == 422
-
-
-@pytest.mark.parametrize("valid_iscontrol", ["true", "True", "TRUE", True])
-def test_get_valid_iscontrol(
-    test_app,
-    mock_successful_query_records,
-    valid_iscontrol,
-    monkeypatch,
-    mock_auth_header,
-    set_mock_verify_token,
-):
-    """Given a valid is_control value, returns a 200 status code and a non-empty list of results."""
-
-    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
-    response = test_app.get(
-        f"{ROUTE}?is_control={valid_iscontrol}", headers=mock_auth_header
-    )
-    assert response.status_code == 200
-    assert response.json() != []
-
-
-@pytest.mark.parametrize(
-    "valid_iscontrol, expected_iscontrol",
-    [("true", True), ("True", True), ("TRUE", True), (None, None)],
-)
-def test_valid_iscontrol_parsed_as_bool(valid_iscontrol, expected_iscontrol):
-    """Test that valid is_control values do not produce a validation error and are parsed as booleans."""
-
-    example_query = QueryModel(is_control=valid_iscontrol)
-    assert example_query.is_control is expected_iscontrol
-
-
-@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
-@pytest.mark.parametrize(
-    "invalid_iscontrol", ["false", "FALSE", False, "all", 0, []]
-)
-def test_get_invalid_iscontrol(
-    test_app,
-    mock_query_records,
-    monkeypatch,
-    mock_auth_header,
-    set_mock_verify_token,
-    invalid_iscontrol,
-):
-    """Given an invalid is_control value, returns a 422 status code and informative error."""
-
-    monkeypatch.setattr(crud, "query_records", mock_query_records)
-    response = test_app.get(
-        f"{ROUTE}?is_control={invalid_iscontrol}", headers=mock_auth_header
-    )
-    assert response.status_code == 422
-    assert "must be either set to 'true' or omitted" in response.text
-
-
-@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
-def test_get_invalid_control_diagnosis_pair(
-    test_app,
-    mock_query_records,
-    monkeypatch,
-    mock_auth_header,
-    set_mock_verify_token,
-):
-    """Given a non-default diagnosis value and is_control value of True, returns a 422 status code."""
-
-    monkeypatch.setattr(crud, "query_records", mock_query_records)
-    response = test_app.get(
-        f"{ROUTE}?diagnosis=snomed:35489007&is_control=True",
-        headers=mock_auth_header,
-    )
-    assert response.status_code == 422
-    assert (
-        "Subjects cannot both be healthy controls and have a diagnosis"
-        in response.text
-    )
 
 
 # NOTE: Stacked parametrization is a feature of pytest: all combinations of the parameters are tested.

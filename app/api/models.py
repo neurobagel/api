@@ -1,12 +1,11 @@
 """Data models."""
 
 from enum import Enum
-from typing import Annotated, Any, Literal, Optional, Union
+from typing import Optional, Union
 
 from fastapi.exceptions import HTTPException
 from pydantic import (
     BaseModel,
-    BeforeValidator,
     Field,
     RootModel,
     model_validator,
@@ -20,29 +19,6 @@ CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
 # Exactly three dot-separated segments, where the first and third segments can be letters, numbers, or hyphens (at least one character each),
 # and the middle segment must be purely digits (one or more).
 VERSION_REGEX = r"^([A-Za-z0-9-]+)\.(\d+)\.([A-Za-z0-9-]+)$"
-
-
-def convert_valid_is_control_values_to_bool(
-    value: Any,
-) -> Optional[bool]:
-    """
-    Ensure that allowed values for the 'is_control' query parameter are converted to boolean True.
-
-    Accept:
-      - None → returns None
-      - any-case "true" (string) → returns True
-      - boolean True → returns True
-
-    Otherwise raise a validation error.
-    """
-    if value is None:
-        return None
-    if (isinstance(value, str) and value.lower() == "true") or value is True:
-        return True
-    raise HTTPException(
-        status_code=422,
-        detail="'is_control' must be either set to 'true' or omitted from the query",
-    )
 
 
 # TODO: Consider renaming to DatasetsQueryModel once we deprecate the /query endpoint
@@ -61,14 +37,6 @@ class QueryModel(BaseModel):
     diagnosis: str = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    # We explicitly use None instead of True as the example value for is_control to ensure that
-    # if a user tries the example query provided in the interactive docs, they do not
-    # get an error about both diagnosis and is_control being set
-    is_control: Annotated[
-        Literal[True, None],
-        BeforeValidator(convert_valid_is_control_values_to_bool),
-        Field(default=None, examples=[None]),
-    ]
     min_num_imaging_sessions: int = Field(default=None, ge=0)
     min_num_phenotypic_sessions: int = Field(default=None, ge=0)
     assessment: str = Field(
@@ -103,16 +71,6 @@ class QueryModel(BaseModel):
             raise HTTPException(
                 status_code=422,
                 detail="'max_age' must be greater than or equal to 'min_age'",
-            )
-        return self
-
-    @model_validator(mode="after")
-    def check_exclusive_diagnosis_or_ctrl(self) -> Self:
-        """Raise an error when a subject has both a diagnosis and is a control."""
-        if self.diagnosis is not None and self.is_control:
-            raise HTTPException(
-                status_code=422,
-                detail="Subjects cannot both be healthy controls and have a diagnosis.",
             )
         return self
 

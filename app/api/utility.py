@@ -2,7 +2,7 @@
 
 import textwrap
 from collections import namedtuple
-from typing import Any, Literal, Optional
+from typing import Any, Optional
 
 import httpx
 import numpy as np
@@ -21,7 +21,6 @@ Domain = namedtuple("Domain", ["var", "pred"])
 AGE = Domain("age", "nb:hasAge")
 SEX = Domain("sex", "nb:hasSex")
 DIAGNOSIS = Domain("diagnosis", "nb:hasDiagnosis")
-IS_CONTROL = Domain("subject_group", "nb:isSubjectGroup")
 ASSESSMENT = Domain("assessment", "nb:hasAssessment")
 IMAGE_MODAL = Domain("image_modal", "nb:hasContrastType")
 PIPELINE_NAME = Domain("pipeline_name", "nb:hasPipelineName")
@@ -30,8 +29,6 @@ PROJECT = Domain("project", "nb:hasSamples")
 
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
-
-IS_CONTROL_TERM = "ncit:C94342"
 
 
 def parse_origins_as_list(allowed_origins: str | None) -> list:
@@ -96,7 +93,6 @@ def create_query(
     age: Optional[tuple] = (None, None),
     sex: Optional[str] = None,
     diagnosis: Optional[str] = None,
-    is_control: Literal[True, None] = None,
     min_num_imaging_sessions: Optional[int] = None,
     min_num_phenotypic_sessions: Optional[int] = None,
     assessment: Optional[str] = None,
@@ -118,7 +114,6 @@ def create_query(
         Subject sex, by default None.
     diagnosis : str, optional
         Subject diagnosis, by default None.
-    is_control : {True, None}, optional
         If True, return only healthy control subjects.
         If None (default), return all matching subjects.
     min_num_imaging_sessions : int, optional
@@ -185,18 +180,6 @@ def create_query(
         phenotypic_session_level_filters += (
             "\n"
             + f"{create_bound_filter(DIAGNOSIS.var)} && ?{DIAGNOSIS.var} = {diagnosis})."
-        )
-
-    # TODO: Simple equivalence to the URI for Healthy Control only works for the condition is_control=True,
-    # since otherwise the subject node wouldn't be expected to have the property nb:hasSubjectGroup at all.
-    # If we decide to support queries of is_control = False (i.e., give me all subjects that are *not* controls / have
-    # at least one diagnosis), we can use something like `FILTER (!BOUND(?{IS_CONTROL.var}))` to
-    # return only subjects missing the property nb:hasSubjectGroup.
-    # Related: https://github.com/neurobagel/api/issues/247
-    if is_control is True:
-        phenotypic_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(IS_CONTROL.var)} && ?{IS_CONTROL.var} = {IS_CONTROL_TERM})."
         )
 
     if assessment is not None:
