@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2
 
 from .. import crud
-from ..config import settings
+from ..env_settings import settings
 from ..models import SubjectsQueryModel, SubjectsQueryResponse
 from ..security import verify_token
 
@@ -36,8 +36,7 @@ async def post_subjects_query(
         verify_token(token)
 
     response = await crud.query_records(
-        **query.model_dump(),
-        is_datasets_query=False,
+        **query.model_dump(), is_datasets_query=False
     )
 
     return response

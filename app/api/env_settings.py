@@ -3,6 +3,17 @@
 from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+NEUROBAGEL_CONFIG_REPO = "neurobagel/communities"
+DEFAULT_NEUROBAGEL_CONFIG = "Neurobagel"
+
+# NOTE: We store the context and vocabularies fetched from GitHub on app startup in globals
+# rather than storing them on the app instance (which would require accessing them through the request object;
+# see https://www.starlette.io/applications/#storing-state-on-the-app-instance).
+# This avoids having to thread the request object through every function that needs access to e.g., the context
+# and also makes it easier to mock the configuration during testing.
+CONTEXT = {}
+ALL_VOCABS = {}
+
 
 class Settings(BaseSettings):
     """Data model for configurable API settings."""
@@ -15,7 +26,8 @@ class Settings(BaseSettings):
     root_path: str = Field(
         alias="NB_NAPI_BASE_PATH",
         default="",
-        description="The base URL path prefix for the API. When deployed behind a reverse proxy, set this to the subpath at which the app is mounted (if any), and configure the proxy to strip this prefix from incoming requests.",
+        description="The base URL path prefix for the API. When deployed behind a reverse proxy, set this to the subpath at which the app is mounted (if any), "
+        "and configure the proxy to strip this prefix from incoming requests.",
     )
     allowed_origins: str | None = Field(
         alias="NB_API_ALLOWED_ORIGINS", default=None
@@ -29,6 +41,11 @@ class Settings(BaseSettings):
     min_cell_size: int = Field(alias="NB_MIN_CELL_SIZE", default=0)
     auth_enabled: bool = Field(alias="NB_ENABLE_AUTH", default=True)
     client_id: str | None = Field(alias="NB_QUERY_CLIENT_ID", default=None)
+    config: str = Field(
+        alias="NB_CONFIG",
+        default=DEFAULT_NEUROBAGEL_CONFIG,
+        description="The name of the community configuration to use to query the graph data.",
+    )
 
     @computed_field
     @property

@@ -1,6 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
+from app.api import env_settings
 from app.main import app, settings
 
 
@@ -60,6 +61,22 @@ def set_graph_url_vars_for_integration_tests(monkeypatch):
     monkeypatch.setattr(settings, "graph_address", "localhost")
     monkeypatch.setattr(settings, "graph_port", 7200)
     monkeypatch.setattr(settings, "graph_db", "repositories/my_db")
+
+
+@pytest.fixture()
+def mock_context(monkeypatch):
+    """Create a mock context for testing to avoid unnecessary requests to GitHub for supported namespaces."""
+    monkeypatch.setattr(
+        env_settings,
+        "CONTEXT",
+        {
+            "nb": "http://neurobagel.org/vocab/",
+            "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
+            "nidm": "http://purl.org/nidash/nidm#",
+            "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
+            "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/",
+        },
+    )
 
 
 @pytest.fixture()
@@ -696,7 +713,7 @@ def mock_query_matching_dataset_sizes():
     the corresponding query for dataset size, in order to test how the response from the graph is processed by the API (crud.query_records).
     """
 
-    def _mock_query_matching_dataset_sizes(dataset_uuids):
+    def _mock_query_matching_dataset_sizes(**kwargs):
         return {"http://neurobagel.org/vocab/12345": 200}
 
     return _mock_query_matching_dataset_sizes
@@ -715,21 +732,7 @@ def mock_get_with_exception(request):
         (this tells mock_get_with_exception to raise an HTTPException)
     """
 
-    async def _mock_get_with_exception(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_imaging_sessions,
-        min_num_phenotypic_sessions,
-        assessment,
-        image_modal,
-        pipeline_version,
-        pipeline_name,
-        is_datasets_query,
-        dataset_uuids,
-    ):
+    async def _mock_get_with_exception(**kwargs):
         raise request.param
 
     return _mock_get_with_exception
@@ -747,21 +750,7 @@ def mock_query_records(request):
         (this tells mock_query_records to return None)
     """
 
-    async def _mock_query_records(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_imaging_sessions,
-        min_num_phenotypic_sessions,
-        assessment,
-        image_modal,
-        pipeline_version,
-        pipeline_name,
-        is_datasets_query,
-        dataset_uuids,
-    ):
+    async def _mock_query_records(**kwargs):
         return request.param
 
     return _mock_query_records
@@ -771,21 +760,7 @@ def mock_query_records(request):
 def mock_successful_query_records(test_data):
     """Mock CRUD function that returns non-empty, valid aggregate query result data."""
 
-    async def _mock_successful_query_records(
-        min_age,
-        max_age,
-        sex,
-        diagnosis,
-        is_control,
-        min_num_imaging_sessions,
-        min_num_phenotypic_sessions,
-        assessment,
-        image_modal,
-        pipeline_version,
-        pipeline_name,
-        is_datasets_query,
-        dataset_uuids,
-    ):
+    async def _mock_successful_query_records(**kwargs):
         return test_data
 
     return _mock_successful_query_records

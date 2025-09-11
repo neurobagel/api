@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from fastapi.security.utils import get_authorization_scheme_param
 from jwt import PyJWKClient, PyJWTError
 
-from .config import Settings, settings
+from .env_settings import Settings, settings
 
 KEYS_URL = "https://neurobagel.ca.auth0.com/.well-known/jwks.json"
 ISSUER = "https://neurobagel.ca.auth0.com/"

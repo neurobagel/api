@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2
 
 from .. import crud
-from ..config import settings
+from ..env_settings import settings
 from ..models import DatasetQueryResponse, QueryModel
 from ..security import verify_token
 
@@ -36,9 +36,7 @@ async def post_datasets_query(
         verify_token(token)
 
     response = await crud.query_records(
-        **query.model_dump(),
-        is_datasets_query=True,
-        dataset_uuids=None,
+        **query.model_dump(), is_datasets_query=True, dataset_uuids=None
     )
 
     return response

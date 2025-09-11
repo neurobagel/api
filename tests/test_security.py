@@ -1,7 +1,7 @@
 import pytest
 from fastapi import HTTPException
 
-from app.api.config import settings
+from app.api.env_settings import settings
 from app.api.security import verify_token
 
 

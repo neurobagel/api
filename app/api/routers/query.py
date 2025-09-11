@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2
 
 from .. import crud
-from ..config import settings
+from ..env_settings import settings
 from ..models import QueryModel, SubjectsQueryResponse
 from ..security import verify_token
 
@@ -46,9 +46,7 @@ async def get_query(
         verify_token(token)
 
     response = await crud.query_records(
-        **query.model_dump(),
-        is_datasets_query=False,
-        dataset_uuids=None,
+        **query.model_dump(), is_datasets_query=False, dataset_uuids=None
     )
 
     return response

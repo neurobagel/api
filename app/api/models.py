@@ -4,7 +4,13 @@ from enum import Enum
 from typing import Annotated, Any, Literal, Optional, Union
 
 from fastapi.exceptions import HTTPException
-from pydantic import BaseModel, BeforeValidator, Field, model_validator
+from pydantic import (
+    BaseModel,
+    BeforeValidator,
+    Field,
+    RootModel,
+    model_validator,
+)
 from typing_extensions import Self
 
 CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
@@ -157,16 +163,28 @@ class SubjectsQueryResponse(DatasetQueryResponse):
 
 
 class DataElementURI(str, Enum):
-    """Data model for data element URIs that have available vocabulary lookups."""
+    """Data model for data element URIs that have available vocabularies."""
 
     assessment = "nb:Assessment"
     diagnosis = "nb:Diagnosis"
 
 
-class VocabLabelsResponse(BaseModel):
-    """Data model for response to a request for all term labels for a vocabulary."""
+class StandardizedTermVocabularyNamespace(BaseModel):
+    """
+    Data model for the terms and metadata for a single namespace used in a standardized term vocabulary.
+    This includes a list of standardized terms belonging to a standardized variable that all share the same namespace.
+    """
 
     vocabulary_name: str
     namespace_url: str
     namespace_prefix: str
-    term_labels: dict
+    version: Optional[str]  # TODO: Make version mandatory?
+    terms: list[dict]
+
+
+class StandardizedTermVocabularyResponse(
+    RootModel[list[StandardizedTermVocabularyNamespace]]
+):
+    """Data model for response to a request for all terms in a vocabulary."""
+
+    pass

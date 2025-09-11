@@ -1,44 +1,32 @@
-from fastapi import Request
+from .. import crud, env_settings
+from ..models import StandardizedTermVocabularyResponse
 
-from .. import crud
 
-
-def create_get_instances_handler(
-    data_element_uri: str, external_vocab: str | None
-):
+def create_get_instances_handler(data_element_uri: str):
     """Create the handler function (path function) for the base path of an attribute router."""
 
-    async def get_instances(request: Request):
+    async def get_instances():
         """
         When a GET request is sent, return a dict with the only key corresponding to the controlled term of a neurobagel class,
         and the value being a list of dictionaries each corresponding to an available class instance term from the graph.
         """
-        term_labels_path = (
-            request.app.state.vocab_lookup_paths[external_vocab]
-            if external_vocab is not None
-            else None
+        terms_vocab = env_settings.ALL_VOCABS.get(data_element_uri)
+        return await crud.get_terms(
+            data_element_URI=data_element_uri, std_trm_vocab=terms_vocab
         )
-        return await crud.get_terms(data_element_uri, term_labels_path)
 
     return get_instances
 
 
-def create_get_vocab_handler(
-    external_vocab: str, vocab_name: str, namespace_prefix: str
-):
+def create_get_vocab_handler(data_element_uri: str):
     """Create the handler function (path function) for the `/vocab` endpoint of an attribute router."""
 
-    async def get_vocab(request: Request):
+    async def get_vocab():
         """
-        When a GET request is sent, return a dict containing the name, namespace info,
-        and all term ID-label mappings for the vocabulary of the specified variable.
+        When a GET request is sent, return a list of namespace objects, where each object includes
+        the metadata and terms of a namespace used in the vocabulary for the specified variable.
         """
-        return await crud.get_term_labels_for_vocab(
-            term_labels_path=request.app.state.vocab_lookup_paths[
-                external_vocab
-            ],
-            vocabulary_name=vocab_name,
-            namespace_prefix=namespace_prefix,
-        )
+        terms_vocab = env_settings.ALL_VOCABS.get(data_element_uri)
+        return StandardizedTermVocabularyResponse(terms_vocab)
 
     return get_vocab

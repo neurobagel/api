@@ -1,25 +1,18 @@
 """Constants for graph server connection and utility functions for writing the SPARQL query."""
 
-import json
 import textwrap
 from collections import namedtuple
-from pathlib import Path
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
+import httpx
 import numpy as np
 import pandas as pd
+
+from . import env_settings
 
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
     "Accept": "application/sparql-results+json",
-}
-
-CONTEXT = {
-    "nb": "http://neurobagel.org/vocab/",
-    "ncit": "http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#",
-    "nidm": "http://purl.org/nidash/nidm#",
-    "snomed": "http://purl.bioontology.org/ontology/SNOMEDCT/",
-    "np": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/",
 }
 
 # Store domains in named tuples
@@ -46,10 +39,35 @@ def parse_origins_as_list(allowed_origins: str | None) -> list:
     return list(allowed_origins.split(" ")) if allowed_origins else []
 
 
-def create_context() -> str:
-    """Creates a SPARQL query context string from the CONTEXT dictionary."""
+def create_gh_raw_content_url(repo: str, content_path: str) -> str:
+    """
+    Create a raw content URL for a given path in a specific GitHub repository.
+
+    NOTE: We use raw URLs instead of the GitHub API to avoid rate limits when working without a token.
+    """
+    return f"https://raw.githubusercontent.com/{repo}/refs/heads/main/{content_path}"
+
+
+def request_data(url: str, err_message: str) -> Any:
+    try:
+        with httpx.Client() as client:
+            response = client.get(url)
+            response.raise_for_status()
+            data = response.json()
+
+        return data
+    except httpx.HTTPError as e:
+        raise RuntimeError(
+            f"{err_message}. Error: {e}\n"
+            "Please check that you have an internet connection. "
+            "If the problem persists, please open an issue in https://github.com/neurobagel/api/issues."
+        ) from e
+
+
+def create_query_context(context: dict) -> str:
+    """Creates a SPARQL query context string from the context dictionary."""
     return "\n".join(
-        [f"PREFIX {prefix}: <{uri}>" for prefix, uri in CONTEXT.items()]
+        [f"PREFIX {prefix}: <{uri}>" for prefix, uri in context.items()]
     )
 
 
@@ -294,7 +312,9 @@ def create_query(
             + "} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal ?pipeline_version ?pipeline_name"
         )
 
-    return "\n".join([create_context(), query_string])
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )
 
 
 def create_multidataset_size_query(dataset_uuids: list) -> str:
@@ -311,7 +331,9 @@ def create_multidataset_size_query(dataset_uuids: list) -> str:
         }} GROUP BY ?dataset_uuid
     """
 
-    return "\n".join([create_context(), query_string])
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )
 
 
 def construct_matching_sub_results_for_dataset(
@@ -420,10 +442,6 @@ def create_terms_query(data_element_URI: str) -> str:
     -------
     str
         The SPARQL query.
-
-    Examples
-    --------
-    get_terms_query("nb:Assessment")
     """
 
     query_string = f"""
@@ -434,7 +452,9 @@ def create_terms_query(data_element_URI: str) -> str:
     }}
     """
 
-    return "\n".join([create_context(), query_string])
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )
 
 
 def is_term_namespace_in_context(term_url: str) -> bool:
@@ -451,39 +471,40 @@ def is_term_namespace_in_context(term_url: str) -> bool:
     bool
         True if the term URL contains a namespace URI from the context, False otherwise.
     """
-    for uri in CONTEXT.values():
+    for uri in env_settings.CONTEXT.values():
         if uri in term_url:
             return True
     return False
 
 
-def strip_namespace_from_term_uri(term: str, has_prefix: bool = False) -> str:
+def split_namespace_from_term_uri(
+    term: str, has_prefix: bool = False
+) -> tuple[str | None, str]:
     """
-    Removes namespace URI or prefix from a term URI if the namespace is recognized.
+    Splits namespace URI or prefix from a term URI if the namespace is recognized.
 
     Parameters
     ----------
     term : str
         A controlled term URI.
     has_prefix : bool, optional
-        Whether the term URI includes a namespace prefix (as opposed to the full namespace URI), by default False.
+        Whether the term URI includes a namespace prefix (as opposed to the full namespace URL), by default False.
 
     Returns
     -------
-    str
-        The unique term ID.
+    tuple[str, str]
+        The stripped namespace URL/prefix and the term ID.
     """
     if has_prefix:
-        term_split = term.rsplit(":", 1)
-        if term_split[0] in CONTEXT:
-            return term_split[1]
-    else:
-        for uri in CONTEXT.values():
-            if uri in term:
-                return term.replace(uri, "")
+        term_prefix, term_id = term.rsplit(":", 1)
+        return term_prefix, term_id
+
+    for term_url in env_settings.CONTEXT.values():
+        if term_url in term:
+            return term_url, term[len(term_url) :]
 
     # If no match found within the context, return original term
-    return term
+    return None, term
 
 
 def replace_namespace_uri_with_prefix(url: str) -> str:
@@ -500,50 +521,12 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
     str
         The term with namespace URIs replaced with prefixes if found in the context, or the original URL.
     """
-    for prefix, uri in CONTEXT.items():
+    for prefix, uri in env_settings.CONTEXT.items():
         if uri in url:
             return url.replace(uri, f"{prefix}:")
 
     # If no match found within the context, return original URL
     return url
-
-
-def load_json(path: Path) -> dict:
-    """
-    Loads a user-specified JSON file.
-
-    Parameters
-    ----------
-    path : Path
-        Path to JSON file.
-    """
-    with open(path, "r") as f:
-        return json.load(f)
-
-
-def reformat_snomed_terms_for_lookup(
-    input_terms_path: Path, output_terms_path: Path
-):
-    """
-    Reads in a file containing terms from the SNOMED CT vocabulary, strips the SNOMED prefix from term URIS,
-    and writes the resulting term ID-label mappings to a temporary lookup file.
-
-    Saves a JSON with keys corresponding to SNOMED IDs and values corresponding to human-readable term names.
-
-    Parameters
-    ----------
-    lookup_path : Path
-        File path to store output vocabulary lookup file.
-    """
-    vocab = load_json(input_terms_path)
-
-    term_labels = {
-        term["identifier"].removeprefix("snomed:"): term["label"]
-        for term in vocab
-    }
-
-    with open(output_terms_path, "w") as f:
-        f.write(json.dumps(term_labels, indent=2))
 
 
 def create_pipeline_versions_query(pipeline: str) -> str:
@@ -557,4 +540,6 @@ def create_pipeline_versions_query(pipeline: str) -> str:
             nb:hasPipelineVersion ?pipeline_version.
     }}"""
     )
-    return "\n".join([create_context(), query_string])
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )
