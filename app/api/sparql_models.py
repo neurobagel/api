@@ -20,9 +20,9 @@ def format_value(value):
     # TODO: Handle numeric values (e.g. for min/max age) in https://github.com/neurobagel/api/issues/488
 
 
-def get_select_variables() -> str:
+def get_select_variables(variables: list[str]) -> str:
     """Returns the SELECT variables for the SPARQL query as a space-separated string."""
-    return " ".join(f"?{var}" for var in SPARQL_SELECTED_VARS)
+    return " ".join(f"?{var}" for var in variables)
 
 
 class SPARQLSerializable(BaseModel):
@@ -77,7 +77,8 @@ class ImagingSession(SPARQLSerializable):
     hasAcquisition: Acquisition | None
     hasCompletedPipeline: Pipeline | None
     schemaKey: Literal["ImagingSession"] = "ImagingSession"
-    # TODO: Revisit
+    # This field is included as part of ImagingSession so that to_sparql() knows to
+    # add the type triple for ImagingSession when this field is set
     min_num_imaging_sessions: int | None = None
 
 
@@ -106,13 +107,13 @@ class Dataset(SPARQLSerializable):
         if self.hasSamples.hasSession.min_num_imaging_sessions is not None:
             num_sessions_filter = "\n".join(
                 [
-                    f"GROUP BY {get_select_variables()}",
+                    f"GROUP BY {get_select_variables(SPARQL_SELECTED_VARS)}",
                     f"HAVING (COUNT(DISTINCT ?imaging_session) >= {self.hasSamples.hasSession.min_num_imaging_sessions})",
                 ]
             )
 
         return f"""
-SELECT {get_select_variables()}
+SELECT {get_select_variables(SPARQL_SELECTED_VARS)}
 WHERE {{
     {dataset_triples}
     {subject_triples}

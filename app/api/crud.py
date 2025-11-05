@@ -302,6 +302,7 @@ async def post_datasets(query: QueryModel) -> list[dict]:
                 ),
                 "num_matching_subjects": num_matching_subjects,
                 "records_protected": settings.return_agg,
+                # TODO: Populate fields as part of https://github.com/neurobagel/api/issues/490
                 "image_modals": [],
                 "available_pipelines": {},
             }
