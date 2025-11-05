@@ -12,20 +12,27 @@ SPARQL_SELECTED_VARS = [
 
 
 def format_value(value):
+    """Returns the SPARQL-formatted representation of a value."""
     if isinstance(value, str):
-        # TODO: Update to handle other prefixes as needed - might be dynamic based on the community
-        if value.startswith(("nidm:", "np:")):
+        if ":" in value:
             return value
         return f'"{value}"'
-    # TODO: Handle numeric values (e.g. for min/max age)
+    # TODO: Handle numeric values (e.g. for min/max age) in https://github.com/neurobagel/api/issues/488
 
 
 def get_select_variables() -> str:
+    """Returns the SELECT variables for the SPARQL query as a space-separated string."""
     return " ".join(f"?{var}" for var in SPARQL_SELECTED_VARS)
 
 
 class SPARQLSerializable(BaseModel):
     def to_sparql(self, var_name: str) -> list[str]:
+        """
+        Recursively flatten a model instance into SPARQL triples,
+        using the var_name as the subject, the provided field names as predicates,
+        and the field values as objects.
+        Models with a 'schemaKey' field will also include a type triple.
+        """
         var_name = to_snake(var_name)
         triples = []
         schema_key = getattr(self, "schemaKey", None)
