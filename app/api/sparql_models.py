@@ -3,6 +3,13 @@ from typing import Literal
 from pydantic import BaseModel
 from pydantic.alias_generators import to_snake
 
+SPARQL_SELECTED_VARS = [
+    "dataset_uuid",
+    "dataset_name",
+    "dataset_portal_uri",
+    "subject_uuid",
+]
+
 
 def format_value(value):
     if isinstance(value, str):
@@ -13,8 +20,12 @@ def format_value(value):
     # TODO: Handle numeric values (e.g. for min/max age)
 
 
+def get_select_variables() -> str:
+    return " ".join(f"?{var}" for var in SPARQL_SELECTED_VARS)
+
+
 class SPARQLSerializable(BaseModel):
-    def to_sparql(self, var_name: str) -> str:
+    def to_sparql(self, var_name: str) -> list[str]:
         var_name = to_snake(var_name)
         triples = []
         schema_key = getattr(self, "schemaKey", None)
@@ -28,10 +39,17 @@ class SPARQLSerializable(BaseModel):
 
             predicate = f"nb:{field}"
             if isinstance(value, SPARQLSerializable):
+                # Skip adding triples for empty nested objects (from https://github.com/pydantic/pydantic/discussions/4613)
+                if not any(
+                    value.model_dump(
+                        exclude_none=True, exclude_defaults=True
+                    ).values()
+                ):
+                    continue
                 nested_var = f"?{to_snake(value.__class__.__name__)}"
                 triples.append(f"{var_name} {predicate} {nested_var}.")
                 triples.append(value.to_sparql(nested_var))
-            else:
+            elif isinstance(value, str):
                 if value is None:
                     continue
                 formatted_value = format_value(value)
@@ -52,6 +70,8 @@ class ImagingSession(SPARQLSerializable):
     hasAcquisition: Acquisition | None
     hasCompletedPipeline: Pipeline | None
     schemaKey: Literal["ImagingSession"] = "ImagingSession"
+    # TODO: Revisit
+    min_num_imaging_sessions: int | None = None
 
 
 class Subject(SPARQLSerializable):
@@ -62,29 +82,33 @@ class Subject(SPARQLSerializable):
 class Dataset(SPARQLSerializable):
     hasSamples: Subject
     schemaKey: Literal["Dataset"] = "Dataset"
-    min_num_imaging_sessions: int | None = None
 
     def to_sparql(self, var_name="?dataset_uuid") -> str:
-        subject_triples = self.hasSamples.to_sparql("?subject")
+        subject_triples = self.hasSamples.to_sparql("?subject_uuid")
         # Always include these triple patterns
         dataset_triples = "\n    ".join(
             [
                 f"{var_name} a nb:{self.schemaKey}.",
                 f"{var_name} nb:hasLabel ?dataset_name.",
+                f"{var_name} nb:hasSamples ?subject_uuid.",
                 f"OPTIONAL {{{var_name} nb:hasPortalURI ?dataset_portal_uri.}}",
             ]
         )
 
         num_sessions_filter = ""
-        if self.min_num_imaging_sessions:
-            num_sessions_filter = f"HAVING (COUNT(DISTINCT ?imaging_session) >= {self.min_num_imaging_sessions})"
+        if self.hasSamples.hasSession.min_num_imaging_sessions is not None:
+            num_sessions_filter = "\n".join(
+                [
+                    f"GROUP BY {get_select_variables()}",
+                    f"HAVING (COUNT(DISTINCT ?imaging_session) >= {self.hasSamples.hasSession.min_num_imaging_sessions})",
+                ]
+            )
 
         return f"""
-SELECT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?subject
+SELECT {get_select_variables()}
 WHERE {{
     {dataset_triples}
     {subject_triples}
 }}
-GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?subject
 {num_sessions_filter}
 """.strip()
