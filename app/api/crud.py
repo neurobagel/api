@@ -271,14 +271,14 @@ async def post_datasets(query: QueryModel) -> list[dict]:
     matching_dataset_sizes = query_matching_dataset_sizes(
         dataset_uuids=results_df["dataset_uuid"].unique()
     )
+
     response_obj = []
-    dataset_cols = ["dataset_uuid", "dataset_name"]
-    # TODO: Check!!
+    groupby_cols = ["dataset_uuid", "dataset_name"]
     if not results_df.empty:
         for (
             dataset_uuid,
             dataset_name,
-        ), dataset_matching_records in results_df.groupby(by=dataset_cols):
+        ), dataset_matching_records in results_df.groupby(by=groupby_cols):
             num_matching_subjects = dataset_matching_records[
                 "subject_uuid"
             ].nunique()
