@@ -259,11 +259,7 @@ async def post_datasets(query: QueryModel) -> list[dict]:
     """
 
     imaging_query = util.create_imaging_sparql_query_for_datasets(query)
-    # TODO: Remove - for debugging
-    print(imaging_query)
-
     results = post_query_to_graph(imaging_query)
-
     results_df = pd.DataFrame(
         util.unpack_graph_response_json_to_dicts(results)
     ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
