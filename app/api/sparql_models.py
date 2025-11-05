@@ -57,8 +57,6 @@ class SPARQLSerializable(BaseModel):
                 triples.append(f"{var_name} {predicate} {nested_var}.")
                 triples.append(value.to_sparql(nested_var))
             elif isinstance(value, str):
-                if value is None:
-                    continue
                 formatted_value = format_value(value)
                 triples.append(f"{var_name} {predicate} {formatted_value}.")
         return "\n    ".join(triples)
