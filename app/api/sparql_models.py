@@ -69,8 +69,8 @@ class Acquisition(SPARQLSerializable):
 
 
 class Pipeline(SPARQLSerializable):
-    hasPipelineVersion: str | None
     hasPipelineName: str | None
+    hasPipelineVersion: str | None
 
 
 class ImagingSession(SPARQLSerializable):
