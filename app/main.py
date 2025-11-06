@@ -191,11 +191,11 @@ def root(request: Request):
     """
     Display a welcome message and a link to the API documentation.
     """
-    return """
+    return f"""
  <html>
         <head>
             <style>
-                body {
+                body {{
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -203,37 +203,37 @@ def root(request: Request):
                     background-color: #f0f0f0;
                     font-family: Arial, sans-serif;
                     margin: 0;
-                }
-                .container {
+                }}
+                .container {{
                     text-align: center;
-                }
-                .logo {
+                }}
+                .logo {{
                     animation: spin 5s linear infinite;
-                }
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-                h1 {
+                }}
+                @keyframes spin {{
+                    0% {{ transform: rotate(0deg); }}
+                    100% {{ transform: rotate(360deg); }}
+                }}
+                h1 {{
                     color: #333;
-                }
-                p {
+                }}
+                p {{
                     color: #666;
-                }
-                a {
+                }}
+                a {{
                     color: #007bff;
                     text-decoration: none;
-                }
-                a:hover {
+                }}
+                a:hover {{
                     text-decoration: underline;
-                }
+                }}
             </style>
         </head>
         <body>
             <div class="container">
                 <img src="https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_logo.png" alt="Neurobagel Logo" class="logo" width="144" height="144">
                 <h1>Welcome to the Neurobagel REST API!</h1>
-                <p>Please visit the <a href="/docs">API documentation</a> to view available API endpoints.</p>
+                <p>Please visit the <a href="{request.scope.get('root_path', '')}/docs">API documentation</a> to view available API endpoints.</p>
             </div>
         </body>
     </html>
