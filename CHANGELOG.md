@@ -1,3 +1,15 @@
+# v0.7.1 (Thu Nov 06 2025)
+
+#### 🐛 Bug Fixes
+
+- [FIX] Add back missing API root path to docs link in root UI [#496](https://github.com/neurobagel/api/pull/496) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.7.0 (Thu Sep 11 2025)
 
 #### 💥 Breaking Changes
