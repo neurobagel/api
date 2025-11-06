@@ -5,18 +5,21 @@ from app.main import app, favicon_url
 
 
 @pytest.mark.parametrize(
-    "route",
-    ["/", ""],
+    "root_path",
+    ["", "/node"],
 )
-def test_root(test_app, route, monkeypatch):
-    """Given a GET request to the root endpoint, Check for 200 status and expected content."""
+def test_root(test_app, root_path, monkeypatch):
+    """
+    Given a GET request to the root endpoint as defined by the root_path,
+    check for 200 status and expected content.
+    """
     # root_path determines the path prefix for the docs link on the welcome page
-    monkeypatch.setattr(app, "root_path", "")
-    response = test_app.get(route, follow_redirects=False)
+    monkeypatch.setattr(app, "root_path", root_path)
+    response = test_app.get(root_path + "/", follow_redirects=False)
 
     assert response.status_code == 200
     assert "<h1>Welcome to the Neurobagel REST API!</h1>" in response.text
-    assert '<a href="/docs">API documentation</a>' in response.text
+    assert f'<a href="{root_path}/docs">API documentation</a>' in response.text
 
 
 @pytest.mark.parametrize(
