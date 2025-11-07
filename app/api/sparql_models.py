@@ -46,6 +46,17 @@ class SPARQLSerializable(BaseModel):
                 continue
 
             predicate = f"nb:{field}"
+            if isinstance(value, tuple):
+                if (min_val := value[0]) is not None or (
+                    max_val := value[1]
+                ) is not None:
+                    filters = []
+                    if min_val is not None:
+                        filters.append(f"?age >= {min_val}")
+                    if max_val is not None:
+                        filters.append(f"?age <= {max_val}")
+                    filter_statement = "FILTER (" + " && ".join(filters) + ")."
+                    triples.extend([filter_statement])
             if isinstance(value, SPARQLSerializable):
                 # If the field contains a nested object, skip adding triples if the nested object is empty
                 # (from https://github.com/pydantic/pydantic/discussions/4613)
@@ -76,17 +87,30 @@ class Pipeline(SPARQLSerializable):
     hasPipelineVersion: str | None
 
 
+class PhenotypicSession(SPARQLSerializable):
+    hasSex: str | None
+    hasDiagnosis: str | None
+    hasAssessment: str | None
+    hasAge: Literal["?age"] = "?age"
+    # Hold the min and max age values for filtering
+    age_bounds: tuple[float | None, float | None]
+    # This field is included as part of PhenotypicSession so that to_triples() knows to
+    # add the type triple for PhenotypicSession when this field is set
+    min_num_phenotypic_sessions: int | None = None
+    schemaKey: Literal["PhenotypicSession"] = "PhenotypicSession"
+
+
 class ImagingSession(SPARQLSerializable):
     hasAcquisition: Acquisition
     hasCompletedPipeline: Pipeline
-    schemaKey: Literal["ImagingSession"] = "ImagingSession"
     # This field is included as part of ImagingSession so that to_triples() knows to
     # add the type triple for ImagingSession when this field is set
     min_num_imaging_sessions: int | None = None
+    schemaKey: Literal["ImagingSession"] = "ImagingSession"
 
 
 class Subject(SPARQLSerializable):
-    hasSession: ImagingSession
+    hasSession: ImagingSession | PhenotypicSession
     schemaKey: Literal["Subject"] = "Subject"
 
 

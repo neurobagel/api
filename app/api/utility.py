@@ -529,6 +529,22 @@ def create_pipeline_versions_query(pipeline: str) -> str:
     )
 
 
+def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
+    """Create a SPARQL query string for phenotypic parameters from a query to the POST /datasets endpoint."""
+    phenotypic_session = sparql_models.PhenotypicSession(
+        age_bounds=(query.age.min_age, query.age.max_age),
+        hasSex=query.sex,
+        hasDiagnosis=query.diagnosis,
+        hasAssessment=query.assessment,
+        min_num_phenotypic_sessions=query.min_num_phenotypic_sessions,
+    )
+    subject = sparql_models.Subject(hasSession=phenotypic_session)
+    dataset = sparql_models.Dataset(hasSamples=subject)
+
+    query = dataset.to_sparql()
+    return "\n".join([create_query_context(env_settings.CONTEXT), query])
+
+
 def create_imaging_sparql_query_for_datasets(query: QueryModel):
     """Create a SPARQL query string for imaging parameters from a query to the POST /datasets endpoint."""
     acquisition = sparql_models.Acquisition(hasContrastType=query.image_modal)
