@@ -1,0 +1,123 @@
+import pytest
+
+from app.api import sparql_models
+from app.api import utility as util
+from app.api.models import QueryModel
+
+
+@pytest.mark.parametrize(
+    "raw_value, expected_value",
+    [
+        ("np:fmriprep", "np:fmriprep"),
+        ("23.0.2", '"23.0.2"'),
+    ],
+)
+def test_format_value(raw_value, expected_value):
+    """Test that query field values are correctly formatted for SPARQL query triples."""
+    assert sparql_models.format_value(raw_value) == expected_value
+
+
+def test_get_select_variables():
+    """Test that a list of variable names is correctly converted to a SPARQL SELECT variable string."""
+    variables = ["dataset", "dataset_name", "dataset_portal_uri"]
+    expected_select_string = "?dataset ?dataset_name ?dataset_portal_uri"
+    assert (
+        sparql_models.get_select_variables(variables) == expected_select_string
+    )
+
+
+@pytest.mark.parametrize(
+    "datasets_request_body, expected_where_triples",
+    [
+        (
+            {},
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+            ],
+        ),
+        (
+            {"min_num_imaging_sessions": 2},
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
+                "    ?imaging_session a nb:ImagingSession.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+                "GROUP BY ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "HAVING (COUNT(DISTINCT ?imaging_session) >= 2)",
+            ],
+        ),
+        (
+            {"image_modal": "nidm:T1Weighted"},
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
+                "    ?imaging_session a nb:ImagingSession.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition.",
+                "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+            ],
+        ),
+        (
+            {
+                "image_modal": "nidm:T1Weighted",
+                "pipeline_name": "np:fmriprep",
+                "pipeline_version": "23.2.0",
+                "min_num_imaging_sessions": 2,
+            },
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
+                "    ?imaging_session a nb:ImagingSession.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition.",
+                "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
+                "    ?imaging_session nb:hasCompletedPipeline ?pipeline.",
+                "    ?pipeline nb:hasPipelineName np:fmriprep.",
+                '    ?pipeline nb:hasPipelineVersion "23.2.0".',
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+                "GROUP BY ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "HAVING (COUNT(DISTINCT ?imaging_session) >= 2)",
+            ],
+        ),
+    ],
+)
+def test_create_imaging_sparql_query_for_datasets(
+    datasets_request_body, expected_where_triples
+):
+    """Test that a SPARQL query string is correctly created from a POST /datasets request body."""
+    query = QueryModel(**datasets_request_body)
+    expected_sparql_query = "\n".join(
+        ["\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject"]
+        + expected_where_triples
+    )
+    assert (
+        util.create_imaging_sparql_query_for_datasets(query)
+        == expected_sparql_query
+    )
+
+
+def test_context_in_sparql_query(mock_context):
+    """Test that the SPARQL query string includes a context."""
+    query = QueryModel()
+    sparql_query = util.create_imaging_sparql_query_for_datasets(query)
+    assert sparql_query.startswith("PREFIX")

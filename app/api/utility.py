@@ -8,7 +8,8 @@ import httpx
 import numpy as np
 import pandas as pd
 
-from . import env_settings
+from . import env_settings, sparql_models
+from .models import QueryModel
 
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
@@ -526,3 +527,22 @@ def create_pipeline_versions_query(pipeline: str) -> str:
     return "\n".join(
         [create_query_context(env_settings.CONTEXT), query_string]
     )
+
+
+def create_imaging_sparql_query_for_datasets(query: QueryModel):
+    """Create a SPARQL query string for imaging parameters from a query to the POST /datasets endpoint."""
+    acquisition = sparql_models.Acquisition(hasContrastType=query.image_modal)
+    pipeline = sparql_models.Pipeline(
+        hasPipelineVersion=query.pipeline_version,
+        hasPipelineName=query.pipeline_name,
+    )
+    imaging_session = sparql_models.ImagingSession(
+        hasAcquisition=acquisition,
+        hasCompletedPipeline=pipeline,
+        min_num_imaging_sessions=query.min_num_imaging_sessions,
+    )
+    subject = sparql_models.Subject(hasSession=imaging_session)
+    dataset = sparql_models.Dataset(hasSamples=subject)
+
+    query = dataset.to_sparql()
+    return "\n".join([create_query_context(env_settings.CONTEXT), query])

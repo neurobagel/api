@@ -6,10 +6,10 @@ import httpx
 import pandas as pd
 from fastapi import HTTPException, status
 
-from . import env_settings
+from . import env_settings, sparql_models
 from . import utility as util
 from .env_settings import settings
-from .models import SessionResponse
+from .models import QueryModel, SessionResponse
 
 ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
     "dataset_uuid",
@@ -236,6 +236,74 @@ async def query_records(
                 }
                 # TODO: need to append as response model instance?
                 response_obj.append(subject_response)
+
+    return response_obj
+
+
+async def post_datasets(query: QueryModel) -> list[dict]:
+    """
+    When a POST request is sent to the /datasets path, return list of dicts corresponding to metadata for datasets matching the query.
+
+    # TODO: This function currently has overlap with query_records;
+    # look into refactoring out common code in https://github.com/neurobagel/api/issues/493 to reduce duplication
+
+    Parameters
+    ----------
+    query : QueryModel
+        Data model representing the query parameters sent in the POST request.
+
+    Returns
+    -------
+    list[dict]
+        List of dictionaries corresponding to metadata for datasets matching the query.
+    """
+
+    imaging_query = util.create_imaging_sparql_query_for_datasets(query)
+    results = post_query_to_graph(imaging_query)
+    results_df = pd.DataFrame(
+        util.unpack_graph_response_json_to_dicts(results)
+    ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
+
+    matching_dataset_sizes = query_matching_dataset_sizes(
+        dataset_uuids=results_df["dataset"].unique()
+    )
+
+    response_obj = []
+    groupby_cols = ["dataset", "dataset_name"]
+    if not results_df.empty:
+        for (
+            dataset_uuid,
+            dataset_name,
+        ), dataset_matching_records in results_df.groupby(by=groupby_cols):
+            num_matching_subjects = dataset_matching_records[
+                "subject"
+            ].nunique()
+            # TODO: The current implementation is valid in that we do not return
+            # results for datasets with fewer than min_cell_count subjects. But
+            # ideally we would handle this directly inside SPARQL so we don't even
+            # get the results in the first place. See #267 for a solution.
+            if num_matching_subjects <= settings.min_cell_size:
+                continue
+
+            dataset_response = {
+                "dataset_uuid": dataset_uuid,
+                "dataset_name": dataset_name,
+                "dataset_total_subjects": matching_dataset_sizes[dataset_uuid],
+                "dataset_portal_uri": (
+                    dataset_matching_records["dataset_portal_uri"].iloc[0]
+                    if not dataset_matching_records["dataset_portal_uri"]
+                    .isna()
+                    .any()
+                    else None
+                ),
+                "num_matching_subjects": num_matching_subjects,
+                "records_protected": settings.return_agg,
+                # TODO: Populate fields as part of https://github.com/neurobagel/api/issues/490
+                "image_modals": [],
+                "available_pipelines": {},
+            }
+
+            response_obj.append(dataset_response)
 
     return response_obj
 

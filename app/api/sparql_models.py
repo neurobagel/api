@@ -1,0 +1,120 @@
+from typing import Literal
+
+from pydantic import BaseModel
+from pydantic.alias_generators import to_snake
+
+SPARQL_SELECTED_VARS = [
+    "dataset",
+    "dataset_name",
+    "dataset_portal_uri",
+    "subject",
+]
+
+
+def format_value(value):
+    """Returns the SPARQL-formatted representation of a value."""
+    if isinstance(value, str):
+        # If the value looks like a URI or a variable, return as is
+        if ":" in value or value.startswith("?"):
+            return value
+        return f'"{value}"'
+    # TODO: Handle numeric values (e.g. for min/max age) in https://github.com/neurobagel/api/issues/488
+
+
+def get_select_variables(variables: list[str]) -> str:
+    """Returns the SELECT variables for the SPARQL query as a space-separated string."""
+    return " ".join(f"?{var}" for var in variables)
+
+
+class SPARQLSerializable(BaseModel):
+    def to_triples(self, var_name: str) -> list[str]:
+        """
+        Recursively flatten a model instance into SPARQL triples,
+        using the var_name as the subject, the provided field names as predicates,
+        and the field values as objects.
+        Models with a 'schemaKey' field will also include a type triple.
+        """
+        var_name = to_snake(var_name)
+        triples = []
+        schema_key = getattr(self, "schemaKey", None)
+        if schema_key:
+            triples.extend([f"{var_name} a nb:{schema_key}."])
+
+        for field in self.model_fields:
+            value = getattr(self, field)
+            if field == "schemaKey":
+                continue
+
+            predicate = f"nb:{field}"
+            if isinstance(value, SPARQLSerializable):
+                # If the field contains a nested object, skip adding triples if the nested object is empty
+                # (from https://github.com/pydantic/pydantic/discussions/4613)
+                if not any(
+                    value.model_dump(
+                        exclude_none=True, exclude_defaults=True
+                    ).values()
+                ):
+                    continue
+                # TODO: If we wanted to skip running the name conversion for each nested object,
+                # or be able to customize the variable name,
+                # we could add a var_name field to SPARQLSerializable and set it per class
+                nested_var = f"?{to_snake(value.__class__.__name__)}"
+                triples.extend([f"{var_name} {predicate} {nested_var}."])
+                triples.extend(value.to_triples(nested_var))
+            elif isinstance(value, str):
+                formatted_value = format_value(value)
+                triples.extend([f"{var_name} {predicate} {formatted_value}."])
+        return triples
+
+
+class Acquisition(SPARQLSerializable):
+    hasContrastType: str | None
+
+
+class Pipeline(SPARQLSerializable):
+    hasPipelineName: str | None
+    hasPipelineVersion: str | None
+
+
+class ImagingSession(SPARQLSerializable):
+    hasAcquisition: Acquisition
+    hasCompletedPipeline: Pipeline
+    schemaKey: Literal["ImagingSession"] = "ImagingSession"
+    # This field is included as part of ImagingSession so that to_triples() knows to
+    # add the type triple for ImagingSession when this field is set
+    min_num_imaging_sessions: int | None = None
+
+
+class Subject(SPARQLSerializable):
+    hasSession: ImagingSession
+    schemaKey: Literal["Subject"] = "Subject"
+
+
+class Dataset(SPARQLSerializable):
+    hasLabel: Literal["?dataset_name"] = "?dataset_name"
+    hasSamples: Subject
+    schemaKey: Literal["Dataset"] = "Dataset"
+
+    def to_sparql(self, var_name="?dataset") -> str:
+        cohort_triples = self.to_triples(var_name)
+        cohort_triples.extend(
+            [f"OPTIONAL {{{var_name} nb:hasPortalURI ?dataset_portal_uri.}}"]
+        )
+        cohort_triples = "\n    ".join(cohort_triples)
+
+        num_sessions_filter = ""
+        if self.hasSamples.hasSession.min_num_imaging_sessions is not None:
+            num_sessions_filter = "\n".join(
+                [
+                    f"GROUP BY {get_select_variables(SPARQL_SELECTED_VARS)}",
+                    f"HAVING (COUNT(DISTINCT ?imaging_session) >= {self.hasSamples.hasSession.min_num_imaging_sessions})",
+                ]
+            )
+
+        return f"""
+SELECT {get_select_variables(SPARQL_SELECTED_VARS)}
+WHERE {{
+    {cohort_triples}
+}}
+{num_sessions_filter}
+""".strip()
