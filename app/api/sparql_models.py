@@ -46,6 +46,17 @@ class SPARQLSerializable(BaseModel):
                 continue
 
             predicate = f"nb:{field}"
+            if isinstance(value, tuple):
+                if (min_val := value[0]) is not None or (
+                    max_val := value[1]
+                ) is not None:
+                    filters = []
+                    if min_val is not None:
+                        filters.append(f"?age >= {min_val}")
+                    if max_val is not None:
+                        filters.append(f"?age <= {max_val}")
+                    filter_statement = "FILTER (" + " && ".join(filters) + ")."
+                    triples.extend([filter_statement])
             if isinstance(value, SPARQLSerializable):
                 # If the field contains a nested object, skip adding triples if the nested object is empty
                 # (from https://github.com/pydantic/pydantic/discussions/4613)
