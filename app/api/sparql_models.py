@@ -37,7 +37,7 @@ class SPARQLSerializable(BaseModel):
         triples = []
         schema_key = getattr(self, "schemaKey", None)
         if schema_key:
-            triples.append(f"{var_name} a nb:{schema_key}.")
+            triples.extend([f"{var_name} a nb:{schema_key}."])
 
         for field in self.model_fields:
             value = getattr(self, field)
@@ -54,12 +54,12 @@ class SPARQLSerializable(BaseModel):
                 ):
                     continue
                 nested_var = f"?{to_snake(value.__class__.__name__)}"
-                triples.append(f"{var_name} {predicate} {nested_var}.")
-                triples.append(value.to_sparql(nested_var))
+                triples.extend([f"{var_name} {predicate} {nested_var}."])
+                triples.extend(value.to_sparql(nested_var))
             elif isinstance(value, str):
                 formatted_value = format_value(value)
-                triples.append(f"{var_name} {predicate} {formatted_value}.")
-        return "\n    ".join(triples)
+                triples.extend([f"{var_name} {predicate} {formatted_value}."])
+        return triples
 
 
 class Acquisition(SPARQLSerializable):
@@ -91,6 +91,7 @@ class Dataset(SPARQLSerializable):
 
     def to_sparql(self, var_name="?dataset_uuid") -> str:
         subject_triples = self.hasSamples.to_sparql("?subject_uuid")
+        subject_triples = "\n    ".join(subject_triples)
         # Always include these triple patterns
         dataset_triples = "\n    ".join(
             [
