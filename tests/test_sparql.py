@@ -19,8 +19,8 @@ def test_format_value(raw_value, expected_value):
 
 def test_get_select_variables():
     """Test that a list of variable names is correctly converted to a SPARQL SELECT variable string."""
-    variables = ["dataset_uuid", "dataset_name", "dataset_portal_uri"]
-    expected_select_string = "?dataset_uuid ?dataset_name ?dataset_portal_uri"
+    variables = ["dataset", "dataset_name", "dataset_portal_uri"]
+    expected_select_string = "?dataset ?dataset_name ?dataset_portal_uri"
     assert (
         sparql_models.get_select_variables(variables) == expected_select_string
     )
@@ -33,11 +33,11 @@ def test_get_select_variables():
             {},
             [
                 "WHERE {",
-                "    ?dataset_uuid a nb:Dataset.",
-                "    ?dataset_uuid nb:hasLabel ?dataset_name.",
-                "    ?dataset_uuid nb:hasSamples ?subject_uuid.",
-                "    OPTIONAL {?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.}",
-                "    ?subject_uuid a nb:Subject.",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
                 "}",
             ],
         ),
@@ -45,15 +45,15 @@ def test_get_select_variables():
             {"min_num_imaging_sessions": 2},
             [
                 "WHERE {",
-                "    ?dataset_uuid a nb:Dataset.",
-                "    ?dataset_uuid nb:hasLabel ?dataset_name.",
-                "    ?dataset_uuid nb:hasSamples ?subject_uuid.",
-                "    OPTIONAL {?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.}",
-                "    ?subject_uuid a nb:Subject.",
-                "    ?subject_uuid nb:hasSession ?imaging_session.",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
                 "    ?imaging_session a nb:ImagingSession.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
                 "}",
-                "GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?subject_uuid",
+                "GROUP BY ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "HAVING (COUNT(DISTINCT ?imaging_session) >= 2)",
             ],
         ),
@@ -61,15 +61,15 @@ def test_get_select_variables():
             {"image_modal": "nidm:T1Weighted"},
             [
                 "WHERE {",
-                "    ?dataset_uuid a nb:Dataset.",
-                "    ?dataset_uuid nb:hasLabel ?dataset_name.",
-                "    ?dataset_uuid nb:hasSamples ?subject_uuid.",
-                "    OPTIONAL {?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.}",
-                "    ?subject_uuid a nb:Subject.",
-                "    ?subject_uuid nb:hasSession ?imaging_session.",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
                 "    ?imaging_session a nb:ImagingSession.",
                 "    ?imaging_session nb:hasAcquisition ?acquisition.",
                 "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
                 "}",
             ],
         ),
@@ -82,20 +82,20 @@ def test_get_select_variables():
             },
             [
                 "WHERE {",
-                "    ?dataset_uuid a nb:Dataset.",
-                "    ?dataset_uuid nb:hasLabel ?dataset_name.",
-                "    ?dataset_uuid nb:hasSamples ?subject_uuid.",
-                "    OPTIONAL {?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.}",
-                "    ?subject_uuid a nb:Subject.",
-                "    ?subject_uuid nb:hasSession ?imaging_session.",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
                 "    ?imaging_session a nb:ImagingSession.",
                 "    ?imaging_session nb:hasAcquisition ?acquisition.",
                 "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
                 "    ?imaging_session nb:hasCompletedPipeline ?pipeline.",
                 "    ?pipeline nb:hasPipelineName np:fmriprep.",
                 '    ?pipeline nb:hasPipelineVersion "23.2.0".',
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
                 "}",
-                "GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?subject_uuid",
+                "GROUP BY ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "HAVING (COUNT(DISTINCT ?imaging_session) >= 2)",
             ],
         ),
@@ -107,9 +107,7 @@ def test_create_imaging_sparql_query_for_datasets(
     """Test that a SPARQL query string is correctly created from a POST /datasets request body."""
     query = QueryModel(**datasets_request_body)
     expected_sparql_query = "\n".join(
-        [
-            "\nSELECT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?subject_uuid"
-        ]
+        ["\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject"]
         + expected_where_triples
     )
     assert (
