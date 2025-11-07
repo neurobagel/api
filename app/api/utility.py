@@ -531,8 +531,11 @@ def create_pipeline_versions_query(pipeline: str) -> str:
 
 def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
     """Create a SPARQL query string for phenotypic parameters from a query to the POST /datasets endpoint."""
+    age_bounds = sparql_models.Age(
+        min_age=query.min_age, max_age=query.max_age
+    )
     phenotypic_session = sparql_models.PhenotypicSession(
-        age_bounds=(query.age.min_age, query.age.max_age),
+        hasAge=age_bounds,
         hasSex=query.sex,
         hasDiagnosis=query.diagnosis,
         hasAssessment=query.assessment,
