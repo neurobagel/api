@@ -47,7 +47,8 @@ class SPARQLSerializable(BaseModel):
 
             predicate = f"nb:{field}"
             if isinstance(value, SPARQLSerializable):
-                # Skip adding triples for empty nested objects (from https://github.com/pydantic/pydantic/discussions/4613)
+                # If the field contains a nested object, skip adding triples if the nested object is empty
+                # (from https://github.com/pydantic/pydantic/discussions/4613)
                 if not any(
                     value.model_dump(
                         exclude_none=True, exclude_defaults=True
@@ -76,8 +77,8 @@ class Pipeline(SPARQLSerializable):
 
 
 class ImagingSession(SPARQLSerializable):
-    hasAcquisition: Acquisition | None
-    hasCompletedPipeline: Pipeline | None
+    hasAcquisition: Acquisition
+    hasCompletedPipeline: Pipeline
     schemaKey: Literal["ImagingSession"] = "ImagingSession"
     # This field is included as part of ImagingSession so that to_triples() knows to
     # add the type triple for ImagingSession when this field is set
@@ -85,7 +86,7 @@ class ImagingSession(SPARQLSerializable):
 
 
 class Subject(SPARQLSerializable):
-    hasSession: ImagingSession | None
+    hasSession: ImagingSession
     schemaKey: Literal["Subject"] = "Subject"
 
 
