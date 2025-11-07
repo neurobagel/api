@@ -259,24 +259,25 @@ async def post_datasets(query: QueryModel) -> list[dict]:
     """
 
     imaging_query = util.create_imaging_sparql_query_for_datasets(query)
+    print(imaging_query)
     results = post_query_to_graph(imaging_query)
     results_df = pd.DataFrame(
         util.unpack_graph_response_json_to_dicts(results)
     ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
 
     matching_dataset_sizes = query_matching_dataset_sizes(
-        dataset_uuids=results_df["dataset_uuid"].unique()
+        dataset_uuids=results_df["dataset"].unique()
     )
 
     response_obj = []
-    groupby_cols = ["dataset_uuid", "dataset_name"]
+    groupby_cols = ["dataset", "dataset_name"]
     if not results_df.empty:
         for (
             dataset_uuid,
             dataset_name,
         ), dataset_matching_records in results_df.groupby(by=groupby_cols):
             num_matching_subjects = dataset_matching_records[
-                "subject_uuid"
+                "subject"
             ].nunique()
             # TODO: The current implementation is valid in that we do not return
             # results for datasets with fewer than min_cell_count subjects. But
