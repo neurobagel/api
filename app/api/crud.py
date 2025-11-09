@@ -39,6 +39,7 @@ def post_query_to_graph(query: str, timeout: float = None) -> dict:
         The response from the graph API, encoded as json.
     """
     try:
+        # TODO: Switch to using recommended AsyncClient to improve performance
         response = httpx.post(
             url=settings.query_url,
             content=query,
@@ -258,12 +259,46 @@ async def post_datasets(query: QueryModel) -> list[dict]:
         List of dictionaries corresponding to metadata for datasets matching the query.
     """
 
-    imaging_query = util.create_imaging_sparql_query_for_datasets(query)
-    results = post_query_to_graph(imaging_query)
-    results_df = pd.DataFrame(
-        util.unpack_graph_response_json_to_dicts(results)
-    ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
+    phenotypic_query, imaging_query = util.create_sparql_queries_for_datasets(
+        query
+    )
 
+    # TODO: Remove - debugging
+    print(f"PHENO:\n{phenotypic_query}\n")
+    print(f"IMAGING:\n{imaging_query}\n")
+
+    query_results_dfs = []
+    if phenotypic_query:
+        phenotypic_query_results = post_query_to_graph(phenotypic_query)
+        # TODO: Refactor unpack_graph_response_json_to_dicts() call into post_query_to_graph()
+        # to reduce duplication across CRUD functions
+        query_results_dfs.append(
+            pd.DataFrame(
+                util.unpack_graph_response_json_to_dicts(
+                    phenotypic_query_results
+                )
+            ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
+        )
+    if imaging_query:
+        imaging_query_results = post_query_to_graph(imaging_query)
+        query_results_dfs.append(
+            pd.DataFrame(
+                util.unpack_graph_response_json_to_dicts(imaging_query_results)
+            ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
+        )
+
+    if len(query_results_dfs) != 1:
+        results_df = pd.merge(
+            query_results_dfs[0],
+            query_results_dfs[1],
+            how="inner",
+            on=sparql_models.SPARQL_SELECTED_VARS,
+        )
+    else:
+        results_df = query_results_dfs[0]
+
+    # This only needs to be run once, on the intersection of datasets matching
+    # both phenotypic and imaging queries.
     matching_dataset_sizes = query_matching_dataset_sizes(
         dataset_uuids=results_df["dataset"].unique()
     )

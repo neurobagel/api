@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from . import env_settings, sparql_models
-from .models import QueryModel
+from .models import IMAGING_FILTERS, PHENOTYPIC_FILTERS, QueryModel
 
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
@@ -565,3 +565,25 @@ def create_imaging_sparql_query_for_datasets(query: QueryModel):
 
     query = dataset.to_sparql()
     return "\n".join([create_query_context(env_settings.CONTEXT), query])
+
+
+def contains_filters(query: QueryModel, filters: list[str]) -> bool:
+    """Check if certain filter fields have been set in a given query."""
+    return any(getattr(query, filter) is not None for filter in filters)
+
+
+def create_sparql_queries_for_datasets(query: QueryModel) -> tuple[str, str]:
+    """
+    Create SPARQL queries based on the phenotypic and/or imaging filters specified in the request payload.
+    """
+    phenotypic_query = ""
+    imaging_query = ""
+
+    if contains_filters(query, PHENOTYPIC_FILTERS) or not contains_filters(
+        query, IMAGING_FILTERS
+    ):
+        phenotypic_query = create_phenotypic_sparql_query_for_datasets(query)
+    if contains_filters(query, IMAGING_FILTERS):
+        imaging_query = create_imaging_sparql_query_for_datasets(query)
+
+    return phenotypic_query, imaging_query
