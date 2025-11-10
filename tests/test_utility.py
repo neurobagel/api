@@ -1,5 +1,8 @@
 """Test utility functions."""
 
+import pandas as pd
+import pandas.testing as pdt
+
 from app.api import utility as util
 
 
@@ -66,3 +69,92 @@ def test_bound_filter_created_correctly():
     """Test that the function creates a valid SPARQL filter substring given a variable name."""
     var = "subject_group"
     assert util.create_bound_filter(var) == "FILTER (BOUND(?subject_group)"
+
+
+def test_combine_sparql_query_results():
+    """Test that combine_sparql_query_results correctly returns rows common to multiple query result tables."""
+    mock_phenotypic_query_results = pd.DataFrame(
+        {
+            "dataset": [
+                "http://neurobagel.org/vocab/ds01",
+                "http://neurobagel.org/vocab/ds01",
+                "http://neurobagel.org/vocab/ds02",
+                "http://neurobagel.org/vocab/ds02",
+            ],
+            "dataset_name": [
+                "Dataset 1",
+                "Dataset 1",
+                "Dataset 2",
+                "Dataset 2",
+            ],
+            "dataset_portal_uri": [
+                "https://dataset1.org",
+                "https://dataset1.org",
+                "https://dataset2.org",
+                "https://dataset2.org",
+            ],
+            "subject": [
+                "http://neurobagel.org/vocab/ds01-sub01",
+                "http://neurobagel.org/vocab/ds01-sub02",
+                "http://neurobagel.org/vocab/ds02-sub01",
+                "http://neurobagel.org/vocab/ds02-sub02",
+            ],
+        }
+    )
+    mock_imaging_query_results = pd.DataFrame(
+        {
+            "dataset": [
+                "http://neurobagel.org/vocab/ds01",
+                "http://neurobagel.org/vocab/ds01",
+                "http://neurobagel.org/vocab/ds02",
+                "http://neurobagel.org/vocab/ds02",
+            ],
+            "dataset_name": [
+                "Dataset 1",
+                "Dataset 1",
+                "Dataset 2",
+                "Dataset 2",
+            ],
+            "dataset_portal_uri": [
+                "https://dataset1.org",
+                "https://dataset1.org",
+                "https://dataset2.org",
+                "https://dataset2.org",
+            ],
+            "subject": [
+                "http://neurobagel.org/vocab/ds01-sub01",
+                "http://neurobagel.org/vocab/ds01-sub03",
+                "http://neurobagel.org/vocab/ds02-sub01",
+                "http://neurobagel.org/vocab/ds02-sub03",
+            ],
+        }
+    )
+    expected_combined_query_results = pd.DataFrame(
+        {
+            "dataset": [
+                "http://neurobagel.org/vocab/ds01",
+                "http://neurobagel.org/vocab/ds02",
+            ],
+            "dataset_name": ["Dataset 1", "Dataset 2"],
+            "dataset_portal_uri": [
+                "https://dataset1.org",
+                "https://dataset2.org",
+            ],
+            "subject": [
+                "http://neurobagel.org/vocab/ds01-sub01",
+                "http://neurobagel.org/vocab/ds02-sub01",
+            ],
+        }
+    )
+
+    results_from_queries = [
+        mock_phenotypic_query_results,
+        mock_imaging_query_results,
+    ]
+    combined_query_results = util.combine_sparql_query_results(
+        results_from_queries
+    )
+
+    pdt.assert_frame_equal(
+        combined_query_results, expected_combined_query_results
+    )

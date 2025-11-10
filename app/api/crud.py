@@ -263,11 +263,6 @@ async def post_datasets(query: QueryModel) -> list[dict]:
     phenotypic_query, imaging_query = util.create_sparql_queries_for_datasets(
         query
     )
-
-    # TODO: Remove - debugging
-    print(f"PHENO:\n{phenotypic_query}\n")
-    print(f"IMAGING:\n{imaging_query}\n")
-
     tasks = [
         post_query_to_graph(sparql_query)
         for sparql_query in (phenotypic_query, imaging_query)
@@ -275,25 +270,18 @@ async def post_datasets(query: QueryModel) -> list[dict]:
     ]
     responses = await asyncio.gather(*tasks)
 
-    all_query_results = []
+    results_from_queries = []
     for response in responses:
         # TODO: Refactor unpack_graph_response_json_to_dicts() call into post_query_to_graph()
         # to reduce duplication across CRUD functions
-        all_query_results.append(
+        results_from_queries.append(
             pd.DataFrame(
                 util.unpack_graph_response_json_to_dicts(response)
             ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
         )
-
-    if len(all_query_results) == 1:
-        combined_query_results = all_query_results[0]
-    else:
-        combined_query_results = pd.merge(
-            all_query_results[0],
-            all_query_results[1],
-            how="inner",
-            on=sparql_models.SPARQL_SELECTED_VARS,
-        )
+    combined_query_results = util.combine_sparql_query_results(
+        results_from_queries
+    )
 
     # This only needs to be run once, on the intersection of datasets matching
     # both phenotypic and imaging queries.

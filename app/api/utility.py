@@ -587,3 +587,23 @@ def create_sparql_queries_for_datasets(query: QueryModel) -> tuple[str, str]:
         imaging_query = create_imaging_sparql_query_for_datasets(query)
 
     return phenotypic_query, imaging_query
+
+
+def combine_sparql_query_results(
+    results_from_queries: list[pd.DataFrame],
+) -> pd.DataFrame:
+    """
+    Combine results from multiple SPARQL queries, returning only the records (rows)
+    that appear in all query result tables.
+    """
+    if len(results_from_queries) == 1:
+        combined_query_results = results_from_queries[0]
+    else:
+        combined_query_results = pd.merge(
+            results_from_queries[0],
+            results_from_queries[1],
+            how="inner",
+            on=sparql_models.SPARQL_SELECTED_VARS,
+        )
+
+    return combined_query_results
