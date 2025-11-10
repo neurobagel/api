@@ -104,7 +104,10 @@ def test_get_select_variables():
 def test_create_imaging_sparql_query_for_datasets(
     datasets_request_body, expected_where_triples
 ):
-    """Test that a SPARQL query string is correctly created from a POST /datasets request body."""
+    """
+    Test that a SPARQL query string is correctly created from a POST /datasets request body
+    with imaging filters.
+    """
     query = QueryModel(**datasets_request_body)
     expected_sparql_query = "\n".join(
         ["\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject"]
@@ -121,3 +124,101 @@ def test_context_in_sparql_query(mock_context):
     query = QueryModel()
     sparql_query = util.create_imaging_sparql_query_for_datasets(query)
     assert sparql_query.startswith("PREFIX")
+
+
+@pytest.mark.parametrize(
+    "datasets_request_body, expected_where_triples",
+    [
+        (
+            {"min_age": 60},
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?phenotypic_session.",
+                "    ?phenotypic_session a nb:PhenotypicSession.",
+                "    ?phenotypic_session nb:hasAge ?age.",
+                "    FILTER (?age >= 60.0).",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+            ],
+        ),
+        (
+            {"min_age": 60, "max_age": 80},
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?phenotypic_session.",
+                "    ?phenotypic_session a nb:PhenotypicSession.",
+                "    ?phenotypic_session nb:hasAge ?age.",
+                "    FILTER (?age >= 60.0 && ?age <= 80.0).",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+            ],
+        ),
+        (
+            {"min_num_phenotypic_sessions": 2},
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?phenotypic_session.",
+                "    ?phenotypic_session a nb:PhenotypicSession.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+                "GROUP BY ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "HAVING (COUNT(DISTINCT ?phenotypic_session) >= 2)",
+            ],
+        ),
+        (
+            {
+                "min_age": 60,
+                "sex": "snomed:12345",
+                "diagnosis": "snomed:23456",
+                "assessment": "snomed:34567",
+                "min_num_phenotypic_sessions": 2,
+            },
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?phenotypic_session.",
+                "    ?phenotypic_session a nb:PhenotypicSession.",
+                "    ?phenotypic_session nb:hasSex snomed:12345.",
+                "    ?phenotypic_session nb:hasDiagnosis snomed:23456.",
+                "    ?phenotypic_session nb:hasAssessment snomed:34567.",
+                "    ?phenotypic_session nb:hasAge ?age.",
+                "    FILTER (?age >= 60.0).",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+                "GROUP BY ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "HAVING (COUNT(DISTINCT ?phenotypic_session) >= 2)",
+            ],
+        ),
+    ],
+)
+def test_create_phenotypic_sparql_query_for_datasets(
+    datasets_request_body, expected_where_triples
+):
+    """
+    Test that a SPARQL query string is correctly created from a POST /datasets request body
+    with phenotypic filters.
+    """
+    query = QueryModel(**datasets_request_body)
+    expected_sparql_query = "\n".join(
+        ["\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject"]
+        + expected_where_triples
+    )
+    assert (
+        util.create_phenotypic_sparql_query_for_datasets(query)
+        == expected_sparql_query
+    )
