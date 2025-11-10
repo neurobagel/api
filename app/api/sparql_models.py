@@ -130,12 +130,11 @@ class Dataset(SPARQLSerializable):
         )
         cohort_triples = "\n    ".join(cohort_triples)
 
-        # TODO: REVISIT
         num_sessions_filter = ""
         session = self.hasSamples.hasSession
         if isinstance(session, PhenotypicSession):
             min_sessions = session.min_num_phenotypic_sessions
-        elif isinstance(session, ImagingSession):
+        else:
             min_sessions = session.min_num_imaging_sessions
         if min_sessions is not None:
             num_sessions_filter = "\n".join(
