@@ -17,6 +17,14 @@ def test_format_value(raw_value, expected_value):
     assert sparql_models.format_value(raw_value) == expected_value
 
 
+def add_select_statement(where_clause: list[str]) -> str:
+    """Helper function to add a SELECT statement to a WHERE clause for testing."""
+    return "\n".join(
+        ["\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject"]
+        + where_clause
+    )
+
+
 def test_get_select_variables():
     """Test that a list of variable names is correctly converted to a SPARQL SELECT variable string."""
     variables = ["dataset", "dataset_name", "dataset_portal_uri"]
@@ -27,7 +35,7 @@ def test_get_select_variables():
 
 
 @pytest.mark.parametrize(
-    "datasets_request_body, expected_where_triples",
+    "datasets_request_body, expected_where_clause",
     [
         (
             {},
@@ -102,17 +110,14 @@ def test_get_select_variables():
     ],
 )
 def test_create_imaging_sparql_query_for_datasets(
-    datasets_request_body, expected_where_triples
+    datasets_request_body, expected_where_clause
 ):
     """
     Test that a SPARQL query string is correctly created from a POST /datasets request body
     with imaging filters.
     """
     query = QueryModel(**datasets_request_body)
-    expected_sparql_query = "\n".join(
-        ["\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject"]
-        + expected_where_triples
-    )
+    expected_sparql_query = add_select_statement(expected_where_clause)
     assert (
         util.create_imaging_sparql_query_for_datasets(query)
         == expected_sparql_query
@@ -127,7 +132,7 @@ def test_context_in_sparql_query(mock_context):
 
 
 @pytest.mark.parametrize(
-    "datasets_request_body, expected_where_triples",
+    "datasets_request_body, expected_where_clause",
     [
         (
             {"min_age": 60},
@@ -207,18 +212,130 @@ def test_context_in_sparql_query(mock_context):
     ],
 )
 def test_create_phenotypic_sparql_query_for_datasets(
-    datasets_request_body, expected_where_triples
+    datasets_request_body, expected_where_clause
 ):
     """
     Test that a SPARQL query string is correctly created from a POST /datasets request body
     with phenotypic filters.
     """
     query = QueryModel(**datasets_request_body)
-    expected_sparql_query = "\n".join(
-        ["\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject"]
-        + expected_where_triples
-    )
+    expected_sparql_query = add_select_statement(expected_where_clause)
     assert (
         util.create_phenotypic_sparql_query_for_datasets(query)
         == expected_sparql_query
     )
+
+
+@pytest.mark.parametrize(
+    "datasets_request_body, expected_phenotypic_where_clause, expected_imaging_where_clause",
+    [
+        (
+            {
+                "diagnosis": "snomed:12345",
+                "image_modal": "nidm:T1Weighted",
+                "min_num_phenotypic_sessions": 2,
+                "min_num_imaging_sessions": 2,
+            },
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?phenotypic_session.",
+                "    ?phenotypic_session a nb:PhenotypicSession.",
+                "    ?phenotypic_session nb:hasDiagnosis snomed:12345.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+                "GROUP BY ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "HAVING (COUNT(DISTINCT ?phenotypic_session) >= 2)",
+            ],
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
+                "    ?imaging_session a nb:ImagingSession.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition.",
+                "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+                "GROUP BY ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "HAVING (COUNT(DISTINCT ?imaging_session) >= 2)",
+            ],
+        ),
+        (
+            {"diagnosis": "snomed:12345"},
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?phenotypic_session.",
+                "    ?phenotypic_session a nb:PhenotypicSession.",
+                "    ?phenotypic_session nb:hasDiagnosis snomed:12345.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+            ],
+            [],
+        ),
+        (
+            {"image_modal": "nidm:T1Weighted"},
+            [],
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
+                "    ?imaging_session a nb:ImagingSession.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition.",
+                "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+            ],
+        ),
+        (
+            {},
+            [
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasLabel ?dataset_name.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    OPTIONAL {?dataset nb:hasPortalURI ?dataset_portal_uri.}",
+                "}",
+            ],
+            [],
+        ),
+    ],
+)
+def test_create_sparql_queries_for_datasets(
+    datasets_request_body,
+    expected_phenotypic_where_clause,
+    expected_imaging_where_clause,
+):
+    """
+    Test that phenotypic and imaging query filters from a request are correctly extracted into
+    separate SPARQL queries and that for an unfiltered query, only one SPARQL query is created.
+    """
+    query = QueryModel(**datasets_request_body)
+    expected_phenotypic_query = (
+        add_select_statement(expected_phenotypic_where_clause)
+        if expected_phenotypic_where_clause
+        else ""
+    )
+    expected_imaging_query = (
+        add_select_statement(expected_imaging_where_clause)
+        if expected_imaging_where_clause
+        else ""
+    )
+    phenotypic_query, imaging_query = util.create_sparql_queries_for_datasets(
+        query
+    )
+    assert phenotypic_query == expected_phenotypic_query
+    assert imaging_query == expected_imaging_query
