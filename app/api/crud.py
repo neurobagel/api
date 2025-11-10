@@ -267,49 +267,46 @@ async def post_datasets(query: QueryModel) -> list[dict]:
     print(f"PHENO:\n{phenotypic_query}\n")
     print(f"IMAGING:\n{imaging_query}\n")
 
-    query_results_dfs = []
-    if phenotypic_query:
-        phenotypic_query_results = post_query_to_graph(phenotypic_query)
-        # TODO: Refactor unpack_graph_response_json_to_dicts() call into post_query_to_graph()
-        # to reduce duplication across CRUD functions
-        query_results_dfs.append(
-            pd.DataFrame(
-                util.unpack_graph_response_json_to_dicts(
-                    phenotypic_query_results
-                )
-            ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
-        )
-    if imaging_query:
-        imaging_query_results = post_query_to_graph(imaging_query)
-        query_results_dfs.append(
-            pd.DataFrame(
-                util.unpack_graph_response_json_to_dicts(imaging_query_results)
-            ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
-        )
+    all_query_results = []
 
-    if len(query_results_dfs) != 1:
-        results_df = pd.merge(
-            query_results_dfs[0],
-            query_results_dfs[1],
+    for sparql_query in (phenotypic_query, imaging_query):
+        if sparql_query is not None:
+            partial_query_results = post_query_to_graph(sparql_query)
+            # TODO: Refactor unpack_graph_response_json_to_dicts() call into post_query_to_graph()
+            # to reduce duplication across CRUD functions
+            all_query_results.append(
+                pd.DataFrame(
+                    util.unpack_graph_response_json_to_dicts(
+                        partial_query_results
+                    )
+                ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
+            )
+
+    if len(all_query_results) == 1:
+        combined_query_results = all_query_results[0]
+    else:
+        combined_query_results = pd.merge(
+            all_query_results[0],
+            all_query_results[1],
             how="inner",
             on=sparql_models.SPARQL_SELECTED_VARS,
         )
-    else:
-        results_df = query_results_dfs[0]
 
     # This only needs to be run once, on the intersection of datasets matching
     # both phenotypic and imaging queries.
     matching_dataset_sizes = query_matching_dataset_sizes(
-        dataset_uuids=results_df["dataset"].unique()
+        dataset_uuids=combined_query_results["dataset"].unique()
     )
 
     response_obj = []
     groupby_cols = ["dataset", "dataset_name"]
-    if not results_df.empty:
+    if not combined_query_results.empty:
         for (
             dataset_uuid,
             dataset_name,
-        ), dataset_matching_records in results_df.groupby(by=groupby_cols):
+        ), dataset_matching_records in combined_query_results.groupby(
+            by=groupby_cols
+        ):
             num_matching_subjects = dataset_matching_records[
                 "subject"
             ].nunique()
