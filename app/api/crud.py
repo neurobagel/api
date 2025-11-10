@@ -1,5 +1,6 @@
 """CRUD functions called by path operations."""
 
+import asyncio
 import warnings
 
 import httpx
@@ -20,7 +21,7 @@ ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
 ]
 
 
-def post_query_to_graph(query: str, timeout: float = None) -> dict:
+async def post_query_to_graph(query: str, timeout: float = None) -> dict:
     """
     Makes a post request to the graph API to perform a query, using parameters from the environment.
 
@@ -39,17 +40,17 @@ def post_query_to_graph(query: str, timeout: float = None) -> dict:
         The response from the graph API, encoded as json.
     """
     try:
-        # TODO: Switch to using recommended AsyncClient to improve performance
-        response = httpx.post(
-            url=settings.query_url,
-            content=query,
-            headers=util.QUERY_HEADER,
-            auth=httpx.BasicAuth(
-                settings.graph_username,
-                settings.graph_password,
-            ),
-            timeout=timeout,
-        )
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url=settings.query_url,
+                content=query,
+                headers=util.QUERY_HEADER,
+                auth=httpx.BasicAuth(
+                    settings.graph_username,
+                    settings.graph_password,
+                ),
+                timeout=timeout,
+            )
     # Provide more informative error message for a timeout in the connection to the host.
     except httpx.ConnectTimeout as exc:
         raise HTTPException(
@@ -66,7 +67,7 @@ def post_query_to_graph(query: str, timeout: float = None) -> dict:
     return response.json()
 
 
-def query_matching_dataset_sizes(dataset_uuids: list) -> dict:
+async def query_matching_dataset_sizes(dataset_uuids: list) -> dict:
     """
     Queries the graph for the number of subjects in each dataset in a list of dataset UUIDs.
 
@@ -81,7 +82,7 @@ def query_matching_dataset_sizes(dataset_uuids: list) -> dict:
         A dictionary with keys corresponding to the dataset UUIDs and values corresponding to the number of subjects in the dataset.
     """
     # Get the total number of subjects in each dataset that matched the query
-    matching_dataset_size_results = post_query_to_graph(
+    matching_dataset_size_results = await post_query_to_graph(
         util.create_multidataset_size_query(dataset_uuids)
     )
     return {
@@ -142,7 +143,7 @@ async def query_records(
     list
         List of CohortQueryResponse objects, where each object corresponds to a dataset matching the query.
     """
-    results = post_query_to_graph(
+    results = await post_query_to_graph(
         util.create_query(
             return_agg=is_datasets_query or settings.return_agg,
             age=(min_age, max_age),
@@ -267,20 +268,22 @@ async def post_datasets(query: QueryModel) -> list[dict]:
     print(f"PHENO:\n{phenotypic_query}\n")
     print(f"IMAGING:\n{imaging_query}\n")
 
-    all_query_results = []
+    tasks = [
+        post_query_to_graph(sparql_query)
+        for sparql_query in (phenotypic_query, imaging_query)
+        if sparql_query
+    ]
+    responses = await asyncio.gather(*tasks)
 
-    for sparql_query in (phenotypic_query, imaging_query):
-        if sparql_query is not None:
-            partial_query_results = post_query_to_graph(sparql_query)
-            # TODO: Refactor unpack_graph_response_json_to_dicts() call into post_query_to_graph()
-            # to reduce duplication across CRUD functions
-            all_query_results.append(
-                pd.DataFrame(
-                    util.unpack_graph_response_json_to_dicts(
-                        partial_query_results
-                    )
-                ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
-            )
+    all_query_results = []
+    for response in responses:
+        # TODO: Refactor unpack_graph_response_json_to_dicts() call into post_query_to_graph()
+        # to reduce duplication across CRUD functions
+        all_query_results.append(
+            pd.DataFrame(
+                util.unpack_graph_response_json_to_dicts(response)
+            ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
+        )
 
     if len(all_query_results) == 1:
         combined_query_results = all_query_results[0]
@@ -362,7 +365,7 @@ async def get_terms(
         corresponding to the available (i.e. used) instances of that class in the graph. Each instance dictionary
         has two items: the 'TermURL' and the human-readable 'Label' for the term.
     """
-    term_url_results = post_query_to_graph(
+    term_url_results = await post_query_to_graph(
         util.create_terms_query(data_element_URI)
     )
 
@@ -435,7 +438,7 @@ async def get_controlled_term_attributes() -> list:
         ?attribute rdfs:subClassOf nb:ControlledTerm .
     }}
     """
-    results = post_query_to_graph(attributes_query)
+    results = await post_query_to_graph(attributes_query)
 
     results_list = [
         util.replace_namespace_uri_with_prefix(result["attribute"]["value"])
