@@ -9,10 +9,10 @@ from app.main import settings
 ROUTE = "/query"
 
 
-def test_get_subjects_by_query(monkeypatch):
+async def test_get_subjects_by_query(monkeypatch):
     """Test that graph results for dataset size queries are correctly parsed into a dictionary."""
 
-    def mock_post_query_to_graph(query, timeout=5.0):
+    async def mock_post_query_to_graph(query, timeout=5.0):
         return {
             "head": {"vars": ["dataset_uuid", "total_subjects"]},
             "results": {
@@ -44,12 +44,13 @@ def test_get_subjects_by_query(monkeypatch):
         }
 
     monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
-    assert crud.query_matching_dataset_sizes(
+    dataset_sizes = await crud.query_matching_dataset_sizes(
         [
             "http://neurobagel.org/vocab/ds1234",
             "http://neurobagel.org/vocab/ds2345",
         ]
-    ) == {
+    )
+    assert dataset_sizes == {
         "http://neurobagel.org/vocab/ds1234": 70,
         "http://neurobagel.org/vocab/ds2345": 40,
     }

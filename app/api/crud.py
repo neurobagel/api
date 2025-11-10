@@ -166,7 +166,7 @@ async def query_records(
         util.unpack_graph_response_json_to_dicts(results)
     ).reindex(columns=ALL_SUBJECT_ATTRIBUTES)
 
-    matching_dataset_sizes = query_matching_dataset_sizes(
+    matching_dataset_sizes = await query_matching_dataset_sizes(
         dataset_uuids=results_df["dataset_uuid"].unique()
     )
 
@@ -297,7 +297,7 @@ async def post_datasets(query: QueryModel) -> list[dict]:
 
     # This only needs to be run once, on the intersection of datasets matching
     # both phenotypic and imaging queries.
-    matching_dataset_sizes = query_matching_dataset_sizes(
+    matching_dataset_sizes = await query_matching_dataset_sizes(
         dataset_uuids=combined_query_results["dataset"].unique()
     )
 
