@@ -25,6 +25,7 @@ PHENOTYPIC_FILTERS = [
     "max_age",
     "sex",
     "diagnosis",
+    "assessment",
     "min_num_phenotypic_sessions",
 ]
 IMAGING_FILTERS = [
