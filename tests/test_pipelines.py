@@ -9,7 +9,7 @@ def test_get_pipeline_versions_response(test_app, monkeypatch):
     returns a dict where the key is the pipeline resource and the value is a list of pipeline versions.
     """
 
-    def mock_post_query_to_graph(query, timeout=5.0):
+    async def mock_post_query_to_graph(query, timeout=5.0):
         return {
             "head": {"vars": ["pipeline_version"]},
             "results": {

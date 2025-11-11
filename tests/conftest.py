@@ -138,7 +138,7 @@ def mock_post_agg_query_to_graph():
     - a subject with phenotypic, raw imaging, and pipeline data
     """
 
-    def mockreturn(query, timeout=5.0):
+    async def mockreturn(query, timeout=5.0):
         return {
             "head": {
                 "vars": [
@@ -203,7 +203,7 @@ def mock_post_nonagg_query_to_graph():
     - a dataset with 2 matching subjects, with phenotypic data and raw imaging data only (note: several phenotypic variables are missing)
     """
 
-    def mockreturn(query, timeout=5.0):
+    async def mockreturn(query, timeout=5.0):
         return {
             "head": {
                 "vars": [
@@ -713,7 +713,7 @@ def mock_query_matching_dataset_sizes():
     the corresponding query for dataset size, in order to test how the response from the graph is processed by the API (crud.query_records).
     """
 
-    def _mock_query_matching_dataset_sizes(**kwargs):
+    async def _mock_query_matching_dataset_sizes(**kwargs):
         return {"http://neurobagel.org/vocab/12345": 200}
 
     return _mock_query_matching_dataset_sizes
