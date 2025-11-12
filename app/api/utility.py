@@ -607,3 +607,35 @@ def combine_sparql_query_results(
         )
 
     return combined_query_results
+
+
+def create_imaging_modalities_and_pipelines_query(
+    dataset_uuids: list[str],
+) -> str:
+    """Create a SPARQL query to retrieve all imaging modalities and pipelines available in specified datasets."""
+    dataset_uuids_string = "\n".join([f"<{uuid}>" for uuid in dataset_uuids])
+    query_string = f"""
+SELECT DISTINCT ?dataset_uuid ?image_modal ?pipeline_name ?pipeline_version
+WHERE {{
+    VALUES ?dataset_uuid {{
+        {dataset_uuids_string}
+    }}
+    ?dataset_uuid nb:hasSamples ?subject.
+    ?subject a nb:Subject;
+        nb:hasSession ?imaging_session.
+    ?imaging_session a nb:ImagingSession.
+    OPTIONAL {{
+        ?imaging_session nb:hasAcquisition ?acquisition.
+        ?acquisition nb:hasContrastType ?image_modal.
+    }}
+    OPTIONAL {{
+        ?imaging_session nb:hasCompletedPipeline ?pipeline.
+        ?pipeline nb:hasPipelineName ?pipeline_name;
+            nb:hasPipelineVersion ?pipeline_version.
+    }}
+}}
+"""
+
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )
