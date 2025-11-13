@@ -2,6 +2,7 @@
 
 import asyncio
 import warnings
+from collections import defaultdict
 
 import httpx
 import pandas as pd
@@ -137,14 +138,10 @@ async def query_available_modalities_and_pipelines(
         .groupby(["dataset_uuid", "pipeline_name"])["pipeline_version"]
         .agg(lambda x: list(x.dropna().unique()))
     )
-    # Group again by dataset to nest pipeline-versions under each dataset
-    dataset_pipelines = (
-        pipeline_versions.groupby(
-            level=0  # group by dataset_uuid (first level of MultiIndex)
-        )
-        .apply(lambda dataset: dataset.to_dict())
-        .to_dict()
-    )
+    dataset_pipelines = defaultdict(dict)
+    for (dataset_uuid, pipeline_name), versions in pipeline_versions.items():
+        dataset_pipelines[dataset_uuid][pipeline_name] = versions
+    dataset_pipelines = dict(dataset_pipelines)
 
     dataset_imaging_modals_and_pipelines = {
         dataset_uuid: {
