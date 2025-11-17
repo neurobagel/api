@@ -17,14 +17,6 @@ def test_format_value(raw_value, expected_value):
     assert sparql_models.format_value(raw_value) == expected_value
 
 
-def add_select_statement(where_clause: list[str]) -> str:
-    """Helper function to add a SELECT statement to a WHERE clause for testing."""
-    return "\n".join(
-        ["\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject"]
-        + where_clause
-    )
-
-
 def test_get_select_variables():
     """Test that a list of variable names is correctly converted to a SPARQL SELECT variable string."""
     variables = ["dataset", "dataset_name", "dataset_portal_uri"]
