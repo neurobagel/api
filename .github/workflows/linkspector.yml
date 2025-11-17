@@ -16,4 +16,4 @@ jobs:
     - name: Run linkspector 
       uses: umbrelladocs/action-linkspector@v1
       with:
-        config_file: .github/workflows/mlc_config.json
+        config_file: .linkspector.yml
