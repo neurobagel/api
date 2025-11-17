@@ -20,6 +20,21 @@ CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
 # and the middle segment must be purely digits (one or more).
 VERSION_REGEX = r"^([A-Za-z0-9-]+)\.(\d+)\.([A-Za-z0-9-]+)$"
 
+PHENOTYPIC_FILTERS = [
+    "min_age",
+    "max_age",
+    "sex",
+    "diagnosis",
+    "assessment",
+    "min_num_phenotypic_sessions",
+]
+IMAGING_FILTERS = [
+    "image_modal",
+    "pipeline_name",
+    "pipeline_version",
+    "min_num_imaging_sessions",
+]
+
 
 # TODO: Consider renaming to DatasetsQueryModel once we deprecate the /query endpoint
 class QueryModel(BaseModel):

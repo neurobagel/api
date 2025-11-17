@@ -31,10 +31,10 @@ def test_get_attributes(test_app, monkeypatch, mock_context):
         },
     }
 
-    def mock_httpx_post(**kwargs):
+    async def mock_httpx_post(self, **kwargs):
         return httpx.Response(status_code=200, json=mock_response_json)
 
-    monkeypatch.setattr(httpx, "post", mock_httpx_post)
+    monkeypatch.setattr(httpx.AsyncClient, "post", mock_httpx_post)
     response = test_app.get("/attributes")
 
     assert response.json() == [

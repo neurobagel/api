@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from . import env_settings, sparql_models
-from .models import QueryModel
+from .models import IMAGING_FILTERS, PHENOTYPIC_FILTERS, QueryModel
 
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
@@ -529,6 +529,25 @@ def create_pipeline_versions_query(pipeline: str) -> str:
     )
 
 
+def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
+    """Create a SPARQL query string for phenotypic parameters from a query to the POST /datasets endpoint."""
+    age_bounds = sparql_models.Age(
+        min_age=query.min_age, max_age=query.max_age
+    )
+    phenotypic_session = sparql_models.PhenotypicSession(
+        hasAge=age_bounds,
+        hasSex=query.sex,
+        hasDiagnosis=query.diagnosis,
+        hasAssessment=query.assessment,
+        min_num_phenotypic_sessions=query.min_num_phenotypic_sessions,
+    )
+    subject = sparql_models.Subject(hasSession=phenotypic_session)
+    dataset = sparql_models.Dataset(hasSamples=subject)
+
+    query = dataset.to_sparql()
+    return "\n".join([create_query_context(env_settings.CONTEXT), query])
+
+
 def create_imaging_sparql_query_for_datasets(query: QueryModel):
     """Create a SPARQL query string for imaging parameters from a query to the POST /datasets endpoint."""
     acquisition = sparql_models.Acquisition(hasContrastType=query.image_modal)
@@ -546,3 +565,45 @@ def create_imaging_sparql_query_for_datasets(query: QueryModel):
 
     query = dataset.to_sparql()
     return "\n".join([create_query_context(env_settings.CONTEXT), query])
+
+
+def contains_filters(query: QueryModel, filters: list[str]) -> bool:
+    """Check if certain filter fields have been set in a given query."""
+    return any(getattr(query, filter) is not None for filter in filters)
+
+
+def create_sparql_queries_for_datasets(query: QueryModel) -> tuple[str, str]:
+    """
+    Create SPARQL queries based on the phenotypic and/or imaging filters specified in the request payload.
+    """
+    phenotypic_query = ""
+    imaging_query = ""
+
+    if contains_filters(query, PHENOTYPIC_FILTERS) or not contains_filters(
+        query, IMAGING_FILTERS
+    ):
+        phenotypic_query = create_phenotypic_sparql_query_for_datasets(query)
+    if contains_filters(query, IMAGING_FILTERS):
+        imaging_query = create_imaging_sparql_query_for_datasets(query)
+
+    return phenotypic_query, imaging_query
+
+
+def combine_sparql_query_results(
+    results_from_queries: list[pd.DataFrame],
+) -> pd.DataFrame:
+    """
+    Combine results from multiple SPARQL queries, returning only the records (rows)
+    that appear in all query result tables.
+    """
+    if len(results_from_queries) == 1:
+        combined_query_results = results_from_queries[0]
+    else:
+        combined_query_results = pd.merge(
+            results_from_queries[0],
+            results_from_queries[1],
+            how="inner",
+            on=sparql_models.SPARQL_SELECTED_VARS,
+        )
+
+    return combined_query_results

@@ -76,17 +76,45 @@ class Pipeline(SPARQLSerializable):
     hasPipelineVersion: str | None
 
 
+class Age(SPARQLSerializable):
+    min_age: float | None
+    max_age: float | None
+
+    def to_triples(self, var_name: str = "?age") -> list[str]:
+        triples = []
+        if self.min_age is not None or self.max_age is not None:
+            filters = []
+            if self.min_age is not None:
+                filters.append(f"{var_name} >= {self.min_age}")
+            if self.max_age is not None:
+                filters.append(f"{var_name} <= {self.max_age}")
+            filter_statement = "FILTER (" + " && ".join(filters) + ")."
+            triples.extend([filter_statement])
+        return triples
+
+
+class PhenotypicSession(SPARQLSerializable):
+    hasSex: str | None
+    hasDiagnosis: str | None
+    hasAssessment: str | None
+    hasAge: Age
+    # This field is included as part of PhenotypicSession so that to_triples() knows to
+    # add the type triple for PhenotypicSession when this field is set
+    min_num_phenotypic_sessions: int | None = None
+    schemaKey: Literal["PhenotypicSession"] = "PhenotypicSession"
+
+
 class ImagingSession(SPARQLSerializable):
     hasAcquisition: Acquisition
     hasCompletedPipeline: Pipeline
-    schemaKey: Literal["ImagingSession"] = "ImagingSession"
     # This field is included as part of ImagingSession so that to_triples() knows to
     # add the type triple for ImagingSession when this field is set
     min_num_imaging_sessions: int | None = None
+    schemaKey: Literal["ImagingSession"] = "ImagingSession"
 
 
 class Subject(SPARQLSerializable):
-    hasSession: ImagingSession
+    hasSession: ImagingSession | PhenotypicSession
     schemaKey: Literal["Subject"] = "Subject"
 
 
@@ -95,7 +123,7 @@ class Dataset(SPARQLSerializable):
     hasSamples: Subject
     schemaKey: Literal["Dataset"] = "Dataset"
 
-    def to_sparql(self, var_name="?dataset") -> str:
+    def to_sparql(self, var_name: str = "?dataset") -> str:
         cohort_triples = self.to_triples(var_name)
         cohort_triples.extend(
             [f"OPTIONAL {{{var_name} nb:hasPortalURI ?dataset_portal_uri.}}"]
@@ -103,11 +131,16 @@ class Dataset(SPARQLSerializable):
         cohort_triples = "\n    ".join(cohort_triples)
 
         num_sessions_filter = ""
-        if self.hasSamples.hasSession.min_num_imaging_sessions is not None:
+        session = self.hasSamples.hasSession
+        if isinstance(session, PhenotypicSession):
+            min_sessions = session.min_num_phenotypic_sessions
+        elif isinstance(session, ImagingSession):
+            min_sessions = session.min_num_imaging_sessions
+        if min_sessions is not None:
             num_sessions_filter = "\n".join(
                 [
                     f"GROUP BY {get_select_variables(SPARQL_SELECTED_VARS)}",
-                    f"HAVING (COUNT(DISTINCT ?imaging_session) >= {self.hasSamples.hasSession.min_num_imaging_sessions})",
+                    f"HAVING (COUNT(DISTINCT ?{to_snake(session.__class__.__name__)}) >= {min_sessions})",
                 ]
             )
 
