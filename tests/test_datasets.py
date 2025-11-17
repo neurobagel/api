@@ -31,7 +31,7 @@ async def test_imaging_modals_and_pipelines_query(monkeypatch):
     Test that SPARQL query results for available imaging modalities and pipelines are
     processed correctly into a dictionary lookup keyed on dataset UUIDs.
     """
-    dataset_uuids = [
+    matching_dataset_uuids = [
         "http://neurobagel.org/vocab/test-001",
         "http://neurobagel.org/vocab/test-002",
         "http://neurobagel.org/vocab/test-003",
@@ -231,7 +231,7 @@ async def test_imaging_modals_and_pipelines_query(monkeypatch):
     monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
     image_modals_and_pipelines = (
         await crud.query_available_modalities_and_pipelines(
-            dataset_uuids=dataset_uuids
+            dataset_uuids=matching_dataset_uuids
         )
     )
 
