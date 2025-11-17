@@ -134,7 +134,7 @@ class Dataset(SPARQLSerializable):
         session = self.hasSamples.hasSession
         if isinstance(session, PhenotypicSession):
             min_sessions = session.min_num_phenotypic_sessions
-        else:
+        elif isinstance(session, ImagingSession):
             min_sessions = session.min_num_imaging_sessions
         if min_sessions is not None:
             num_sessions_filter = "\n".join(
