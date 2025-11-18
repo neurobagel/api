@@ -141,6 +141,8 @@ async def query_available_modalities_and_pipelines(
     dataset_pipelines = defaultdict(dict)
     for (dataset_uuid, pipeline_name), versions in pipeline_versions.items():
         dataset_pipelines[dataset_uuid][pipeline_name] = versions
+    # Cast back to regular dict to avoid unpredictable defaultdict behavior downstream
+    # (e.g., unwanted dict mutation, key creation)
     dataset_pipelines = dict(dataset_pipelines)
 
     dataset_imaging_modals_and_pipelines = {
