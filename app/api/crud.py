@@ -128,7 +128,7 @@ async def query_available_modalities_and_pipelines(
 
     dataset_imaging_modals = (
         results.groupby("dataset_uuid")["image_modal"]
-        .apply(lambda x: list(x.dropna().unique()))
+        .apply(lambda image_modals: list(image_modals.dropna().unique()))
         .to_dict()
     )
 
@@ -136,7 +136,9 @@ async def query_available_modalities_and_pipelines(
     pipeline_versions = (
         results.dropna(subset=["pipeline_name"])
         .groupby(["dataset_uuid", "pipeline_name"])["pipeline_version"]
-        .agg(lambda x: list(x.dropna().unique()))
+        .agg(
+            lambda pipeline_versions: list(pipeline_versions.dropna().unique())
+        )
     )
     dataset_pipelines = defaultdict(dict)
     for (dataset_uuid, pipeline_name), versions in pipeline_versions.items():
