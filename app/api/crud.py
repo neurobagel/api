@@ -128,7 +128,7 @@ async def query_available_modalities_and_pipelines(
 
     dataset_imaging_modals = (
         results.groupby("dataset_uuid")["image_modal"]
-        .apply(lambda image_modals: list(image_modals.dropna().unique()))
+        .agg(lambda image_modals: list(image_modals.dropna().unique()))
         .to_dict()
     )
 
