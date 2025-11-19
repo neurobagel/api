@@ -1,3 +1,17 @@
+# v0.7.2 (Wed Nov 19 2025)
+
+#### 🏎 Performance Improvements
+
+- [ENH] Add SPARQL query for available imaging modalities & pipelines for matching datasets [#499](https://github.com/neurobagel/api/pull/499) ([@alyssadai](https://github.com/alyssadai))
+- [ENH] Expand SPARQL entity classes to create explicit triples for phenotypic-only dataset query [#497](https://github.com/neurobagel/api/pull/497) ([@alyssadai](https://github.com/alyssadai))
+- [REF] Use classes for SPARQL entities to create explicit triples for imaging-only dataset query [#495](https://github.com/neurobagel/api/pull/495) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.7.1 (Thu Nov 06 2025)
 
 #### 🐛 Bug Fixes
