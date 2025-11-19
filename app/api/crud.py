@@ -2,6 +2,7 @@
 
 import asyncio
 import warnings
+from collections import defaultdict
 
 import httpx
 import pandas as pd
@@ -67,13 +68,13 @@ async def post_query_to_graph(query: str, timeout: float = None) -> dict:
     return response.json()
 
 
-async def query_matching_dataset_sizes(dataset_uuids: list) -> dict:
+async def query_matching_dataset_sizes(dataset_uuids: list[str]) -> dict:
     """
     Queries the graph for the number of subjects in each dataset in a list of dataset UUIDs.
 
     Parameters
     ----------
-    dataset_uuids : pd.Series
+    dataset_uuids : list[str]
         A list of unique dataset UUIDs.
 
     Returns
@@ -91,6 +92,70 @@ async def query_matching_dataset_sizes(dataset_uuids: list) -> dict:
             matching_dataset_size_results
         )
     }
+
+
+async def query_available_modalities_and_pipelines(
+    dataset_uuids: list[str],
+) -> dict:
+    """
+    Queries the graph for all imaging modalities and available pipelines for each dataset in a list of dataset UUIDs.
+    Parameters
+    ----------
+    dataset_uuids : list[str]
+        A list of unique dataset UUIDs.
+
+    Returns
+    -------
+    dict
+        A dictionary mapping each dataset UUID to a nested dictionaries with the following keys:
+        - "image_modals": list of available imaging modalities for the dataset
+        - "available_pipelines": dict of available pipelines and their versions for the dataset
+    """
+
+    response = await post_query_to_graph(
+        util.create_imaging_modalities_and_pipelines_query(dataset_uuids)
+    )
+    results = pd.DataFrame(
+        util.unpack_graph_response_json_to_dicts(response)
+    ).reindex(
+        columns=[
+            "dataset_uuid",
+            "image_modal",
+            "pipeline_name",
+            "pipeline_version",
+        ]
+    )
+
+    dataset_imaging_modals = (
+        results.groupby("dataset_uuid")["image_modal"]
+        .agg(lambda image_modals: list(image_modals.dropna().unique()))
+        .to_dict()
+    )
+
+    # Per dataset-pipeline pair, collect list of unique pipeline versions
+    pipeline_versions = (
+        results.dropna(subset=["pipeline_name"])
+        .groupby(["dataset_uuid", "pipeline_name"])["pipeline_version"]
+        .agg(
+            lambda pipeline_versions: list(pipeline_versions.dropna().unique())
+        )
+    )
+    dataset_pipelines = defaultdict(dict)
+    for (dataset_uuid, pipeline_name), versions in pipeline_versions.items():
+        dataset_pipelines[dataset_uuid][pipeline_name] = versions
+    # Cast back to regular dict to avoid unpredictable defaultdict behavior downstream
+    # (e.g., unwanted dict mutation, key creation)
+    dataset_pipelines = dict(dataset_pipelines)
+
+    dataset_imaging_modals_and_pipelines = {
+        dataset_uuid: {
+            "image_modals": dataset_imaging_modals.get(dataset_uuid, []),
+            "available_pipelines": dataset_pipelines.get(dataset_uuid, {}),
+        }
+        for dataset_uuid in dataset_uuids
+    }
+
+    return dataset_imaging_modals_and_pipelines
 
 
 async def query_records(
@@ -283,10 +348,16 @@ async def post_datasets(query: QueryModel) -> list[dict]:
         results_from_queries
     )
 
+    matching_datasets = combined_query_results["dataset"].unique().tolist()
     # This only needs to be run once, on the intersection of datasets matching
     # both phenotypic and imaging queries.
-    matching_dataset_sizes = await query_matching_dataset_sizes(
-        dataset_uuids=combined_query_results["dataset"].unique()
+    matching_dataset_sizes, matching_dataset_imaging_modals_and_pipelines = (
+        await asyncio.gather(
+            query_matching_dataset_sizes(dataset_uuids=matching_datasets),
+            query_available_modalities_and_pipelines(
+                dataset_uuids=matching_datasets
+            ),
+        )
     )
 
     response_obj = []
@@ -321,9 +392,14 @@ async def post_datasets(query: QueryModel) -> list[dict]:
                 ),
                 "num_matching_subjects": num_matching_subjects,
                 "records_protected": settings.return_agg,
-                # TODO: Populate fields as part of https://github.com/neurobagel/api/issues/490
-                "image_modals": [],
-                "available_pipelines": {},
+                "image_modals": matching_dataset_imaging_modals_and_pipelines[
+                    dataset_uuid
+                ]["image_modals"],
+                "available_pipelines": matching_dataset_imaging_modals_and_pipelines[
+                    dataset_uuid
+                ][
+                    "available_pipelines"
+                ],
             }
 
             response_obj.append(dataset_response)
