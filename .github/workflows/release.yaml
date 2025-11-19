@@ -8,6 +8,12 @@ on:
 jobs:
   auto-release:
     runs-on: ubuntu-latest
+    # Mainly setting permissions here to appease CodeQL
+    # Actual job permissions come from the dedicated Token we generate in
+    # generate-token (which also has privileges for more scopes)
+    permissions:
+      contents: read
+
     if: "!contains(github.event.head_commit.message, 'ci skip') && !contains(github.event.head_commit.message, 'skip ci')"
     steps:
       - name: Generate a token
