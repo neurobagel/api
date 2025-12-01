@@ -38,7 +38,10 @@ async def post_query_to_graph(query: str, timeout: float = None) -> dict:
     Returns
     -------
     dict
-        The response from the graph API, encoded as json.
+        The response from the graph API, unpacked into a list of dictionaries where
+        - each dictionary corresponds to a unique query result
+        - dictionary keys are the variables selected in the SPARQL query
+        - dictionary values correspond to the variable values
     """
     try:
         async with httpx.AsyncClient() as client:
@@ -65,7 +68,7 @@ async def post_query_to_graph(query: str, timeout: float = None) -> dict:
             detail=f"{response.reason_phrase}: {response.text}",
         )
 
-    return response.json()
+    return util.unpack_graph_response_json_to_dicts(response.json())
 
 
 async def query_matching_dataset_sizes(dataset_uuids: list[str]) -> dict:
@@ -88,9 +91,7 @@ async def query_matching_dataset_sizes(dataset_uuids: list[str]) -> dict:
     )
     return {
         ds["dataset_uuid"]: int(ds["total_subjects"])
-        for ds in util.unpack_graph_response_json_to_dicts(
-            matching_dataset_size_results
-        )
+        for ds in matching_dataset_size_results
     }
 
 
@@ -115,9 +116,7 @@ async def query_available_modalities_and_pipelines(
     response = await post_query_to_graph(
         util.create_imaging_modalities_and_pipelines_query(dataset_uuids)
     )
-    results = pd.DataFrame(
-        util.unpack_graph_response_json_to_dicts(response)
-    ).reindex(
+    results = pd.DataFrame(response).reindex(
         columns=[
             "dataset_uuid",
             "image_modal",
@@ -227,9 +226,7 @@ async def query_records(
     # Reindexing is needed here because when a certain attribute is missing from all matching sessions,
     # the attribute does not end up in the graph API response or the below resulting processed dataframe.
     # Conforming the columns to a list of expected attributes ensures every subject-session has the same response shape from the node API.
-    results_df = pd.DataFrame(
-        util.unpack_graph_response_json_to_dicts(results)
-    ).reindex(columns=ALL_SUBJECT_ATTRIBUTES)
+    results_df = pd.DataFrame(results).reindex(columns=ALL_SUBJECT_ATTRIBUTES)
 
     matching_dataset_sizes = await query_matching_dataset_sizes(
         dataset_uuids=results_df["dataset_uuid"].unique()
@@ -246,7 +243,7 @@ async def query_records(
                 "sub_id"
             ].nunique()
             # TODO: The current implementation is valid in that we do not return
-            # results for datasets with fewer than min_cell_count subjects. But
+            # results for datasets with fewer than min_cell_size subjects. But
             # ideally we would handle this directly inside SPARQL so we don't even
             # get the results in the first place. See #267 for a solution.
             if num_matching_subjects <= settings.min_cell_size:
@@ -340,9 +337,9 @@ async def post_datasets(query: QueryModel) -> list[dict]:
         # TODO: Refactor unpack_graph_response_json_to_dicts() call into post_query_to_graph()
         # to reduce duplication across CRUD functions
         results_from_queries.append(
-            pd.DataFrame(
-                util.unpack_graph_response_json_to_dicts(response)
-            ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
+            pd.DataFrame(response).reindex(
+                columns=sparql_models.SPARQL_SELECTED_VARS
+            )
         )
     combined_query_results = util.combine_sparql_query_results(
         results_from_queries
