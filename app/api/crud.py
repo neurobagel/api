@@ -113,10 +113,10 @@ async def query_available_modalities_and_pipelines(
         - "available_pipelines": dict of available pipelines and their versions for the dataset
     """
 
-    response = await post_query_to_graph(
+    db_results = await post_query_to_graph(
         util.create_imaging_modalities_and_pipelines_query(dataset_uuids)
     )
-    results = pd.DataFrame(response).reindex(
+    formatted_results = pd.DataFrame(db_results).reindex(
         columns=[
             "dataset_uuid",
             "image_modal",
@@ -126,14 +126,14 @@ async def query_available_modalities_and_pipelines(
     )
 
     dataset_imaging_modals = (
-        results.groupby("dataset_uuid")["image_modal"]
+        formatted_results.groupby("dataset_uuid")["image_modal"]
         .agg(lambda image_modals: list(image_modals.dropna().unique()))
         .to_dict()
     )
 
     # Per dataset-pipeline pair, collect list of unique pipeline versions
     pipeline_versions = (
-        results.dropna(subset=["pipeline_name"])
+        formatted_results.dropna(subset=["pipeline_name"])
         .groupby(["dataset_uuid", "pipeline_name"])["pipeline_version"]
         .agg(
             lambda pipeline_versions: list(pipeline_versions.dropna().unique())
@@ -207,7 +207,7 @@ async def query_records(
     list
         List of CohortQueryResponse objects, where each object corresponds to a dataset matching the query.
     """
-    results = await post_query_to_graph(
+    db_results = await post_query_to_graph(
         util.create_query(
             return_agg=is_datasets_query or settings.return_agg,
             age=(min_age, max_age),
@@ -226,19 +226,23 @@ async def query_records(
     # Reindexing is needed here because when a certain attribute is missing from all matching sessions,
     # the attribute does not end up in the graph API response or the below resulting processed dataframe.
     # Conforming the columns to a list of expected attributes ensures every subject-session has the same response shape from the node API.
-    results_df = pd.DataFrame(results).reindex(columns=ALL_SUBJECT_ATTRIBUTES)
-
-    matching_dataset_sizes = await query_matching_dataset_sizes(
-        dataset_uuids=results_df["dataset_uuid"].unique()
+    formatted_results = pd.DataFrame(db_results).reindex(
+        columns=ALL_SUBJECT_ATTRIBUTES
     )
 
-    response_obj = []
+    matching_dataset_sizes = await query_matching_dataset_sizes(
+        dataset_uuids=formatted_results["dataset_uuid"].unique()
+    )
+
+    response = []
     dataset_cols = ["dataset_uuid", "dataset_name"]
-    if not results_df.empty:
+    if not formatted_results.empty:
         for (
             dataset_uuid,
             dataset_name,
-        ), dataset_matching_records in results_df.groupby(by=dataset_cols):
+        ), dataset_matching_records in formatted_results.groupby(
+            by=dataset_cols
+        ):
             num_matching_subjects = dataset_matching_records[
                 "sub_id"
             ].nunique()
@@ -257,7 +261,7 @@ async def query_records(
                 .to_dict()
             )
 
-            dataset_response = {
+            matching_dataset_info = {
                 "dataset_uuid": dataset_uuid,
                 "dataset_name": dataset_name,
                 "dataset_total_subjects": matching_dataset_sizes[dataset_uuid],
@@ -280,7 +284,7 @@ async def query_records(
 
             if is_datasets_query:
                 # TODO: need to append as response model instance?
-                response_obj.append(dataset_response)
+                response.append(matching_dataset_info)
             else:
                 if settings.return_agg:
                     subject_data = "protected"
@@ -294,14 +298,14 @@ async def query_records(
                         )
                     )
 
-                subject_response = {
-                    **dataset_response,
+                dataset_result = {
+                    **matching_dataset_info,
                     "subject_data": subject_data,
                 }
                 # TODO: need to append as response model instance?
-                response_obj.append(subject_response)
+                response.append(dataset_result)
 
-    return response_obj
+    return response
 
 
 async def post_datasets(query: QueryModel) -> list[dict]:
@@ -330,17 +334,17 @@ async def post_datasets(query: QueryModel) -> list[dict]:
         for sparql_query in (phenotypic_query, imaging_query)
         if sparql_query
     ]
-    responses = await asyncio.gather(*tasks)
+    db_results_all_queries = await asyncio.gather(*tasks)
 
-    results_from_queries = []
-    for response in responses:
-        results_from_queries.append(
-            pd.DataFrame(response).reindex(
+    all_formatted_results = []
+    for db_results in db_results_all_queries:
+        all_formatted_results.append(
+            pd.DataFrame(db_results).reindex(
                 columns=sparql_models.SPARQL_SELECTED_VARS
             )
         )
     combined_query_results = util.combine_sparql_query_results(
-        results_from_queries
+        all_formatted_results
     )
 
     matching_datasets = combined_query_results["dataset"].unique().tolist()
@@ -355,7 +359,7 @@ async def post_datasets(query: QueryModel) -> list[dict]:
         )
     )
 
-    response_obj = []
+    response = []
     groupby_cols = ["dataset", "dataset_name"]
     if not combined_query_results.empty:
         for (
@@ -374,7 +378,7 @@ async def post_datasets(query: QueryModel) -> list[dict]:
             if num_matching_subjects <= settings.min_cell_size:
                 continue
 
-            dataset_response = {
+            dataset_result = {
                 "dataset_uuid": dataset_uuid,
                 "dataset_name": dataset_name,
                 "dataset_total_subjects": matching_dataset_sizes[dataset_uuid],
@@ -397,9 +401,9 @@ async def post_datasets(query: QueryModel) -> list[dict]:
                 ],
             }
 
-            response_obj.append(dataset_response)
+            response.append(dataset_result)
 
-    return response_obj
+    return response
 
 
 async def get_terms(
@@ -424,7 +428,7 @@ async def get_terms(
         corresponding to the available (i.e. used) instances of that class in the graph. Each instance dictionary
         has two items: the 'TermURL' and the human-readable 'Label' for the term.
     """
-    term_url_results = await post_query_to_graph(
+    db_results = await post_query_to_graph(
         util.create_terms_query(data_element_URI)
     )
 
@@ -432,7 +436,7 @@ async def get_terms(
         std_trm_vocab = []
 
     term_label_dicts = []
-    for result in term_url_results:
+    for result in db_results:
         term_url = result["termURL"]
         # First, check whether the found instance of the standardized variable contains a recognized namespace
         if util.is_term_namespace_in_context(term_url):
@@ -472,9 +476,9 @@ async def get_terms(
                 "This term will be ignored."
             )
 
-    results_dict = {data_element_URI: term_label_dicts}
+    term_instances = {data_element_URI: term_label_dicts}
 
-    return results_dict
+    return term_instances
 
 
 async def get_controlled_term_attributes() -> list:
@@ -497,9 +501,9 @@ async def get_controlled_term_attributes() -> list:
         ?attribute rdfs:subClassOf nb:ControlledTerm .
     }}
     """
-    results = await post_query_to_graph(attributes_query)
-    results_list = [
+    db_results = await post_query_to_graph(attributes_query)
+    all_attributes = [
         util.replace_namespace_uri_with_prefix(result["attribute"])
-        for result in results
+        for result in db_results
     ]
-    return results_list
+    return all_attributes
