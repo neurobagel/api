@@ -168,7 +168,6 @@ async def query_records(
     image_modal: str,
     pipeline_name: str,
     pipeline_version: str,
-    is_datasets_query: bool,
     dataset_uuids: list[str],
 ) -> list[dict]:
     """
@@ -197,8 +196,6 @@ async def query_records(
         Name of pipeline run on subject scans.
     pipeline_version : str
         Version of pipeline run on subject scans.
-    is_datasets_query : bool
-        Whether the query is for matching dataset metadata only (used by the /datasets path).
     dataset_uuids : list[str]
         List of datasets to restrict the query to.
 
@@ -209,7 +206,7 @@ async def query_records(
     """
     db_results = await post_query_to_graph(
         util.create_query(
-            return_agg=is_datasets_query or settings.return_agg,
+            return_agg=settings.return_agg,
             age=(min_age, max_age),
             sex=sex,
             diagnosis=diagnosis,
@@ -282,28 +279,22 @@ async def query_records(
                 "available_pipelines": dataset_available_pipelines,
             }
 
-            if is_datasets_query:
-                # TODO: need to append as response model instance?
-                response.append(matching_dataset_info)
+            if settings.return_agg:
+                subject_data = "protected"
             else:
-                if settings.return_agg:
-                    subject_data = "protected"
-                else:
-                    dataset_matching_records = dataset_matching_records.drop(
-                        dataset_cols, axis=1
-                    )
-                    subject_data = (
-                        util.construct_matching_sub_results_for_dataset(
-                            dataset_matching_records
-                        )
-                    )
+                dataset_matching_records = dataset_matching_records.drop(
+                    dataset_cols, axis=1
+                )
+                subject_data = util.construct_matching_sub_results_for_dataset(
+                    dataset_matching_records
+                )
 
-                dataset_result = {
-                    **matching_dataset_info,
-                    "subject_data": subject_data,
-                }
-                # TODO: need to append as response model instance?
-                response.append(dataset_result)
+            dataset_result = {
+                **matching_dataset_info,
+                "subject_data": subject_data,
+            }
+            # TODO: need to append as response model instance?
+            response.append(dataset_result)
 
     return response
 
