@@ -334,8 +334,6 @@ async def post_datasets(query: QueryModel) -> list[dict]:
 
     results_from_queries = []
     for response in responses:
-        # TODO: Refactor unpack_graph_response_json_to_dicts() call into post_query_to_graph()
-        # to reduce duplication across CRUD functions
         results_from_queries.append(
             pd.DataFrame(response).reindex(
                 columns=sparql_models.SPARQL_SELECTED_VARS
@@ -434,8 +432,8 @@ async def get_terms(
         std_trm_vocab = []
 
     term_label_dicts = []
-    for result in term_url_results["results"]["bindings"]:
-        term_url = result["termURL"]["value"]
+    for result in term_url_results:
+        term_url = result["termURL"]
         # First, check whether the found instance of the standardized variable contains a recognized namespace
         if util.is_term_namespace_in_context(term_url):
             # Then, get the namespace and ID for the term
@@ -500,10 +498,8 @@ async def get_controlled_term_attributes() -> list:
     }}
     """
     results = await post_query_to_graph(attributes_query)
-
     results_list = [
-        util.replace_namespace_uri_with_prefix(result["attribute"]["value"])
-        for result in results["results"]["bindings"]
+        util.replace_namespace_uri_with_prefix(result["attribute"])
+        for result in results
     ]
-
     return results_list
