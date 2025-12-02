@@ -304,9 +304,6 @@ async def post_datasets(query: QueryModel) -> list[dict]:
     """
     When a POST request is sent to the /datasets path, return list of dicts corresponding to metadata for datasets matching the query.
 
-    # TODO: This function currently has overlap with query_records;
-    # look into refactoring out common code in https://github.com/neurobagel/api/issues/493 to reduce duplication
-
     Parameters
     ----------
     query : QueryModel
