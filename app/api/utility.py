@@ -69,6 +69,13 @@ def create_query_context(context: dict) -> str:
     )
 
 
+def add_context_to_query_string(query_string: str) -> str:
+    """Adds the SPARQL query context to a given query string."""
+    return "\n".join(
+        [create_query_context(env_settings.CONTEXT), query_string]
+    )
+
+
 def unpack_graph_response_json_to_dicts(response: dict) -> list[dict]:
     """
     Reformats a nested dictionary object from a SPARQL query response JSON into a list of dictionaries,
@@ -296,9 +303,7 @@ def create_query(
             + "} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal ?pipeline_version ?pipeline_name"
         )
 
-    return "\n".join(
-        [create_query_context(env_settings.CONTEXT), query_string]
-    )
+    return query_string
 
 
 def create_multidataset_size_query(dataset_uuids: list) -> str:
@@ -315,9 +320,7 @@ def create_multidataset_size_query(dataset_uuids: list) -> str:
         }} GROUP BY ?dataset_uuid
     """
 
-    return "\n".join(
-        [create_query_context(env_settings.CONTEXT), query_string]
-    )
+    return query_string
 
 
 def construct_matching_sub_results_for_dataset(
@@ -436,9 +439,7 @@ def create_terms_query(data_element_URI: str) -> str:
     }}
     """
 
-    return "\n".join(
-        [create_query_context(env_settings.CONTEXT), query_string]
-    )
+    return query_string
 
 
 def is_term_namespace_in_context(term_url: str) -> bool:
@@ -524,9 +525,7 @@ def create_pipeline_versions_query(pipeline: str) -> str:
             nb:hasPipelineVersion ?pipeline_version.
     }}"""
     )
-    return "\n".join(
-        [create_query_context(env_settings.CONTEXT), query_string]
-    )
+    return query_string
 
 
 def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
@@ -544,8 +543,8 @@ def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
     subject = sparql_models.Subject(hasSession=phenotypic_session)
     dataset = sparql_models.Dataset(hasSamples=subject)
 
-    query = dataset.to_sparql()
-    return "\n".join([create_query_context(env_settings.CONTEXT), query])
+    query_string = dataset.to_sparql()
+    return query_string
 
 
 def create_imaging_sparql_query_for_datasets(query: QueryModel):
@@ -563,8 +562,8 @@ def create_imaging_sparql_query_for_datasets(query: QueryModel):
     subject = sparql_models.Subject(hasSession=imaging_session)
     dataset = sparql_models.Dataset(hasSamples=subject)
 
-    query = dataset.to_sparql()
-    return "\n".join([create_query_context(env_settings.CONTEXT), query])
+    query_string = dataset.to_sparql()
+    return query_string
 
 
 def contains_filters(query: QueryModel, filters: list[str]) -> bool:
@@ -636,6 +635,4 @@ WHERE {{
 }}
 """
 
-    return "\n".join(
-        [create_query_context(env_settings.CONTEXT), query_string]
-    )
+    return query_string

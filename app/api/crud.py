@@ -8,7 +8,7 @@ import httpx
 import pandas as pd
 from fastapi import HTTPException, status
 
-from . import env_settings, sparql_models
+from . import sparql_models
 from . import utility as util
 from .env_settings import settings
 from .models import QueryModel, SessionResponse
@@ -43,6 +43,7 @@ async def post_query_to_graph(query: str, timeout: float = None) -> dict:
         - dictionary keys are the variables selected in the SPARQL query
         - dictionary values correspond to the variable values
     """
+    query = util.add_context_to_query_string(query)
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -484,13 +485,11 @@ async def get_controlled_term_attributes() -> list:
     list
         List of TermURLs of all available controlled term attributes, with abbrieviated namespace prefixes.
     """
-    attributes_query = f"""
-    {util.create_query_context(env_settings.CONTEXT)}
-
+    attributes_query = """
     SELECT DISTINCT ?attribute
-    WHERE {{
+    WHERE {
         ?attribute rdfs:subClassOf nb:ControlledTerm .
-    }}
+    }
     """
     db_results = await post_query_to_graph(attributes_query)
     all_attributes = [
