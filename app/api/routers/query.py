@@ -45,6 +45,8 @@ async def get_query(
             )
         verify_token(token)
 
-    response = await crud.query_records(**query.model_dump())
+    response = await crud.query_records(
+        **query.model_dump(), dataset_uuids=None
+    )
 
     return response
