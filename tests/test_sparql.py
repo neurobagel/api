@@ -32,7 +32,7 @@ def test_get_select_variables():
         (
             {},
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -45,7 +45,7 @@ def test_get_select_variables():
         (
             {"min_num_imaging_sessions": 2},
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -62,7 +62,7 @@ def test_get_select_variables():
         (
             {"image_modal": "nidm:T1Weighted"},
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -84,7 +84,7 @@ def test_get_select_variables():
                 "min_num_imaging_sessions": 2,
             },
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -133,7 +133,7 @@ def test_context_in_sparql_query(mock_context):
         (
             {"min_age": 60},
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -150,7 +150,7 @@ def test_context_in_sparql_query(mock_context):
         (
             {"min_age": 60, "max_age": 80},
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -167,7 +167,7 @@ def test_context_in_sparql_query(mock_context):
         (
             {"min_num_phenotypic_sessions": 2},
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -190,7 +190,7 @@ def test_context_in_sparql_query(mock_context):
                 "min_num_phenotypic_sessions": 2,
             },
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -237,7 +237,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
                 "min_num_imaging_sessions": 2,
             },
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -252,7 +252,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
                 "HAVING (COUNT(DISTINCT ?phenotypic_session) >= 2)",
             ],
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -271,7 +271,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
         (
             {"diagnosis": "snomed:12345"},
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -289,7 +289,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
             {"image_modal": "nidm:T1Weighted"},
             [""],
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
@@ -306,7 +306,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
         (
             {},
             [
-                "\nSELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
+                "SELECT ?dataset ?dataset_name ?dataset_portal_uri ?subject",
                 "WHERE {",
                 "    ?dataset a nb:Dataset.",
                 "    ?dataset nb:hasLabel ?dataset_name.",
