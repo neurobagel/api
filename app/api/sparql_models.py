@@ -18,7 +18,6 @@ def format_value(value):
         if ":" in value or value.startswith("?"):
             return value
         return f'"{value}"'
-    # TODO: Handle numeric values (e.g. for min/max age) in https://github.com/neurobagel/api/issues/488
 
 
 def get_select_variables(variables: list[str]) -> str:
