@@ -69,11 +69,9 @@ def create_query_context(context: dict) -> str:
     )
 
 
-def add_context_to_query_string(query_string: str) -> str:
-    """Adds the SPARQL query context to a given query string."""
-    return "\n".join(
-        [create_query_context(env_settings.CONTEXT), query_string]
-    )
+def add_sparql_context_to_query(query_body: str) -> str:
+    """Adds the SPARQL query context to a given query body."""
+    return "\n".join([create_query_context(env_settings.CONTEXT), query_body])
 
 
 def unpack_graph_response_json_to_dicts(response: dict) -> list[dict]:

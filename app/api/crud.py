@@ -43,7 +43,7 @@ async def post_query_to_graph(query: str, timeout: float = None) -> dict:
         - dictionary keys are the variables selected in the SPARQL query
         - dictionary values correspond to the variable values
     """
-    query = util.add_context_to_query_string(query)
+    query = util.add_sparql_context_to_query(query)
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(

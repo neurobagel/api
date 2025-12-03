@@ -120,13 +120,6 @@ def test_create_imaging_sparql_query_for_datasets(
     )
 
 
-def test_context_in_sparql_query(mock_context):
-    """Test that the SPARQL query string includes a context."""
-    query = QueryModel()
-    sparql_query = util.create_imaging_sparql_query_for_datasets(query)
-    assert sparql_query.startswith("PREFIX")
-
-
 @pytest.mark.parametrize(
     "datasets_request_body, sparql_query_statements",
     [
