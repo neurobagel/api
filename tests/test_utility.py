@@ -158,3 +158,37 @@ def test_combine_sparql_query_results():
     pdt.assert_frame_equal(
         combined_query_results, expected_combined_query_results
     )
+
+
+def test_sparql_context_correctly_added_to_query_body(mock_context):
+    """Test that the expected prefix declarations are correctly added to a query body."""
+    query_body = "\n".join(
+        [
+            "SELECT DISTINCT ?pipeline_version",
+            "WHERE {",
+            "?completed_pipeline a nb:CompletedPipeline;",
+            "nb:hasPipelineName np:fmriprep;",
+            "nb:hasPipelineVersion ?pipeline_version.",
+            "}",
+        ]
+    )
+
+    expected_query_with_context = "\n".join(
+        [
+            "PREFIX nb: <http://neurobagel.org/vocab/>",
+            "PREFIX ncit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>",
+            "PREFIX nidm: <http://purl.org/nidash/nidm#>",
+            "PREFIX snomed: <http://purl.bioontology.org/ontology/SNOMEDCT/>",
+            "PREFIX np: <https://github.com/nipoppy/pipeline-catalog/tree/main/processing/>",
+            "SELECT DISTINCT ?pipeline_version",
+            "WHERE {",
+            "?completed_pipeline a nb:CompletedPipeline;",
+            "nb:hasPipelineName np:fmriprep;",
+            "nb:hasPipelineVersion ?pipeline_version.",
+            "}",
+        ]
+    )
+
+    query_with_context = util.add_sparql_context_to_query(query_body)
+
+    assert query_with_context == expected_query_with_context

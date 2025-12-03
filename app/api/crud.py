@@ -8,7 +8,7 @@ import httpx
 import pandas as pd
 from fastapi import HTTPException, status
 
-from . import env_settings, sparql_models
+from . import sparql_models
 from . import utility as util
 from .env_settings import settings
 from .models import QueryModel, SessionResponse
@@ -37,9 +37,13 @@ async def post_query_to_graph(query: str, timeout: float = None) -> dict:
 
     Returns
     -------
-    dict
-        The response from the graph API, encoded as json.
+    list[dict]
+        The response from the graph API, unpacked into a list of dictionaries where
+        - each dictionary corresponds to a unique query result
+        - dictionary keys are the variables selected in the SPARQL query
+        - dictionary values correspond to the variable values
     """
+    query = util.add_sparql_context_to_query(query)
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -65,7 +69,7 @@ async def post_query_to_graph(query: str, timeout: float = None) -> dict:
             detail=f"{response.reason_phrase}: {response.text}",
         )
 
-    return response.json()
+    return util.unpack_graph_response_json_to_dicts(response.json())
 
 
 async def query_matching_dataset_sizes(dataset_uuids: list[str]) -> dict:
@@ -88,9 +92,7 @@ async def query_matching_dataset_sizes(dataset_uuids: list[str]) -> dict:
     )
     return {
         ds["dataset_uuid"]: int(ds["total_subjects"])
-        for ds in util.unpack_graph_response_json_to_dicts(
-            matching_dataset_size_results
-        )
+        for ds in matching_dataset_size_results
     }
 
 
@@ -112,12 +114,10 @@ async def query_available_modalities_and_pipelines(
         - "available_pipelines": dict of available pipelines and their versions for the dataset
     """
 
-    response = await post_query_to_graph(
+    db_results = await post_query_to_graph(
         util.create_imaging_modalities_and_pipelines_query(dataset_uuids)
     )
-    results = pd.DataFrame(
-        util.unpack_graph_response_json_to_dicts(response)
-    ).reindex(
+    formatted_results = pd.DataFrame(db_results).reindex(
         columns=[
             "dataset_uuid",
             "image_modal",
@@ -127,14 +127,14 @@ async def query_available_modalities_and_pipelines(
     )
 
     dataset_imaging_modals = (
-        results.groupby("dataset_uuid")["image_modal"]
+        formatted_results.groupby("dataset_uuid")["image_modal"]
         .agg(lambda image_modals: list(image_modals.dropna().unique()))
         .to_dict()
     )
 
     # Per dataset-pipeline pair, collect list of unique pipeline versions
     pipeline_versions = (
-        results.dropna(subset=["pipeline_name"])
+        formatted_results.dropna(subset=["pipeline_name"])
         .groupby(["dataset_uuid", "pipeline_name"])["pipeline_version"]
         .agg(
             lambda pipeline_versions: list(pipeline_versions.dropna().unique())
@@ -169,7 +169,6 @@ async def query_records(
     image_modal: str,
     pipeline_name: str,
     pipeline_version: str,
-    is_datasets_query: bool,
     dataset_uuids: list[str],
 ) -> list[dict]:
     """
@@ -198,8 +197,6 @@ async def query_records(
         Name of pipeline run on subject scans.
     pipeline_version : str
         Version of pipeline run on subject scans.
-    is_datasets_query : bool
-        Whether the query is for matching dataset metadata only (used by the /datasets path).
     dataset_uuids : list[str]
         List of datasets to restrict the query to.
 
@@ -208,9 +205,9 @@ async def query_records(
     list
         List of CohortQueryResponse objects, where each object corresponds to a dataset matching the query.
     """
-    results = await post_query_to_graph(
+    db_results = await post_query_to_graph(
         util.create_query(
-            return_agg=is_datasets_query or settings.return_agg,
+            return_agg=settings.return_agg,
             age=(min_age, max_age),
             sex=sex,
             diagnosis=diagnosis,
@@ -227,26 +224,28 @@ async def query_records(
     # Reindexing is needed here because when a certain attribute is missing from all matching sessions,
     # the attribute does not end up in the graph API response or the below resulting processed dataframe.
     # Conforming the columns to a list of expected attributes ensures every subject-session has the same response shape from the node API.
-    results_df = pd.DataFrame(
-        util.unpack_graph_response_json_to_dicts(results)
-    ).reindex(columns=ALL_SUBJECT_ATTRIBUTES)
-
-    matching_dataset_sizes = await query_matching_dataset_sizes(
-        dataset_uuids=results_df["dataset_uuid"].unique()
+    formatted_results = pd.DataFrame(db_results).reindex(
+        columns=ALL_SUBJECT_ATTRIBUTES
     )
 
-    response_obj = []
+    matching_dataset_sizes = await query_matching_dataset_sizes(
+        dataset_uuids=formatted_results["dataset_uuid"].unique()
+    )
+
+    response = []
     dataset_cols = ["dataset_uuid", "dataset_name"]
-    if not results_df.empty:
+    if not formatted_results.empty:
         for (
             dataset_uuid,
             dataset_name,
-        ), dataset_matching_records in results_df.groupby(by=dataset_cols):
+        ), dataset_matching_records in formatted_results.groupby(
+            by=dataset_cols
+        ):
             num_matching_subjects = dataset_matching_records[
                 "sub_id"
             ].nunique()
             # TODO: The current implementation is valid in that we do not return
-            # results for datasets with fewer than min_cell_count subjects. But
+            # results for datasets with fewer than min_cell_size subjects. But
             # ideally we would handle this directly inside SPARQL so we don't even
             # get the results in the first place. See #267 for a solution.
             if num_matching_subjects <= settings.min_cell_size:
@@ -260,7 +259,7 @@ async def query_records(
                 .to_dict()
             )
 
-            dataset_response = {
+            matching_dataset_info = {
                 "dataset_uuid": dataset_uuid,
                 "dataset_name": dataset_name,
                 "dataset_total_subjects": matching_dataset_sizes[dataset_uuid],
@@ -281,38 +280,29 @@ async def query_records(
                 "available_pipelines": dataset_available_pipelines,
             }
 
-            if is_datasets_query:
-                # TODO: need to append as response model instance?
-                response_obj.append(dataset_response)
+            if settings.return_agg:
+                subject_data = "protected"
             else:
-                if settings.return_agg:
-                    subject_data = "protected"
-                else:
-                    dataset_matching_records = dataset_matching_records.drop(
-                        dataset_cols, axis=1
-                    )
-                    subject_data = (
-                        util.construct_matching_sub_results_for_dataset(
-                            dataset_matching_records
-                        )
-                    )
+                dataset_matching_records = dataset_matching_records.drop(
+                    dataset_cols, axis=1
+                )
+                subject_data = util.construct_matching_sub_results_for_dataset(
+                    dataset_matching_records
+                )
 
-                subject_response = {
-                    **dataset_response,
-                    "subject_data": subject_data,
-                }
-                # TODO: need to append as response model instance?
-                response_obj.append(subject_response)
+            dataset_result = {
+                **matching_dataset_info,
+                "subject_data": subject_data,
+            }
+            # TODO: need to append as response model instance?
+            response.append(dataset_result)
 
-    return response_obj
+    return response
 
 
 async def post_datasets(query: QueryModel) -> list[dict]:
     """
     When a POST request is sent to the /datasets path, return list of dicts corresponding to metadata for datasets matching the query.
-
-    # TODO: This function currently has overlap with query_records;
-    # look into refactoring out common code in https://github.com/neurobagel/api/issues/493 to reduce duplication
 
     Parameters
     ----------
@@ -333,19 +323,17 @@ async def post_datasets(query: QueryModel) -> list[dict]:
         for sparql_query in (phenotypic_query, imaging_query)
         if sparql_query
     ]
-    responses = await asyncio.gather(*tasks)
+    db_results_all_queries = await asyncio.gather(*tasks)
 
-    results_from_queries = []
-    for response in responses:
-        # TODO: Refactor unpack_graph_response_json_to_dicts() call into post_query_to_graph()
-        # to reduce duplication across CRUD functions
-        results_from_queries.append(
-            pd.DataFrame(
-                util.unpack_graph_response_json_to_dicts(response)
-            ).reindex(columns=sparql_models.SPARQL_SELECTED_VARS)
+    all_formatted_results = []
+    for db_results in db_results_all_queries:
+        all_formatted_results.append(
+            pd.DataFrame(db_results).reindex(
+                columns=sparql_models.SPARQL_SELECTED_VARS
+            )
         )
     combined_query_results = util.combine_sparql_query_results(
-        results_from_queries
+        all_formatted_results
     )
 
     matching_datasets = combined_query_results["dataset"].unique().tolist()
@@ -360,7 +348,7 @@ async def post_datasets(query: QueryModel) -> list[dict]:
         )
     )
 
-    response_obj = []
+    response = []
     groupby_cols = ["dataset", "dataset_name"]
     if not combined_query_results.empty:
         for (
@@ -379,7 +367,7 @@ async def post_datasets(query: QueryModel) -> list[dict]:
             if num_matching_subjects <= settings.min_cell_size:
                 continue
 
-            dataset_response = {
+            dataset_result = {
                 "dataset_uuid": dataset_uuid,
                 "dataset_name": dataset_name,
                 "dataset_total_subjects": matching_dataset_sizes[dataset_uuid],
@@ -402,9 +390,9 @@ async def post_datasets(query: QueryModel) -> list[dict]:
                 ],
             }
 
-            response_obj.append(dataset_response)
+            response.append(dataset_result)
 
-    return response_obj
+    return response
 
 
 async def get_terms(
@@ -429,7 +417,7 @@ async def get_terms(
         corresponding to the available (i.e. used) instances of that class in the graph. Each instance dictionary
         has two items: the 'TermURL' and the human-readable 'Label' for the term.
     """
-    term_url_results = await post_query_to_graph(
+    db_results = await post_query_to_graph(
         util.create_terms_query(data_element_URI)
     )
 
@@ -437,8 +425,8 @@ async def get_terms(
         std_trm_vocab = []
 
     term_label_dicts = []
-    for result in term_url_results["results"]["bindings"]:
-        term_url = result["termURL"]["value"]
+    for result in db_results:
+        term_url = result["termURL"]
         # First, check whether the found instance of the standardized variable contains a recognized namespace
         if util.is_term_namespace_in_context(term_url):
             # Then, get the namespace and ID for the term
@@ -477,9 +465,9 @@ async def get_terms(
                 "This term will be ignored."
             )
 
-    results_dict = {data_element_URI: term_label_dicts}
+    term_instances = {data_element_URI: term_label_dicts}
 
-    return results_dict
+    return term_instances
 
 
 async def get_controlled_term_attributes() -> list:
@@ -494,19 +482,15 @@ async def get_controlled_term_attributes() -> list:
     list
         List of TermURLs of all available controlled term attributes, with abbrieviated namespace prefixes.
     """
-    attributes_query = f"""
-    {util.create_query_context(env_settings.CONTEXT)}
-
+    attributes_query = """
     SELECT DISTINCT ?attribute
-    WHERE {{
+    WHERE {
         ?attribute rdfs:subClassOf nb:ControlledTerm .
-    }}
+    }
     """
-    results = await post_query_to_graph(attributes_query)
-
-    results_list = [
-        util.replace_namespace_uri_with_prefix(result["attribute"]["value"])
-        for result in results["results"]["bindings"]
+    db_results = await post_query_to_graph(attributes_query)
+    all_attributes = [
+        util.replace_namespace_uri_with_prefix(result["attribute"])
+        for result in db_results
     ]
-
-    return results_list
+    return all_attributes

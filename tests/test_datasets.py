@@ -40,158 +40,56 @@ async def test_imaging_modals_and_pipelines_query(monkeypatch):
 
     async def mock_post_query_to_graph(query):
         """Mock response to SPARQL query from graph."""
-        return {
-            "head": {
-                "vars": [
-                    "dataset_uuid",
-                    "image_modal",
-                    "pipeline_name",
-                    "pipeline_version",
-                ]
+        return [
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/test-001",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+                "pipeline_name": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/fmriprep",
+                "pipeline_version": "23.2.0",
             },
-            "results": {
-                "bindings": [
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/test-001",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "pipeline_name": {
-                            "type": "uri",
-                            "value": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/fmriprep",
-                        },
-                        "pipeline_version": {
-                            "type": "literal",
-                            "value": "23.2.0",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/test-001",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "pipeline_name": {
-                            "type": "uri",
-                            "value": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/mriqc",
-                        },
-                        "pipeline_version": {
-                            "type": "literal",
-                            "value": "22.0.6",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/test-001",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#FlowWeighted",
-                        },
-                        "pipeline_name": {
-                            "type": "uri",
-                            "value": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/fmriprep",
-                        },
-                        "pipeline_version": {
-                            "type": "literal",
-                            "value": "23.2.0",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/test-001",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#FlowWeighted",
-                        },
-                        "pipeline_name": {
-                            "type": "uri",
-                            "value": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/mriqc",
-                        },
-                        "pipeline_version": {
-                            "type": "literal",
-                            "value": "22.0.6",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/test-002",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "pipeline_name": {
-                            "type": "uri",
-                            "value": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer",
-                        },
-                        "pipeline_version": {
-                            "type": "literal",
-                            "value": "6.0.1",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/test-002",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "pipeline_name": {
-                            "type": "uri",
-                            "value": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer",
-                        },
-                        "pipeline_version": {
-                            "type": "literal",
-                            "value": "7.3.2",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/test-002",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#FlowWeighted",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/test-003",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/test-003",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#FlowWeighted",
-                        },
-                    },
-                ]
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/test-001",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+                "pipeline_name": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/mriqc",
+                "pipeline_version": "22.0.6",
             },
-        }
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/test-001",
+                "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
+                "pipeline_name": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/fmriprep",
+                "pipeline_version": "23.2.0",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/test-001",
+                "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
+                "pipeline_name": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/mriqc",
+                "pipeline_version": "22.0.6",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/test-002",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+                "pipeline_name": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer",
+                "pipeline_version": "6.0.1",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/test-002",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+                "pipeline_name": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer",
+                "pipeline_version": "7.3.2",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/test-002",
+                "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/test-003",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/test-003",
+                "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
+            },
+        ]
 
     expected_image_modals_and_pipelines = {
         "http://neurobagel.org/vocab/test-001": {

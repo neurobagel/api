@@ -13,35 +13,16 @@ async def test_get_subjects_by_query(monkeypatch):
     """Test that graph results for dataset size queries are correctly parsed into a dictionary."""
 
     async def mock_post_query_to_graph(query, timeout=5.0):
-        return {
-            "head": {"vars": ["dataset_uuid", "total_subjects"]},
-            "results": {
-                "bindings": [
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ds1234",
-                        },
-                        "total_subjects": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "70",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ds2345",
-                        },
-                        "total_subjects": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "40",
-                        },
-                    },
-                ]
+        return [
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/ds1234",
+                "total_subjects": "70",
             },
-        }
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/ds2345",
+                "total_subjects": "40",
+            },
+        ]
 
     monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
     dataset_sizes = await crud.query_matching_dataset_sizes(

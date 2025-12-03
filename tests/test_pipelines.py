@@ -10,25 +10,10 @@ def test_get_pipeline_versions_response(test_app, monkeypatch):
     """
 
     async def mock_post_query_to_graph(query, timeout=5.0):
-        return {
-            "head": {"vars": ["pipeline_version"]},
-            "results": {
-                "bindings": [
-                    {
-                        "pipeline_version": {
-                            "type": "literal",
-                            "value": "23.1.3",
-                        }
-                    },
-                    {
-                        "pipeline_version": {
-                            "type": "literal",
-                            "value": "20.2.7",
-                        }
-                    },
-                ]
-            },
-        }
+        return [
+            {"pipeline_version": "23.1.3"},
+            {"pipeline_version": "20.2.7"},
+        ]
 
     monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
 

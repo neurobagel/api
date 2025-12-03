@@ -139,59 +139,23 @@ def mock_post_agg_query_to_graph():
     """
 
     async def mockreturn(query, timeout=5.0):
-        return {
-            "head": {
-                "vars": [
-                    "dataset_uuid",
-                    "dataset_name",
-                    "dataset_portal_uri",
-                    "sub_id",
-                    "image_modal",
-                    "pipeline_name",
-                    "pipeline_version",
-                ]
+        return [
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_portal_uri": "https://rpq-qpn.ca/en/researchers-section/databases/",
+                "sub_id": "sub-ON95534",
+                "dataset_name": "QPN",
             },
-            "results": {
-                "bindings": [
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_portal_uri": {
-                            "type": "literal",
-                            "value": "https://rpq-qpn.ca/en/researchers-section/databases/",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-ON95534"},
-                        "dataset_name": {"type": "literal", "value": "QPN"},
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_portal_uri": {
-                            "type": "literal",
-                            "value": "https://rpq-qpn.ca/en/researchers-section/databases/",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-ON95535"},
-                        "dataset_name": {"type": "literal", "value": "QPN"},
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "pipeline_version": {
-                            "type": "literal",
-                            "value": "7.3.2",
-                        },
-                        "pipeline_name": {
-                            "type": "uri",
-                            "value": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer",
-                        },
-                    },
-                ]
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_portal_uri": "https://rpq-qpn.ca/en/researchers-section/databases/",
+                "sub_id": "sub-ON95535",
+                "dataset_name": "QPN",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+                "pipeline_version": "7.3.2",
+                "pipeline_name": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer",
             },
-        }
+        ]
 
     return mockreturn
 
@@ -200,507 +164,143 @@ def mock_post_agg_query_to_graph():
 def mock_post_nonagg_query_to_graph():
     """
     Mock post_query_to_graph function that returns toy NON-AGGREGATED matching data containing:
-    - a dataset with 2 matching subjects, with phenotypic data and raw imaging data only (note: several phenotypic variables are missing)
+    - a dataset with 2 matching subjects, where each subject has 2 sessions
+    - each session has both phenotypic data (note: several phenotypic variables are missing) and raw imaging data (T1Weighted, FlowWeighted)
     """
 
     async def mockreturn(query, timeout=5.0):
-        return {
-            "head": {
-                "vars": [
-                    "dataset_uuid",
-                    "dataset_name",
-                    "dataset_portal_uri",
-                    "sub_id",
-                    "age",
-                    "sex",
-                    "diagnosis",
-                    "subject_group",
-                    "num_matching_phenotypic_sessions",
-                    "num_matching_imaging_sessions",
-                    "session_id",
-                    "session_type",
-                    "assessment",
-                    "image_modal",
-                    "session_file_path",
-                    "pipeline_name",
-                    "pipeline_version",
-                ]
+        return [
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-03",
+                "age": "2.21E1",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-01",
+                "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
             },
-            "results": {
-                "bindings": [
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-03"},
-                        "age": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#double",
-                            "type": "literal",
-                            "value": "2.21E1",
-                        },
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-01"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/PhenotypicSession",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-03"},
-                        "age": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#double",
-                            "type": "literal",
-                            "value": "2.32E1",
-                        },
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-02"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/PhenotypicSession",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-03"},
-                        "age": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#double",
-                            "type": "literal",
-                            "value": "2.32E1",
-                        },
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-02"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/PhenotypicSession",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-03"},
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-01"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ImagingSession",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "session_file_path": {
-                            "type": "literal",
-                            "value": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-01",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-03"},
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-01"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ImagingSession",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#FlowWeighted",
-                        },
-                        "session_file_path": {
-                            "type": "literal",
-                            "value": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-01",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-03"},
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-02"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ImagingSession",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "session_file_path": {
-                            "type": "literal",
-                            "value": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-02",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-03"},
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-02"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ImagingSession",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#FlowWeighted",
-                        },
-                        "session_file_path": {
-                            "type": "literal",
-                            "value": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-02",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-04"},
-                        "age": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#double",
-                            "type": "literal",
-                            "value": "2.11E1",
-                        },
-                        "sex": {
-                            "type": "uri",
-                            "value": "http://purl.bioontology.org/ontology/SNOMEDCT/248152002",
-                        },
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-01"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/PhenotypicSession",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-04"},
-                        "age": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#double",
-                            "type": "literal",
-                            "value": "2.23E1",
-                        },
-                        "sex": {
-                            "type": "uri",
-                            "value": "http://purl.bioontology.org/ontology/SNOMEDCT/248152002",
-                        },
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-02"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/PhenotypicSession",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-04"},
-                        "age": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#double",
-                            "type": "literal",
-                            "value": "2.23E1",
-                        },
-                        "sex": {
-                            "type": "uri",
-                            "value": "http://purl.bioontology.org/ontology/SNOMEDCT/248152002",
-                        },
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-02"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/PhenotypicSession",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-04"},
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-01"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ImagingSession",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "session_file_path": {
-                            "type": "literal",
-                            "value": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-01",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-04"},
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-01"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ImagingSession",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#FlowWeighted",
-                        },
-                        "session_file_path": {
-                            "type": "literal",
-                            "value": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-01",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-04"},
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-02"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ImagingSession",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#T1Weighted",
-                        },
-                        "session_file_path": {
-                            "type": "literal",
-                            "value": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-02",
-                        },
-                    },
-                    {
-                        "dataset_uuid": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/12345",
-                        },
-                        "dataset_name": {
-                            "type": "literal",
-                            "value": "BIDS synthetic",
-                        },
-                        "sub_id": {"type": "literal", "value": "sub-04"},
-                        "num_matching_phenotypic_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "num_matching_imaging_sessions": {
-                            "datatype": "http://www.w3.org/2001/XMLSchema#integer",
-                            "type": "literal",
-                            "value": "2",
-                        },
-                        "session_id": {"type": "literal", "value": "ses-02"},
-                        "session_type": {
-                            "type": "uri",
-                            "value": "http://neurobagel.org/vocab/ImagingSession",
-                        },
-                        "image_modal": {
-                            "type": "uri",
-                            "value": "http://purl.org/nidash/nidm#FlowWeighted",
-                        },
-                        "session_file_path": {
-                            "type": "literal",
-                            "value": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-02",
-                        },
-                    },
-                ]
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-03",
+                "age": "2.32E1",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-02",
+                "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
             },
-        }
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-03",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-01",
+                "session_type": "http://neurobagel.org/vocab/ImagingSession",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+                "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-01",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-03",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-01",
+                "session_type": "http://neurobagel.org/vocab/ImagingSession",
+                "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
+                "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-01",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-03",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-02",
+                "session_type": "http://neurobagel.org/vocab/ImagingSession",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+                "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-02",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-03",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-02",
+                "session_type": "http://neurobagel.org/vocab/ImagingSession",
+                "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
+                "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-02",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-04",
+                "age": "2.11E1",
+                "sex": "http://purl.bioontology.org/ontology/SNOMEDCT/248152002",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-01",
+                "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-04",
+                "age": "2.23E1",
+                "sex": "http://purl.bioontology.org/ontology/SNOMEDCT/248152002",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-02",
+                "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-04",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-01",
+                "session_type": "http://neurobagel.org/vocab/ImagingSession",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+                "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-01",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-04",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-01",
+                "session_type": "http://neurobagel.org/vocab/ImagingSession",
+                "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
+                "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-01",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-04",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-02",
+                "session_type": "http://neurobagel.org/vocab/ImagingSession",
+                "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
+                "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-02",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "dataset_name": "BIDS synthetic",
+                "sub_id": "sub-04",
+                "num_matching_phenotypic_sessions": "2",
+                "num_matching_imaging_sessions": "2",
+                "session_id": "ses-02",
+                "session_type": "http://neurobagel.org/vocab/ImagingSession",
+                "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
+                "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-02",
+            },
+        ]
 
     return mockreturn
 
