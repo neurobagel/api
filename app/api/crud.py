@@ -37,7 +37,7 @@ async def post_query_to_graph(query: str, timeout: float = None) -> dict:
 
     Returns
     -------
-    dict
+    list[dict]
         The response from the graph API, unpacked into a list of dictionaries where
         - each dictionary corresponds to a unique query result
         - dictionary keys are the variables selected in the SPARQL query
