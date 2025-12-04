@@ -73,7 +73,7 @@ def fetch_vocabularies(config_name: str) -> dict:
     Fetch all standardized term configuration files for the specified community configuration from GitHub.
     """
     # These are the ID parts of standardized variable URIs, which will later be prefixed with the namespace prefix defined in config.json
-    configurable_std_var_ids = ["Assessment", "Diagnosis", "Image"]
+    configurable_std_var_ids = ["Assessment", "Diagnosis"]
     config_dir_url = util.create_gh_raw_content_url(
         env_settings.NEUROBAGEL_CONFIG_REPO, f"configs/{config_name}"
     )
@@ -104,6 +104,19 @@ def fetch_vocabularies(config_name: str) -> dict:
                 f"Failed to fetch standardized term vocabulary for {var_uri}.",
             )
             all_std_trm_vocabs[var_uri] = std_trm_vocab
+
+    # Imaging modalities vocab is stored alongside config.json, not listed as a standardized variable.
+    # therefore we fetch the imaging modalities vocab from the Neurobagel directory separately.
+    imaging_vocab_uri = f"{std_var_config['namespace_prefix']}:Image"
+    imaging_vocab_config_dir_url = util.create_gh_raw_content_url(
+        env_settings.NEUROBAGEL_CONFIG_REPO,
+        "configs/Neurobagel/imaging_modalities.json",
+    )
+    imaging_vocab = util.request_data(
+        imaging_vocab_config_dir_url,
+        "Failed to fetch standardized term vocabulary for nb:Image.",
+    )
+    all_std_trm_vocabs[imaging_vocab_uri] = imaging_vocab
 
     return all_std_trm_vocabs
 
