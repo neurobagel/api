@@ -17,6 +17,7 @@ from .api.routers import (
     attributes,
     datasets,
     diagnoses,
+    imaging_modalities,
     pipelines,
     query,
     subjects,
@@ -72,7 +73,7 @@ def fetch_vocabularies(config_name: str) -> dict:
     Fetch all standardized term configuration files for the specified community configuration from GitHub.
     """
     # These are the ID parts of standardized variable URIs, which will later be prefixed with the namespace prefix defined in config.json
-    configurable_std_var_ids = ["Assessment", "Diagnosis"]
+    configurable_std_var_ids = ["Assessment", "Diagnosis", "Image"]
     config_dir_url = util.create_gh_raw_content_url(
         env_settings.NEUROBAGEL_CONFIG_REPO, f"configs/{config_name}"
     )
@@ -282,6 +283,7 @@ app.include_router(subjects.router)
 app.include_router(attributes.router)
 app.include_router(assessments.router)
 app.include_router(diagnoses.router)
+app.include_router(imaging_modalities.router)
 app.include_router(pipelines.router)
 
 # Automatically start uvicorn server on execution of main.py
