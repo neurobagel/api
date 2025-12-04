@@ -451,14 +451,22 @@ async def get_terms(
                 ),
                 None,
             )
-            term_label_dicts.append(
-                {
-                    "TermURL": util.replace_namespace_uri_with_prefix(
-                        term_url
-                    ),
-                    "Label": term_label,
-                }
+            matched_term = next(
+                (term for term in namespace_terms if term["id"] == term_id),
+                None,
             )
+            term_entry = {
+                "TermURL": util.replace_namespace_uri_with_prefix(term_url),
+                "Label": term_label,
+            }
+            if data_element_URI == "nb:Image":
+                term_entry["abbreviation"] = (
+                    matched_term.get("abbreviation") if matched_term else None
+                )
+                term_entry["data_type"] = (
+                    matched_term.get("data_type") if matched_term else None
+                )
+            term_label_dicts.append(term_entry)
         else:
             warnings.warn(
                 f"The controlled term {term_url} was found in the graph but does not come from a vocabulary recognized by Neurobagel."
