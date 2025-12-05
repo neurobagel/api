@@ -105,16 +105,18 @@ def fetch_vocabularies(config_name: str) -> dict:
             )
             all_std_trm_vocabs[var_uri] = std_trm_vocab
 
-    # Imaging modalities vocab is stored alongside config.json, not listed as a standardized variable.
-    # therefore we fetch the imaging modalities vocab from the Neurobagel directory separately.
+    # The imaging modalities vocab is not configurable but is still an external file we need to fetch.
+    # Since it is not configurable across communities, the vocab file is not listed in config.json under a standardized variable.
+    # So, for now we always fetch it from the Neurobagel config directory.
+    # TODO revisit the prefix for this specific variable once we support custom standardized variables.
     imaging_vocab_uri = f"{std_var_config['namespace_prefix']}:Image"
-    imaging_vocab_config_dir_url = util.create_gh_raw_content_url(
+    imaging_vocab_url = util.create_gh_raw_content_url(
         env_settings.NEUROBAGEL_CONFIG_REPO,
         "configs/Neurobagel/imaging_modalities.json",
     )
     imaging_vocab = util.request_data(
-        imaging_vocab_config_dir_url,
-        "Failed to fetch standardized term vocabulary for nb:Image.",
+        imaging_vocab_url,
+        f"Failed to fetch standardized term vocabulary for {imaging_vocab_uri}.",
     )
     all_std_trm_vocabs[imaging_vocab_uri] = imaging_vocab
 

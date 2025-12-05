@@ -112,15 +112,15 @@ def test_get_imaging_modalities_with_vocab_lookup(
                     "terms": [
                         {
                             "id": "T1Weighted",
-                            "name": "T1-weighted",
+                            "name": "T1-weighted image",
                             "abbreviation": "T1w",
-                            "data_type": "MRI",
+                            "data_type": "anat",
                         },
                         {
                             "id": "FlowWeighted",
-                            "name": "Flow weighted",
-                            "abbreviation": "fmri",
-                            "data_type": "fMRI",
+                            "name": "Blood-Oxygen-Level Dependent image",
+                            "abbreviation": "bold",
+                            "data_type": "func",
                         },
                     ],
                 }
@@ -159,15 +159,15 @@ def test_get_imaging_modalities_with_vocab_lookup(
         "nb:Image": [
             {
                 "TermURL": "nidm:T1Weighted",
-                "Label": "T1-weighted",
-                "abbreviation": "T1w",
-                "data_type": "MRI",
+                "Label": "T1-weighted image",
+                "Abbreviation": "T1w",
+                "DataType": "anat",
             },
             {
                 "TermURL": "nidm:FlowWeighted",
-                "Label": "Flow weighted",
-                "abbreviation": "fmri",
-                "data_type": "fMRI",
+                "Label": "Blood-Oxygen-Level Dependent image",
+                "Abbreviation": "bold",
+                "DataType": "func",
             },
         ]
     }
@@ -285,9 +285,9 @@ def test_get_vocab_endpoint(
                 "terms": [
                     {
                         "id": "T1Weighted",
-                        "name": "T1-weighted",
-                        "abbreviation": "T1w",
-                        "data_type": "MRI",
+                        "name": "T1-weighted image",
+                        "Abbreviation": "T1w",
+                        "DataType": "anat",
                     }
                 ],
             }
