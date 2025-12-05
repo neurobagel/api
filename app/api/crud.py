@@ -11,7 +11,7 @@ from fastapi import HTTPException, status
 from . import sparql_models
 from . import utility as util
 from .env_settings import settings
-from .models import QueryModel, SessionResponse
+from .models import DataElementURI, QueryModel, SessionResponse
 
 ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
     "dataset_uuid",
@@ -415,7 +415,8 @@ async def get_terms(
     dict
         Dictionary where the key is the Neurobagel class and the value is a list of dictionaries
         corresponding to the available (i.e. used) instances of that class in the graph. Each instance dictionary
-        has two items: the 'TermURL' and the human-readable 'Label' for the term.
+        contains the 'TermURL' and the human-readable 'Label' for the term, and may include additional
+        metadata fields (e.g., 'abbreviation', 'data_type' for imaging modalities) when available.
     """
     db_results = await post_query_to_graph(
         util.create_terms_query(data_element_URI)
@@ -424,7 +425,7 @@ async def get_terms(
     if std_trm_vocab is None:
         std_trm_vocab = []
 
-    term_label_dicts = []
+    term_metadata = []
     for result in db_results:
         term_url = result["termURL"]
         # First, check whether the found instance of the standardized variable contains a recognized namespace
@@ -443,29 +444,31 @@ async def get_terms(
                 ),
                 [],
             )
-            term_label = next(
-                (
-                    term["name"]
-                    for term in namespace_terms
-                    if term["id"] == term_id
-                ),
+            matched_term = next(
+                (term for term in namespace_terms if term["id"] == term_id),
                 None,
             )
-            term_label_dicts.append(
-                {
-                    "TermURL": util.replace_namespace_uri_with_prefix(
-                        term_url
-                    ),
-                    "Label": term_label,
-                }
-            )
+            term_entry = {
+                "TermURL": util.replace_namespace_uri_with_prefix(term_url),
+                "Label": matched_term.get("name") if matched_term else None,
+            }
+            if data_element_URI == DataElementURI.image.value:
+                term_entry["Abbreviation"] = (
+                    matched_term.get("abbreviation", None)
+                    if matched_term
+                    else None
+                )
+                term_entry["DataType"] = (
+                    matched_term.get("data_type") if matched_term else None
+                )
+            term_metadata.append(term_entry)
         else:
             warnings.warn(
                 f"The controlled term {term_url} was found in the graph but does not come from a vocabulary recognized by Neurobagel."
                 "This term will be ignored."
             )
 
-    term_instances = {data_element_URI: term_label_dicts}
+    term_instances = {data_element_URI: term_metadata}
 
     return term_instances
 

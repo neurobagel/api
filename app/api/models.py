@@ -142,6 +142,7 @@ class DataElementURI(str, Enum):
 
     assessment = "nb:Assessment"
     diagnosis = "nb:Diagnosis"
+    image = "nb:Image"
 
 
 class StandardizedTermVocabularyNamespace(BaseModel):
