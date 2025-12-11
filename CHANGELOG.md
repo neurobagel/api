@@ -1,3 +1,20 @@
+# v0.8.0 (Thu Dec 11 2025)
+
+#### 🚀 Enhancements
+
+- [ENH] Add `/imaging-modalities` route for getting available imaging modality term instances & labels [#513](https://github.com/neurobagel/api/pull/513) ([@rmanaem](https://github.com/rmanaem))
+
+#### 🏠 Internal
+
+- [REF] Factor out repeated logic in query handling functions [#510](https://github.com/neurobagel/api/pull/510) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 2
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+- Arman Jahanpour ([@rmanaem](https://github.com/rmanaem))
+
+---
+
 # v0.7.2 (Wed Nov 19 2025)
 
 #### 🏎 Performance Improvements
