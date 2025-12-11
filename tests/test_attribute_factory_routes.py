@@ -2,6 +2,7 @@ import httpx
 import pytest
 
 from app.api import env_settings
+from app.api.models import DataElementURI
 
 
 def test_get_instances_endpoint_with_vocab_lookup(
@@ -88,6 +89,90 @@ def test_get_instances_endpoint_with_vocab_lookup(
     }
 
 
+def test_get_imaging_modalities_with_vocab_lookup(
+    test_app,
+    monkeypatch,
+    disable_auth,
+    mock_context,
+):
+    """
+    Given a GET request to /imaging-modalities, test that the endpoint returns graph instances
+    with labels and imaging-specific metadata (abbreviation, data_type) from the vocabulary.
+    """
+    monkeypatch.setattr(
+        env_settings,
+        "ALL_VOCABS",
+        {
+            DataElementURI.image.value: [
+                {
+                    "namespace_prefix": "nidm",
+                    "namespace_url": "http://purl.org/nidash/nidm#",
+                    "vocabulary_name": "Test vocabulary of imaging modalities",
+                    "version": "1.0.0",
+                    "terms": [
+                        {
+                            "id": "T1Weighted",
+                            "name": "T1-weighted image",
+                            "abbreviation": "T1w",
+                            "data_type": "anat",
+                        },
+                        {
+                            "id": "FlowWeighted",
+                            "name": "Blood-Oxygen-Level Dependent image",
+                            "abbreviation": "bold",
+                            "data_type": "func",
+                        },
+                    ],
+                }
+            ]
+        },
+    )
+
+    mock_response_json = {
+        "head": {"vars": ["termURL"]},
+        "results": {
+            "bindings": [
+                {
+                    "termURL": {
+                        "type": "uri",
+                        "value": "http://purl.org/nidash/nidm#T1Weighted",
+                    }
+                },
+                {
+                    "termURL": {
+                        "type": "uri",
+                        "value": "http://purl.org/nidash/nidm#FlowWeighted",
+                    }
+                },
+            ]
+        },
+    }
+
+    async def mock_httpx_post(self, **kwargs):
+        return httpx.Response(status_code=200, json=mock_response_json)
+
+    monkeypatch.setattr(httpx.AsyncClient, "post", mock_httpx_post)
+
+    response = test_app.get("/imaging-modalities")
+
+    assert response.json() == {
+        "nb:Image": [
+            {
+                "TermURL": "nidm:T1Weighted",
+                "Label": "T1-weighted image",
+                "Abbreviation": "T1w",
+                "DataType": "anat",
+            },
+            {
+                "TermURL": "nidm:FlowWeighted",
+                "Label": "Blood-Oxygen-Level Dependent image",
+                "Abbreviation": "bold",
+                "DataType": "func",
+            },
+        ]
+    }
+
+
 def test_get_instances_endpoint_without_vocab_lookup(
     test_app,
     monkeypatch,
@@ -146,6 +231,7 @@ def test_get_instances_endpoint_without_vocab_lookup(
     [
         ("assessments", "nb:Assessment"),
         ("diagnoses", "nb:Diagnosis"),
+        ("imaging-modalities", "nb:Image"),
     ],
 )
 def test_get_vocab_endpoint(
@@ -189,6 +275,22 @@ def test_get_vocab_endpoint(
                     {"id": "26929004", "name": "Alzheimer's disease"},
                 ],
             },
+        ],
+        "nb:Image": [
+            {
+                "namespace_prefix": "nidm",
+                "namespace_url": "http://purl.org/nidash/nidm#",
+                "vocabulary_name": "Test vocab of imaging modalities",
+                "version": "1.0.0",
+                "terms": [
+                    {
+                        "id": "T1Weighted",
+                        "name": "T1-weighted image",
+                        "Abbreviation": "T1w",
+                        "DataType": "anat",
+                    }
+                ],
+            }
         ],
     }
 

@@ -17,6 +17,7 @@ from .api.routers import (
     attributes,
     datasets,
     diagnoses,
+    imaging_modalities,
     pipelines,
     query,
     subjects,
@@ -103,6 +104,21 @@ def fetch_vocabularies(config_name: str) -> dict:
                 f"Failed to fetch standardized term vocabulary for {var_uri}.",
             )
             all_std_trm_vocabs[var_uri] = std_trm_vocab
+
+    # The imaging modalities vocab is not configurable but is still an external file we need to fetch.
+    # Since it is not configurable across communities, the vocab file is not listed in config.json under a standardized variable.
+    # So, for now we always fetch it from the Neurobagel config directory.
+    # TODO revisit the prefix for this specific variable once we support custom standardized variables.
+    imaging_vocab_uri = f"{std_var_config['namespace_prefix']}:Image"
+    imaging_vocab_url = util.create_gh_raw_content_url(
+        env_settings.NEUROBAGEL_CONFIG_REPO,
+        "configs/Neurobagel/imaging_modalities.json",
+    )
+    imaging_vocab = util.request_data(
+        imaging_vocab_url,
+        f"Failed to fetch standardized term vocabulary for {imaging_vocab_uri}.",
+    )
+    all_std_trm_vocabs[imaging_vocab_uri] = imaging_vocab
 
     return all_std_trm_vocabs
 
@@ -282,6 +298,7 @@ app.include_router(subjects.router)
 app.include_router(attributes.router)
 app.include_router(assessments.router)
 app.include_router(diagnoses.router)
+app.include_router(imaging_modalities.router)
 app.include_router(pipelines.router)
 
 # Automatically start uvicorn server on execution of main.py
