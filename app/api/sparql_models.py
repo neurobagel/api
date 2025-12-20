@@ -5,8 +5,6 @@ from pydantic.alias_generators import to_snake
 
 SPARQL_SELECTED_VARS = [
     "dataset",
-    "dataset_name",
-    "dataset_portal_uri",
     "subject",
 ]
 
@@ -118,15 +116,12 @@ class Subject(SPARQLSerializable):
 
 
 class Dataset(SPARQLSerializable):
-    hasLabel: Literal["?dataset_name"] = "?dataset_name"
+    # hasLabel: Literal["?dataset_name"] = "?dataset_name"
     hasSamples: Subject
     schemaKey: Literal["Dataset"] = "Dataset"
 
     def to_sparql(self, var_name: str = "?dataset") -> str:
         cohort_triples = self.to_triples(var_name)
-        cohort_triples.extend(
-            [f"OPTIONAL {{{var_name} nb:hasPortalURI ?dataset_portal_uri.}}"]
-        )
         cohort_triples = "\n    ".join(cohort_triples)
 
         num_sessions_filter = ""
