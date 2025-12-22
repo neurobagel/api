@@ -42,6 +42,8 @@ def fetch_available_community_config_names() -> list[str]:
 def validate_environment_variables():
     """
     Check that all required environment variables are set, and exits the app if any are missing or invalid.
+
+    TODO: See if we can move some or all of these to model validators in env_settings.py
     """
     if settings.graph_username is None or settings.graph_password is None:
         raise RuntimeError(
@@ -65,6 +67,13 @@ def validate_environment_variables():
         raise RuntimeError(
             f"'{settings.config}' is not a recognized Neurobagel community configuration. "
             f"Available community configurations: {', '.join(available_configs)}"
+        )
+
+    if not settings.datasets_metadata_path.exists():
+        raise RuntimeError(
+            "Datasets metadata file for the node not found. "
+            f"Please double check the value of the {Settings.model_fields['datasets_metadata_path'].alias} environment variable. "
+            f"Resolved path: {settings.datasets_metadata_path}"
         )
 
 
@@ -149,6 +158,12 @@ def fetch_supported_namespaces_for_config(config_name: str) -> dict:
     return context
 
 
+def load_metadata_for_node_datasets() -> dict:
+    """Load metadata for all datasets in the graph from the specified JSON file."""
+    datasets_metadata = util.load_json(settings.datasets_metadata_path)
+    return datasets_metadata
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -174,12 +189,15 @@ async def lifespan(app: FastAPI):
     env_settings.CONTEXT = fetch_supported_namespaces_for_config(
         settings.config
     )
+    # Load datasets metadata
+    env_settings.DATASETS_METADATA = load_metadata_for_node_datasets()
 
     yield
 
     # Cleanup
     env_settings.ALL_VOCABS.clear()
     env_settings.CONTEXT.clear()
+    env_settings.DATASETS_METADATA.clear()
 
 
 app = FastAPI(

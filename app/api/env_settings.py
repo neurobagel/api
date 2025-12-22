@@ -8,13 +8,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 NEUROBAGEL_CONFIG_REPO = "neurobagel/communities"
 DEFAULT_NEUROBAGEL_CONFIG = "Neurobagel"
 
-# NOTE: We store the context and vocabularies fetched from GitHub on app startup in globals
+# NOTE: We store the data fetched or loaded on app startup in globals
 # rather than storing them on the app instance (which would require accessing them through the request object;
 # see https://www.starlette.io/applications/#storing-state-on-the-app-instance).
 # This avoids having to thread the request object through every function that needs access to e.g., the context
 # and also makes it easier to mock the configuration during testing.
 CONTEXT = {}
 ALL_VOCABS = {}
+DATASETS_METADATA = {}
 
 
 class Settings(BaseSettings):

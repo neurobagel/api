@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from app.api.env_settings import Settings
 
 
@@ -8,6 +10,7 @@ def test_settings_read_correctly(monkeypatch):
         "NB_GRAPH_ADDRESS",
         "NB_ENABLE_AUTH",
         "NB_QUERY_CLIENT_ID",
+        "NB_DATASETS_METADATA_PATH",
     ]
     # Explicitly unset environment variables that we expect to be unset based on pytest.ini
     # in order to accurately test default values.
@@ -24,6 +27,9 @@ def test_settings_read_correctly(monkeypatch):
     assert settings.auth_enabled is True
     assert settings.client_id is None
     assert settings.config == "Neurobagel"
+    assert settings.datasets_metadata_path == Path(
+        "/data/datasets_metadata.json"
+    )
 
     # Check that defaults are applied correctly for environment variables that
     # have been set to empty strings
