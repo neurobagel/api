@@ -190,6 +190,9 @@ async def lifespan(app: FastAPI):
         settings.config
     )
     # Load datasets metadata
+    # NOTE: We assume this file contains the expected keys for each dataset (with recognized levels for 'access_type', etc.)
+    # because we assume it is generated automatically by the Neurobagel deployment recipe.
+    # Therefore, we do not perform any additional validation of the contents here.
     env_settings.DATASETS_METADATA = load_metadata_for_node_datasets()
 
     yield
