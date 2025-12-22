@@ -116,7 +116,6 @@ class Subject(SPARQLSerializable):
 
 
 class Dataset(SPARQLSerializable):
-    # hasLabel: Literal["?dataset_name"] = "?dataset_name"
     hasSamples: Subject
     schemaKey: Literal["Dataset"] = "Dataset"
 
