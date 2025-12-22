@@ -1,7 +1,9 @@
 """Constants for graph server connection and utility functions for writing the SPARQL query."""
 
+import json
 import textwrap
 from collections import namedtuple
+from pathlib import Path
 from typing import Any, Optional
 
 import httpx
@@ -30,6 +32,12 @@ PROJECT = Domain("project", "nb:hasSamples")
 
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
+
+
+def load_json(path: Path) -> dict:
+    """Load a JSON file as a dictionary."""
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def parse_origins_as_list(allowed_origins: str | None) -> list:
