@@ -14,7 +14,7 @@ def test_app():
 
 
 @pytest.fixture()
-def mock_datasets_metadata_file(tmp_path, monkeypatch):
+def set_temp_datasets_metadata_file(tmp_path, monkeypatch):
     """
     Create a mock datasets metadata JSON file to suppress file-not-found errors in tests involving app startup events.
     """
