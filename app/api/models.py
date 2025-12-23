@@ -119,7 +119,7 @@ class SessionResponse(BaseModel):
 
 class CohortQueryResponse(BaseModel):
     """
-    Data model for legacy /query endpoint response, for backwards-compatibility only.
+    Data model for legacy GET /query endpoint response, for backwards-compatibility only.
     """
 
     dataset_uuid: str
@@ -155,10 +155,10 @@ class DatasetQueryResponse(BaseModel):
     available_pipelines: dict = Field(default_factory=dict)
 
 
-# TODO: Update
-class SubjectsQueryResponse(DatasetQueryResponse):
+class SubjectsQueryResponse(BaseModel):
     """Data model for subject data matching a query."""
 
+    dataset_uuid: str
     subject_data: Union[list[SessionResponse], str]
 
 

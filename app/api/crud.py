@@ -16,6 +16,8 @@ from .models import (
     DatasetQueryResponse,
     QueryModel,
     SessionResponse,
+    SubjectsQueryModel,
+    SubjectsQueryResponse,
 )
 
 ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
@@ -174,7 +176,6 @@ async def query_records(
     image_modal: str,
     pipeline_name: str,
     pipeline_version: str,
-    dataset_uuids: list[str],
 ) -> list[dict]:
     """
     Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
@@ -202,8 +203,6 @@ async def query_records(
         Name of pipeline run on subject scans.
     pipeline_version : str
         Version of pipeline run on subject scans.
-    dataset_uuids : list[str]
-        List of datasets to restrict the query to.
 
     Returns
     -------
@@ -222,7 +221,6 @@ async def query_records(
             image_modal=image_modal,
             pipeline_version=pipeline_version,
             pipeline_name=pipeline_name,
-            dataset_uuids=dataset_uuids,
         )
     )
 
@@ -305,6 +303,76 @@ async def query_records(
     return response
 
 
+async def post_subjects(query: SubjectsQueryModel):
+    """
+    When a POST request is sent to the /subjects path, return a list of dicts where each dict corresponds to
+    data for subjects matching the query from a specific dataset.
+
+    Parameters
+    ----------
+    query : SubjectsQueryModel
+        Data model representing the query parameters sent in the POST request.
+
+    Returns
+    -------
+    list[SubjectsQueryResponse]
+        List of responses corresponding to data for subjects matching the query, grouped by dataset.
+    """
+    db_results = await post_query_to_graph(
+        util.create_query(
+            return_agg=settings.return_agg,
+            age=(query.min_age, query.max_age),
+            sex=query.sex,
+            diagnosis=query.diagnosis,
+            min_num_phenotypic_sessions=query.min_num_phenotypic_sessions,
+            min_num_imaging_sessions=query.min_num_imaging_sessions,
+            assessment=query.assessment,
+            image_modal=query.image_modal,
+            pipeline_version=query.pipeline_version,
+            pipeline_name=query.pipeline_name,
+            dataset_uuids=query.dataset_uuids,
+        )
+    )
+
+    # Reindexing is needed here because when a certain attribute is missing from all matching sessions,
+    # the attribute does not end up in the graph API response or the below resulting processed dataframe.
+    # Conforming the columns to a list of expected attributes ensures every subject-session has the same response shape from the node API.
+    formatted_results = pd.DataFrame(db_results).reindex(
+        columns=ALL_SUBJECT_ATTRIBUTES
+    )
+
+    response = []
+    if not formatted_results.empty:
+        for (
+            dataset_uuid,
+            dataset_matching_records,
+        ) in formatted_results.groupby(by="dataset_uuid"):
+            num_matching_subjects = dataset_matching_records[
+                "sub_id"
+            ].nunique()
+            # TODO: The current implementation is valid in that we do not return
+            # results for datasets with fewer than min_cell_size subjects. But
+            # ideally we would handle this directly inside SPARQL so we don't even
+            # get the results in the first place. See #267 for a solution.
+            if num_matching_subjects <= settings.min_cell_size:
+                continue
+
+            if settings.return_agg:
+                subject_data = "protected"
+            else:
+                subject_data = util.construct_matching_sub_results_for_dataset(
+                    dataset_matching_records
+                )
+
+            dataset_result = SubjectsQueryResponse(
+                dataset_uuid=dataset_uuid,
+                subject_data=subject_data,
+            )
+            response.append(dataset_result)
+
+    return response
+
+
 async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
     """
     When a POST request is sent to the /datasets path, return list of dicts corresponding to metadata for datasets matching the query.
@@ -316,8 +384,8 @@ async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
 
     Returns
     -------
-    list[dict]
-        List of dictionaries corresponding to metadata for datasets matching the query.
+    list[DatasetQueryResponse]
+        List of responses corresponding to metadata for datasets matching the query.
     """
 
     phenotypic_query, imaging_query = util.create_sparql_queries_for_datasets(
@@ -354,12 +422,11 @@ async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
     )
 
     response = []
-    groupby_cols = ["dataset"]
     if not combined_query_results.empty:
         for (
             dataset_uuid,
             dataset_matching_records,
-        ) in combined_query_results.groupby(by=groupby_cols):
+        ) in combined_query_results.groupby(by="dataset"):
             num_matching_subjects = dataset_matching_records[
                 "subject"
             ].nunique()
