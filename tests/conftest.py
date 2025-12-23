@@ -348,6 +348,8 @@ def mock_query_records(request):
     Example usage in test function:
         @pytest.mark.parametrize("mock_query_records", [None], indirect=True)
         (this tells mock_query_records to return None)
+
+    TODO: Currently also used to test error handling for POST /subjects. Consider renaming once the /query endpoint is deprecated.
     """
 
     async def _mock_query_records(**kwargs):
@@ -358,9 +360,28 @@ def mock_query_records(request):
 
 @pytest.fixture
 def mock_successful_query_records(test_data):
-    """Mock CRUD function that returns non-empty, valid aggregate query result data."""
+    """Mock CRUD function that returns non-empty, valid aggregate query result data for /query endpoint."""
 
     async def _mock_successful_query_records(**kwargs):
         return test_data
 
     return _mock_successful_query_records
+
+
+@pytest.fixture
+def mock_successful_post_subjects(test_data):
+    """Mock CRUD function that returns non-empty, valid aggregate query result data for /subjects endpoint."""
+
+    async def _mock_successful_post_subjects(query):
+        return [
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/12345",
+                "subject_data": "protected",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/67890",
+                "subject_data": "protected",
+            },
+        ]
+
+    return _mock_successful_post_subjects

@@ -19,7 +19,7 @@ ROUTE = "/subjects"
 )
 def test_post_valid_dataset_uuids_does_not_error(
     test_app,
-    mock_successful_query_records,
+    mock_successful_post_subjects,
     valid_dataset_uuids,
     disable_auth,
     monkeypatch,
@@ -29,7 +29,7 @@ def test_post_valid_dataset_uuids_does_not_error(
 
     NOTE: This test does not verify the contents of the response depending on the provided dataset_uuids.
     """
-    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
+    monkeypatch.setattr(crud, "post_subjects", mock_successful_post_subjects)
     response = test_app.post(
         ROUTE, json={"dataset_uuids": valid_dataset_uuids}
     )
@@ -57,7 +57,7 @@ def test_post_invalid_dataset_uuids_raises_error(
     """
     Ensure that invalid 'dataset_uuids' request body values are rejected with a 422 error.
     """
-    monkeypatch.setattr(crud, "query_records", mock_query_records)
+    monkeypatch.setattr(crud, "post_subjects", mock_query_records)
     response = test_app.post(
         ROUTE, json={"dataset_uuids": invalid_dataset_uuids}
     )
