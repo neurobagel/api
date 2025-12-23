@@ -1,6 +1,7 @@
 import pytest
 
 from app.api import crud
+from app.main import settings
 
 ROUTE = "/subjects"
 
@@ -62,3 +63,21 @@ def test_post_invalid_dataset_uuids_raises_error(
         ROUTE, json={"dataset_uuids": invalid_dataset_uuids}
     )
     assert response.status_code == 422
+
+
+def test_post_subjects_returns_no_dataset_metadata(
+    test_app, mock_post_agg_query_to_graph, disable_auth, monkeypatch
+):
+    """
+    Ensure that a response from the /subjects endpoint does not include dataset metadata
+    for matching datasets such as dataset name, portal, etc.
+    """
+    monkeypatch.setattr(settings, "return_agg", True)
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_agg_query_to_graph
+    )
+    response = test_app.post(ROUTE, json={})
+    assert response.status_code == 200
+
+    for matching_dataset in response.json():
+        assert matching_dataset.keys() == {"dataset_uuid", "subject_data"}
