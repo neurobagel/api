@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from starlette.testclient import TestClient
 
@@ -9,6 +11,22 @@ from app.main import app, settings
 def test_app():
     client = TestClient(app)
     yield client
+
+
+@pytest.fixture()
+def mock_datasets_metadata_file(tmp_path, monkeypatch):
+    """
+    Create a mock datasets metadata JSON file to suppress file-not-found errors in tests involving app startup events.
+    """
+    tmp_file_path = tmp_path / "datasets_metadata.json"
+    mock_datasets_metadata = {
+        "nb:12345": {"dataset_name": "Test dataset"},
+        "nb:67890": {"dataset_name": "Other test dataset"},
+    }
+    with open(tmp_file_path, "w", encoding="utf-8") as f:
+        json.dump(mock_datasets_metadata, f)
+
+    monkeypatch.setattr(settings, "datasets_metadata_path", tmp_file_path)
 
 
 @pytest.fixture
