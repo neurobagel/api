@@ -72,7 +72,10 @@ def test_bound_filter_created_correctly():
 
 
 def test_combine_sparql_query_results():
-    """Test that combine_sparql_query_results correctly returns rows common to multiple query result tables."""
+    """
+    Test that combine_sparql_query_results correctly returns rows common to multiple query result tables
+    returned from phenotypic and imaging POST /datasets queries.
+    """
     mock_phenotypic_query_results = pd.DataFrame(
         {
             "dataset": [
@@ -80,18 +83,6 @@ def test_combine_sparql_query_results():
                 "http://neurobagel.org/vocab/ds01",
                 "http://neurobagel.org/vocab/ds02",
                 "http://neurobagel.org/vocab/ds02",
-            ],
-            "dataset_name": [
-                "Dataset 1",
-                "Dataset 1",
-                "Dataset 2",
-                "Dataset 2",
-            ],
-            "dataset_portal_uri": [
-                "https://dataset1.org",
-                "https://dataset1.org",
-                "https://dataset2.org",
-                "https://dataset2.org",
             ],
             "subject": [
                 "http://neurobagel.org/vocab/ds01-sub01",
@@ -109,18 +100,6 @@ def test_combine_sparql_query_results():
                 "http://neurobagel.org/vocab/ds02",
                 "http://neurobagel.org/vocab/ds02",
             ],
-            "dataset_name": [
-                "Dataset 1",
-                "Dataset 1",
-                "Dataset 2",
-                "Dataset 2",
-            ],
-            "dataset_portal_uri": [
-                "https://dataset1.org",
-                "https://dataset1.org",
-                "https://dataset2.org",
-                "https://dataset2.org",
-            ],
             "subject": [
                 "http://neurobagel.org/vocab/ds01-sub01",
                 "http://neurobagel.org/vocab/ds01-sub03",
@@ -134,11 +113,6 @@ def test_combine_sparql_query_results():
             "dataset": [
                 "http://neurobagel.org/vocab/ds01",
                 "http://neurobagel.org/vocab/ds02",
-            ],
-            "dataset_name": ["Dataset 1", "Dataset 2"],
-            "dataset_portal_uri": [
-                "https://dataset1.org",
-                "https://dataset2.org",
             ],
             "subject": [
                 "http://neurobagel.org/vocab/ds01-sub01",

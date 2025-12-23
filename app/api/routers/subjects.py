@@ -35,6 +35,6 @@ async def post_subjects_query(
             )
         verify_token(token)
 
-    response = await crud.query_records(**query.model_dump())
+    response = await crud.post_subjects(query)
 
     return response

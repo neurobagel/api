@@ -1,7 +1,9 @@
 """Constants for graph server connection and utility functions for writing the SPARQL query."""
 
+import json
 import textwrap
 from collections import namedtuple
+from pathlib import Path
 from typing import Any, Optional
 
 import httpx
@@ -30,6 +32,12 @@ PROJECT = Domain("project", "nb:hasSamples")
 
 
 CATEGORICAL_DOMAINS = [SEX, DIAGNOSIS, IMAGE_MODAL, ASSESSMENT]
+
+
+def load_json(path: Path) -> dict:
+    """Load a JSON file as a dictionary."""
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def parse_origins_as_list(allowed_origins: str | None) -> list:
@@ -214,6 +222,9 @@ def create_query(
             + f'{create_bound_filter(PIPELINE_VERSION.var)} && ?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes to avoid workaround implicit conversion
         )
 
+    # TODO: 'OPTIONAL {{?dataset_uuid nb:hasAccessLink ?dataset_portal_uri.}}' is needed only for
+    # backwards compatibility for the /query endpoint.
+    # Remove once the /query endpoint is deprecated in https://github.com/neurobagel/api/issues/520.
     query_string = textwrap.dedent(
         f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
@@ -234,7 +245,7 @@ def create_query(
                 ?session nb:hasAcquisition/nb:hasContrastType ?image_modal.
                 OPTIONAL {{?session nb:hasFilePath ?session_file_path.}}
             }}
-            OPTIONAL {{?dataset_uuid nb:hasPortalURI ?dataset_portal_uri.}}
+            OPTIONAL {{?dataset_uuid nb:hasAccessLink ?dataset_portal_uri.}}
             OPTIONAL {{?session nb:hasAge ?age.}}
             OPTIONAL {{?session nb:hasSex ?sex.}}
             OPTIONAL {{?session nb:hasDiagnosis ?diagnosis.}}

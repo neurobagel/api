@@ -1,29 +1,104 @@
-from app.api import crud
+from app.api import crud, env_settings
+from app.api.env_settings import settings
 
 ROUTE = "/datasets"
 
 
-def test_datasets_response_structure(
+async def test_response_includes_attributes_from_dataset_metadata_file(
     test_app,
-    mock_post_agg_query_to_graph,
+    mock_context,  # needed because dataset lookup in the datasets metadata dict uses the prefixed namespace
     mock_query_matching_dataset_sizes,
     disable_auth,
     monkeypatch,
 ):
-    """Test that the datasets endpoint does not include subject data in the response."""
+    """
+    Test that the /datasets endpoint response includes all available metadata for a matching dataset,
+    including information from the datasets metadata file.
+    """
+    mock_datasets_metadata = {
+        "nb:12345": {
+            "dataset_name": "Quebec Parkinson Network",
+            "authors": ["First Author", "Second Author"],
+            "homepage": "https://rpq-qpn.ca/en/home/",
+            "keywords": ["Parkinson's disease", "Neuroimaging"],
+            "access_type": "restricted",
+            "access_link": "https://rpq-qpn.ca/en/researchers-section/databases/",
+        },
+        "nb:67890": {
+            "dataset_name": "Other dataset",
+            "access_link": "https://otherdataset.org/access",
+        },
+    }
+
+    # Mock response for two matching subjects from the same dataset
+    async def mock_post_datasets_query_to_graph(query):
+        return [
+            {
+                "dataset": "http://neurobagel.org/vocab/12345",
+                "subject": "sub-ON95534",
+            },
+            {
+                "dataset": "http://neurobagel.org/vocab/12345",
+                "subject": "sub-ON95535",
+            },
+        ]
+
+    async def mock_query_available_modalities_and_pipelines(dataset_uuids):
+        return {
+            "http://neurobagel.org/vocab/12345": {
+                "subject": "sub-ON95534",
+                "image_modals": ["http://purl.org/nidash/nidm#T1Weighted"],
+                "available_pipelines": {
+                    "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer": [
+                        "7.3.2"
+                    ]
+                },
+            },
+        }
+
+    monkeypatch.setattr(settings, "return_agg", True)
     monkeypatch.setattr(
-        crud, "post_query_to_graph", mock_post_agg_query_to_graph
+        env_settings, "DATASETS_METADATA", mock_datasets_metadata
+    )
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_datasets_query_to_graph
+    )
+    monkeypatch.setattr(
+        crud,
+        "query_available_modalities_and_pipelines",
+        mock_query_available_modalities_and_pipelines,
     )
     monkeypatch.setattr(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
 
     response = test_app.post(ROUTE, json={})
+    matching_datasets = response.json()
+
     assert response.status_code == 200
-    assert all(
-        "subject_data" not in matching_dataset
-        for matching_dataset in response.json()
-    )
+    assert len(matching_datasets) == 1
+    assert matching_datasets[0] == {
+        "dataset_uuid": "http://neurobagel.org/vocab/12345",
+        "dataset_name": "Quebec Parkinson Network",
+        "authors": ["First Author", "Second Author"],
+        "homepage": "https://rpq-qpn.ca/en/home/",
+        "references_and_links": [],
+        "keywords": ["Parkinson's disease", "Neuroimaging"],
+        "repository_url": None,
+        "access_instructions": None,
+        "access_type": "restricted",
+        "access_email": None,
+        "access_link": "https://rpq-qpn.ca/en/researchers-section/databases/",
+        "dataset_total_subjects": 200,
+        "records_protected": True,
+        "num_matching_subjects": 2,
+        "image_modals": ["http://purl.org/nidash/nidm#T1Weighted"],
+        "available_pipelines": {
+            "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer": [
+                "7.3.2"
+            ]
+        },
+    }
 
 
 async def test_imaging_modals_and_pipelines_query(monkeypatch):

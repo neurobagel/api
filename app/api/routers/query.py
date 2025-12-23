@@ -7,7 +7,7 @@ from fastapi.security import OAuth2
 
 from .. import crud
 from ..env_settings import settings
-from ..models import QueryModel, SubjectsQueryResponse
+from ..models import CohortQueryResponse, QueryModel
 from ..security import verify_token
 
 router = APIRouter(prefix="/query", tags=["query"])
@@ -31,7 +31,7 @@ oauth2_scheme = OAuth2(
 # to ensure that a request without a trailing slash (e.g., to /query instead of /query/)
 # is correctly routed to this endpoint.
 # For more context, see https://github.com/neurobagel/api/issues/327.
-@router.get("", response_model=List[SubjectsQueryResponse])
+@router.get("", response_model=List[CohortQueryResponse])
 async def get_query(
     query: Annotated[QueryModel, Query()],
     token: str | None = Depends(oauth2_scheme),
@@ -45,8 +45,6 @@ async def get_query(
             )
         verify_token(token)
 
-    response = await crud.query_records(
-        **query.model_dump(), dataset_uuids=None
-    )
+    response = await crud.query_records(**query.model_dump())
 
     return response
