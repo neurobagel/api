@@ -1,5 +1,7 @@
 """Test events occurring on app startup or shutdown."""
 
+from pathlib import Path
+
 import pytest
 
 from app import main
@@ -95,6 +97,19 @@ def test_app_exits_when_config_unrecognized(
     assert "not a recognized Neurobagel community configuration" in str(
         e_info.value
     )
+
+
+def test_app_exits_when_datasets_metadata_file_not_found(
+    test_app, disable_auth, monkeypatch
+):
+    """Test that when the provided datasets metadata file path does not exist, the app raises an error."""
+    monkeypatch.setattr(
+        settings, "datasets_metadata_path", Path("/non/existent/file.json")
+    )
+    with pytest.raises(RuntimeError) as e_info:
+        with test_app:
+            pass
+    assert "Datasets metadata file for the node not found" in str(e_info.value)
 
 
 def test_neurobagel_vocabularies_fetched_successfully(
