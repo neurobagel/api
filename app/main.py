@@ -42,8 +42,6 @@ def fetch_available_community_config_names() -> list[str]:
 def validate_environment_variables():
     """
     Check that all required environment variables are set, and exits the app if any are missing or invalid.
-
-    TODO: See if we can move some or all of these to model validators in env_settings.py
     """
     if settings.graph_username is None or settings.graph_password is None:
         raise RuntimeError(

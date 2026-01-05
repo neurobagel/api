@@ -222,9 +222,6 @@ def create_query(
             + f'{create_bound_filter(PIPELINE_VERSION.var)} && ?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes to avoid workaround implicit conversion
         )
 
-    # TODO: 'OPTIONAL {{?dataset_uuid nb:hasAccessLink ?dataset_portal_uri.}}' is needed only for
-    # backwards compatibility for the /query endpoint.
-    # Remove once the /query endpoint is deprecated in https://github.com/neurobagel/api/issues/520.
     query_string = textwrap.dedent(
         f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex

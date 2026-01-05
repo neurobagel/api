@@ -178,8 +178,6 @@ def mock_post_agg_query_to_graph():
     return mockreturn
 
 
-# TODO: Update once /query endpoint is deprecated, after which we will no longer return
-# dataset metadata from the graph for a cohort query
 @pytest.fixture
 def mock_post_nonagg_query_to_graph():
     """
