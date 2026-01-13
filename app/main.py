@@ -62,12 +62,12 @@ def validate_environment_variables():
     if settings.allowed_origins is None:
         logger.warning(
             f"The API was launched without providing any values for the {Settings.model_fields['allowed_origins'].alias} environment "
-            f"variable."
+            "variable. "
             "This means that the API will only be accessible from the same origin it is hosted from: "
-            "https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy."
-            f"If you want to access the API from tools hosted at other origins such as the Neurobagel query tool, "
+            "https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy. "
+            "If you want to access the API from tools hosted at other origins such as the Neurobagel query tool, "
             f"explicitly set the value of {Settings.model_fields['allowed_origins'].alias} to the origin(s) of these tools (e.g. "
-            f"http://localhost:3000)."
+            "http://localhost:3000). "
             "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes."
         )
 
