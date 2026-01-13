@@ -565,7 +565,6 @@ def test_query_without_token_succeeds_when_auth_disabled(
 
 
 @pytest.mark.integration
-@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_app_with_invalid_environment_vars(
     test_app,
     monkeypatch,
