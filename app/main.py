@@ -1,6 +1,6 @@
 """Main app."""
 
-import warnings
+import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 from .api import env_settings
 from .api import utility as util
 from .api.env_settings import Settings, settings
+from .api.logger import get_logger, log_error
 from .api.routers import (
     assessments,
     attributes,
@@ -23,6 +24,15 @@ from .api.routers import (
     subjects,
 )
 from .api.security import check_client_id
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s: %(message)s",
+    datefmt="[%Y-%m-%d %H:%M:%S]",
+)
+logger = get_logger(__name__)
+
+favicon_url = "https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_favicon.png"
 
 
 def fetch_available_community_config_names() -> list[str]:
@@ -41,15 +51,16 @@ def fetch_available_community_config_names() -> list[str]:
 
 def validate_environment_variables():
     """
-    Check that all required environment variables are set, and exits the app if any are missing or invalid.
+    Check that all required environment variables are set, and exit the app if any are missing or invalid.
     """
     if settings.graph_username is None or settings.graph_password is None:
-        raise RuntimeError(
-            f"The application was launched but could not find the {Settings.model_fields['graph_username'].alias} and / or {Settings.model_fields['graph_password'].alias} environment variables."
+        log_error(
+            logger,
+            f"The application was launched but could not find the {Settings.model_fields['graph_username'].alias} and / or {Settings.model_fields['graph_password'].alias} environment variables.",
         )
 
     if settings.allowed_origins is None:
-        warnings.warn(
+        logger.warning(
             f"The API was launched without providing any values for the {Settings.model_fields['allowed_origins'].alias} environment "
             f"variable."
             "This means that the API will only be accessible from the same origin it is hosted from: "
@@ -62,9 +73,10 @@ def validate_environment_variables():
 
     available_configs = fetch_available_community_config_names()
     if settings.config not in available_configs:
-        raise RuntimeError(
+        log_error(
+            logger,
             f"'{settings.config}' is not a recognized Neurobagel community configuration. "
-            f"Available community configurations: {', '.join(available_configs)}"
+            f"Available community configurations: {', '.join(available_configs)}",
         )
 
 
@@ -149,6 +161,36 @@ def fetch_supported_namespaces_for_config(config_name: str) -> dict:
     return context
 
 
+def pre_startup():
+    """
+    Perform initial setup tasks before the API starts, including:
+    - Validating required environment variables.
+    - Performing authentication checks.
+    - Fetching vocabularies for standardized variables.
+
+    These steps are executed outside of the FastAPI lifespan to exit cleanly and
+    with informative messages on failures. Once inside the lifespan,
+    intentional exits always produce FastAPI/Starlette tracebacks that cannot be cleanly suppressed.
+    (See https://github.com/Kludex/starlette/discussions/2964 for example.)
+    """
+
+    # Validate environment variables
+    validate_environment_variables()
+
+    # Authentication check
+    check_client_id()
+
+    # Initialize vocabularies
+    env_settings.ALL_VOCABS = fetch_vocabularies(settings.config)
+    # Create context
+    env_settings.CONTEXT = fetch_supported_namespaces_for_config(
+        settings.config
+    )
+
+
+pre_startup()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -162,18 +204,18 @@ async def lifespan(app: FastAPI):
     On shutdown:
     - Cleans up temporary directories to free resources.
     """
-    # Validate environment variables
-    validate_environment_variables()
+    # # Validate environment variables
+    # validate_environment_variables()
 
-    # Authentication check
-    check_client_id()
+    # # Authentication check
+    # check_client_id()
 
-    # Initialize vocabularies
-    env_settings.ALL_VOCABS = fetch_vocabularies(settings.config)
-    # Create context
-    env_settings.CONTEXT = fetch_supported_namespaces_for_config(
-        settings.config
-    )
+    # # Initialize vocabularies
+    # env_settings.ALL_VOCABS = fetch_vocabularies(settings.config)
+    # # Create context
+    # env_settings.CONTEXT = fetch_supported_namespaces_for_config(
+    #     settings.config
+    # )
 
     yield
 
@@ -190,9 +232,6 @@ app = FastAPI(
     redoc_url=None,
     redirect_slashes=False,
 )
-
-favicon_url = "https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_favicon.png"
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=util.parse_origins_as_list(settings.allowed_origins),

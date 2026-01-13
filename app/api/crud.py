@@ -1,7 +1,7 @@
 """CRUD functions called by path operations."""
 
 import asyncio
-import warnings
+import logging
 from collections import defaultdict
 
 import httpx
@@ -12,6 +12,9 @@ from . import sparql_models
 from . import utility as util
 from .env_settings import settings
 from .models import DataElementURI, QueryModel, SessionResponse
+
+logger = logging.getLogger(__name__)
+
 
 ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
     "dataset_uuid",
@@ -463,7 +466,7 @@ async def get_terms(
                 )
             term_metadata.append(term_entry)
         else:
-            warnings.warn(
+            logger.warning(
                 f"The controlled term {term_url} was found in the graph but does not come from a vocabulary recognized by Neurobagel."
                 "This term will be ignored."
             )
