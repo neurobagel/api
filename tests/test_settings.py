@@ -8,6 +8,7 @@ def test_settings_read_correctly(monkeypatch):
         "NB_GRAPH_ADDRESS",
         "NB_ENABLE_AUTH",
         "NB_QUERY_CLIENT_ID",
+        "NB_CONFIG",
     ]
     # Explicitly unset environment variables that we expect to be unset based on pytest.ini
     # in order to accurately test default values.
