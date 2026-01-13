@@ -196,27 +196,9 @@ async def lifespan(app: FastAPI):
     """
     Handles application startup and shutdown events.
 
-    On startup:
-    - Validates required environment variables.
-    - Performs authentication checks.
-    - Fetches vocabularies for standardized variables.
-
     On shutdown:
     - Cleans up temporary directories to free resources.
     """
-    # # Validate environment variables
-    # validate_environment_variables()
-
-    # # Authentication check
-    # check_client_id()
-
-    # # Initialize vocabularies
-    # env_settings.ALL_VOCABS = fetch_vocabularies(settings.config)
-    # # Create context
-    # env_settings.CONTEXT = fetch_supported_namespaces_for_config(
-    #     settings.config
-    # )
-
     yield
 
     # Cleanup
