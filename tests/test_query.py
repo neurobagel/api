@@ -583,7 +583,6 @@ def test_app_with_invalid_environment_vars(
 @pytest.mark.integration
 def test_integration_query_without_auth_succeeds(
     test_app,
-    monkeypatch,
     disable_auth,
     set_graph_url_vars_for_integration_tests,
 ):
