@@ -192,12 +192,12 @@ def setup_app():
     )
 
 
-# TODO: Remove
+# TODO: Remove - alt approach to app factory to
+# prevent setup_app from running during tests
 # def pre_startup():
 #     if "pytest" not in sys.modules:
 #         setup_app()
-
-
+#
 # pre_startup()
 
 
