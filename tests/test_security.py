@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 from app.api.env_settings import settings
 from app.api.security import verify_token
-from app.main import pre_startup
+from app.main import setup_app
 
 
 def test_missing_client_id_raises_error_when_auth_enabled(
@@ -18,7 +18,7 @@ def test_missing_client_id_raises_error_when_auth_enabled(
     monkeypatch.setattr(settings, "client_id", None)
 
     with pytest.raises(SystemExit):
-        pre_startup()
+        setup_app()
 
     errors = [
         record for record in caplog.records if record.levelno == logging.ERROR
@@ -32,7 +32,7 @@ def test_missing_client_id_ignored_when_auth_disabled(monkeypatch):
     monkeypatch.setattr(settings, "client_id", None)
     monkeypatch.setattr(settings, "auth_enabled", False)
 
-    pre_startup()
+    setup_app()
 
 
 @pytest.mark.parametrize(

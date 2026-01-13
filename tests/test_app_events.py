@@ -7,7 +7,7 @@ import pytest
 from app import main
 from app.api import env_settings
 from app.api import utility as util
-from app.main import pre_startup, settings
+from app.main import settings, setup_app
 
 
 def test_start_app_without_environment_vars_fails(
@@ -18,7 +18,7 @@ def test_start_app_without_environment_vars_fails(
     monkeypatch.setattr(settings, "graph_password", None)
 
     with pytest.raises(SystemExit):
-        pre_startup()
+        setup_app()
 
     errors = [
         record for record in caplog.records if record.levelno == logging.ERROR
@@ -38,7 +38,7 @@ def test_app_with_unset_allowed_origins(
     """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses an empty list."""
     monkeypatch.setattr(settings, "allowed_origins", None)
 
-    pre_startup()
+    setup_app()
 
     warnings = [
         record
@@ -79,14 +79,14 @@ def test_app_with_set_allowed_origins(
     """
     monkeypatch.setattr(settings, "allowed_origins", allowed_origins)
 
-    pre_startup()
+    setup_app()
 
     assert set(parsed_origins).issubset(
         util.parse_origins_as_list(settings.allowed_origins)
     )
 
 
-def fetched_configs_includes_neurobagel():
+def fetched_configs_includes_neurobagel(disable_auth):
     """Test that "Neurobagel" is included among the available configuration names fetched from GitHub."""
     assert "Neurobagel" in main.fetch_available_community_config_names()
 
@@ -96,7 +96,7 @@ def test_app_exits_when_config_unrecognized(disable_auth, monkeypatch, caplog):
     monkeypatch.setattr(settings, "config", "Unknown-Config")
 
     with pytest.raises(SystemExit):
-        pre_startup()
+        setup_app()
 
     errors = [
         record for record in caplog.records if record.levelno == logging.ERROR
@@ -117,7 +117,7 @@ def test_neurobagel_vocabularies_fetched_successfully(
     """
     monkeypatch.setattr(settings, "config", "Neurobagel")
 
-    pre_startup()
+    setup_app()
     fetched_vocabs = env_settings.ALL_VOCABS.copy()
 
     assert fetched_vocabs != {}
@@ -134,7 +134,7 @@ def test_neurobagel_namespaces_fetched_successfully(disable_auth, monkeypatch):
     """
     monkeypatch.setattr(settings, "config", "Neurobagel")
 
-    pre_startup()
+    setup_app()
     fetched_context = env_settings.CONTEXT.copy()
 
     assert fetched_context

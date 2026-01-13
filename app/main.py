@@ -1,6 +1,7 @@
 """Main app."""
 
 import logging
+import sys
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -33,6 +34,9 @@ logging.basicConfig(
 logger = get_logger(__name__)
 
 favicon_url = "https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_favicon.png"
+
+# Check if code is currently running in a test environment
+IS_TESTING = "pytest" in sys.modules
 
 
 def fetch_available_community_config_names() -> list[str]:
@@ -161,7 +165,7 @@ def fetch_supported_namespaces_for_config(config_name: str) -> dict:
     return context
 
 
-def pre_startup():
+def setup_app():
     """
     Perform initial setup tasks before the API starts, including:
     - Validating required environment variables.
@@ -188,7 +192,13 @@ def pre_startup():
     )
 
 
-pre_startup()
+# TODO: Remove
+# def pre_startup():
+#     if "pytest" not in sys.modules:
+#         setup_app()
+
+
+# pre_startup()
 
 
 @asynccontextmanager
@@ -206,121 +216,140 @@ async def lifespan(app: FastAPI):
     env_settings.CONTEXT.clear()
 
 
-app = FastAPI(
-    root_path=settings.root_path,
-    lifespan=lifespan,
-    default_response_class=ORJSONResponse,
-    docs_url=None,
-    redoc_url=None,
-    redirect_slashes=False,
-)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=util.parse_origins_as_list(settings.allowed_origins),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.get("/", response_class=HTMLResponse)
-def root(request: Request):
+def create_app(skip_setup: bool = False) -> FastAPI:
     """
-    Display a welcome message and a link to the API documentation.
-    """
-    return f"""
- <html>
-        <head>
-            <style>
-                body {{
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    background-color: #f0f0f0;
-                    font-family: Arial, sans-serif;
-                    margin: 0;
-                }}
-                .container {{
-                    text-align: center;
-                }}
-                .logo {{
-                    animation: spin 5s linear infinite;
-                }}
-                @keyframes spin {{
-                    0% {{ transform: rotate(0deg); }}
-                    100% {{ transform: rotate(360deg); }}
-                }}
-                h1 {{
-                    color: #333;
-                }}
-                p {{
-                    color: #666;
-                }}
-                a {{
-                    color: #007bff;
-                    text-decoration: none;
-                }}
-                a:hover {{
-                    text-decoration: underline;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <img src="https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_logo.png" alt="Neurobagel Logo" class="logo" width="144" height="144">
-                <h1>Welcome to the Neurobagel REST API!</h1>
-                <p>Please visit the <a href="{request.scope.get('root_path', '')}/docs">API documentation</a> to view available API endpoints.</p>
-            </div>
-        </body>
-    </html>
-    """
+    Create and configure the FastAPI app instance.
 
+    Parameters
+    ----------
+    skip_setup : bool, default False
+        Whether to skip the setup steps including environment variable validation and vocabulary fetching.
+        Used to prevent setup_app from automatically running when the app is imported during tests.
 
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
+    Returns
+    -------
+    FastAPI
+        The configured FastAPI app instance.
     """
-    Overrides the default favicon with a custom one.
+    if not skip_setup:
+        setup_app()
 
-    NOTE: When the API is behind a reverse proxy that has a stripped path prefix (and root_path is defined),
-    the custom favicon doesn't appear to work correctly for any API paths other than the docs,
-    as the path in the favicon request isn't automatically adjusted to include the root path prefix.
-    """
-    return RedirectResponse(url=favicon_url)
-
-
-@app.get("/docs", include_in_schema=False)
-def overridden_swagger(request: Request):
-    """
-    Overrides the Swagger UI HTML for the "/docs" endpoint.
-    """
-    return get_swagger_ui_html(
-        openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
-        title="Neurobagel API",
-        swagger_favicon_url=favicon_url,
+    app = FastAPI(
+        root_path=settings.root_path,
+        lifespan=lifespan,
+        default_response_class=ORJSONResponse,
+        docs_url=None,
+        redoc_url=None,
+        redirect_slashes=False,
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=util.parse_origins_as_list(settings.allowed_origins),
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
+    @app.get("/", response_class=HTMLResponse)
+    def root(request: Request):
+        """
+        Display a welcome message and a link to the API documentation.
+        """
+        return f"""
+    <html>
+            <head>
+                <style>
+                    body {{
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        background-color: #f0f0f0;
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                    }}
+                    .container {{
+                        text-align: center;
+                    }}
+                    .logo {{
+                        animation: spin 5s linear infinite;
+                    }}
+                    @keyframes spin {{
+                        0% {{ transform: rotate(0deg); }}
+                        100% {{ transform: rotate(360deg); }}
+                    }}
+                    h1 {{
+                        color: #333;
+                    }}
+                    p {{
+                        color: #666;
+                    }}
+                    a {{
+                        color: #007bff;
+                        text-decoration: none;
+                    }}
+                    a:hover {{
+                        text-decoration: underline;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <img src="https://raw.githubusercontent.com/neurobagel/documentation/main/docs/imgs/logo/neurobagel_logo.png" alt="Neurobagel Logo" class="logo" width="144" height="144">
+                    <h1>Welcome to the Neurobagel REST API!</h1>
+                    <p>Please visit the <a href="{request.scope.get('root_path', '')}/docs">API documentation</a> to view available API endpoints.</p>
+                </div>
+            </body>
+        </html>
+        """
 
-@app.get("/redoc", include_in_schema=False)
-def overridden_redoc(request: Request):
-    """
-    Overrides the Redoc HTML for the "/redoc" endpoint.
-    """
-    return get_redoc_html(
-        openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
-        title="Neurobagel API",
-        redoc_favicon_url=favicon_url,
-    )
+    @app.get("/favicon.ico", include_in_schema=False)
+    async def favicon():
+        """
+        Overrides the default favicon with a custom one.
+
+        NOTE: When the API is behind a reverse proxy that has a stripped path prefix (and root_path is defined),
+        the custom favicon doesn't appear to work correctly for any API paths other than the docs,
+        as the path in the favicon request isn't automatically adjusted to include the root path prefix.
+        """
+        return RedirectResponse(url=favicon_url)
+
+    @app.get("/docs", include_in_schema=False)
+    def overridden_swagger(request: Request):
+        """
+        Overrides the Swagger UI HTML for the "/docs" endpoint.
+        """
+        return get_swagger_ui_html(
+            openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
+            title="Neurobagel API",
+            swagger_favicon_url=favicon_url,
+        )
+
+    @app.get("/redoc", include_in_schema=False)
+    def overridden_redoc(request: Request):
+        """
+        Overrides the Redoc HTML for the "/redoc" endpoint.
+        """
+        return get_redoc_html(
+            openapi_url=f"{request.scope.get('root_path', '')}/openapi.json",
+            title="Neurobagel API",
+            redoc_favicon_url=favicon_url,
+        )
+
+    app.include_router(query.router)
+    app.include_router(datasets.router)
+    app.include_router(subjects.router)
+    app.include_router(attributes.router)
+    app.include_router(assessments.router)
+    app.include_router(diagnoses.router)
+    app.include_router(imaging_modalities.router)
+    app.include_router(pipelines.router)
+
+    return app
 
 
-app.include_router(query.router)
-app.include_router(datasets.router)
-app.include_router(subjects.router)
-app.include_router(attributes.router)
-app.include_router(assessments.router)
-app.include_router(diagnoses.router)
-app.include_router(imaging_modalities.router)
-app.include_router(pipelines.router)
+app = create_app(skip_setup=IS_TESTING)
+
 
 # Automatically start uvicorn server on execution of main.py
 if __name__ == "__main__":
