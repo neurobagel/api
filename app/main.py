@@ -67,6 +67,13 @@ def validate_environment_variables():
             f"Available community configurations: {', '.join(available_configs)}"
         )
 
+    if not settings.datasets_metadata_path.exists():
+        raise RuntimeError(
+            "Datasets metadata file for the node not found. "
+            f"Please double check the value of the {Settings.model_fields['datasets_metadata_path'].alias} environment variable. "
+            f"Resolved path: {settings.datasets_metadata_path}"
+        )
+
 
 def fetch_vocabularies(config_name: str) -> dict:
     """
@@ -149,6 +156,12 @@ def fetch_supported_namespaces_for_config(config_name: str) -> dict:
     return context
 
 
+def load_metadata_for_node_datasets() -> dict:
+    """Load metadata for all datasets in the graph from the specified JSON file."""
+    datasets_metadata = util.load_json(settings.datasets_metadata_path)
+    return datasets_metadata
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -174,12 +187,18 @@ async def lifespan(app: FastAPI):
     env_settings.CONTEXT = fetch_supported_namespaces_for_config(
         settings.config
     )
+    # Load datasets metadata
+    # NOTE: We assume this file contains the expected keys for each dataset (with recognized levels for 'access_type', etc.)
+    # because we assume it is generated automatically by the Neurobagel deployment recipe.
+    # Therefore, we do not perform any additional validation of the contents here.
+    env_settings.DATASETS_METADATA = load_metadata_for_node_datasets()
 
     yield
 
     # Cleanup
     env_settings.ALL_VOCABS.clear()
     env_settings.CONTEXT.clear()
+    env_settings.DATASETS_METADATA.clear()
 
 
 app = FastAPI(
