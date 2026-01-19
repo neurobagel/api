@@ -222,8 +222,7 @@ def create_query(
             + f'{create_bound_filter(PIPELINE_VERSION.var)} && ?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes to avoid workaround implicit conversion
         )
 
-    query_string = textwrap.dedent(
-        f"""
+    query_string = textwrap.dedent(f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
         ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions
         ?session_id ?session_type ?assessment ?image_modal ?session_file_path ?pipeline_name ?pipeline_version
@@ -293,18 +292,15 @@ def create_query(
             }}
             {subject_level_filters}
         }}
-    """
-    )
+    """)
 
     # The query defined above will return all subject-level attributes from the graph. If aggregate results have been enabled,
     # wrap query in an aggregating statement so data returned from graph include only attributes needed for dataset-level aggregate metadata.
     if return_agg:
         query_string = (
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
             SELECT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal ?pipeline_version ?pipeline_name
-            WHERE {"""
-            )
+            WHERE {""")
             + textwrap.indent(query_string, "    ")
             + "} GROUP BY ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?image_modal ?pipeline_version ?pipeline_name"
         )
@@ -522,15 +518,13 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
 
 def create_pipeline_versions_query(pipeline: str) -> str:
     """Create a SPARQL query for all versions of a pipeline available in a graph."""
-    query_string = textwrap.dedent(
-        f"""\
+    query_string = textwrap.dedent(f"""\
     SELECT DISTINCT ?pipeline_version
     WHERE {{
         ?completed_pipeline a nb:CompletedPipeline;
             nb:hasPipelineName {pipeline};
             nb:hasPipelineVersion ?pipeline_version.
-    }}"""
-    )
+    }}""")
     return query_string
 
 
