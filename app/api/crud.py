@@ -1,7 +1,6 @@
 """CRUD functions called by path operations."""
 
 import asyncio
-import logging
 from collections import defaultdict
 
 import httpx
@@ -11,9 +10,10 @@ from fastapi import HTTPException, status
 from . import sparql_models
 from . import utility as util
 from .env_settings import settings
+from .logger import get_logger
 from .models import DataElementURI, QueryModel, SessionResponse
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
