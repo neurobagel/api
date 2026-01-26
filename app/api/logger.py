@@ -1,6 +1,5 @@
 import logging
-import sys
-from typing import NoReturn
+from typing import NoReturn, Type
 
 
 def get_logger(name: str) -> logging.Logger:
@@ -8,7 +7,13 @@ def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(name)
 
 
-def log_error(logger: logging.Logger, message: str) -> NoReturn:
-    """Log an exception with an informative error message, and exit the app."""
+def log_and_raise_error(
+    logger: logging.Logger, exception_type: Type[Exception], message: str
+) -> NoReturn:
+    """
+    Log an error with an informative message,
+    then raise the specified exception type with the same message,
+    exiting the app.
+    """
     logger.error(message)
-    sys.exit(1)
+    raise exception_type(message)

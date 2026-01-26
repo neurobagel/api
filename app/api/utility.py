@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from . import env_settings, sparql_models
-from .logger import get_logger, log_error
+from .logger import get_logger, log_and_raise_error
 from .models import IMAGING_FILTERS, PHENOTYPIC_FILTERS, QueryModel
 
 logger = get_logger(__name__)
@@ -59,8 +59,9 @@ def request_data(url: str, err_message: str) -> Any:
 
         return data
     except httpx.HTTPError as e:
-        log_error(
+        log_and_raise_error(
             logger,
+            RuntimeError,
             f"{err_message}. Error: {e}\n"
             "Please check that you have an internet connection. "
             "If the problem persists, please open an issue in https://github.com/neurobagel/api/issues.",
