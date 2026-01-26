@@ -117,11 +117,12 @@ class SessionResponse(BaseModel):
     completed_pipelines: dict
 
 
-class DatasetQueryResponse(BaseModel):
-    """Data model for metadata of datasets matching a query."""
+class CohortQueryResponse(BaseModel):
+    """
+    Data model for legacy GET /query endpoint response, for backwards-compatibility only.
+    """
 
     dataset_uuid: str
-    # dataset_file_path: str  # TODO: Revisit this field once we have datasets without imaging info/sessions.
     dataset_name: str
     dataset_portal_uri: Optional[str]
     dataset_total_subjects: int
@@ -129,11 +130,35 @@ class DatasetQueryResponse(BaseModel):
     num_matching_subjects: int
     image_modals: list
     available_pipelines: dict
+    subject_data: Union[list[SessionResponse], str]
 
 
-class SubjectsQueryResponse(DatasetQueryResponse):
+class DatasetQueryResponse(BaseModel):
+    """Data model for metadata of a single dataset matching a query."""
+
+    dataset_uuid: str
+    # dataset_file_path: str  # TODO: Revisit this field once we have datasets without imaging info/sessions.
+    dataset_name: str
+    authors: list[str] = Field(default_factory=list)
+    homepage: Optional[str] = None
+    references_and_links: list[str] = Field(default_factory=list)
+    keywords: list[str] = Field(default_factory=list)
+    repository_url: Optional[str] = None
+    access_instructions: Optional[str] = None
+    access_type: Optional[str] = None
+    access_email: Optional[str] = None
+    access_link: Optional[str] = None
+    dataset_total_subjects: int
+    records_protected: bool
+    num_matching_subjects: int
+    image_modals: list[str] = Field(default_factory=list)
+    available_pipelines: dict = Field(default_factory=dict)
+
+
+class SubjectsQueryResponse(BaseModel):
     """Data model for subject data matching a query."""
 
+    dataset_uuid: str
     subject_data: Union[list[SessionResponse], str]
 
 

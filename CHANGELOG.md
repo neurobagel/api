@@ -1,3 +1,15 @@
+# v0.9.0 (Thu Jan 15 2026)
+
+#### 💥 Breaking Changes
+
+- [ENH] Return expanded metadata per matching dataset for `POST /datasets` endpoint only [#519](https://github.com/neurobagel/api/pull/519) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.8.0 (Thu Dec 11 2025)
 
 #### 🚀 Enhancements

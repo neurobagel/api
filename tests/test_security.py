@@ -8,7 +8,7 @@ from app.api.security import verify_token
 
 
 def test_missing_client_id_raises_error_when_auth_enabled(
-    test_app, monkeypatch, enable_auth, caplog
+    test_app, monkeypatch, enable_auth, set_temp_datasets_metadata_file, caplog
 ):
     """Test that a missing client ID raises an error on startup when authentication is enabled."""
     # We're using what should be default values of client_id and auth_enabled here
@@ -29,7 +29,9 @@ def test_missing_client_id_raises_error_when_auth_enabled(
     assert expected_msg in str(e_info.value)
 
 
-def test_missing_client_id_ignored_when_auth_disabled(test_app, monkeypatch):
+def test_missing_client_id_ignored_when_auth_disabled(
+    monkeypatch, test_app, set_temp_datasets_metadata_file
+):
     """Test that a missing client ID does not raise an error when authentication is disabled."""
     monkeypatch.setattr(settings, "client_id", None)
     monkeypatch.setattr(settings, "auth_enabled", False)

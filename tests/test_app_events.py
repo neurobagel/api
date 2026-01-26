@@ -1,6 +1,7 @@
 """Test events occurring on app startup or shutdown."""
 
 import logging
+from pathlib import Path
 
 import pytest
 
@@ -11,7 +12,11 @@ from app.main import settings
 
 
 def test_start_app_without_environment_vars_fails(
-    test_app, disable_auth, monkeypatch, caplog
+    test_app,
+    disable_auth,
+    set_temp_datasets_metadata_file,
+    monkeypatch,
+    caplog,
 ):
     """Given non-existing username and password environment variables, raises an informative RuntimeError."""
     monkeypatch.setattr(settings, "graph_username", None)
@@ -33,6 +38,7 @@ def test_start_app_without_environment_vars_fails(
 def test_app_with_unset_allowed_origins(
     test_app,
     disable_auth,
+    set_temp_datasets_metadata_file,
     monkeypatch,
     caplog,
 ):
@@ -75,6 +81,7 @@ def test_app_with_set_allowed_origins(
     allowed_origins,
     parsed_origins,
     disable_auth,
+    set_temp_datasets_metadata_file,
 ):
     """
     Test that when the environment variable for allowed origins has been explicitly set,
@@ -96,7 +103,11 @@ def fetched_configs_includes_neurobagel(disable_auth):
 
 
 def test_app_exits_when_config_unrecognized(
-    test_app, disable_auth, monkeypatch, caplog
+    test_app,
+    disable_auth,
+    set_temp_datasets_metadata_file,
+    monkeypatch,
+    caplog,
 ):
     """Test that when the configuration is set to an unrecognized name, the app raises an error."""
     monkeypatch.setattr(settings, "config", "Unknown-Config")
@@ -114,8 +125,21 @@ def test_app_exits_when_config_unrecognized(
     assert expected_msg in str(e_info.value)
 
 
-def test_neurobagel_vocabularies_fetched_successfully(
+def test_app_exits_when_datasets_metadata_file_not_found(
     test_app, disable_auth, monkeypatch
+):
+    """Test that when the provided datasets metadata file path does not exist, the app raises an error."""
+    monkeypatch.setattr(
+        settings, "datasets_metadata_path", Path("/non/existent/file.json")
+    )
+    with pytest.raises(RuntimeError) as e_info:
+        with test_app:
+            pass
+    assert "Datasets metadata file for the node not found" in str(e_info.value)
+
+
+def test_neurobagel_vocabularies_fetched_successfully(
+    test_app, disable_auth, set_temp_datasets_metadata_file, monkeypatch
 ):
     """
     Test that for a given configuration, the term vocabularies are fetched and stored
@@ -134,7 +158,7 @@ def test_neurobagel_vocabularies_fetched_successfully(
 
 
 def test_neurobagel_namespaces_fetched_successfully(
-    test_app, disable_auth, monkeypatch
+    test_app, disable_auth, set_temp_datasets_metadata_file, monkeypatch
 ):
     """
     Test that for a given configuration, the recognized term namespaces are fetched and stored
