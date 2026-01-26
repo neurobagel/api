@@ -126,16 +126,24 @@ def test_app_exits_when_config_unrecognized(
 
 
 def test_app_exits_when_datasets_metadata_file_not_found(
-    test_app, disable_auth, monkeypatch
+    test_app, disable_auth, monkeypatch, caplog
 ):
     """Test that when the provided datasets metadata file path does not exist, the app raises an error."""
     monkeypatch.setattr(
         settings, "datasets_metadata_path", Path("/non/existent/file.json")
     )
+    expected_msg = "Datasets metadata file for the node not found"
+
     with pytest.raises(RuntimeError) as e_info:
         with test_app:
             pass
-    assert "Datasets metadata file for the node not found" in str(e_info.value)
+
+    errors = [
+        record for record in caplog.records if record.levelno == logging.ERROR
+    ]
+    assert len(errors) == 1
+    assert expected_msg in errors[0].getMessage()
+    assert expected_msg in str(e_info.value)
 
 
 def test_neurobagel_vocabularies_fetched_successfully(

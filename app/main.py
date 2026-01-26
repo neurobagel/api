@@ -82,10 +82,12 @@ def validate_environment_variables():
         )
 
     if not settings.datasets_metadata_path.exists():
-        raise RuntimeError(
+        log_and_raise_error(
+            logger,
+            RuntimeError,
             "Datasets metadata file for the node not found. "
             f"Please double check the value of the {Settings.model_fields['datasets_metadata_path'].alias} environment variable. "
-            f"Resolved path: {settings.datasets_metadata_path}"
+            f"Resolved path: {settings.datasets_metadata_path}",
         )
 
 
