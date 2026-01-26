@@ -5,34 +5,37 @@ from fastapi import HTTPException
 
 from app.api.env_settings import settings
 from app.api.security import verify_token
-from app.main import setup_app
 
 
 def test_missing_client_id_raises_error_when_auth_enabled(
-    monkeypatch, enable_auth, caplog
+    test_app, monkeypatch, enable_auth, caplog
 ):
     """Test that a missing client ID raises an error on startup when authentication is enabled."""
     # We're using what should be default values of client_id and auth_enabled here
     # (if the corresponding environment variables are unset),
     # but we set the values explicitly here for clarity
     monkeypatch.setattr(settings, "client_id", None)
+    expected_msg = "NB_QUERY_CLIENT_ID is not set"
 
-    with pytest.raises(SystemExit):
-        setup_app()
+    with pytest.raises(RuntimeError) as e_info:
+        with test_app:
+            pass
 
     errors = [
         record for record in caplog.records if record.levelno == logging.ERROR
     ]
     assert len(errors) == 1
-    assert "NB_QUERY_CLIENT_ID is not set" in errors[0].getMessage()
+    assert expected_msg in errors[0].getMessage()
+    assert expected_msg in str(e_info.value)
 
 
-def test_missing_client_id_ignored_when_auth_disabled(monkeypatch):
+def test_missing_client_id_ignored_when_auth_disabled(test_app, monkeypatch):
     """Test that a missing client ID does not raise an error when authentication is disabled."""
     monkeypatch.setattr(settings, "client_id", None)
     monkeypatch.setattr(settings, "auth_enabled", False)
 
-    setup_app()
+    with test_app:
+        pass
 
 
 @pytest.mark.parametrize(
