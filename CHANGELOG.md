@@ -1,3 +1,15 @@
+# v0.9.1 (Wed Feb 04 2026)
+
+#### 🚀 Enhancements
+
+- [MNT] Add logging for user errors & warnings [#522](https://github.com/neurobagel/api/pull/522) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 1
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+
+---
+
 # v0.9.0 (Thu Jan 15 2026)
 
 #### 💥 Breaking Changes
