@@ -44,6 +44,7 @@ def test_app_with_unset_allowed_origins(
 ):
     """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses an empty list."""
     monkeypatch.setattr(settings, "allowed_origins", None)
+    expected_warning = "API was launched without providing any values for the NB_API_ALLOWED_ORIGINS environment variable"
 
     with test_app:
         pass
@@ -53,11 +54,9 @@ def test_app_with_unset_allowed_origins(
         for record in caplog.records
         if record.levelno == logging.WARNING
     ]
+
     assert len(warnings) == 1
-    assert (
-        "API was launched without providing any values for the NB_API_ALLOWED_ORIGINS environment variable"
-        in warnings[0].getMessage()
-    )
+    assert expected_warning in warnings[0].getMessage()
     assert util.parse_origins_as_list(settings.allowed_origins) == []
 
 

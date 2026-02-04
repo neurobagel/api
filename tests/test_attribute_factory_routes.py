@@ -70,6 +70,11 @@ def test_get_instances_endpoint_with_vocab_lookup(
         },
     }
 
+    expected_warning = [
+        "http://unknownvocab.org/123456789",
+        "does not come from a vocabulary recognized by Neurobagel",
+    ]
+
     async def mock_httpx_post(self, **kwargs):
         return httpx.Response(status_code=200, json=mock_response_json)
 
@@ -83,10 +88,8 @@ def test_get_instances_endpoint_with_vocab_lookup(
         if record.levelno == logging.WARNING
     ]
     assert len(warnings) == 1
-    assert (
-        "does not come from a vocabulary recognized by Neurobagel"
-        in warnings[0].getMessage()
-    )
+    for expected_substr in expected_warning:
+        assert expected_substr in warnings[0].getMessage()
     assert response.json() == {
         "nb:Assessment": [
             {
