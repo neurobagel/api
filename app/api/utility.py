@@ -11,7 +11,10 @@ import numpy as np
 import pandas as pd
 
 from . import env_settings, sparql_models
+from .logger import get_logger, log_and_raise_error
 from .models import IMAGING_FILTERS, PHENOTYPIC_FILTERS, QueryModel
+
+logger = get_logger(__name__)
 
 QUERY_HEADER = {
     "Content-Type": "application/sparql-query",
@@ -55,6 +58,7 @@ def create_gh_raw_content_url(repo: str, content_path: str) -> str:
 
 
 def request_data(url: str, err_message: str) -> Any:
+    """Request JSON data from a given URL. Log an error and exit if the request fails."""
     try:
         with httpx.Client() as client:
             response = client.get(url)
@@ -63,11 +67,13 @@ def request_data(url: str, err_message: str) -> Any:
 
         return data
     except httpx.HTTPError as e:
-        raise RuntimeError(
+        log_and_raise_error(
+            logger,
+            RuntimeError,
             f"{err_message}. Error: {e}\n"
             "Please check that you have an internet connection. "
-            "If the problem persists, please open an issue in https://github.com/neurobagel/api/issues."
-        ) from e
+            "If the problem persists, please open an issue in https://github.com/neurobagel/api/issues.",
+        )
 
 
 def create_query_context(context: dict) -> str:

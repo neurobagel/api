@@ -1,3 +1,5 @@
+import logging
+
 import httpx
 import pytest
 
@@ -12,6 +14,7 @@ def test_get_instances_endpoint_with_vocab_lookup(
     # we need to disable auth to avoid startup errors about unset auth-related environment variables.
     disable_auth,
     mock_context,
+    caplog,
 ):
     """
     Given a GET request to /assessments (attribute with a vocabulary lookup available),
@@ -67,17 +70,26 @@ def test_get_instances_endpoint_with_vocab_lookup(
         },
     }
 
+    expected_warning = [
+        "http://unknownvocab.org/123456789",
+        "does not come from a vocabulary recognized by Neurobagel",
+    ]
+
     async def mock_httpx_post(self, **kwargs):
         return httpx.Response(status_code=200, json=mock_response_json)
 
     monkeypatch.setattr(httpx.AsyncClient, "post", mock_httpx_post)
 
-    with pytest.warns(
-        UserWarning,
-        match="does not come from a vocabulary recognized by Neurobagel",
-    ):
-        response = test_app.get("/assessments")
+    response = test_app.get("/assessments")
 
+    warnings = [
+        record
+        for record in caplog.records
+        if record.levelno == logging.WARNING
+    ]
+    assert len(warnings) == 1
+    for expected_substr in expected_warning:
+        assert expected_substr in warnings[0].getMessage()
     assert response.json() == {
         "nb:Assessment": [
             {

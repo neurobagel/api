@@ -565,7 +565,6 @@ def test_query_without_token_succeeds_when_auth_disabled(
 
 
 @pytest.mark.integration
-@pytest.mark.filterwarnings("ignore:.*NB_API_ALLOWED_ORIGINS")
 def test_app_with_invalid_environment_vars(
     test_app,
     monkeypatch,
@@ -585,7 +584,6 @@ def test_app_with_invalid_environment_vars(
 @pytest.mark.integration
 def test_integration_query_without_auth_succeeds(
     test_app,
-    monkeypatch,
     disable_auth,
     set_graph_url_vars_for_integration_tests,
     set_temp_datasets_metadata_file,
@@ -725,6 +723,7 @@ def test_fetched_context_used_during_sparql_query(
     (using the context fetched on startup), resulting in at least 1 matching subject.
     """
     modality_with_prefix = "nidm:T1Weighted"
+
     with test_app:
         response = test_app.get(f"{ROUTE}?image_modal={modality_with_prefix}")
 
