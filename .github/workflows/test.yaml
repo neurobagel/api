@@ -38,7 +38,9 @@ jobs:
       uses: astral-sh/setup-uv@v5
 
     - name: Install dependencies
-      run: uv sync --frozen
+      run: |
+        uv export --frozen --all-groups --no-hashes -o requirements-ci.txt
+        pip install --no-cache-dir -r requirements-ci.txt
 
     - name: Lint with flake8
       run: |
