@@ -1,0 +1,57 @@
+[project]
+name = "neurobagel-api"
+dynamic = ["version"]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "fastapi",
+    "pydantic>=2.10,<3",
+    "pydantic-settings",
+    "uvicorn",
+    "httpx",
+    "pandas",
+    "numpy",
+    "orjson",
+    "PyJWT",
+    "typing-extensions",
+]
+
+[dependency-groups]
+dev = [
+  {include-group = "test"},
+  {include-group = "coverage"},
+  {include-group = "lint"}
+]
+test = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-env",
+]
+coverage = ["coverage"]
+lint = [
+    "pre-commit",
+    "flake8",
+    "black",
+    "isort"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+filter_files = true
+line_length = 79
+
+[tool.mypy]
+ignore_missing_imports = true
+warn_no_return = false
+warn_redundant_casts = true
+show_error_codes = true
+pretty = true
