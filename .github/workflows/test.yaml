@@ -38,7 +38,7 @@ jobs:
       uses: astral-sh/setup-uv@v5
 
     - name: Install dependencies
-      run: uv sync --frozen --extra dev
+      run: uv sync --frozen
 
     - name: Lint with flake8
       run: |
