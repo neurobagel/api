@@ -16,22 +16,23 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 
 Please refer to our [**official documentation**](https://neurobagel.org/user_guide/api/) for more information on how to use the API.
 
-- [Quickstart](#quickstart)
-- [Local installation](#local-installation)
-  - [Clone the repo](#clone-the-repo)
-  - [Set the environment variables](#set-the-environment-variables)
-  - [Docker](#docker)
-    - [Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe](#option-1-recommended-use-the-neurobagel-docker-compose-recipe)
-    - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
-    - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
-    - [Send a test query to the API](#send-a-test-query-to-the-api)
-  - [Python](#python)
-    - [Install dependencies](#install-dependencies)
-    - [Launch the API](#launch-the-api)
-  - [Troubleshooting](#troubleshooting)
-- [Testing](#testing)
-- [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
-- [License](#license)
+- [Neurobagel API](#neurobagel-api)
+  - [Quickstart](#quickstart)
+  - [Local installation](#local-installation)
+    - [Clone the repo](#clone-the-repo)
+    - [Set the environment variables](#set-the-environment-variables)
+    - [Docker](#docker)
+      - [Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe](#option-1-recommended-use-the-neurobagel-docker-compose-recipe)
+      - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
+      - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
+      - [Send a test query to the API](#send-a-test-query-to-the-api)
+    - [Python](#python)
+      - [Install dependencies](#install-dependencies)
+      - [Launch the API](#launch-the-api)
+    - [Troubleshooting](#troubleshooting)
+  - [Testing](#testing)
+  - [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
+  - [License](#license)
 
 
 ## Quickstart
@@ -115,25 +116,34 @@ The response should be a list of dictionaries containing info about datasets wit
 ### Python
 #### Install dependencies
 
-After cloning the repository, install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's `venv` package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
+After cloning the repository, install the package in editable mode with development dependencies using uv:
 
 ```bash
-$ pip install -r requirements.txt
+uv sync --all-groups
 ```
+
+This will create a virtual environment (if one doesn't exist), install the package in editable mode, and install all dependency groups including dev dependencies.
 
 #### Launch the API
 
-To launch the API make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
+To launch the API make sure you're in the repository's main directory and that your `.env` file is configured.
 
 Export the variables defined in your `.env` file:
 ```bash
 export $(cat .env | xargs)
 ```
 
-You can then launch the API by running the following command in your terminal:
+You can then launch the API using either of these methods:
 
+**Option 1: Using uv run (recommended)**
 ```bash
-$ python -m app.main
+uv run python -m app.main
+```
+
+**Option 2: Activate the virtual environment**
+```bash
+source .venv/bin/activate
+python -m app.main
 ```
 
 ```bash
@@ -154,7 +164,7 @@ If you get a 401 response to your API request with an `"Unauthorized: "` error m
 
 Neurobagel API utilizes [Pytest](https://docs.pytest.org/en/7.2.x/) framework for testing.
 
-To run the tests, first ensure you're in the repository's root directory and in the environment where the dependencies are installed.
+To run the tests, first ensure you're in the repository's root directory.
 
 Install the submodules used by the tests:
 ```bash
@@ -165,7 +175,7 @@ git submodule update
 You can then run the tests by executing the following command in your terminal:
 
 ```bash
-pytest tests
+uv run pytest tests
 ```
 
 To run the integration tests of SPARQL queries (skipped by default), also launch the test graph store:
@@ -179,14 +189,14 @@ since docker compose will try to use `.env` by default._
 
 Then, run all tests using:
 ```bash
-pytest -m "integration or not integration"
+uv run pytest -m "integration or not integration"
 # OR
-pytest -m ""
+uv run pytest -m ""
 ```
 
 Or, to run only the integration tests:
 ```bash
-pytest -m "integration"
+uv run pytest -m "integration"
 ```
 
 Once you are done with testing, you can stop and remove the test graph container:
@@ -203,6 +213,10 @@ the API will always talk to the graph on behalf of the user.
 
 (For developers) 
 To regenerate this sample query when the API query template is updated, run the following commands from the repository root in an interactive Python terminal:
+
+```bash
+uv run python
+```
 
 ```python
 from app.main import fetch_supported_namespaces_for_config
