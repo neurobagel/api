@@ -1,5 +1,5 @@
 """Main app."""
-
+from .api.cache import load_vocab_cache, save_vocab_cache
 import logging
 from contextlib import asynccontextmanager
 
@@ -198,7 +198,29 @@ async def lifespan(app: FastAPI):
     check_client_id()
 
     # Initialize vocabularies
-    env_settings.ALL_VOCABS = fetch_vocabularies(settings.config)
+    cached = load_vocab_cache()
+
+    if cached:
+       logger.info("Loaded vocabularies from cache.")
+       logger.info("Using cached vocabularies. Remove .cache to force refresh.")
+       env_settings.ALL_VOCABS = cached
+    else:
+       logger.info("Fetching vocabularies from GitHub.")
+
+       try:
+          vocabs = fetch_vocabularies(settings.config)
+          save_vocab_cache(vocabs)
+          env_settings.ALL_VOCABS = vocabs
+
+       except Exception as e:
+           logger.warning("Failed to fetch vocabularies, trying cache.")
+
+           cached = load_vocab_cache()
+           if cached:
+               env_settings.ALL_VOCABS = cached
+           else:
+               raise e
+
     # Create context
     env_settings.CONTEXT = fetch_supported_namespaces_for_config(
         settings.config
