@@ -163,6 +163,8 @@ def mock_post_agg_query_to_graph():
                 "dataset_portal_uri": "https://rpq-qpn.ca/en/researchers-section/databases/",
                 "sub_id": "sub-ON95534",
                 "dataset_name": "QPN",
+                "dataset_portal_uri": "https://example.org",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -172,6 +174,8 @@ def mock_post_agg_query_to_graph():
                 "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
                 "pipeline_version": "7.3.2",
                 "pipeline_name": "https://github.com/nipoppy/pipeline-catalog/tree/main/processing/freesurfer",
+                "dataset_portal_uri": "https://example.org",
+                "dataset_total_subjects": 10,
             },
         ]
 
@@ -197,6 +201,10 @@ def mock_post_nonagg_query_to_graph():
                 "num_matching_imaging_sessions": "2",
                 "session_id": "ses-01",
                 "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -207,6 +215,10 @@ def mock_post_nonagg_query_to_graph():
                 "num_matching_imaging_sessions": "2",
                 "session_id": "ses-02",
                 "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -218,6 +230,10 @@ def mock_post_nonagg_query_to_graph():
                 "session_type": "http://neurobagel.org/vocab/ImagingSession",
                 "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
                 "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-01",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -229,6 +245,10 @@ def mock_post_nonagg_query_to_graph():
                 "session_type": "http://neurobagel.org/vocab/ImagingSession",
                 "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
                 "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-01",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -240,6 +260,10 @@ def mock_post_nonagg_query_to_graph():
                 "session_type": "http://neurobagel.org/vocab/ImagingSession",
                 "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
                 "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-02",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -251,6 +275,10 @@ def mock_post_nonagg_query_to_graph():
                 "session_type": "http://neurobagel.org/vocab/ImagingSession",
                 "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
                 "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-03/ses-02",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -262,6 +290,10 @@ def mock_post_nonagg_query_to_graph():
                 "num_matching_imaging_sessions": "2",
                 "session_id": "ses-01",
                 "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -273,6 +305,10 @@ def mock_post_nonagg_query_to_graph():
                 "num_matching_imaging_sessions": "2",
                 "session_id": "ses-02",
                 "session_type": "http://neurobagel.org/vocab/PhenotypicSession",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -284,6 +320,10 @@ def mock_post_nonagg_query_to_graph():
                 "session_type": "http://neurobagel.org/vocab/ImagingSession",
                 "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
                 "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-01",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -295,6 +335,10 @@ def mock_post_nonagg_query_to_graph():
                 "session_type": "http://neurobagel.org/vocab/ImagingSession",
                 "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
                 "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-01",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -306,6 +350,10 @@ def mock_post_nonagg_query_to_graph():
                 "session_type": "http://neurobagel.org/vocab/ImagingSession",
                 "image_modal": "http://purl.org/nidash/nidm#T1Weighted",
                 "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-02",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
             {
                 "dataset_uuid": "http://neurobagel.org/vocab/12345",
@@ -317,6 +365,10 @@ def mock_post_nonagg_query_to_graph():
                 "session_type": "http://neurobagel.org/vocab/ImagingSession",
                 "image_modal": "http://purl.org/nidash/nidm#FlowWeighted",
                 "session_file_path": "/data/neurobagel/bagel-cli/bids-examples/synthetic/sub-04/ses-02",
+                "pipeline_name": None,
+                "pipeline_version": None,
+                "dataset_portal_uri": "http://neurobagel.org/vocab/12345",
+                "dataset_total_subjects": 10,
             },
         ]
 

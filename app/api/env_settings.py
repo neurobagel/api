@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     )
     return_agg: bool = Field(alias="NB_RETURN_AGG", default=True)
     min_cell_size: int = Field(alias="NB_MIN_CELL_SIZE", default=0)
-    auth_enabled: bool = Field(alias="NB_ENABLE_AUTH", default=True)
+    auth_enabled: bool = Field(alias="NB_ENABLE_AUTH", default=False)
     client_id: str | None = Field(alias="NB_QUERY_CLIENT_ID", default=None)
     config: str = Field(
         alias="NB_CONFIG",

@@ -25,7 +25,7 @@ def test_settings_read_correctly(monkeypatch):
     # Check that defaults are applied correctly for environment variables that are undefined
     assert settings.root_path == ""
     assert settings.graph_address == "127.0.0.1"
-    assert settings.auth_enabled is True
+    assert settings.auth_enabled is False 
     assert settings.client_id is None
     assert settings.config == "Neurobagel"
     assert settings.datasets_metadata_path == Path(
