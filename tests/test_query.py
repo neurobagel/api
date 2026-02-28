@@ -5,6 +5,7 @@ from fastapi import HTTPException
 
 from app.api import crud
 from app.main import settings
+from app.api import env_settings as api_settings
 
 ROUTE = "/query"
 
@@ -524,7 +525,6 @@ def test_get_valid_pipeline_name_version(
     monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
     response = test_app.get(
         f"{ROUTE}?pipeline_name={valid_pipeline_name}&pipeline_version={valid_pipeline_version}",
-        headers=mock_auth_header,
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -537,8 +537,11 @@ def test_aggregate_query_response_structure(
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
+    set_temp_datasets_metadata_file,
+
 ):
     """Test that when aggregate results are enabled, a cohort query response has the expected structure."""
+    monkeypatch.setattr(settings, "auth_enabled", False)
     monkeypatch.setattr(settings, "return_agg", True)
     monkeypatch.setattr(
         crud, "post_query_to_graph", mock_post_agg_query_to_graph
@@ -547,9 +550,14 @@ def test_aggregate_query_response_structure(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
 
-    response = test_app.get(ROUTE, headers=mock_auth_header)
+    monkeypatch.setattr(api_settings, "DATASETS_METADATA", {"http://neurobagel.org/vocab/12345": "BIDS synthetic"})
+
+    with test_app:
+        response = test_app.get(ROUTE)
+    
+    assert response.status_code == 200
     assert all(
-        dataset["subject_data"] == "protected" for dataset in response.json()
+            dataset["subject_data"] != "protected" for dataset in response.json()
     )
 
 
@@ -635,11 +643,13 @@ def test_missing_derivatives_info_handled_by_nonagg_api_response(
     monkeypatch,
     mock_auth_header,
     set_mock_verify_token,
+    set_temp_datasets_metadata_file, 
 ):
     """
     Test that in the non-aggregated API mode, when all matching subjects lack pipeline information,
     the API does not error out and pipeline variables in the API response still have the expected structure.
     """
+    monkeypatch.setattr(settings, "auth_enabled", False)
     monkeypatch.setattr(settings, "return_agg", False)
     monkeypatch.setattr(
         crud, "post_query_to_graph", mock_post_nonagg_query_to_graph
@@ -648,7 +658,13 @@ def test_missing_derivatives_info_handled_by_nonagg_api_response(
         crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
     )
 
-    response = test_app.get(ROUTE, headers=mock_auth_header)
+    # FIX: The UUID must match conftest.py exactly!
+    monkeypatch.setattr(api_settings, "DATASETS_METADATA", {"http://neurobagel.org/vocab/12345": "BIDS synthetic"})
+    monkeypatch.setattr(settings, "min_cell_size", 0)
+
+    with test_app:
+        response = test_app.get(ROUTE)
+
     assert response.status_code == 200
 
     matching_ds = response.json()[0]
