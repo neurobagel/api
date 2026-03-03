@@ -1,3 +1,19 @@
+# v0.9.2 (Tue Mar 03 2026)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Sejal ([@sejalpunwatkar](https://github.com/sejalpunwatkar)), for all your work!
+
+#### 🚀 Enhancements
+
+- [MNT] Change default value of NB_ENABLE_AUTH to False #530 [#533](https://github.com/neurobagel/api/pull/533) ([@sejalpunwatkar](https://github.com/sejalpunwatkar))
+
+#### Authors: 1
+
+- Sejal ([@sejalpunwatkar](https://github.com/sejalpunwatkar))
+
+---
+
 # v0.9.1 (Wed Feb 04 2026)
 
 #### 🚀 Enhancements
