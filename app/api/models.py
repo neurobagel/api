@@ -1,7 +1,7 @@
 """Data models."""
 
 from enum import Enum
-from typing import Optional, Union
+# remove this line completely
 
 from fastapi.exceptions import HTTPException
 from pydantic import (
@@ -44,28 +44,16 @@ class QueryModel(BaseModel):
     # NOTE: Explicit examples are needed for fields requiring a URI to avoid random-string examples being generated
     # for the example request body in the interactive docs
 
-    min_age: float = Field(default=None, ge=0)
-    max_age: float = Field(default=None, ge=0)
-    sex: str = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
-    )
-    diagnosis: str = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
-    )
-    min_num_imaging_sessions: int = Field(default=None, ge=0)
-    min_num_phenotypic_sessions: int = Field(default=None, ge=0)
-    assessment: str = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
-    )
-    image_modal: str = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
-    )
-    pipeline_name: str = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
-    )
-    pipeline_version: str = Field(
-        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
-    )
+    min_age: float | None = Field(default=None, ge=0)
+    max_age: float | None = Field(default=None, ge=0)
+    sex: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
+    diagnosis: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
+    min_num_imaging_sessions: int | None = Field(default=None, ge=0)
+    min_num_phenotypic_sessions: int | None = Field(default=None, ge=0)
+    assessment: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
+    image_modal: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
+    pipeline_name: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
+    pipeline_version: str | None = Field(default=None, pattern=VERSION_REGEX, examples=["1.0.0"])
 
     @model_validator(mode="after")
     def check_maxage_ge_minage(self) -> Self:
@@ -107,13 +95,13 @@ class SessionResponse(BaseModel):
     num_matching_phenotypic_sessions: int
     num_matching_imaging_sessions: int
     session_type: str
-    age: Optional[float]
-    sex: Optional[str]
+    age: float | None
+    sex: str | None
     diagnosis: list
-    subject_group: Optional[str]
+    subject_group: str | None
     assessment: list
     image_modal: list
-    session_file_path: Optional[str]
+    session_file_path: str | None
     completed_pipelines: dict
 
 
@@ -124,13 +112,13 @@ class CohortQueryResponse(BaseModel):
 
     dataset_uuid: str
     dataset_name: str
-    dataset_portal_uri: Optional[str]
+    dataset_portal_uri: str | None
     dataset_total_subjects: int
     records_protected: bool
     num_matching_subjects: int
     image_modals: list
     available_pipelines: dict
-    subject_data: Union[list[SessionResponse], str]
+    subject_data: list[SessionResponse] | str
 
 
 class DatasetQueryResponse(BaseModel):
@@ -140,14 +128,14 @@ class DatasetQueryResponse(BaseModel):
     # dataset_file_path: str  # TODO: Revisit this field once we have datasets without imaging info/sessions.
     dataset_name: str
     authors: list[str] = Field(default_factory=list)
-    homepage: Optional[str] = None
+    homepage: str | None = None
     references_and_links: list[str] = Field(default_factory=list)
     keywords: list[str] = Field(default_factory=list)
-    repository_url: Optional[str] = None
-    access_instructions: Optional[str] = None
-    access_type: Optional[str] = None
-    access_email: Optional[str] = None
-    access_link: Optional[str] = None
+    repository_url: str | None = None
+    access_instructions: str | None = None
+    access_type: str | None = None
+    access_email: str | None = None
+    access_link: str | None = None
     dataset_total_subjects: int
     records_protected: bool
     num_matching_subjects: int
@@ -159,7 +147,7 @@ class SubjectsQueryResponse(BaseModel):
     """Data model for subject data matching a query."""
 
     dataset_uuid: str
-    subject_data: Union[list[SessionResponse], str]
+    subject_data: list[SessionResponse] | str
 
 
 class DataElementURI(str, Enum):
@@ -179,7 +167,7 @@ class StandardizedTermVocabularyNamespace(BaseModel):
     vocabulary_name: str
     namespace_url: str
     namespace_prefix: str
-    version: Optional[str]  # TODO: Make version mandatory?
+    version: str | None  # TODO: Make version mandatory?
     terms: list[dict]
 
 

@@ -4,7 +4,7 @@ import json
 import textwrap
 from collections import namedtuple
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 import numpy as np
@@ -110,16 +110,16 @@ def create_bound_filter(var: str) -> str:
 
 def create_query(
     return_agg: bool,
-    age: Optional[tuple] = (None, None),
-    sex: Optional[str] = None,
-    diagnosis: Optional[str] = None,
-    min_num_imaging_sessions: Optional[int] = None,
-    min_num_phenotypic_sessions: Optional[int] = None,
-    assessment: Optional[str] = None,
-    image_modal: Optional[str] = None,
-    pipeline_name: Optional[str] = None,
-    pipeline_version: Optional[str] = None,
-    dataset_uuids: Optional[list] = None,
+    age: tuple | None = (None, None),
+    sex: str | None = None,
+    diagnosis: str | None = None,
+    min_num_imaging_sessions: int | None = None,
+    min_num_phenotypic_sessions: int | None = None,
+    assessment: str | None = None,
+    image_modal: str | None = None,
+    pipeline_name: str | None = None,
+    pipeline_version: str | None = None,
+    dataset_uuids: list | None = None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
