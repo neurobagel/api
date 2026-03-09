@@ -30,7 +30,7 @@ jobs:
         # - https://github.com/docker/metadata-action/issues/168
         name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           # TODO: Repos with this wf must have DOCKERHUB_REPO set in the repository variables
           images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKERHUB_REPO }}
