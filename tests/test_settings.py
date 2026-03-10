@@ -37,7 +37,6 @@ def test_settings_read_correctly(monkeypatch):
     assert settings.graph_db == "repositories/my_db"
 
     # Check that set environment variables are read and typed correctly
-    assert settings.allowed_origins == "*"
     assert settings.graph_username == "DBUSER"
     assert settings.graph_password == "DBPASSWORD"
     assert settings.graph_port == 7201

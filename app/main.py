@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
@@ -58,18 +57,6 @@ def validate_environment_variables():
             logger,
             RuntimeError,
             f"The application was launched but could not find the {Settings.model_fields['graph_username'].alias} and / or {Settings.model_fields['graph_password'].alias} environment variables.",
-        )
-
-    if settings.allowed_origins is None:
-        logger.warning(
-            f"The API was launched without providing any values for the {Settings.model_fields['allowed_origins'].alias} environment "
-            "variable. "
-            "This means that the API will only be accessible from the same origin it is hosted from: "
-            "https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy. "
-            "If you want to access the API from tools hosted at other origins such as the Neurobagel query tool, "
-            f"explicitly set the value of {Settings.model_fields['allowed_origins'].alias} to the origin(s) of these tools (e.g. "
-            "http://localhost:3000). "
-            "Multiple allowed origins should be separated with spaces in a single string enclosed in quotes."
         )
 
     available_configs = fetch_available_community_config_names()
@@ -224,14 +211,6 @@ app = FastAPI(
     docs_url=None,
     redoc_url=None,
     redirect_slashes=False,
-)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=util.parse_origins_as_list(settings.allowed_origins),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 
 
