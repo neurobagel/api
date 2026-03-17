@@ -34,7 +34,6 @@ Please refer to our [**official documentation**](https://neurobagel.org/user_gui
   - [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
   - [License](#license)
 
-
 ## Quickstart
 The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route.
 
