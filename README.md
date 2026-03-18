@@ -123,7 +123,7 @@ If setting up a local Python development environment, install `uv` following the
 ### Python
 #### Install dependencies
 
-After cloning the repository, install the package in editable mode with development dependencies using uv:
+After cloning the repository, install the package in editable mode with development dependencies using [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv sync --all-groups
