@@ -3,14 +3,11 @@ name = "neurobagel-api"
 dynamic = ["version"]
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "fastapi",
+    "fastapi[standard]",
     "pydantic>=2.10,<3",
     "pydantic-settings",
-    "uvicorn",
-    "httpx",
     "pandas",
     "numpy",
-    "orjson",
     "PyJWT",
     "typing-extensions",
 ]
