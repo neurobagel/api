@@ -5,7 +5,7 @@
 [![Main branch check status](https://img.shields.io/github/check-runs/neurobagel/api/main?style=flat-square&logo=github)](https://github.com/neurobagel/api/actions?query=branch:main)
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/neurobagel/api/test.yaml?branch=main&style=flat-square&logo=github&label=tests)](https://github.com/neurobagel/api/actions/workflows/test.yaml)
 [![Codecov](https://img.shields.io/codecov/c/github/neurobagel/api?token=ZEOGQFFZMJ&style=flat-square&logo=codecov&link=https%3A%2F%2Fcodecov.io%2Fgh%2Fneurobagel%2Fapi)](https://app.codecov.io/gh/neurobagel/api)
-[![Python versions static](https://img.shields.io/badge/python-3.10-blue?style=flat-square&logo=python)](https://www.python.org)
+[![Python versions static](https://img.shields.io/badge/python-3.10--3.13-blue?style=flat-square&logo=python)](https://www.python.org)  
 [![License](https://img.shields.io/github/license/neurobagel/api?style=flat-square&color=purple&link=LICENSE)](LICENSE)
 [![Docker Image Version (tag)](https://img.shields.io/docker/v/neurobagel/api/latest?style=flat-square&logo=docker&link=https%3A%2F%2Fhub.docker.com%2Fr%2Fneurobagel%2Fapi%2Ftags)](https://hub.docker.com/r/neurobagel/api/tags)
 [![Docker Pulls](https://img.shields.io/docker/pulls/neurobagel/api?style=flat-square&logo=docker&link=https%3A%2F%2Fhub.docker.com%2Fr%2Fneurobagel%2Fapi%2Ftags)](https://hub.docker.com/r/neurobagel/api/tags)
@@ -26,6 +26,7 @@ Please refer to our [**official documentation**](https://neurobagel.org/user_gui
       - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
       - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
       - [Send a test query to the API](#send-a-test-query-to-the-api)
+    - [`uv`](#uv)
     - [Python](#python)
       - [Install dependencies](#install-dependencies)
       - [Launch the API](#launch-the-api)
@@ -111,6 +112,13 @@ By default, after running the above steps, the API should be served at localhost
 curl http://127.0.0.1:8000/query?sex=snomed:248152002 
 ```
 The response should be a list of dictionaries containing info about datasets with participants matching the query.
+
+### `uv`
+We use `uv` to facilitate dependency management and reproducible environments.
+If setting up a local Python development environment, install `uv` following the [docs](https://docs.astral.sh/uv/getting-started/installation/).
+
+> [!NOTE]  
+> Highlights information that users should take into account, even when skimming.
 
 ### Python
 #### Install dependencies
