@@ -1,0 +1,9 @@
+; Flake8 does not natively support configuration via pyproject.toml.
+; See https://github.com/microsoft/vscode-flake8/issues/135
+
+[flake8]
+extend-ignore = E501, E203
+extend-select = B950
+exclude =
+    build,
+    dist,

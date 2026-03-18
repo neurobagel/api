@@ -327,3 +327,6 @@ docs/_book
 
 # TODO: where does this rule come from?
 test/
+
+# Allow user to locally specify python version
+.python-version 
