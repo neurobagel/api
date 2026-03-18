@@ -14,21 +14,11 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  {include-group = "test"},
-  {include-group = "coverage"},
-  {include-group = "lint"}
-]
-test = [
     "pytest",
     "pytest-asyncio",
     "pytest-env",
-]
-coverage = ["coverage"]
-lint = [
-    "pre-commit",
-    "flake8",
-    "black",
-    "isort"
+    "pytest-cov",
+    "pre-commit"
 ]
 
 [build-system]
