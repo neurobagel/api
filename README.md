@@ -187,7 +187,7 @@ git submodule update
 You can then run the tests by executing the following command in your terminal:
 
 ```bash
-uv run pytest tests
+uv run pytest
 ```
 
 To run the integration tests of SPARQL queries (skipped by default), also launch the test graph store:
@@ -224,12 +224,12 @@ This file is mainly intended for reference because in normal operations,
 the API will always talk to the graph on behalf of the user.
 
 (For developers) 
-To regenerate this sample query when the API query template is updated, run the following commands from the repository root in an interactive Python terminal:
+To regenerate this sample query when the API query template is updated, first launch an interactive Python terminal from the repository root:
 
 ```bash
 uv run python
 ```
-
+Then, run the following commands:
 ```python
 from app.main import fetch_supported_namespaces_for_config
 from app.api import env_settings
