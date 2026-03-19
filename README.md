@@ -120,6 +120,11 @@ If setting up a local Python development environment, install `uv` following the
 > [!NOTE]  
 > Highlights information that users should take into account, even when skimming.
 
+### `uv`
+We use `uv` to facilitate dependency management and reproducible environments.
+If you are setting up a local development environment for the first time, 
+install `uv` following the [docs](https://docs.astral.sh/uv/getting-started/installation/).
+
 ### Python
 #### Install dependencies
 
