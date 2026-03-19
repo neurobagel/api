@@ -133,7 +133,7 @@ This will create a virtual environment (if one doesn't exist), install the packa
 
 #### Launch the API
 
-To launch the API make sure you're in the repository's main directory and that your `.env` file is configured.
+To launch the API, make sure you're in the repository root and that your [`.env` file has been configured](#set-the-environment-variables).
 
 Export the variables defined in your `.env` file:
 ```bash
