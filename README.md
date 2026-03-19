@@ -151,7 +151,7 @@ You can then launch the API using either of these methods:
 ```bash
 uv run python -m app.main
 ```
-
+This launches the API inside the project environment without requiring you to activate a virtual environment first.
 **Option 2: Activate the virtual environment**
 ```bash
 source .venv/bin/activate
