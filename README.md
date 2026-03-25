@@ -27,12 +27,14 @@ Please refer to our [**official documentation**](https://neurobagel.org/user_gui
       - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
       - [Send a test query to the API](#send-a-test-query-to-the-api)
     - [`uv`](#uv)
+    - [`uv`](#uv-1)
     - [Python](#python)
       - [Install dependencies](#install-dependencies)
       - [Launch the API](#launch-the-api)
     - [Troubleshooting](#troubleshooting)
   - [Testing](#testing)
   - [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
+  - [We manage dependencies with `uv`](#we-manage-dependencies-with-uv)
   - [License](#license)
 
 ## Quickstart
@@ -239,6 +241,30 @@ env_settings.CONTEXT = fetch_supported_namespaces_for_config(env_settings.DEFAUL
 
 with open("docs/default_neurobagel_query.rq", "w") as file:
     file.write(create_query(return_agg=False))
+```
+
+## We manage dependencies with `uv`
+
+We use `uv` to manage dependencies. 
+To [add a new dependency](https://docs.astral.sh/uv/concepts/projects/dependencies/#adding-dependencies), use:
+
+```bash
+uv add <dependency>
+```
+
+`uv` creates a lockfile with exact version pins. We use this lockfile for deterministic builds
+and to make sure that production and development environments are the same.
+If you make changes to the allowable versions in the `pyproject.toml`,
+you must [update the lockfile by running](https://docs.astral.sh/uv/concepts/projects/sync/#automatic-lock-and-sync):
+
+```bash
+uv lock
+```
+
+and then you must also update the local project environment that `uv` creates by running:
+
+```bash
+uv sync
 ```
 
 ## License
