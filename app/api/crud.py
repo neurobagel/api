@@ -2,6 +2,7 @@
 
 import asyncio
 from collections import defaultdict
+from typing import Optional
 
 import httpx
 import pandas as pd
@@ -32,7 +33,9 @@ ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
 ]
 
 
-async def post_query_to_graph(query: str, timeout: float = None) -> dict:
+async def post_query_to_graph(
+    query: str, timeout: Optional[float] = None
+) -> list[dict]:
     """
     Makes a post request to the graph API to perform a query, using parameters from the environment.
 
@@ -150,7 +153,7 @@ async def query_available_modalities_and_pipelines(
             lambda pipeline_versions: list(pipeline_versions.dropna().unique())
         )
     )
-    dataset_pipelines = defaultdict(dict)
+    dataset_pipelines: dict[str, dict] = defaultdict(dict)
     for (dataset_uuid, pipeline_name), versions in pipeline_versions.items():
         dataset_pipelines[dataset_uuid][pipeline_name] = versions
     # Cast back to regular dict to avoid unpredictable defaultdict behavior downstream
@@ -287,7 +290,7 @@ async def query_records(
             }
 
             if settings.return_agg:
-                subject_data = "protected"
+                subject_data: str | list = "protected"
             else:
                 dataset_matching_records = dataset_matching_records.drop(
                     dataset_cols, axis=1
@@ -361,7 +364,7 @@ async def post_subjects(query: SubjectsQueryModel):
                 continue
 
             if settings.return_agg:
-                subject_data = "protected"
+                subject_data: str | list = "protected"
             else:
                 subject_data = util.construct_matching_sub_results_for_dataset(
                     dataset_matching_records
@@ -512,7 +515,7 @@ async def get_terms(
             )
             # Since the term vocabulary for a standardized variable can contain terms from several namespaces,
             # we first have to locate the namespace used in the term we are looking up
-            namespace_terms = next(
+            namespace_terms: list = next(
                 (
                     namespace["terms"]
                     for namespace in std_trm_vocab

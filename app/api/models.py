@@ -44,26 +44,26 @@ class QueryModel(BaseModel):
     # NOTE: Explicit examples are needed for fields requiring a URI to avoid random-string examples being generated
     # for the example request body in the interactive docs
 
-    min_age: float = Field(default=None, ge=0)
-    max_age: float = Field(default=None, ge=0)
-    sex: str = Field(
+    min_age: Optional[float] = Field(default=None, ge=0)
+    max_age: Optional[float] = Field(default=None, ge=0)
+    sex: Optional[str] = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    diagnosis: str = Field(
+    diagnosis: Optional[str] = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    min_num_imaging_sessions: int = Field(default=None, ge=0)
-    min_num_phenotypic_sessions: int = Field(default=None, ge=0)
-    assessment: str = Field(
+    min_num_imaging_sessions: Optional[int] = Field(default=None, ge=0)
+    min_num_phenotypic_sessions: Optional[int] = Field(default=None, ge=0)
+    assessment: Optional[str] = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    image_modal: str = Field(
+    image_modal: Optional[str] = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    pipeline_name: str = Field(
+    pipeline_name: Optional[str] = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    pipeline_version: str = Field(
+    pipeline_version: Optional[str] = Field(
         default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
     )
 

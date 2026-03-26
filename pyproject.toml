@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatch-vcs", "hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "neurobagel-api"
+description = "The Neurobagel API is a REST API, developed in Python using FastAPI and Pydantic."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Neurobagel Developers" }]
+maintainers = [
+  { name = "Alyssa Dai", email = "alyssa.dai@mcgill.ca" },
+  { name = "Arman Jahanpour", email = "arman.jahanpour@mcgill.ca" },
+  { name = "Sebastian Urchs", email = "sebastian.urchs@mcgill.ca" }
+]
+dynamic = ["version"]
+requires-python = ">=3.10,<3.14"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering",
+  "License :: OSI Approved :: MIT License",
+  "Framework :: FastAPI",
+  "Framework :: Pydantic :: 2",
+  "Typing :: Typed",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13"
+]
+
+dependencies = [
+    "fastapi[standard]",
+    "pydantic>=2.10,<3",
+    "pydantic-settings",
+    "pandas",
+    "numpy",
+    "PyJWT",
+    "typing-extensions",
+    "orjson"
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-env",
+    "pytest-cov",
+    "pre-commit"
+]
+
+[tool.hatch.version]
+source = "vcs"  # use git tags to automatically determine the project version using hatch-vcs
+
+[tool.hatch.build.hooks.vcs]
+version-file = "app/_version.py"  # useful for accessing dynamically calculated version inside the app (e.g., to support a --version option)
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"  # do not append local version info to the version string to avoid PyPI upload errors
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+profile = "black"
+filter_files = true
+line_length = 79
+
+[tool.mypy]
+ignore_missing_imports = true
+warn_no_return = false
+warn_redundant_casts = true
+show_error_codes = true
+pretty = true
+plugins = ["pydantic.mypy"] 

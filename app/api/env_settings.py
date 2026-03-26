@@ -1,6 +1,7 @@
 """Configuration environment variables for the API."""
 
 from pathlib import Path
+from typing import Any
 
 from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,9 +14,11 @@ DEFAULT_NEUROBAGEL_CONFIG = "Neurobagel"
 # see https://www.starlette.io/applications/#storing-state-on-the-app-instance).
 # This avoids having to thread the request object through every function that needs access to e.g., the context
 # and also makes it easier to mock the configuration during testing.
-CONTEXT = {}
-ALL_VOCABS = {}
-DATASETS_METADATA = {}
+# TODO: do something a bit more precise with these type hints.
+# For now they are here so mypy is happy.
+CONTEXT: dict[str, Any] = {}
+ALL_VOCABS: dict[str, Any] = {}
+DATASETS_METADATA: dict[str, Any] = {}
 
 
 class Settings(BaseSettings):
@@ -54,7 +57,7 @@ class Settings(BaseSettings):
         description="The name of the community configuration to use to query the graph data.",
     )
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def query_url(self) -> str:
         """Construct the URL of the graph store to be queried."""

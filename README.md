@@ -5,7 +5,7 @@
 [![Main branch check status](https://img.shields.io/github/check-runs/neurobagel/api/main?style=flat-square&logo=github)](https://github.com/neurobagel/api/actions?query=branch:main)
 [![Tests Status](https://img.shields.io/github/actions/workflow/status/neurobagel/api/test.yaml?branch=main&style=flat-square&logo=github&label=tests)](https://github.com/neurobagel/api/actions/workflows/test.yaml)
 [![Codecov](https://img.shields.io/codecov/c/github/neurobagel/api?token=ZEOGQFFZMJ&style=flat-square&logo=codecov&link=https%3A%2F%2Fcodecov.io%2Fgh%2Fneurobagel%2Fapi)](https://app.codecov.io/gh/neurobagel/api)
-[![Python versions static](https://img.shields.io/badge/python-3.10-blue?style=flat-square&logo=python)](https://www.python.org)
+[![Python versions static](https://img.shields.io/badge/python-3.10--3.13-blue?style=flat-square&logo=python)](https://www.python.org)  
 [![License](https://img.shields.io/github/license/neurobagel/api?style=flat-square&color=purple&link=LICENSE)](LICENSE)
 [![Docker Image Version (tag)](https://img.shields.io/docker/v/neurobagel/api/latest?style=flat-square&logo=docker&link=https%3A%2F%2Fhub.docker.com%2Fr%2Fneurobagel%2Fapi%2Ftags)](https://hub.docker.com/r/neurobagel/api/tags)
 [![Docker Pulls](https://img.shields.io/docker/pulls/neurobagel/api?style=flat-square&logo=docker&link=https%3A%2F%2Fhub.docker.com%2Fr%2Fneurobagel%2Fapi%2Ftags)](https://hub.docker.com/r/neurobagel/api/tags)
@@ -31,8 +31,8 @@ Please refer to our [**official documentation**](https://neurobagel.org/user_gui
   - [Troubleshooting](#troubleshooting)
 - [Testing](#testing)
 - [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
+  - [Updating dependencies](#updating-dependencies)
 - [License](#license)
-
 
 ## Quickstart
 The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route.
@@ -113,27 +113,42 @@ curl http://127.0.0.1:8000/query?sex=snomed:248152002
 The response should be a list of dictionaries containing info about datasets with participants matching the query.
 
 ### Python
+#### `uv`
+We use `uv` to facilitate dependency management and reproducible environments.
+If you are setting up a local development environment for the first time, 
+install `uv` following the [docs](https://docs.astral.sh/uv/getting-started/installation/).
+
 #### Install dependencies
 
-After cloning the repository, install the dependencies outlined in the requirements.txt file. For convenience, you can use Python's `venv` package to install dependencies in a virtual environment. You can find the instructions on creating and activating a virtual environment in the official [documentation](https://docs.python.org/3.10/library/venv.html). After setting up and activating your environment, you can install the dependencies by running the following command in your terminal:
+After cloning the repository, install the package in editable mode with development dependencies using [uv](https://docs.astral.sh/uv/):
 
 ```bash
-$ pip install -r requirements.txt
+uv sync --group dev
 ```
+
+This will create a virtual environment (if one doesn't exist)
+called `.venv` in the repository root and install all project and dev dependencies into that environment.
 
 #### Launch the API
 
-To launch the API make sure you're in repository's main directory and in your environment where the dependencies are installed and environment variables are set.
+To launch the API, make sure you're in the repository root and that your [`.env` file has been configured](#set-the-environment-variables).
 
 Export the variables defined in your `.env` file:
 ```bash
 export $(cat .env | xargs)
 ```
 
-You can then launch the API by running the following command in your terminal:
+You can then launch the API using either of these methods:
 
+**Option 1: Using uv run (recommended)**
 ```bash
-$ python -m app.main
+uv run python -m app.main
+```
+This launches the API inside the project environment without requiring you to activate a virtual environment first.
+**Option 2: Activate the virtual environment manually**
+```bash
+source .venv/bin/activate
+python -m app.main
 ```
 
 ```bash
@@ -154,7 +169,7 @@ If you get a 401 response to your API request with an `"Unauthorized: "` error m
 
 Neurobagel API utilizes [Pytest](https://docs.pytest.org/en/7.2.x/) framework for testing.
 
-To run the tests, first ensure you're in the repository's root directory and in the environment where the dependencies are installed.
+To run the tests, first ensure you're in the repository's root directory.
 
 Install the submodules used by the tests:
 ```bash
@@ -165,7 +180,7 @@ git submodule update
 You can then run the tests by executing the following command in your terminal:
 
 ```bash
-pytest tests
+uv run pytest
 ```
 
 To run the integration tests of SPARQL queries (skipped by default), also launch the test graph store:
@@ -179,14 +194,14 @@ since docker compose will try to use `.env` by default._
 
 Then, run all tests using:
 ```bash
-pytest -m "integration or not integration"
+uv run pytest -m "integration or not integration"
 # OR
-pytest -m ""
+uv run pytest -m ""
 ```
 
 Or, to run only the integration tests:
 ```bash
-pytest -m "integration"
+uv run pytest -m "integration"
 ```
 
 Once you are done with testing, you can stop and remove the test graph container:
@@ -202,8 +217,12 @@ This file is mainly intended for reference because in normal operations,
 the API will always talk to the graph on behalf of the user.
 
 (For developers) 
-To regenerate this sample query when the API query template is updated, run the following commands from the repository root in an interactive Python terminal:
+To regenerate this sample query when the API query template is updated, first launch an interactive Python terminal from the repository root:
 
+```bash
+uv run python
+```
+Then, run the following commands:
 ```python
 from app.main import fetch_supported_namespaces_for_config
 from app.api import env_settings
@@ -214,6 +233,24 @@ env_settings.CONTEXT = fetch_supported_namespaces_for_config(env_settings.DEFAUL
 with open("docs/default_neurobagel_query.rq", "w") as file:
     file.write(create_query(return_agg=False))
 ```
+
+#### Updating dependencies
+
+We use `uv` to manage dependencies. 
+To [add a new dependency](https://docs.astral.sh/uv/concepts/projects/dependencies/#adding-dependencies), use:
+
+```bash
+uv add <dependency>
+```
+
+`uv` creates a lockfile (`uv.lock`) with exact version pins based on the `pyproject.toml`. We use this lockfile for deterministic builds
+and to make sure that production and development environments are the same.
+If you modify existing dependencies in the `pyproject.toml`,
+you must:
+
+ 1. [Update the lockfile](https://docs.astral.sh/uv/concepts/projects/sync/#automatic-lock-and-sync):
+
+  
 
 ## License
 

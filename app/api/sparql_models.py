@@ -120,8 +120,8 @@ class Dataset(SPARQLSerializable):
     schemaKey: Literal["Dataset"] = "Dataset"
 
     def to_sparql(self, var_name: str = "?dataset") -> str:
-        cohort_triples = self.to_triples(var_name)
-        cohort_triples = "\n    ".join(cohort_triples)
+        cohort_triples_list = self.to_triples(var_name)
+        cohort_triples = "\n    ".join(cohort_triples_list)
 
         num_sessions_filter = ""
         session = self.hasSamples.hasSession

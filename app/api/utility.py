@@ -110,7 +110,7 @@ def create_bound_filter(var: str) -> str:
 
 def create_query(
     return_agg: bool,
-    age: Optional[tuple] = (None, None),
+    age: tuple = (None, None),
     sex: Optional[str] = None,
     diagnosis: Optional[str] = None,
     min_num_imaging_sessions: Optional[int] = None,
