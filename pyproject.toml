@@ -72,3 +72,4 @@ warn_no_return = false
 warn_redundant_casts = true
 show_error_codes = true
 pretty = true
+plugins = ["pydantic.mypy"] 

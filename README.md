@@ -16,26 +16,23 @@ The Neurobagel API is a REST API, developed in [Python](https://www.python.org/)
 
 Please refer to our [**official documentation**](https://neurobagel.org/user_guide/api/) for more information on how to use the API.
 
-- [Neurobagel API](#neurobagel-api)
-  - [Quickstart](#quickstart)
-  - [Local installation](#local-installation)
-    - [Clone the repo](#clone-the-repo)
-    - [Set the environment variables](#set-the-environment-variables)
-    - [Docker](#docker)
-      - [Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe](#option-1-recommended-use-the-neurobagel-docker-compose-recipe)
-      - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
-      - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
-      - [Send a test query to the API](#send-a-test-query-to-the-api)
-    - [`uv`](#uv)
-    - [`uv`](#uv-1)
-    - [Python](#python)
-      - [Install dependencies](#install-dependencies)
-      - [Launch the API](#launch-the-api)
-    - [Troubleshooting](#troubleshooting)
-  - [Testing](#testing)
-  - [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
-  - [We manage dependencies with `uv`](#we-manage-dependencies-with-uv)
-  - [License](#license)
+- [Quickstart](#quickstart)
+- [Local installation](#local-installation)
+  - [Clone the repo](#clone-the-repo)
+  - [Set the environment variables](#set-the-environment-variables)
+  - [Docker](#docker)
+    - [Option 1 (RECOMMENDED): Use the Neurobagel Docker Compose recipe](#option-1-recommended-use-the-neurobagel-docker-compose-recipe)
+    - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
+    - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
+    - [Send a test query to the API](#send-a-test-query-to-the-api)
+  - [Python](#python)
+    - [Install dependencies](#install-dependencies)
+    - [Launch the API](#launch-the-api)
+  - [Troubleshooting](#troubleshooting)
+- [Testing](#testing)
+- [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
+  - [Updating dependencies](#updating-dependencies)
+- [License](#license)
 
 ## Quickstart
 The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route.
@@ -115,19 +112,12 @@ curl http://127.0.0.1:8000/query?sex=snomed:248152002
 ```
 The response should be a list of dictionaries containing info about datasets with participants matching the query.
 
-### `uv`
-We use `uv` to facilitate dependency management and reproducible environments.
-If setting up a local Python development environment, install `uv` following the [docs](https://docs.astral.sh/uv/getting-started/installation/).
-
-> [!NOTE]  
-> Highlights information that users should take into account, even when skimming.
-
-### `uv`
+### Python
+#### `uv`
 We use `uv` to facilitate dependency management and reproducible environments.
 If you are setting up a local development environment for the first time, 
 install `uv` following the [docs](https://docs.astral.sh/uv/getting-started/installation/).
 
-### Python
 #### Install dependencies
 
 After cloning the repository, install the package in editable mode with development dependencies using [uv](https://docs.astral.sh/uv/):
@@ -136,7 +126,8 @@ After cloning the repository, install the package in editable mode with developm
 uv sync --group dev
 ```
 
-This will create a virtual environment (if one doesn't exist), install the package in editable mode, and install all dependency groups including dev dependencies.
+This will create a virtual environment (if one doesn't exist)
+called `.venv` in the repository root and install all project and dev dependencies into that environment.
 
 #### Launch the API
 

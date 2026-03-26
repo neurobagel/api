@@ -1,4 +1,6 @@
-# Pre-build stage to make pip compatible lockfile
+# We are using a two-stage build here because we use uv for dependency management
+# But decide to keep it out of the production image. 
+# The Pre-build stage generates a pip compatible lockfile and then installs with pip
 FROM ghcr.io/astral-sh/uv:latest AS prebuild
 
 WORKDIR /build
