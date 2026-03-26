@@ -243,7 +243,7 @@ with open("docs/default_neurobagel_query.rq", "w") as file:
     file.write(create_query(return_agg=False))
 ```
 
-## We manage dependencies with `uv`
+#### Updating dependencies
 
 We use `uv` to manage dependencies. 
 To [add a new dependency](https://docs.astral.sh/uv/concepts/projects/dependencies/#adding-dependencies), use:
@@ -252,20 +252,14 @@ To [add a new dependency](https://docs.astral.sh/uv/concepts/projects/dependenci
 uv add <dependency>
 ```
 
-`uv` creates a lockfile with exact version pins. We use this lockfile for deterministic builds
+`uv` creates a lockfile (`uv.lock`) with exact version pins based on the `pyproject.toml`. We use this lockfile for deterministic builds
 and to make sure that production and development environments are the same.
-If you make changes to the allowable versions in the `pyproject.toml`,
-you must [update the lockfile by running](https://docs.astral.sh/uv/concepts/projects/sync/#automatic-lock-and-sync):
+If you modify existing dependencies in the `pyproject.toml`,
+you must:
 
-```bash
-uv lock
-```
+ 1. [Update the lockfile](https://docs.astral.sh/uv/concepts/projects/sync/#automatic-lock-and-sync):
 
-and then you must also update the local project environment that `uv` creates by running:
-
-```bash
-uv sync
-```
+  
 
 ## License
 

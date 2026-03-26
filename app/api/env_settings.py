@@ -16,9 +16,9 @@ DEFAULT_NEUROBAGEL_CONFIG = "Neurobagel"
 # and also makes it easier to mock the configuration during testing.
 # TODO: do something a bit more precise with these type hints.
 # For now they are here so mypy is happy.
-CONTEXT: dict[str, Any] = {}
-ALL_VOCABS: dict[str, Any] = {}
-DATASETS_METADATA: dict[str, Any] = {}
+CONTEXT: dict[str, str] = {}
+ALL_VOCABS: dict[str, list] = {}
+DATASETS_METADATA: dict[str, dict] = {}
 
 
 class Settings(BaseSettings):
