@@ -246,6 +246,7 @@ uv add <dependency>
 
 `uv` creates a lockfile (`uv.lock`) with exact version pins based on the `pyproject.toml`. We use this lockfile for deterministic builds
 and to make sure that production and development environments are the same.
+
 If you modify existing dependencies in the `pyproject.toml`,
 you must also [update the lockfile](https://docs.astral.sh/uv/concepts/projects/sync/) using:
 
