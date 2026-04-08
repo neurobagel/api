@@ -31,7 +31,7 @@ Please refer to our [**official documentation**](https://neurobagel.org/user_gui
   - [Troubleshooting](#troubleshooting)
 - [Testing](#testing)
 - [The default Neurobagel SPARQL query](#the-default-neurobagel-sparql-query)
-  - [Updating dependencies](#updating-dependencies)
+- [Updating dependencies](#updating-dependencies)
 - [License](#license)
 
 ## Quickstart
