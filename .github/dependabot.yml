@@ -57,7 +57,12 @@ updates:
       - "_bot"
       - "dependencies"
 
-# This is a temporary fix until we update the global sync workflow
+  # In repo settings we have configured dependabot to open PRs for security updates.
+  # Here we configure custom labels to be applied to security update PRs,
+  # while still preventing regular version update PRs.
+  # See https://docs.github.com/en/code-security/dependabot/dependabot-security-updates/configuring-dependabot-security-updates#overriding-the-default-behavior-with-a-configuration-file
+  # Note: this configuration only has an effect in repositories that have
+  # a pyproject.toml file and have uv.lock setup
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
