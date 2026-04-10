@@ -29,13 +29,10 @@ jobs:
     - name: Check running containers
       run: docker ps
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v6
+    - name: Set up Python 3.10 with uv
+      uses: astral-sh/setup-uv@v7
       with:
         python-version: "3.10"
-
-    - name: Install uv
-      uses: astral-sh/setup-uv@v7
 
     - name: Install dependencies
       run: |
