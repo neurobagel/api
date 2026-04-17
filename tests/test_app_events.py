@@ -7,7 +7,6 @@ import pytest
 
 from app import main
 from app.api import env_settings
-from app.api import utility as util
 from app.main import settings
 
 
@@ -33,67 +32,6 @@ def test_start_app_without_environment_vars_fails(
     assert len(errors) == 1
     assert expected_msg in errors[0].getMessage()
     assert expected_msg in str(e_info.value)
-
-
-def test_app_with_unset_allowed_origins(
-    test_app,
-    disable_auth,
-    set_temp_datasets_metadata_file,
-    monkeypatch,
-    caplog,
-):
-    """Tests that when the environment variable for allowed origins has not been set, a warning is raised and the app uses an empty list."""
-    monkeypatch.setattr(settings, "allowed_origins", None)
-    expected_warning = "API was launched without providing any values for the NB_API_ALLOWED_ORIGINS environment variable"
-
-    with test_app:
-        pass
-
-    warnings = [
-        record
-        for record in caplog.records
-        if record.levelno == logging.WARNING
-    ]
-
-    assert len(warnings) == 1
-    assert expected_warning in warnings[0].getMessage()
-    assert util.parse_origins_as_list(settings.allowed_origins) == []
-
-
-@pytest.mark.parametrize(
-    "allowed_origins, parsed_origins",
-    [
-        ("http://localhost:3000", ["http://localhost:3000"]),
-        (
-            "http://localhost:3000 https://localhost:3000",
-            ["http://localhost:3000", "https://localhost:3000"],
-        ),
-        (
-            " http://localhost:3000 https://localhost:3000  ",
-            ["http://localhost:3000", "https://localhost:3000"],
-        ),
-    ],
-)
-def test_app_with_set_allowed_origins(
-    test_app,
-    monkeypatch,
-    allowed_origins,
-    parsed_origins,
-    disable_auth,
-    set_temp_datasets_metadata_file,
-):
-    """
-    Test that when the environment variable for allowed origins has been explicitly set,
-    the app correctly parses it into a list.
-    """
-    monkeypatch.setattr(settings, "allowed_origins", allowed_origins)
-
-    with test_app:
-        pass
-
-    assert set(parsed_origins).issubset(
-        util.parse_origins_as_list(settings.allowed_origins)
-    )
 
 
 def fetched_configs_includes_neurobagel(disable_auth):

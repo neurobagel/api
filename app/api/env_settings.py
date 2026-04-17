@@ -35,9 +35,6 @@ class Settings(BaseSettings):
         description="The base URL path prefix for the API. When deployed behind a reverse proxy, set this to the subpath at which the app is mounted (if any), "
         "and configure the proxy to strip this prefix from incoming requests.",
     )
-    allowed_origins: str | None = Field(
-        alias="NB_API_ALLOWED_ORIGINS", default=None
-    )
     graph_username: str | None = Field(alias="NB_GRAPH_USERNAME", default=None)
     graph_password: str | None = Field(alias="NB_GRAPH_PASSWORD", default=None)
     graph_address: str = Field(alias="NB_GRAPH_ADDRESS", default="127.0.0.1")
