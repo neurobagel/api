@@ -1,18 +1,24 @@
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from .. import crud, env_settings
+from ..database import get_session
 from ..models import StandardizedTermVocabularyResponse
 
 
 def create_get_instances_handler(data_element_uri: str):
     """Create the handler function (path function) for the base path of an attribute router."""
 
-    async def get_instances():
+    async def get_instances(db_session: AsyncSession = Depends(get_session)):
         """
         When a GET request is sent, return a dict with the only key corresponding to the controlled term of a neurobagel class,
         and the value being a list of dictionaries each corresponding to an available class instance term from the graph.
         """
         terms_vocab = env_settings.ALL_VOCABS.get(data_element_uri)
         return await crud.get_terms(
-            data_element_URI=data_element_uri, std_trm_vocab=terms_vocab
+            db_session=db_session,
+            data_element_URI=data_element_uri,
+            std_trm_vocab=terms_vocab,
         )
 
     return get_instances

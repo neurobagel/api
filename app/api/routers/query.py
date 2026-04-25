@@ -4,8 +4,10 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import OAuth2
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .. import crud
+from ..database import get_session
 from ..env_settings import settings
 from ..models import CohortQueryResponse, QueryModel
 from ..security import verify_token
@@ -35,6 +37,7 @@ oauth2_scheme = OAuth2(
 async def get_query(
     query: Annotated[QueryModel, Query()],
     token: str | None = Depends(oauth2_scheme),
+    db_session: AsyncSession = Depends(get_session),
 ):
     """When a GET request is sent, return list of dicts corresponding to subject-level metadata aggregated by dataset."""
     if settings.auth_enabled:
@@ -45,6 +48,6 @@ async def get_query(
             )
         verify_token(token)
 
-    response = await crud.query_records(**query.model_dump())
+    response = await crud.query_records(db_session, **query.model_dump())
 
     return response
