@@ -10,7 +10,8 @@ from sqlalchemy import distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from . import env_settings, utility as util
+from . import env_settings
+from . import utility as util
 from .db_models import (
     Acquisition,
     CompletedPipeline,
@@ -77,7 +78,7 @@ async def query_available_modalities_and_pipelines(
 ) -> dict:
     """
     Queries the database for all imaging modalities and available pipelines for each dataset in a list of dataset UUIDs.
-    
+
     Parameters
     ----------
     session : AsyncSession
@@ -103,7 +104,7 @@ async def query_available_modalities_and_pipelines(
         .distinct()
     )
     modalities_result = await session.execute(modalities_stmt)
-    
+
     # Group by dataset
     dataset_imaging_modals = defaultdict(list)
     for dataset_uuid, image_modal in modalities_result.all():
@@ -124,17 +125,21 @@ async def query_available_modalities_and_pipelines(
         .distinct()
     )
     pipelines_result = await session.execute(pipelines_stmt)
-    
+
     # Group by dataset and pipeline
     dataset_pipelines: dict[str, dict] = defaultdict(lambda: defaultdict(list))
-    for dataset_uuid, pipeline_name, pipeline_version in pipelines_result.all():
+    for (
+        dataset_uuid,
+        pipeline_name,
+        pipeline_version,
+    ) in pipelines_result.all():
         if pipeline_version:
-            dataset_pipelines[dataset_uuid][pipeline_name].append(pipeline_version)
-    
+            dataset_pipelines[dataset_uuid][pipeline_name].append(
+                pipeline_version
+            )
+
     # Convert defaultdicts to regular dicts
-    dataset_pipelines = {
-        k: dict(v) for k, v in dataset_pipelines.items()
-    }
+    dataset_pipelines = {k: dict(v) for k, v in dataset_pipelines.items()}
 
     dataset_imaging_modals_and_pipelines = {
         dataset_uuid: {
@@ -152,7 +157,7 @@ async def build_query_filters(
 ):
     """
     Build SQLAlchemy filters based on query parameters.
-    
+
     Parameters
     ----------
     query : QueryModel
@@ -161,37 +166,37 @@ async def build_query_filters(
         Base SQLAlchemy select statement.
     subject_alias : Table, optional
         Subject table alias if needed.
-        
+
     Returns
     -------
     Select
         SQLAlchemy select statement with filters applied.
     """
     stmt = base_stmt
-    
+
     # Age filters
     if query.min_age is not None:
         stmt = stmt.where(Session.age >= query.min_age)
     if query.max_age is not None:
         stmt = stmt.where(Session.age <= query.max_age)
-    
+
     # Sex filter
     if query.sex is not None:
         stmt = stmt.where(Session.sex == query.sex)
-    
+
     # Diagnosis filter
     if query.diagnosis is not None:
         stmt = stmt.where(Session.diagnosis == query.diagnosis)
-    
+
     # Assessment filter
     if query.assessment is not None:
         stmt = stmt.where(Session.assessment == query.assessment)
-    
+
     # Imaging filters
     if query.image_modal is not None:
         stmt = stmt.join(Acquisition, Acquisition.session_id == Session.id)
         stmt = stmt.where(Acquisition.image_modal == query.image_modal)
-    
+
     # Pipeline filters
     if query.pipeline_name is not None or query.pipeline_version is not None:
         if "Acquisition" not in str(stmt):
@@ -200,12 +205,14 @@ async def build_query_filters(
                 CompletedPipeline, CompletedPipeline.session_id == Session.id
             )
         if query.pipeline_name is not None:
-            stmt = stmt.where(CompletedPipeline.pipeline_name == query.pipeline_name)
+            stmt = stmt.where(
+                CompletedPipeline.pipeline_name == query.pipeline_name
+            )
         if query.pipeline_version is not None:
             stmt = stmt.where(
                 CompletedPipeline.pipeline_version == query.pipeline_version
             )
-    
+
     return stmt
 
 
@@ -274,7 +281,7 @@ async def query_records(
         .join(Subject, Subject.dataset_id == Dataset.id)
         .join(Session, Session.subject_id == Subject.id)
     )
-    
+
     # Create query model for filters
     query_model = QueryModel(
         min_age=min_age,
@@ -288,36 +295,38 @@ async def query_records(
         pipeline_name=pipeline_name,
         pipeline_version=pipeline_version,
     )
-    
+
     # Apply filters
     stmt = await build_query_filters(query_model, stmt)
-    
+
     # Execute query
     result = await session.execute(stmt)
     rows = result.all()
-    
+
     # Convert to list of dicts
     db_results = []
     for row in rows:
-        db_results.append({
-            "dataset_uuid": row[0],
-            "dataset_name": row[1],
-            "dataset_portal_uri": row[2],
-            "sub_id": row[3],
-            "age": row[4],
-            "sex": row[5],
-            "diagnosis": row[6],
-            "subject_group": row[7],
-            "session_id": row[8],
-            "session_type": row[9],
-            "assessment": row[10],
-            "session_file_path": row[11],
-        })
-    
+        db_results.append(
+            {
+                "dataset_uuid": row[0],
+                "dataset_name": row[1],
+                "dataset_portal_uri": row[2],
+                "sub_id": row[3],
+                "age": row[4],
+                "sex": row[5],
+                "diagnosis": row[6],
+                "subject_group": row[7],
+                "session_id": row[8],
+                "session_type": row[9],
+                "assessment": row[10],
+                "session_file_path": row[11],
+            }
+        )
+
     # Get imaging modalities and pipelines for each session
     if db_results:
         session_ids = list(set(row["session_id"] for row in db_results))
-        
+
         # Query acquisitions
         acq_stmt = (
             select(Session.session_id, Acquisition.image_modal)
@@ -328,7 +337,7 @@ async def query_records(
         acquisitions_map = defaultdict(list)
         for sess_id, img_modal in acq_result.all():
             acquisitions_map[sess_id].append(img_modal)
-        
+
         # Query pipelines
         pipe_stmt = (
             select(
@@ -336,31 +345,39 @@ async def query_records(
                 CompletedPipeline.pipeline_name,
                 CompletedPipeline.pipeline_version,
             )
-            .join(CompletedPipeline, CompletedPipeline.session_id == Session.id)
+            .join(
+                CompletedPipeline, CompletedPipeline.session_id == Session.id
+            )
             .where(Session.session_id.in_(session_ids))
         )
         pipe_result = await session.execute(pipe_stmt)
         pipelines_map = defaultdict(list)
         for sess_id, p_name, p_version in pipe_result.all():
-            pipelines_map[sess_id].append({
-                "pipeline_name": p_name,
-                "pipeline_version": p_version,
-            })
-        
+            pipelines_map[sess_id].append(
+                {
+                    "pipeline_name": p_name,
+                    "pipeline_version": p_version,
+                }
+            )
+
         # Add to results
         for row in db_results:
             sess_id = row["session_id"]
             row["image_modal"] = acquisitions_map.get(sess_id, [None])[0]
             pipelines = pipelines_map.get(sess_id, [])
-            row["pipeline_name"] = pipelines[0]["pipeline_name"] if pipelines else None
-            row["pipeline_version"] = pipelines[0]["pipeline_version"] if pipelines else None
-    
+            row["pipeline_name"] = (
+                pipelines[0]["pipeline_name"] if pipelines else None
+            )
+            row["pipeline_version"] = (
+                pipelines[0]["pipeline_version"] if pipelines else None
+            )
+
     # Count sessions per subject
     # TODO: Implement min_num_imaging_sessions and min_num_phenotypic_sessions filters
     for row in db_results:
         row["num_matching_phenotypic_sessions"] = 0
         row["num_matching_imaging_sessions"] = 0
-    
+
     # Reindex to match expected format
     formatted_results = pd.DataFrame(db_results).reindex(
         columns=ALL_SUBJECT_ATTRIBUTES
@@ -433,9 +450,7 @@ async def query_records(
     return response
 
 
-async def post_subjects(
-    db_session: AsyncSession, query: SubjectsQueryModel
-):
+async def post_subjects(db_session: AsyncSession, query: SubjectsQueryModel):
     """
     When a POST request is sent to the /subjects path, return a list of dicts where each dict corresponds to
     data for subjects matching the query from a specific dataset.
@@ -463,18 +478,18 @@ async def post_subjects(
         .join(Subject, Subject.dataset_id == Dataset.id)
         .join(Session, Session.subject_id == Subject.id)
     )
-    
+
     # Apply dataset filter if provided
     if query.dataset_uuids:
         stmt = stmt.where(Dataset.dataset_uuid.in_(query.dataset_uuids))
-    
+
     # Apply other filters
     stmt = await build_query_filters(query, stmt)
-    
+
     # Execute query
     result = await db_session.execute(stmt)
     rows = result.all()
-    
+
     # Convert to DataFrame
     db_results = [
         {
@@ -485,7 +500,7 @@ async def post_subjects(
         }
         for row in rows
     ]
-    
+
     formatted_results = pd.DataFrame(db_results).reindex(
         columns=ALL_SUBJECT_ATTRIBUTES
     )
@@ -543,14 +558,14 @@ async def post_datasets(
         .join(Session, Session.subject_id == Subject.id)
         .distinct()
     )
-    
+
     # Apply filters
     stmt = await build_query_filters(query, stmt)
-    
+
     # Execute query
     result = await db_session.execute(stmt)
     rows = result.all()
-    
+
     # Convert to DataFrame
     db_results = [{"dataset": row[0], "subject": row[1]} for row in rows]
     combined_query_results = pd.DataFrame(db_results)
@@ -559,7 +574,7 @@ async def post_datasets(
         return []
 
     matching_datasets = combined_query_results["dataset"].unique().tolist()
-    
+
     # Get dataset sizes and imaging modalities/pipelines
     matching_dataset_sizes, matching_dataset_imaging_modals_and_pipelines = (
         await asyncio.gather(
@@ -578,7 +593,7 @@ async def post_datasets(
         dataset_matching_records,
     ) in combined_query_results.groupby(by="dataset"):
         num_matching_subjects = dataset_matching_records["subject"].nunique()
-        
+
         if num_matching_subjects <= settings.min_cell_size:
             continue
 
@@ -596,7 +611,9 @@ async def post_datasets(
             ]["image_modals"],
             "available_pipelines": matching_dataset_imaging_modals_and_pipelines[
                 dataset_uuid
-            ]["available_pipelines"],
+            ][
+                "available_pipelines"
+            ],
         }
         dataset_result = DatasetQueryResponse(
             **dataset_static_metadata,
@@ -703,7 +720,6 @@ async def get_controlled_term_attributes(
     stmt = select(ControlledTermAttribute.attribute)
     result = await db_session.execute(stmt)
     all_attributes = [
-        util.replace_namespace_uri_with_prefix(row[0])
-        for row in result.all()
+        util.replace_namespace_uri_with_prefix(row[0]) for row in result.all()
     ]
     return all_attributes

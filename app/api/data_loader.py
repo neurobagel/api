@@ -32,7 +32,7 @@ from .db_models import (
 async def load_from_json(json_path: Path, db_session: AsyncSession):
     """
     Load data from a JSON file into the database.
-    
+
     Expected JSON structure:
     {
         "datasets": [
@@ -60,7 +60,7 @@ async def load_from_json(json_path: Path, db_session: AsyncSession):
     """
     with open(json_path, "r") as f:
         data = json.load(f)
-    
+
     for dataset_data in data.get("datasets", []):
         # Create dataset
         dataset = Dataset(
@@ -69,7 +69,9 @@ async def load_from_json(json_path: Path, db_session: AsyncSession):
             dataset_portal_uri=dataset_data.get("dataset_portal_uri"),
             authors=json.dumps(dataset_data.get("authors", [])),
             homepage=dataset_data.get("homepage"),
-            references_and_links=json.dumps(dataset_data.get("references_and_links", [])),
+            references_and_links=json.dumps(
+                dataset_data.get("references_and_links", [])
+            ),
             keywords=json.dumps(dataset_data.get("keywords", [])),
             repository_url=dataset_data.get("repository_url"),
             access_instructions=dataset_data.get("access_instructions"),
@@ -79,7 +81,7 @@ async def load_from_json(json_path: Path, db_session: AsyncSession):
         )
         db_session.add(dataset)
         await db_session.flush()  # Get dataset ID
-        
+
         for subject_data in dataset_data.get("subjects", []):
             # Create subject
             subject = Subject(
@@ -88,12 +90,14 @@ async def load_from_json(json_path: Path, db_session: AsyncSession):
             )
             db_session.add(subject)
             await db_session.flush()  # Get subject ID
-            
+
             for session_data in subject_data.get("sessions", []):
                 # Create session
                 session = Session(
                     session_id=session_data["session_id"],
-                    session_type=session_data.get("session_type", "PhenotypicSession"),
+                    session_type=session_data.get(
+                        "session_type", "PhenotypicSession"
+                    ),
                     subject_id=subject.id,
                     age=session_data.get("age"),
                     sex=session_data.get("sex"),
@@ -104,7 +108,7 @@ async def load_from_json(json_path: Path, db_session: AsyncSession):
                 )
                 db_session.add(session)
                 await db_session.flush()  # Get session ID
-                
+
                 # Create acquisitions
                 for acq_data in session_data.get("acquisitions", []):
                     acquisition = Acquisition(
@@ -112,7 +116,7 @@ async def load_from_json(json_path: Path, db_session: AsyncSession):
                         image_modal=acq_data["image_modal"],
                     )
                     db_session.add(acquisition)
-                
+
                 # Create pipelines
                 for pipe_data in session_data.get("pipelines", []):
                     pipeline = CompletedPipeline(
@@ -121,7 +125,7 @@ async def load_from_json(json_path: Path, db_session: AsyncSession):
                         pipeline_version=pipe_data["pipeline_version"],
                     )
                     db_session.add(pipeline)
-    
+
     await db_session.commit()
     print(f"Successfully loaded data from {json_path}")
 
@@ -155,18 +159,18 @@ async def main():
         action="store_true",
         help="Clear all data from database before loading",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Create async session
     async_session_maker = sessionmaker(
         engine, class_=AsyncSession, expire_on_commit=False
     )
-    
+
     async with async_session_maker() as session:
         if args.clear:
             await clear_database(session)
-        
+
         if args.json:
             await load_from_json(args.json, session)
 

@@ -14,7 +14,7 @@ class Dataset(SQLModel, table=True):
     dataset_uuid: str = Field(unique=True, index=True)
     dataset_name: str
     dataset_portal_uri: Optional[str] = None
-    
+
     # Additional metadata fields
     authors: Optional[str] = None  # JSON array stored as string
     homepage: Optional[str] = None
@@ -51,23 +51,27 @@ class Session(SQLModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     session_id: str = Field(index=True)
-    session_type: str = Field(index=True)  # "ImagingSession" or "PhenotypicSession"
+    session_type: str = Field(
+        index=True
+    )  # "ImagingSession" or "PhenotypicSession"
     subject_id: int = Field(foreign_key="subjects.id", index=True)
-    
+
     # Phenotypic attributes
     age: Optional[float] = None
     sex: Optional[str] = Field(default=None, index=True)
     diagnosis: Optional[str] = Field(default=None, index=True)
     subject_group: Optional[str] = None
     assessment: Optional[str] = Field(default=None, index=True)
-    
+
     # Imaging attributes
     session_file_path: Optional[str] = None
-    
+
     # Relationships
     subject: Subject = Relationship(back_populates="sessions")
     acquisitions: list["Acquisition"] = Relationship(back_populates="session")
-    pipelines: list["CompletedPipeline"] = Relationship(back_populates="session")
+    pipelines: list["CompletedPipeline"] = Relationship(
+        back_populates="session"
+    )
 
 
 class Acquisition(SQLModel, table=True):
@@ -78,7 +82,7 @@ class Acquisition(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     session_id: int = Field(foreign_key="sessions.id", index=True)
     image_modal: str = Field(index=True)  # hasContrastType
-    
+
     # Relationships
     session: Session = Relationship(back_populates="acquisitions")
 
@@ -92,7 +96,7 @@ class CompletedPipeline(SQLModel, table=True):
     session_id: int = Field(foreign_key="sessions.id", index=True)
     pipeline_name: str = Field(index=True)
     pipeline_version: str = Field(index=True)
-    
+
     # Relationships
     session: Session = Relationship(back_populates="pipelines")
 
