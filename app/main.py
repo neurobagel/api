@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
 
 from .api import env_settings
 from .api import utility as util
+from .api.database import init_db
 from .api.env_settings import Settings, settings
 from .api.logger import get_logger, log_and_raise_error
 from .api.routers import (
@@ -53,11 +54,11 @@ def validate_environment_variables():
     """
     Check that all required environment variables are set, and exit the app if any are missing or invalid.
     """
-    if settings.graph_username is None or settings.graph_password is None:
+    if settings.db_user is None or settings.db_password is None:
         log_and_raise_error(
             logger,
             RuntimeError,
-            f"The application was launched but could not find the {Settings.model_fields['graph_username'].alias} and / or {Settings.model_fields['graph_password'].alias} environment variables.",
+            f"The application was launched but could not find the {Settings.model_fields['db_user'].alias} and / or {Settings.model_fields['db_password'].alias} environment variables.",
         )
 
     if settings.allowed_origins is None:
@@ -186,6 +187,7 @@ async def lifespan(app: FastAPI):
     On startup:
     - Validates required environment variables.
     - Performs authentication checks.
+    - Initializes database.
     - Fetches vocabularies for standardized variables.
 
     On shutdown:
@@ -196,6 +198,9 @@ async def lifespan(app: FastAPI):
 
     # Authentication check
     check_client_id()
+
+    # Initialize database
+    await init_db()
 
     # Initialize vocabularies
     env_settings.ALL_VOCABS = fetch_vocabularies(settings.config)

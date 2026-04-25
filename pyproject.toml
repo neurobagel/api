@@ -37,7 +37,9 @@ dependencies = [
     "numpy",
     "PyJWT",
     "typing-extensions",
-    "orjson"
+    "orjson",
+    "sqlmodel>=0.0.22",
+    "asyncpg>=0.29.0",
 ]
 
 [dependency-groups]

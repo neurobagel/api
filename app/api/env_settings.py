@@ -38,11 +38,13 @@ class Settings(BaseSettings):
     allowed_origins: str | None = Field(
         alias="NB_API_ALLOWED_ORIGINS", default=None
     )
-    graph_username: str | None = Field(alias="NB_GRAPH_USERNAME", default=None)
-    graph_password: str | None = Field(alias="NB_GRAPH_PASSWORD", default=None)
-    graph_address: str = Field(alias="NB_GRAPH_ADDRESS", default="127.0.0.1")
-    graph_db: str = Field(alias="NB_GRAPH_DB", default="repositories/my_db")
-    graph_port: int = Field(alias="NB_GRAPH_PORT", default=7200)
+    # Database configuration
+    db_host: str = Field(alias="NB_DB_HOST", default="localhost")
+    db_port: int = Field(alias="NB_DB_PORT", default=5432)
+    db_name: str = Field(alias="NB_DB_NAME", default="neurobagel")
+    db_user: str | None = Field(alias="NB_DB_USER", default=None)
+    db_password: str | None = Field(alias="NB_DB_PASSWORD", default=None)
+    db_echo: bool = Field(alias="NB_DB_ECHO", default=False)
     datasets_metadata_path: Path = Field(
         alias="NB_DATASETS_METADATA_PATH",
         default=Path("/data/datasets_metadata.json"),
@@ -59,9 +61,11 @@ class Settings(BaseSettings):
 
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def query_url(self) -> str:
-        """Construct the URL of the graph store to be queried."""
-        return f"http://{self.graph_address}:{self.graph_port}/{self.graph_db}"
+    def database_url(self) -> str:
+        """Construct the database URL for SQLAlchemy."""
+        if self.db_user and self.db_password:
+            return f"postgresql+asyncpg://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
+        return f"postgresql+asyncpg://{self.db_host}:{self.db_port}/{self.db_name}"
 
 
 settings = Settings()
