@@ -43,8 +43,8 @@ The URL for such a query would be https://api.neurobagel.org/query?sex=snomed:24
 Interactive documentation for the API is available at https://api.neurobagel.org/docs.
 
 ## Local installation
-The below instructions assume that you have a local instance of or access to a remotely hosted graph database to be queried. 
-If this is not the case and you need to first build a graph from data, refer to our documentation for [getting started locally with a graph backend](https://neurobagel.org/user_guide/getting_started/).
+The below instructions assume that you have a local instance of or access to a remotely hosted PostgreSQL database to be queried. 
+If this is not the case and you need to first set up a PostgreSQL database, refer to our documentation for [getting started locally with a database backend](https://neurobagel.org/user_guide/getting_started/).
 
 ### Clone the repo
 ```bash
@@ -55,16 +55,16 @@ git clone https://github.com/neurobagel/api.git
 Create a file called `.env` in the root of the repository to store the environment variables used by the app. 
 See the Neurobagel recipes repo for a [template `.env` file](https://github.com/neurobagel/recipes/blob/main/template.env) you can copy and edit.
 
-To run API requests against a graph, at least two environment variables must be set: `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD`.
+To run API requests against a database, at least two environment variables must be set: `NB_DB_USER` and `NB_DB_PASSWORD`.
 
 **See our [official documentation](https://neurobagel.org/user_guide/config/#environment-variables) for all the possible Neurobagel environment variables that you can set in `.env`, and to check which variables are relevant for your specific installation and setup.**
 
 > :warning: **Important:** 
-> - Variables set in the shell environment where the API is launched **_should not be used as a replacement for the `.env` file_** to configure options for the API or graph server software.
+> - Variables set in the shell environment where the API is launched **_should not be used as a replacement for the `.env` file_** to configure options for the API or database server software.
 > - To avoid conflicts related to [Docker's environment variable precedence](https://docs.docker.com/compose/environment-variables/envvars-precedence/), 
 > also ensure that any variables defined in your `.env` are not already set in your current shell environment with **different** values.
 
-The below instructions for Docker and Python assume that you have at least set `NB_GRAPH_USERNAME` and `NB_GRAPH_PASSWORD` in your `.env`.
+The below instructions for Docker and Python assume that you have at least set `NB_DB_USER` and `NB_DB_PASSWORD` in your `.env`.
 
 ### Docker
 First, [install Docker](https://docs.docker.com/get-docker/).
