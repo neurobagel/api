@@ -34,7 +34,7 @@ def test_start_app_without_environment_vars_fails(
     assert expected_msg in str(e_info.value)
 
 
-def fetched_configs_includes_neurobagel(disable_auth):
+def test_fetched_configs_includes_neurobagel(disable_auth):
     """Test that "Neurobagel" is included among the available configuration names fetched from GitHub."""
     assert "Neurobagel" in main.fetch_available_community_config_names()
 
