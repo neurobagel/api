@@ -43,11 +43,6 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 
-def parse_origins_as_list(allowed_origins: str | None) -> list:
-    """Returns user-defined allowed origins as a list."""
-    return list(allowed_origins.split(" ")) if allowed_origins else []
-
-
 def create_gh_raw_content_url(repo: str, content_path: str) -> str:
     """
     Create a raw content URL for a given path in a specific GitHub repository.
