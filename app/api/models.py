@@ -150,7 +150,7 @@ class DatasetQueryResponse(BaseModel):
     access_link: Optional[str] = None
     dataset_total_subjects: int
     records_protected: bool
-    num_matching_subjects: int
+    num_matching_subjects: int | None
     image_modals: list[str] = Field(default_factory=list)
     available_pipelines: dict = Field(default_factory=dict)
 
