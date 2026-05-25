@@ -2,6 +2,7 @@
 
 import asyncio
 from collections import defaultdict
+from copy import deepcopy
 from typing import Optional
 
 import httpx
@@ -469,6 +470,56 @@ async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
                 **dataset_dynamic_metadata,
             )
 
+            response.append(dataset_result)
+
+    return response
+
+
+async def fetch_dataset_catalog_attributes(
+    query: QueryModel,
+) -> list[DatasetQueryResponse]:
+    # exclude_catalog_metadata_keys = [
+    #     "age_range",
+    #     "available_sex",
+    #     "available_diagnosis",
+    #     "available_assessments",
+    # ]
+
+    if util.contains_filters(
+        query,
+        [
+            "image_modal",
+            "pipeline_name",
+            "pipeline_version",
+            "min_num_imaging_sessions",
+            "min_num_phenotypic_sessions",
+        ],
+    ):
+        return []
+
+    response = []
+    # or catalog_dataset_attributes?
+    for (
+        dataset_uuid,
+        catalog_dataset_metadata,
+    ) in env_settings.DATASETS_METADATA.items():
+        if util.catalog_dataset_metadata_matches_query(
+            catalog_dataset_metadata, query
+        ):
+            dataset_annotated_metadata = deepcopy(catalog_dataset_metadata)
+            # Rename field to comply with expected response structure
+            dataset_annotated_metadata["dataset_total_subjects"] = (
+                dataset_annotated_metadata.pop("participant_count")
+            )
+            dataset_result = DatasetQueryResponse(
+                dataset_uuid=util.replace_namespace_prefix_with_uri(
+                    dataset_uuid
+                ),
+                # NOTE: This will override any local setting for NB_RETURN_AGG
+                records_protected=True,
+                num_matching_subjects=None,
+                **dataset_annotated_metadata,
+            )
             response.append(dataset_result)
 
     return response

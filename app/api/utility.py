@@ -522,6 +522,27 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
     return url
 
 
+def replace_namespace_prefix_with_uri(term: str) -> str:
+    """
+    Replace the namespace prefix in a prefixed term URIs with corresponding full namespace URI from the context.
+
+    Parameters
+    ----------
+    term : str
+        A controlled term URI with a namespace prefix.
+
+    Returns
+    -------
+    str
+        The term with namespace prefix replaced with full URI if found in the context, or the original term.
+    """
+    for prefix, uri in env_settings.CONTEXT.items():
+        if term.startswith(f"{prefix}:"):
+            return term.replace(f"{prefix}:", uri)
+
+    return term
+
+
 def create_pipeline_versions_query(pipeline: str) -> str:
     """Create a SPARQL query for all versions of a pipeline available in a graph."""
     query_string = textwrap.dedent(f"""\
@@ -642,3 +663,52 @@ WHERE {{
 """
 
     return query_string
+
+
+def term_in_dataset_variable_instances(
+    dataset: dict, terms_field: str, query_term: str | None
+) -> bool:
+    if not query_term:
+        return True
+
+    dataset_terms = dataset.get(terms_field, [])
+    return query_term in dataset_terms
+
+
+def age_filters_include_dataset_age_range(
+    dataset: dict,
+    query_min_age: float | None,
+    query_max_age: float | None,
+) -> bool:
+    dataset_age_range = dataset["age_range"]
+    dataset_min_age = dataset_age_range["minimum"]
+    dataset_max_age = dataset_age_range["maximum"]
+
+    if query_min_age is not None and dataset_min_age > query_min_age:
+        return False
+    if query_max_age is not None and dataset_max_age < query_max_age:
+        return False
+
+    return True
+
+
+def catalog_dataset_metadata_matches_query(
+    dataset: dict,
+    query: QueryModel,
+) -> bool:
+    return all(
+        [
+            age_filters_include_dataset_age_range(
+                dataset, query.min_age, query.max_age
+            ),
+            term_in_dataset_variable_instances(
+                dataset, "available_assessments", query.assessment
+            ),
+            term_in_dataset_variable_instances(
+                dataset, "available_diagnoses", query.diagnosis
+            ),
+            term_in_dataset_variable_instances(
+                dataset, "available_sex", query.sex
+            ),
+        ]
+    )
