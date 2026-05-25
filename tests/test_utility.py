@@ -2,6 +2,7 @@
 
 import pandas as pd
 import pandas.testing as pdt
+import pytest
 
 from app.api import utility as util
 
@@ -166,3 +167,78 @@ def test_sparql_context_correctly_added_to_query_body(mock_context):
     query_with_context = util.add_sparql_context_to_query(query_body)
 
     assert query_with_context == expected_query_with_context
+
+
+@pytest.mark.parametrize(
+    "assessment_filter, expected_match_result",
+    [
+        ("snomed:11111", True),
+        ("snomed:NOTFOUND", False),
+        (
+            None,
+            True,
+        ),  # if no filter is provided, dataset should match by default
+    ],
+)
+def test_term_in_catalog_dataset_attributes(
+    assessment_filter, expected_match_result
+):
+    """
+    Test that the function correctly identifies whether a query term is present in the relevant field
+    of the catalog dataset info.
+    """
+    mock_catalog_dataset_info = {
+        "dataset_name": "BIDS synthetic",
+        "participant_count": 5,
+        "available_sex": ["snomed:12345", "snomed:45678"],
+        "available_diagnoses": ["snomed:67890", "ncit:C94342"],
+        "available_assessments": ["snomed:11111", "snomed:22222"],
+        "age_range": {"minimum": 21.0, "maximum": 42.0},
+    }
+    assert (
+        util.catalog_dataset_has_term(
+            dataset=mock_catalog_dataset_info,
+            terms_field="available_assessments",
+            query_term=assessment_filter,
+        )
+        == expected_match_result
+    )
+
+
+@pytest.mark.parametrize(
+    "min_age_filter, max_age_filter, expected_match_result",
+    [
+        (25, 35, True),
+        (None, 30, True),
+        (30, None, True),
+        (10, 20, False),
+        (43, 50, False),
+        (10, 30, True),
+        (30, 50, True),
+        (None, None, True),
+    ],
+)
+def test_age_filters_include_catalog_dataset_age_range(
+    min_age_filter, max_age_filter, expected_match_result
+):
+    """
+    Test that the function correctly identifies whether a catalog dataset's age range overlaps
+    with the age range specified by query filters.
+    """
+    mock_catalog_dataset_info = {
+        "dataset_name": "BIDS synthetic",
+        "participant_count": 5,
+        "available_sex": ["snomed:12345", "snomed:45678"],
+        "available_diagnoses": ["snomed:67890", "ncit:C94342"],
+        "available_assessments": ["snomed:11111", "snomed:22222"],
+        "age_range": {"minimum": 21.0, "maximum": 42.0},
+    }
+
+    assert (
+        util.age_filters_include_catalog_dataset_age_range(
+            dataset=mock_catalog_dataset_info,
+            query_min_age=min_age_filter,
+            query_max_age=max_age_filter,
+        )
+        == expected_match_result
+    )

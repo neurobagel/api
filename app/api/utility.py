@@ -21,6 +21,13 @@ QUERY_HEADER = {
     "Accept": "application/sparql-results+json",
 }
 
+# Mapping of catalog dataset metadata fields to categorical query fields
+CATALOG_DATASET_TERM_FILTER_FIELDS = {
+    "available_sex": "sex",
+    "available_diagnoses": "diagnosis",
+    "available_assessments": "assessment",
+}
+
 # Store domains in named tuples
 Domain = namedtuple("Domain", ["var", "pred"])
 # Core domains
@@ -665,9 +672,13 @@ WHERE {{
     return query_string
 
 
-def term_in_dataset_variable_instances(
+def catalog_dataset_has_term(
     dataset: dict, terms_field: str, query_term: str | None
 ) -> bool:
+    """
+    Return True if a given filter term exists in the specified dataset metadata field,
+    or if a filter term has not been specified.
+    """
     if not query_term:
         return True
 
@@ -675,18 +686,25 @@ def term_in_dataset_variable_instances(
     return query_term in dataset_terms
 
 
-def age_filters_include_dataset_age_range(
+def age_filters_include_catalog_dataset_age_range(
     dataset: dict,
     query_min_age: float | None,
     query_max_age: float | None,
 ) -> bool:
+    """
+    Return True if a dataset's age range overlaps with the age range specified in the query,
+    or if no age filters have been specified in the query.
+    """
     dataset_age_range = dataset["age_range"]
+    if not isinstance(dataset_age_range, dict):
+        return False
+
     dataset_min_age = dataset_age_range["minimum"]
     dataset_max_age = dataset_age_range["maximum"]
 
-    if query_min_age is not None and dataset_min_age > query_min_age:
+    if query_min_age is not None and dataset_max_age < query_min_age:
         return False
-    if query_max_age is not None and dataset_max_age < query_max_age:
+    if query_max_age is not None and dataset_min_age > query_max_age:
         return False
 
     return True
@@ -696,19 +714,17 @@ def catalog_dataset_metadata_matches_query(
     dataset: dict,
     query: QueryModel,
 ) -> bool:
-    return all(
-        [
-            age_filters_include_dataset_age_range(
-                dataset, query.min_age, query.max_age
-            ),
-            term_in_dataset_variable_instances(
-                dataset, "available_assessments", query.assessment
-            ),
-            term_in_dataset_variable_instances(
-                dataset, "available_diagnoses", query.diagnosis
-            ),
-            term_in_dataset_variable_instances(
-                dataset, "available_sex", query.sex
-            ),
-        ]
+    """
+    Return True if a dataset's catalog metadata matches the filters specified in the query, and False otherwise.
+    """
+    term_filters_match = all(
+        catalog_dataset_has_term(
+            dataset, dataset_field, getattr(query, categorical_query_field)
+        )
+        for dataset_field, categorical_query_field in CATALOG_DATASET_TERM_FILTER_FIELDS.items()
     )
+    age_filters_match = age_filters_include_catalog_dataset_age_range(
+        dataset, query.min_age, query.max_age
+    )
+
+    return term_filters_match and age_filters_match
