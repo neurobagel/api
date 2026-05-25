@@ -45,6 +45,10 @@ async def get_query(
             )
         verify_token(token)
 
-    response = await crud.query_records(**query.model_dump())
+    if settings.catalog_mode:
+        # Catalog mode does not support subject-level queries
+        response = []
+    else:
+        response = await crud.query_records(**query.model_dump())
 
     return response
