@@ -747,3 +747,56 @@ def catalog_dataset_metadata_matches_query(
     )
 
     return term_filters_match and age_filters_match
+
+
+def find_matching_term_in_vocab(
+    term_url: str, std_trm_vocab: list[dict], has_prefix: bool = False
+) -> dict | None:
+    """
+    Finds the matching term from the standardized vocabulary based on the provided term URL.
+
+    Parameters
+    ----------
+    term_url : str
+        The URL of the controlled term to find.
+    std_trm_vocab : list[dict]
+        The standardized term vocabulary containing metadata for controlled terms.
+
+    Returns
+    -------
+    dict | None
+        The dictionary representing the matching term from the vocabulary, or None if no match is found.
+    """
+    # First, check whether the instance of the standardized variable contains a recognized namespace
+    if not is_term_namespace_in_context(term_url, has_prefix):
+        logger.warning(
+            f"The controlled term {term_url} does not come from a vocabulary recognized by Neurobagel."
+            "The label for this term cannot be resolved."
+        )
+        return None
+
+    # Then, get the namespace and ID for the term
+    term_namespace, term_id = split_namespace_from_term_uri(
+        term_url, has_prefix=has_prefix
+    )
+
+    if has_prefix:
+        namespace_key = "namespace_prefix"
+    else:
+        namespace_key = "namespace_url"
+
+    # Since the term vocabulary for a standardized variable can contain terms from several namespaces,
+    # we first have to locate the namespace used in the term we are looking up
+    namespace_terms: list = next(
+        (
+            namespace["terms"]
+            for namespace in std_trm_vocab
+            if namespace[namespace_key] == term_namespace
+        ),
+        [],
+    )
+    matched_term: dict = next(
+        (term for term in namespace_terms if term["id"] == term_id),
+        {},
+    )
+    return matched_term
