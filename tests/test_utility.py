@@ -242,3 +242,76 @@ def test_age_filters_include_catalog_dataset_age_range(
         )
         == expected_match_result
     )
+
+
+@pytest.mark.parametrize(
+    "term_url,has_prefix,expected_result",
+    [
+        (
+            "http://purl.bioontology.org/ontology/SNOMEDCT/1303696008",
+            False,
+            {
+                "id": "1303696008",
+                "name": "Robson Ten Group Classification System",
+            },
+        ),
+        (
+            "snomed:1303696008",
+            True,
+            {
+                "id": "1303696008",
+                "name": "Robson Ten Group Classification System",
+            },
+        ),
+        (
+            "snomed:otherterm",
+            True,
+            {},  # term has a recognized prefix but no entry in vocab
+        ),
+        (
+            "ncit:someterm",
+            True,
+            {},  # term has a recognized prefix but no entry in vocab
+        ),
+        (
+            "unknownprefix:1303696008",
+            True,
+            None,  # term has wrong prefix, so should be skipped downstream
+        ),
+    ],
+)
+def test_find_matching_term_in_vocab(
+    mock_context, term_url, has_prefix, expected_result
+):
+    mock_vocab = [
+        {
+            "namespace_prefix": "snomed",
+            "namespace_url": "http://purl.bioontology.org/ontology/SNOMEDCT/",
+            "vocabulary_name": "Neurobagel vocabulary of Assessment terms",
+            "version": "1.0.0",
+            "terms": [
+                {
+                    "id": "1303696008",
+                    "name": "Robson Ten Group Classification System",
+                },
+                {"id": "1304062007", "name": "Malnutrition Screening Tool"},
+                {
+                    "id": "1332329009",
+                    "name": "Interviewer led Chronic Respiratory Questionnaire",
+                },
+                {
+                    "id": "1332330004",
+                    "name": "Self-reported Chronic Respiratory Questionnaire",
+                },
+            ],
+        }
+    ]
+
+    assert (
+        util.find_matching_term_in_vocab(
+            term_url=term_url,
+            std_trm_vocab=mock_vocab,
+            has_prefix=has_prefix,
+        )
+        == expected_result
+    )

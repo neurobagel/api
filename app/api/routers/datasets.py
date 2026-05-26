@@ -36,7 +36,7 @@ async def post_datasets_query(
         verify_token(token)
 
     if settings.catalog_mode:
-        response = await crud.fetch_dataset_catalog_attributes(query)
+        response = await crud.query_dataset_catalog_attributes(query)
     else:
         response = await crud.post_datasets(query)
 

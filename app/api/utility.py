@@ -770,8 +770,9 @@ def find_matching_term_in_vocab(
     # First, check whether the instance of the standardized variable contains a recognized namespace
     if not is_term_namespace_in_context(term_url, has_prefix):
         logger.warning(
-            f"The controlled term {term_url} does not come from a vocabulary recognized by Neurobagel."
-            "The label for this term cannot be resolved."
+            f"The controlled term {term_url} was found in a dataset but "
+            "does not come from a vocabulary recognized by Neurobagel. "
+            "This term will be ignored."
         )
         return None
 
@@ -795,6 +796,8 @@ def find_matching_term_in_vocab(
         ),
         [],
     )
+    # If the term has a recognized namespace but is not found in the vocabulary,
+    # we return an empty dictionary to indicate that no term metadata is available.
     matched_term: dict = next(
         (term for term in namespace_terms if term["id"] == term_id),
         {},
