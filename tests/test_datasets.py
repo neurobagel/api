@@ -212,3 +212,68 @@ async def test_imaging_modals_and_pipelines_query(monkeypatch):
 
     # Assert
     assert image_modals_and_pipelines == expected_image_modals_and_pipelines
+
+
+def test_datasets_query_response_shape_is_correct_in_catalog_mode(
+    test_app,
+    mock_context,  # needed to replace namespace prefixes catalog dataset UUIDs
+    disable_auth,
+    monkeypatch,
+):
+    """
+    Test that the response from /datasets includes the expected fields in catalog mode.
+    """
+    mock_datasets_metadata = {
+        "nb:18532368-82dc-42ac-b4fb-fbb187ad6ae1": {
+            "dataset_name": "BIDS synthetic",
+            "participant_count": 5,
+            "repository_url": "https://github.com/bids-standard/bids-examples.git",
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": [
+                "snomed:859351000000102",
+                "snomed:342061000000106",
+            ],
+            "age_range": {"minimum": 21.0, "maximum": 42.0},
+        },
+        "nb:80af4d30-0447-4f13-9eaf-98ae8065895a": {
+            "dataset_name": "Rhyme judgment",
+            "access_link": "https://github.com/OpenNeuroDatasets-JSONLD/ds000003.git",
+            "participant_count": 10,
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": ["snomed:859351000000102"],
+            "age_range": {"minimum": 60.0, "maximum": 80.0},
+        },
+    }
+
+    monkeypatch.setattr(settings, "catalog_mode", True)
+    monkeypatch.setattr(
+        env_settings, "DATASETS_METADATA", mock_datasets_metadata
+    )
+
+    response = test_app.post(
+        ROUTE, json={"assessment": "snomed:342061000000106"}
+    )
+    response = response.json()
+    matching_dataset = response[0]
+
+    assert len(response) == 1
+    assert (
+        matching_dataset["dataset_uuid"]
+        == "http://neurobagel.org/vocab/18532368-82dc-42ac-b4fb-fbb187ad6ae1"
+    )
+    assert matching_dataset["dataset_total_subjects"] == 5
+    assert matching_dataset["num_matching_subjects"] is None
+    assert matching_dataset["image_modals"] == []
+    assert matching_dataset["available_pipelines"] == {}
+    # Check that extra catalog metadata keys do not end up in the response
+    for key in [
+        "available_sex",
+        "available_diagnoses",
+        "available_assessments",
+        "age_range",
+    ]:
+        assert key not in response
+
+    # Test records protected separately

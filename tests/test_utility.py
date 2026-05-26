@@ -5,6 +5,7 @@ import pandas.testing as pdt
 import pytest
 
 from app.api import utility as util
+from app.api.models import QueryModel
 
 
 def test_unpack_graph_response_json_to_dicts():
@@ -242,6 +243,43 @@ def test_age_filters_include_catalog_dataset_age_range(
         )
         == expected_match_result
     )
+
+
+@pytest.mark.parametrize(
+    "query_fields,expected_match_result",
+    [
+        ({"assessment": "snomed:11111", "min_age": 20}, True),
+        (
+            {
+                "assessment": "snomed:11111",
+                "diagnosis": "snomed:otherdiagnosis",
+            },
+            False,
+        ),
+        ({"sex": "snomed:12345", "min_age": 60}, False),
+    ],
+)
+def test_query_filters_correctly_match_catalog_datasets(
+    query_fields, expected_match_result
+):
+    """
+    Test that the function correctly identifies whether a catalog dataset matches all provided query filters.
+    """
+    query = QueryModel(**query_fields)
+
+    mock_catalog_dataset_info = {
+        "dataset_name": "BIDS synthetic",
+        "participant_count": 5,
+        "available_sex": ["snomed:12345", "snomed:45678"],
+        "available_diagnoses": ["snomed:67890", "ncit:C94342"],
+        "available_assessments": ["snomed:11111", "snomed:22222"],
+        "age_range": {"minimum": 21.0, "maximum": 42.0},
+    }
+    assert (
+        util.catalog_dataset_metadata_matches_query(
+            dataset=mock_catalog_dataset_info, query=query
+        )
+    ) == expected_match_result
 
 
 @pytest.mark.parametrize(
