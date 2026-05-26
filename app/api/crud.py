@@ -564,9 +564,7 @@ async def get_terms(
             term_entry["DataType"] = matched_term.get("data_type", None)
         term_metadata.append(term_entry)
 
-    term_instances = {data_element_uri: term_metadata}
-
-    return term_instances
+    return {data_element_uri: term_metadata}
 
 
 async def fetch_available_terms_from_catalog_datasets(
@@ -576,11 +574,10 @@ async def fetch_available_terms_from_catalog_datasets(
         data_element_uri, {}
     ).get("catalog_field")
 
-    term_instances: dict[str, list[dict]] = {data_element_uri: []}
     # For variables we do not represent in catalog datasets (e.g., imaging metadata),
     # return an empty list since we have no record of used terms
     if not catalog_dataset_field:
-        return term_instances
+        return {data_element_uri: []}
 
     all_available_instances = set()
     for catalog_dataset_metadata in env_settings.DATASETS_METADATA.values():
@@ -608,9 +605,7 @@ async def fetch_available_terms_from_catalog_datasets(
         }
         term_metadata.append(term_entry)
 
-    term_instances[data_element_uri] = term_metadata
-
-    return term_instances
+    return {data_element_uri: term_metadata}
 
 
 async def get_controlled_term_attributes() -> list:
