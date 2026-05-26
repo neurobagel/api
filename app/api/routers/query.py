@@ -46,7 +46,9 @@ async def get_query(
         verify_token(token)
 
     if settings.catalog_mode:
-        # Catalog mode does not support subject-level queries
+        # Catalog mode does not support subject-level queries,
+        # so we explicitly return an empty list to avoid contradicting behaviour
+        # if JSONLDs somehow end up in the graph
         response = []
     else:
         response = await crud.query_records(**query.model_dump())
