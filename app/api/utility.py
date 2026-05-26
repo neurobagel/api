@@ -21,11 +21,21 @@ QUERY_HEADER = {
     "Accept": "application/sparql-results+json",
 }
 
-# Mapping of catalog dataset metadata fields to categorical query fields
+# Mapping of categorical standardized variables to catalog dataset metadata fields and
+# corresponding query fields
 CATALOG_DATASET_TERM_FILTER_FIELDS = {
-    "available_sex": "sex",
-    "available_diagnoses": "diagnosis",
-    "available_assessments": "assessment",
+    "nb:Assessment": {
+        "query_field": "assessment",
+        "catalog_field": "available_assessments",
+    },
+    "nb:Diagnosis": {
+        "query_field": "diagnosis",
+        "catalog_field": "available_diagnoses",
+    },
+    "nb:Sex": {
+        "query_field": "sex",
+        "catalog_field": "available_sex",
+    },
 }
 
 # Store domains in named tuples
@@ -457,7 +467,9 @@ def create_terms_query(data_element_URI: str) -> str:
     return query_string
 
 
-def is_term_namespace_in_context(term_url: str) -> bool:
+def is_term_namespace_in_context(
+    term_url: str, has_prefix: bool = False
+) -> bool:
     """
     Performs basic check for if a term URL contains a namespace URI from the context.
 
@@ -466,15 +478,20 @@ def is_term_namespace_in_context(term_url: str) -> bool:
     term_url : str
         A controlled term URI.
 
+    has_prefix : bool, optional
+        Whether the term URI includes a namespace prefix (as opposed to the full namespace URL).
+
     Returns
     -------
     bool
         True if the term URL contains a namespace URI from the context, False otherwise.
     """
-    for uri in env_settings.CONTEXT.values():
-        if uri in term_url:
-            return True
-    return False
+    namespaces = (
+        [f"{prefix}:" for prefix in env_settings.CONTEXT]
+        if has_prefix
+        else list(env_settings.CONTEXT.values())
+    )
+    return any(term_url.startswith(namespace) for namespace in namespaces)
 
 
 def split_namespace_from_term_uri(
@@ -719,9 +736,11 @@ def catalog_dataset_metadata_matches_query(
     """
     term_filters_match = all(
         catalog_dataset_has_term(
-            dataset, dataset_field, getattr(query, categorical_query_field)
+            dataset,
+            fields["catalog_field"],
+            getattr(query, fields["query_field"]),
         )
-        for dataset_field, categorical_query_field in CATALOG_DATASET_TERM_FILTER_FIELDS.items()
+        for fields in CATALOG_DATASET_TERM_FILTER_FIELDS.values()
     )
     age_filters_match = age_filters_include_catalog_dataset_age_range(
         dataset, query.min_age, query.max_age
