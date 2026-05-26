@@ -475,9 +475,14 @@ async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
     return response
 
 
-async def fetch_dataset_catalog_attributes(
+async def query_dataset_catalog_attributes(
     query: QueryModel,
 ) -> list[DatasetQueryResponse]:
+    """
+    When a POST request is sent to /datasets and catalog mode is enabled for the node,
+    return a list of dicts corresponding to the metadata for datasets matching the query,
+    based on the datasets metadata JSON file rather than graph store queries.
+    """
     if util.contains_filters(
         query,
         [
@@ -491,7 +496,6 @@ async def fetch_dataset_catalog_attributes(
         return []
 
     response = []
-    # or catalog_dataset_attributes?
     for (
         dataset_uuid,
         catalog_dataset_metadata,
@@ -527,7 +531,7 @@ async def get_terms(
 
     Parameters
     ----------
-    data_element_URI : str
+    data_element_uri : str
         Controlled term of neurobagel class for which all the available terms should be retrieved.
     std_trm_vocab : list[dict]
         List of dictionaries representing the vocabulary for the data element URI, where each dictionary corresponds to a vocabulary namespace and
@@ -570,6 +574,24 @@ async def get_terms(
 async def fetch_available_terms_from_catalog_datasets(
     data_element_uri: str, std_trm_vocab: list[dict]
 ) -> dict[str, list[dict]]:
+    """
+    Fetch term instances corresponding to a given standardized variable from all catalog datasets.
+
+    Parameters
+    ----------
+    data_element_uri : str
+        Prefixed term URI of standardized variable for which all term instances should be retrieved.
+    std_trm_vocab : list[dict]
+        The vocabulary for the standardized variable, where each dictionary in the list corresponds to
+        a vocabulary namespace and contains the namespace metadata and a list of standardized terms.
+        Corresponds to the contents of the terms file for a specific standardized variable.
+
+    Returns
+    -------
+    dict[str, list[dict]]
+        Dictionary where the key is the Neurobagel class and the value is a list of dictionaries
+        corresponding to the available (i.e. used) instances of that class in the catalog datasets.
+    """
     catalog_dataset_field = util.CATALOG_DATASET_TERM_FILTER_FIELDS.get(
         data_element_uri, {}
     ).get("catalog_field")
