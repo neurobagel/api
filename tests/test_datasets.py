@@ -1,3 +1,5 @@
+import pytest
+
 from app.api import crud, env_settings
 from app.api.env_settings import settings
 
@@ -267,6 +269,8 @@ def test_datasets_query_response_shape_is_correct_in_catalog_mode(
     assert matching_dataset["num_matching_subjects"] is None
     assert matching_dataset["image_modals"] == []
     assert matching_dataset["available_pipelines"] == {}
+    # TODO: Update assertion once/if we combine NB_CATALOG_MODE with NB_RETURN_AGG
+    assert matching_dataset["records_protected"] is True
     # Check that extra catalog metadata keys do not end up in the response
     for key in [
         "available_sex",
@@ -276,4 +280,54 @@ def test_datasets_query_response_shape_is_correct_in_catalog_mode(
     ]:
         assert key not in response
 
-    # Test records protected separately
+
+@pytest.mark.parametrize(
+    "query_body",
+    [
+        {"min_age": 20, "image_modal": "nidm:T1Weighted"},
+        {"pipeline_name": "np:fmriprep"},
+        {"pipeline_name": "np:fmriprep", "pipeline_version": "23.2.0"},
+    ],
+)
+def test_imaging_query_parameters_return_no_results_in_catalog_mode(
+    test_app,
+    mock_context,
+    disable_auth,
+    monkeypatch,
+    query_body,
+):
+    """
+    Test that /datasets does not return any matching datasets when
+    the query includes imaging-related parameters.
+    """
+    mock_datasets_metadata = {
+        "nb:18532368-82dc-42ac-b4fb-fbb187ad6ae1": {
+            "dataset_name": "BIDS synthetic",
+            "participant_count": 5,
+            "repository_url": "https://github.com/bids-standard/bids-examples.git",
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": [
+                "snomed:859351000000102",
+                "snomed:342061000000106",
+            ],
+            "age_range": {"minimum": 21.0, "maximum": 42.0},
+        },
+        "nb:80af4d30-0447-4f13-9eaf-98ae8065895a": {
+            "dataset_name": "Rhyme judgment",
+            "access_link": "https://github.com/OpenNeuroDatasets-JSONLD/ds000003.git",
+            "participant_count": 10,
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": ["snomed:859351000000102"],
+            "age_range": {"minimum": 60.0, "maximum": 80.0},
+        },
+    }
+
+    monkeypatch.setattr(settings, "catalog_mode", True)
+    monkeypatch.setattr(
+        env_settings, "DATASETS_METADATA", mock_datasets_metadata
+    )
+
+    response = test_app.post(ROUTE, json=query_body)
+    assert response.json() == []
