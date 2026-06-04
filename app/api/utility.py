@@ -715,12 +715,17 @@ def age_filters_include_catalog_dataset_age_range(
     if query_min_age is None and query_max_age is None:
         return True
 
-    dataset_age_range = dataset["age_range"]
+    dataset_age_range = dataset.get("age_range")
     if not isinstance(dataset_age_range, dict):
         return False
 
-    dataset_min_age = dataset_age_range["minimum"]
-    dataset_max_age = dataset_age_range["maximum"]
+    dataset_min_age = dataset_age_range.get("minimum")
+    dataset_max_age = dataset_age_range.get("maximum")
+
+    # This should theoretically never happen because of the schema validation for catalog dataset files,
+    # but we include this check as a safeguard to avoid errors.
+    if dataset_min_age is None or dataset_max_age is None:
+        return False
 
     if query_min_age is not None and dataset_max_age < query_min_age:
         return False
