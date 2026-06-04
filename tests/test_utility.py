@@ -245,6 +245,29 @@ def test_age_filters_include_catalog_dataset_age_range(
     )
 
 
+def test_dataset_with_no_age_range_matches_query_without_age_filters():
+    """
+    Test that a dataset with no age range information is not excluded when age filters are not provided in the query.
+    """
+    mock_catalog_dataset_info = {
+        "dataset_name": "BIDS synthetic",
+        "participant_count": 5,
+        "available_sex": ["snomed:12345", "snomed:45678"],
+        "available_diagnoses": ["snomed:67890", "ncit:C94342"],
+        "available_assessments": ["snomed:11111", "snomed:22222"],
+        "age_range": None,
+    }
+
+    assert (
+        util.age_filters_include_catalog_dataset_age_range(
+            dataset=mock_catalog_dataset_info,
+            query_min_age=None,
+            query_max_age=None,
+        )
+        is True
+    )
+
+
 @pytest.mark.parametrize(
     "query_fields,expected_match_result",
     [

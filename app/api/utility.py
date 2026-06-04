@@ -712,6 +712,9 @@ def age_filters_include_catalog_dataset_age_range(
     Return True if a dataset's age range overlaps with the age range specified in the query,
     or if no age filters have been specified in the query.
     """
+    if query_min_age is None and query_max_age is None:
+        return True
+
     dataset_age_range = dataset["age_range"]
     if not isinstance(dataset_age_range, dict):
         return False
