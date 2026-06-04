@@ -258,9 +258,10 @@ def test_datasets_query_response_shape_is_correct_in_catalog_mode(
         ROUTE, json={"assessment": "snomed:342061000000106"}
     )
     response = response.json()
-    matching_dataset = response[0]
 
     assert len(response) == 1
+    matching_dataset = response[0]
+
     assert (
         matching_dataset["dataset_uuid"]
         == "http://neurobagel.org/vocab/18532368-82dc-42ac-b4fb-fbb187ad6ae1"
