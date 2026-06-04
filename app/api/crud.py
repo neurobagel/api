@@ -483,6 +483,9 @@ async def query_dataset_catalog_attributes(
     return a list of dicts corresponding to the metadata for datasets matching the query,
     based on the datasets metadata JSON file rather than graph store queries.
     """
+    # NOTE: We currently do not support any of these filters in catalog mode because
+    # we don't have the dataset-level information to answer the query.
+    # This may change in a future release.
     if util.contains_filters(
         query,
         [
