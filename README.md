@@ -25,7 +25,7 @@ Please refer to our [**official documentation**](https://neurobagel.org/user_gui
     - [Option 2: Use the latest image from Docker Hub](#option-2-use-the-latest-image-from-docker-hub)
     - [Option 3: Build the image using the Dockerfile](#option-3-build-the-image-using-the-dockerfile)
     - [Send a test query to the API](#send-a-test-query-to-the-api)
-  - [Python](#python)
+  - [Python](#python-development-environment)
     - [Install dependencies](#install-dependencies)
     - [Launch the API](#launch-the-api)
   - [Troubleshooting](#troubleshooting)
@@ -146,6 +146,7 @@ You can then launch the API using either of these methods:
 uv run python -m app.main
 ```
 This launches the API inside the project environment without requiring you to activate a virtual environment first.
+
 **Option 2: Activate the virtual environment manually**
 ```bash
 source .venv/bin/activate
