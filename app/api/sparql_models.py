@@ -37,7 +37,7 @@ class SPARQLSerializable(BaseModel):
         if schema_key:
             triples.extend([f"{var_name} a nb:{schema_key}."])
 
-        for field in self.model_fields:
+        for field in type(self).model_fields:
             value = getattr(self, field)
             if field == "schemaKey":
                 continue

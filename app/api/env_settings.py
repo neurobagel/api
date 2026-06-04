@@ -56,6 +56,12 @@ class Settings(BaseSettings):
         default=DEFAULT_NEUROBAGEL_CONFIG,
         description="The name of the community configuration to use to query the graph data.",
     )
+    catalog_mode: bool = Field(
+        alias="NB_CATALOG_MODE",
+        default=False,
+        description="Whether to run the API in catalog mode, which only serves dataset metadata and summary attributes "
+        "and does not query the graph store.",
+    )
 
     @computed_field  # type: ignore[prop-decorator]
     @property

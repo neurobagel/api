@@ -1,6 +1,6 @@
 import pytest
 
-from app.api import crud
+from app.api import crud, env_settings
 from app.main import settings
 
 ROUTE = "/subjects"
@@ -81,3 +81,43 @@ def test_post_subjects_returns_no_dataset_metadata(
 
     for matching_dataset in response.json():
         assert matching_dataset.keys() == {"dataset_uuid", "subject_data"}
+
+
+def test_post_subjects_returns_no_matching_subjects_in_catalog_mode(
+    test_app, mock_post_agg_query_to_graph, disable_auth, monkeypatch
+):
+    """
+    Test that the /subjects endpoint returns no subject-level results in catalog mode.
+    """
+    mock_datasets_metadata = {
+        "nb:18532368-82dc-42ac-b4fb-fbb187ad6ae1": {
+            "dataset_name": "BIDS synthetic",
+            "participant_count": 5,
+            "repository_url": "https://github.com/bids-standard/bids-examples.git",
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": [
+                "snomed:859351000000102",
+                "snomed:342061000000106",
+            ],
+            "age_range": {"minimum": 21.0, "maximum": 42.0},
+        },
+        "nb:80af4d30-0447-4f13-9eaf-98ae8065895a": {
+            "dataset_name": "Rhyme judgment",
+            "access_link": "https://github.com/OpenNeuroDatasets-JSONLD/ds000003.git",
+            "participant_count": 10,
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": ["snomed:859351000000102"],
+            "age_range": {"minimum": 60.0, "maximum": 80.0},
+        },
+    }
+
+    monkeypatch.setattr(settings, "catalog_mode", True)
+    monkeypatch.setattr(
+        env_settings, "DATASETS_METADATA", mock_datasets_metadata
+    )
+
+    response = test_app.post(ROUTE, json={})
+    assert response.status_code == 200
+    assert response.json() == []

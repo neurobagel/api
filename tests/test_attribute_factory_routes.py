@@ -4,6 +4,7 @@ import httpx
 import pytest
 
 from app.api import env_settings
+from app.api.env_settings import settings
 from app.api.models import DataElementURI
 
 
@@ -312,3 +313,184 @@ def test_get_vocab_endpoint(
 
     assert response.status_code == 200
     assert response.json() == mock_all_vocabs[standardized_variable_id]
+
+
+def test_get_instances_endpoint_in_catalog_mode(
+    test_app, monkeypatch, disable_auth, mock_context
+):
+    """
+    Given a GET request to /assessments in catalog mode,
+    test that the endpoint correctly returns the unique assessment terms
+    found in the catalog dataset metadata.
+    """
+    mock_datasets_metadata = {
+        "nb:18532368-82dc-42ac-b4fb-fbb187ad6ae1": {
+            "dataset_name": "BIDS synthetic",
+            "participant_count": 5,
+            "repository_url": "https://github.com/bids-standard/bids-examples.git",
+            "available_sex": [],
+            "available_diagnoses": [],
+            "available_assessments": [
+                "snomed:859351000000102",
+                "snomed:342061000000106",
+            ],
+            "age_range": {"minimum": 21.0, "maximum": 42.0},
+        },
+        "nb:80af4d30-0447-4f13-9eaf-98ae8065895a": {
+            "dataset_name": "Rhyme judgment",
+            "access_link": "https://github.com/OpenNeuroDatasets-JSONLD/ds000003.git",
+            "participant_count": 10,
+            "available_sex": [],
+            "available_diagnoses": [],
+            "available_assessments": ["snomed:859351000000102"],
+            "age_range": {"minimum": 60.0, "maximum": 80.0},
+        },
+    }
+
+    # Mock local vocabulary lookup
+    monkeypatch.setattr(
+        env_settings,
+        "ALL_VOCABS",
+        {
+            "nb:Assessment": [
+                {
+                    "namespace_prefix": "snomed",
+                    "namespace_url": "http://purl.bioontology.org/ontology/SNOMEDCT/",
+                    "vocabulary_name": "Test vocabulary of assessment terms",
+                    "version": "1.0.0",
+                    "terms": [
+                        {
+                            "id": "859351000000102",
+                            "name": "Montreal cognitive assessment",
+                        },
+                        {
+                            "id": "342061000000106",
+                            "name": "Unified Parkinsons disease rating scale score",
+                        },
+                    ],
+                }
+            ]
+        },
+    )
+    monkeypatch.setattr(settings, "catalog_mode", True)
+    monkeypatch.setattr(
+        env_settings, "DATASETS_METADATA", mock_datasets_metadata
+    )
+
+    response = test_app.get("/assessments")
+
+    assert response.json() == {
+        "nb:Assessment": [
+            {
+                "TermURL": "snomed:342061000000106",
+                "Label": "Unified Parkinsons disease rating scale score",
+            },
+            {
+                "TermURL": "snomed:859351000000102",
+                "Label": "Montreal cognitive assessment",
+            },
+        ]
+    }
+
+
+@pytest.mark.parametrize(
+    "attribute_path,expected_response",
+    [
+        ("/imaging-modalities", {"nb:Image": []}),
+        ("/pipelines", {"nb:Pipeline": []}),
+        ("/pipelines/np:fmriprep/versions", {"np:fmriprep": []}),
+    ],
+)
+def test_no_imaging_variable_instances_returned_in_catalog_mode(
+    test_app,
+    monkeypatch,
+    disable_auth,
+    mock_context,
+    attribute_path,
+    expected_response,
+):
+    """
+    Given a GET request for imaging modality or pipeline instances in catalog mode,
+    test that the relevant endpoints return no results.
+
+    TODO: Update once/if imaging metadata is supported for catalog datasets.
+    """
+    mock_datasets_metadata = {
+        "nb:18532368-82dc-42ac-b4fb-fbb187ad6ae1": {
+            "dataset_name": "BIDS synthetic",
+            "participant_count": 5,
+            "repository_url": "https://github.com/bids-standard/bids-examples.git",
+            "available_sex": [],
+            "available_diagnoses": [],
+            "available_assessments": [
+                "snomed:859351000000102",
+                "snomed:342061000000106",
+            ],
+            "age_range": {"minimum": 21.0, "maximum": 42.0},
+        },
+        "nb:80af4d30-0447-4f13-9eaf-98ae8065895a": {
+            "dataset_name": "Rhyme judgment",
+            "access_link": "https://github.com/OpenNeuroDatasets-JSONLD/ds000003.git",
+            "participant_count": 10,
+            "available_sex": [],
+            "available_diagnoses": [],
+            "available_assessments": ["snomed:859351000000102"],
+            "age_range": {"minimum": 60.0, "maximum": 80.0},
+        },
+    }
+
+    # Mock local vocabulary lookup
+    monkeypatch.setattr(
+        env_settings,
+        "ALL_VOCABS",
+        {
+            "nb:Assessment": [
+                {
+                    "namespace_prefix": "snomed",
+                    "namespace_url": "http://purl.bioontology.org/ontology/SNOMEDCT/",
+                    "vocabulary_name": "Test vocabulary of assessment terms",
+                    "version": "1.0.0",
+                    "terms": [
+                        {
+                            "id": "859351000000102",
+                            "name": "Montreal cognitive assessment",
+                        },
+                        {
+                            "id": "342061000000106",
+                            "name": "Unified Parkinsons disease rating scale score",
+                        },
+                    ],
+                }
+            ],
+            "nb:Image": [
+                {
+                    "namespace_prefix": "nidm",
+                    "namespace_url": "http://purl.org/nidash/nidm#",
+                    "vocabulary_name": "Neurobagel vocabulary of imaging modality terms",
+                    "version": "1.0.0",
+                    "terms": [
+                        {
+                            "name": "T1-weighted image",
+                            "id": "T1Weighted",
+                            "abbreviation": "T1w",
+                            "data_type": "anat",
+                        },
+                        {
+                            "name": "T2-weighted image",
+                            "id": "T2Weighted",
+                            "abbreviation": "T2w",
+                            "data_type": "anat",
+                        },
+                    ],
+                }
+            ],
+        },
+    )
+    monkeypatch.setattr(settings, "catalog_mode", True)
+    monkeypatch.setattr(
+        env_settings, "DATASETS_METADATA", mock_datasets_metadata
+    )
+
+    response = test_app.get(attribute_path)
+
+    assert response.json() == expected_response
