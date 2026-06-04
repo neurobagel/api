@@ -278,7 +278,7 @@ def test_datasets_query_response_shape_is_correct_in_catalog_mode(
         "available_assessments",
         "age_range",
     ]:
-        assert key not in response
+        assert key not in matching_dataset
 
 
 @pytest.mark.parametrize(
