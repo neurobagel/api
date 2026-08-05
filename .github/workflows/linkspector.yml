@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     # TODO: Remove this workaround once action-linkspector handles
     # puppeteer's Chrome install on its own. As of Chrome 148

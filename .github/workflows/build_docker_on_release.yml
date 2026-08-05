@@ -13,7 +13,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         # Some repos have submodules that need to be part of the Docker image
         with:
           submodules: recursive
