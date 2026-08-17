@@ -110,7 +110,7 @@ def create_bound_filter(var: str) -> str:
 
 def create_query(
     return_agg: bool,
-    age: tuple | None = (None, None),
+    age: tuple[float | None, float | None] = (None, None),
     sex: str | None = None,
     diagnosis: str | None = None,
     min_num_imaging_sessions: int | None = None,
@@ -119,7 +119,7 @@ def create_query(
     image_modal: str | None = None,
     pipeline_name: str | None = None,
     pipeline_version: str | None = None,
-    dataset_uuids: list | None = None,
+    dataset_uuids: list[str] | None = None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
@@ -128,7 +128,7 @@ def create_query(
     ----------
     return_agg : bool
         Whether to return only aggregate query results (and not subject-level attributes besides file paths).
-    age : tuple, optional
+    age : tuple[float | None, float | None], optional
         Minimum and maximum age of subject, by default (None, None).
     sex : str, optional
         Subject sex, by default None.
@@ -314,7 +314,7 @@ def create_query(
     return query_string
 
 
-def create_multidataset_size_query(dataset_uuids: list) -> str:
+def create_multidataset_size_query(dataset_uuids: list[str]) -> str:
     """Construct a SPARQL query to retrieve the number of subjects in each dataset in a list of dataset UUIDs."""
     dataset_uuids_string = "\n".join([f"<{uuid}>" for uuid in dataset_uuids])
     query_string = f"""
@@ -485,7 +485,7 @@ def split_namespace_from_term_uri(
 
     Returns
     -------
-    tuple[str, str]
+    tuple[str | None, str]
         The stripped namespace URL/prefix and the term ID.
     """
     if has_prefix:
