@@ -1,4 +1,5 @@
 from .. import crud, env_settings
+from ..env_settings import settings
 from ..models import StandardizedTermVocabularyResponse
 
 
@@ -10,10 +11,18 @@ def create_get_instances_handler(data_element_uri: str):
         When a GET request is sent, return a dict with the only key corresponding to the controlled term of a neurobagel class,
         and the value being a list of dictionaries each corresponding to an available class instance term from the graph.
         """
-        terms_vocab = env_settings.ALL_VOCABS.get(data_element_uri)
-        return await crud.get_terms(
-            data_element_URI=data_element_uri, std_trm_vocab=terms_vocab
-        )
+        terms_vocab = env_settings.ALL_VOCABS.get(data_element_uri, [])
+
+        if settings.catalog_mode:
+            response = await crud.fetch_available_terms_from_catalog_datasets(
+                data_element_uri=data_element_uri, std_trm_vocab=terms_vocab
+            )
+        else:
+            response = await crud.get_terms(
+                data_element_uri=data_element_uri, std_trm_vocab=terms_vocab
+            )
+
+        return response
 
     return get_instances
 

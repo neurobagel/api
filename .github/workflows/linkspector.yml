@@ -13,6 +13,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+
+    # TODO: Remove this workaround once action-linkspector handles
+    # puppeteer's Chrome install on its own. As of Chrome 148
+    # (released ~2026-05-27), puppeteer no longer auto-downloads
+    # Chrome via npm postinstall, so the bundled linkspector cannot
+    # find a Chrome binary and exits with "Could not find Chrome".
+    # Pin to puppeteer ^24 because linkspector 0.4.7 (what
+    # action-linkspector v1.4.1 installs) depends on
+    # puppeteer ^24.14.0; the latest standalone puppeteer is on a
+    # newer Chrome pin and would cache the wrong version.
+    # See: https://github.com/UmbrellaDocs/action-linkspector/issues/62
+    # Solution from: https://github.com/coder/coder/pull/25859
+    - name: Install Chrome for puppeteer
+      shell: bash
+      run: npx --yes puppeteer@^24 browsers install chrome
+
     - name: Run linkspector 
       uses: umbrelladocs/action-linkspector@v1
       with:

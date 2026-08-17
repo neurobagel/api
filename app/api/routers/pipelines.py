@@ -5,6 +5,7 @@ from pydantic.types import StringConstraints
 
 from .. import crud
 from .. import utility as util
+from ..env_settings import settings
 from ..models import CONTROLLED_TERM_REGEX
 from . import route_factory
 
@@ -29,10 +30,15 @@ async def get_pipeline_versions(
     When a GET request is sent, return a dict keyed on the specified pipeline resource, where the value is
     list of pipeline versions available in the graph for that pipeline.
     """
+    # TODO: Update if we support imaging metadata in catalog datasets
+    if settings.catalog_mode:
+        return {pipeline_term: []}
+
     db_results = await crud.post_query_to_graph(
         util.create_pipeline_versions_query(pipeline_term)
     )
     versions_for_pipeline = {
         pipeline_term: [res["pipeline_version"] for res in db_results]
     }
+
     return versions_for_pipeline

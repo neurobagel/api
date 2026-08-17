@@ -4,12 +4,11 @@ ci:
 
 repos:
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 26.1.0
+    rev: 26.5.1
     hooks:
       - id: black
         args:
-          - --line-length=79
-          - --safe
+          - --config=pyproject.toml
 
   - repo: https://github.com/PyCQA/flake8
     rev: 7.3.0
@@ -17,35 +16,45 @@ repos:
       - id: flake8
         language_version: python3
         args:
-          # See https://black.readthedocs.io/en/stable/guides/using_black_with_other_tools.html#e203
-          - --extend-ignore=E501,E203
-          - --extend-select=B950
-          - --per-file-ignores=./app/api/models.py:F722
+        # TODO: replace this with ruff to bring all config into pyproject.toml
+          - --config=.flake8
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
       - id: check-yaml
+      - id: check-toml
       - id: pretty-format-json
         args: 
           - "--autofix"
           - "--no-sort-keys"
 
   - repo: https://github.com/pycqa/isort
-    rev: 8.0.1
+    rev: 9.0.0b2
     hooks:
       - id: isort
         args:
-          - "--profile=black"
-          - "--filter-files"
-          - "--line-length=79"
+          - --settings-path=pyproject.toml
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.3
     hooks:
       - id: codespell
+        additional_dependencies:
+          - tomli
+        args: 
+          - --toml=pyproject.toml
 
   - repo: https://github.com/iamthefij/docker-pre-commit
     rev: v3.0.1
     hooks:
       - id: docker-compose-check
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.3.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - pydantic
+        args:
+          - --config-file=pyproject.toml

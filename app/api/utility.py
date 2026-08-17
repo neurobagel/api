@@ -21,6 +21,23 @@ QUERY_HEADER = {
     "Accept": "application/sparql-results+json",
 }
 
+# Mapping of categorical standardized variables to catalog dataset metadata fields and
+# corresponding query fields
+CATALOG_DATASET_TERM_FILTER_FIELDS = {
+    "nb:Assessment": {
+        "query_field": "assessment",
+        "catalog_field": "available_assessments",
+    },
+    "nb:Diagnosis": {
+        "query_field": "diagnosis",
+        "catalog_field": "available_diagnoses",
+    },
+    "nb:Sex": {
+        "query_field": "sex",
+        "catalog_field": "available_sex",
+    },
+}
+
 # Store domains in named tuples
 Domain = namedtuple("Domain", ["var", "pred"])
 # Core domains
@@ -450,7 +467,9 @@ def create_terms_query(data_element_URI: str) -> str:
     return query_string
 
 
-def is_term_namespace_in_context(term_url: str) -> bool:
+def is_term_namespace_in_context(
+    term_url: str, has_prefix: bool = False
+) -> bool:
     """
     Performs basic check for if a term URL contains a namespace URI from the context.
 
@@ -459,15 +478,20 @@ def is_term_namespace_in_context(term_url: str) -> bool:
     term_url : str
         A controlled term URI.
 
+    has_prefix : bool, optional
+        Whether the term URI includes a namespace prefix (as opposed to the full namespace URL).
+
     Returns
     -------
     bool
         True if the term URL contains a namespace URI from the context, False otherwise.
     """
-    for uri in env_settings.CONTEXT.values():
-        if uri in term_url:
-            return True
-    return False
+    namespaces = (
+        [f"{prefix}:" for prefix in env_settings.CONTEXT]
+        if has_prefix
+        else list(env_settings.CONTEXT.values())
+    )
+    return any(term_url.startswith(namespace) for namespace in namespaces)
 
 
 def split_namespace_from_term_uri(
@@ -520,6 +544,27 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
 
     # If no match found within the context, return original URL
     return url
+
+
+def replace_namespace_prefix_with_uri(term: str) -> str:
+    """
+    Replace the namespace prefix in a prefixed term URIs with corresponding full namespace URI from the context.
+
+    Parameters
+    ----------
+    term : str
+        A controlled term URI with a namespace prefix.
+
+    Returns
+    -------
+    str
+        The term with namespace prefix replaced with full URI if found in the context, or the original term.
+    """
+    for prefix, uri in env_settings.CONTEXT.items():
+        if term.startswith(f"{prefix}:"):
+            return term.replace(f"{prefix}:", uri)
+
+    return term
 
 
 def create_pipeline_versions_query(pipeline: str) -> str:
@@ -642,3 +687,127 @@ WHERE {{
 """
 
     return query_string
+
+
+def catalog_dataset_has_term(
+    dataset: dict, terms_field: str, query_term: str | None
+) -> bool:
+    """
+    Return True if a given filter term exists in the specified dataset metadata field,
+    or if a filter term has not been specified.
+    """
+    if not query_term:
+        return True
+
+    dataset_terms = dataset.get(terms_field, [])
+    return query_term in dataset_terms
+
+
+def age_filters_include_catalog_dataset_age_range(
+    dataset: dict,
+    query_min_age: float | None,
+    query_max_age: float | None,
+) -> bool:
+    """
+    Return True if a dataset's age range overlaps with the age range specified in the query,
+    or if no age filters have been specified in the query.
+    """
+    if query_min_age is None and query_max_age is None:
+        return True
+
+    dataset_age_range = dataset.get("age_range")
+    if not isinstance(dataset_age_range, dict):
+        return False
+
+    dataset_min_age = dataset_age_range.get("minimum")
+    dataset_max_age = dataset_age_range.get("maximum")
+
+    # This should theoretically never happen because of the schema validation for catalog dataset files,
+    # but we include this check as a safeguard to avoid errors.
+    if dataset_min_age is None or dataset_max_age is None:
+        return False
+
+    if query_min_age is not None and dataset_max_age < query_min_age:
+        return False
+    if query_max_age is not None and dataset_min_age > query_max_age:
+        return False
+
+    return True
+
+
+def catalog_dataset_metadata_matches_query(
+    dataset: dict,
+    query: QueryModel,
+) -> bool:
+    """
+    Return True if a dataset's catalog metadata matches the filters specified in the query, and False otherwise.
+    """
+    term_filters_match = all(
+        catalog_dataset_has_term(
+            dataset,
+            fields["catalog_field"],
+            getattr(query, fields["query_field"]),
+        )
+        for fields in CATALOG_DATASET_TERM_FILTER_FIELDS.values()
+    )
+    age_filters_match = age_filters_include_catalog_dataset_age_range(
+        dataset, query.min_age, query.max_age
+    )
+
+    return term_filters_match and age_filters_match
+
+
+def find_matching_term_in_vocab(
+    term_url: str, std_trm_vocab: list[dict], has_prefix: bool = False
+) -> dict | None:
+    """
+    Finds the matching term from the standardized vocabulary based on the provided term URL.
+
+    Parameters
+    ----------
+    term_url : str
+        The URL of the controlled term to find.
+    std_trm_vocab : list[dict]
+        The standardized term vocabulary containing metadata for controlled terms.
+
+    Returns
+    -------
+    dict | None
+        The dictionary representing the matching term from the vocabulary, or None if no match is found.
+    """
+    # First, check whether the instance of the standardized variable contains a recognized namespace
+    if not is_term_namespace_in_context(term_url, has_prefix):
+        logger.warning(
+            f"The controlled term {term_url} was found in a dataset but "
+            "does not come from a vocabulary recognized by Neurobagel. "
+            "This term will be ignored."
+        )
+        return None
+
+    # Then, get the namespace and ID for the term
+    term_namespace, term_id = split_namespace_from_term_uri(
+        term_url, has_prefix=has_prefix
+    )
+
+    if has_prefix:
+        namespace_key = "namespace_prefix"
+    else:
+        namespace_key = "namespace_url"
+
+    # Since the term vocabulary for a standardized variable can contain terms from several namespaces,
+    # we first have to locate the namespace used in the term we are looking up
+    namespace_terms: list = next(
+        (
+            namespace["terms"]
+            for namespace in std_trm_vocab
+            if namespace[namespace_key] == term_namespace
+        ),
+        [],
+    )
+    # If the term has a recognized namespace but is not found in the vocabulary,
+    # we return an empty dictionary to indicate that no term metadata is available.
+    matched_term: dict = next(
+        (term for term in namespace_terms if term["id"] == term_id),
+        {},
+    )
+    return matched_term
