@@ -1,7 +1,6 @@
 """Data models."""
 
 from enum import Enum
-# remove this line completely
 
 from fastapi.exceptions import HTTPException
 from pydantic import (
@@ -46,14 +45,26 @@ class QueryModel(BaseModel):
 
     min_age: float | None = Field(default=None, ge=0)
     max_age: float | None = Field(default=None, ge=0)
-    sex: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
-    diagnosis: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
+    sex: str | None = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    diagnosis: str | None = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
     min_num_imaging_sessions: int | None = Field(default=None, ge=0)
     min_num_phenotypic_sessions: int | None = Field(default=None, ge=0)
-    assessment: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
-    image_modal: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
-    pipeline_name: str | None = Field(default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"])
-    pipeline_version: str | None = Field(default=None, pattern=VERSION_REGEX, examples=["1.0.0"])
+    assessment: str | None = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    image_modal: str | None = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    pipeline_name: str | None = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    pipeline_version: str | None = Field(
+        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
+    )
 
     @model_validator(mode="after")
     def check_maxage_ge_minage(self) -> Self:
