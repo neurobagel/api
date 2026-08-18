@@ -52,14 +52,14 @@ class QueryModel(BaseModel):
     assessment: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
         Field(default_factory=list, examples=[["vocab:12345"]])
     )
-    image_modal: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    image_modal: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
+        Field(default_factory=list, examples=[["vocab:12345"]])
     )
-    pipeline_name: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
-    )
-    pipeline_version: str | None = Field(
-        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
+    pipeline_name: list[
+        Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]
+    ] = Field(default_factory=list, examples=[["vocab:12345"]])
+    pipeline_version: list[Annotated[str, Field(pattern=VERSION_REGEX)]] = (
+        Field(default_factory=list, examples=[["1.0.0"]])
     )
 
     @model_validator(mode="after")
