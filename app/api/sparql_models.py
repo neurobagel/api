@@ -58,6 +58,19 @@ class SPARQLSerializable(BaseModel):
                 nested_var = f"?{to_snake(value.__class__.__name__)}"
                 triples.extend([f"{var_name} {predicate} {nested_var}."])
                 triples.extend(value.to_triples(nested_var))
+
+            elif isinstance(value, list):
+                for item in value:
+                    # if isinstance(item, SPARQLSerializable):
+                    #     nested_var = f"?{to_snake(item.__class__.__name__)}"
+                    #     triples.extend([f"{var_name} {predicate} {nested_var}."])
+                    #     triples.extend(item.to_triples(nested_var))
+                    if isinstance(item, str):
+                        formatted_value = format_value(item)
+                        triples.extend(
+                            [f"{var_name} {predicate} {formatted_value}."]
+                        )
+
             elif isinstance(value, str):
                 formatted_value = format_value(value)
                 triples.extend([f"{var_name} {predicate} {formatted_value}."])
@@ -92,8 +105,8 @@ class Age(SPARQLSerializable):
 
 class PhenotypicSession(SPARQLSerializable):
     hasSex: str | None
-    hasDiagnosis: str | None
-    hasAssessment: str | None
+    hasDiagnosis: list[str]
+    hasAssessment: list[str]
     hasAge: Age
     # This field is included as part of PhenotypicSession so that to_triples() knows to
     # add the type triple for PhenotypicSession when this field is set

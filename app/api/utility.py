@@ -619,7 +619,7 @@ def create_imaging_sparql_query_for_datasets(query: QueryModel):
 
 def contains_filters(query: QueryModel, filters: list[str]) -> bool:
     """Check if certain filter fields have been set in a given query."""
-    return any(getattr(query, filter) is not None for filter in filters)
+    return any(getattr(query, filter) for filter in filters)
 
 
 def create_sparql_queries_for_datasets(query: QueryModel) -> tuple[str, str]:

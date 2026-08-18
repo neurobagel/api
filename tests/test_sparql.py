@@ -164,8 +164,8 @@ def test_create_imaging_sparql_query_for_datasets(
             {
                 "min_age": 60,
                 "sex": "snomed:12345",
-                "diagnosis": "snomed:23456",
-                "assessment": "snomed:34567",
+                "diagnosis": ["snomed:23456"],
+                "assessment": ["snomed:34567"],
                 "min_num_phenotypic_sessions": 2,
             },
             [
@@ -208,7 +208,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
     [
         (
             {
-                "diagnosis": "snomed:12345",
+                "diagnosis": ["snomed:12345"],
                 "image_modal": "nidm:T1Weighted",
                 "min_num_phenotypic_sessions": 2,
                 "min_num_imaging_sessions": 2,
@@ -242,7 +242,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
             ],
         ),
         (
-            {"diagnosis": "snomed:12345"},
+            {"diagnosis": ["snomed:12345"]},
             [
                 "SELECT ?dataset ?subject",
                 "WHERE {",
@@ -303,3 +303,69 @@ def test_create_sparql_queries_for_datasets(
     )
     assert phenotypic_query == expected_phenotypic_query
     assert imaging_query == expected_imaging_query
+
+
+@pytest.mark.parametrize(
+    "datasets_request_body, sparql_query_statements",
+    [
+        (
+            {"assessment": ["snomed:12345", "snomed:23456"]},
+            [
+                "SELECT ?dataset ?subject",
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?phenotypic_session.",
+                "    ?phenotypic_session a nb:PhenotypicSession.",
+                "    ?phenotypic_session nb:hasAssessment snomed:12345.",
+                "    ?phenotypic_session nb:hasAssessment snomed:23456.",
+                "}",
+            ],
+        ),
+        (
+            {
+                "diagnosis": ["snomed:12345", "snomed:23456"],
+                "assessment": ["snomed:22222", "snomed:33333"],
+            },
+            [
+                "SELECT ?dataset ?subject",
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?phenotypic_session.",
+                "    ?phenotypic_session a nb:PhenotypicSession.",
+                "    ?phenotypic_session nb:hasDiagnosis snomed:12345.",
+                "    ?phenotypic_session nb:hasDiagnosis snomed:23456.",
+                "    ?phenotypic_session nb:hasAssessment snomed:22222.",
+                "    ?phenotypic_session nb:hasAssessment snomed:33333.",
+                "}",
+            ],
+        ),
+        (
+            {"assessment": [], "diagnosis": []},
+            [
+                "SELECT ?dataset ?subject",
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "}",
+            ],
+        ),
+    ],
+)
+def test_phenotypic_and_sparql_queries(
+    datasets_request_body, sparql_query_statements
+):
+    """
+    Test that an AND-style SPARQL query string is correctly created from a POST /datasets request body
+    with multiple filters for the same phenotypic field.
+    """
+    query = QueryModel(**datasets_request_body)
+    expected_sparql_query = "\n".join(sparql_query_statements)
+    assert (
+        util.create_phenotypic_sparql_query_for_datasets(query)
+        == expected_sparql_query
+    )
