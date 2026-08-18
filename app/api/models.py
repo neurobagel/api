@@ -1,6 +1,7 @@
 """Data models."""
 
 from enum import Enum
+from typing import Annotated
 
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, ConfigDict, Field, RootModel, model_validator
@@ -43,13 +44,13 @@ class QueryModel(BaseModel):
     sex: str | None = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    diagnosis: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    diagnosis: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
+        Field(default_factory=list, examples=[["vocab:12345"]])
     )
     min_num_imaging_sessions: int | None = Field(default=None, ge=0)
     min_num_phenotypic_sessions: int | None = Field(default=None, ge=0)
-    assessment: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    assessment: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
+        Field(default_factory=list, examples=[["vocab:12345"]])
     )
     image_modal: str | None = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
