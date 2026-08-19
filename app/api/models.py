@@ -25,10 +25,20 @@ PHENOTYPIC_FILTERS = [
 ]
 IMAGING_FILTERS = [
     "image_modal",
-    "pipeline_name",
-    "pipeline_version",
+    "pipeline",
     "min_num_imaging_sessions",
 ]
+
+
+class PipelineQuery(BaseModel):
+    """Data model for a pipeline query filter."""
+
+    name: str | None = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    version: str | None = Field(
+        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
+    )
 
 
 # TODO: Consider renaming to DatasetsQueryModel once we deprecate the /query endpoint
@@ -55,11 +65,9 @@ class QueryModel(BaseModel):
     image_modal: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
         Field(default_factory=list, examples=[["vocab:12345"]])
     )
-    pipeline_name: list[
-        Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]
-    ] = Field(default_factory=list, examples=[["vocab:12345"]])
-    pipeline_version: list[Annotated[str, Field(pattern=VERSION_REGEX)]] = (
-        Field(default_factory=list, examples=[["1.0.0"]])
+    pipeline: list[PipelineQuery] = Field(
+        default_factory=list,
+        examples=[{"name": "vocab:12345", "version": "1.0.0"}],
     )
 
     @model_validator(mode="after")

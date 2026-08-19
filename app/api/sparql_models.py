@@ -33,47 +33,43 @@ class SPARQLSerializable(BaseModel):
         """
         var_name = to_snake(var_name)
         triples = []
-        schema_key = getattr(self, "schemaKey", None)
-        if schema_key:
+
+        if schema_key := getattr(self, "schemaKey", None):
             triples.extend([f"{var_name} a nb:{schema_key}."])
 
         for field in type(self).model_fields:
-            value = getattr(self, field)
             if field == "schemaKey":
                 continue
 
+            value = getattr(self, field)
             predicate = f"nb:{field}"
-            if isinstance(value, SPARQLSerializable):
-                # If the field contains a nested object, skip adding triples if the nested object is empty
-                # (from https://github.com/pydantic/pydantic/discussions/4613)
-                if not any(
-                    value.model_dump(
-                        exclude_none=True, exclude_defaults=True
-                    ).values()
-                ):
-                    continue
-                # TODO: If we wanted to skip running the name conversion for each nested object,
-                # or be able to customize the variable name,
-                # we could add a var_name field to SPARQLSerializable and set it per class
-                nested_var = f"?{to_snake(value.__class__.__name__)}"
-                triples.extend([f"{var_name} {predicate} {nested_var}."])
-                triples.extend(value.to_triples(nested_var))
 
-            elif isinstance(value, list):
-                for item in value:
-                    # if isinstance(item, SPARQLSerializable):
-                    #     nested_var = f"?{to_snake(item.__class__.__name__)}"
-                    #     triples.extend([f"{var_name} {predicate} {nested_var}."])
-                    #     triples.extend(item.to_triples(nested_var))
-                    if isinstance(item, str):
-                        formatted_value = format_value(item)
-                        triples.extend(
-                            [f"{var_name} {predicate} {formatted_value}."]
-                        )
+            values = value if isinstance(value, list) else [value]
 
-            elif isinstance(value, str):
-                formatted_value = format_value(value)
-                triples.extend([f"{var_name} {predicate} {formatted_value}."])
+            for filter_value in values:
+                if isinstance(filter_value, SPARQLSerializable):
+                    # If the field contains a nested object, skip adding triples if the nested object is empty
+                    # (from https://github.com/pydantic/pydantic/discussions/4613)
+                    if not any(
+                        filter_value.model_dump(
+                            exclude_none=True, exclude_defaults=True
+                        ).values()
+                    ):
+                        continue
+                    # TODO: If we wanted to skip running the name conversion for each nested object,
+                    # or be able to customize the variable name,
+                    # we could add a var_name field to SPARQLSerializable and set it per class
+                    nested_var = (
+                        f"?{to_snake(filter_value.__class__.__name__)}"
+                    )
+                    triples.extend([f"{var_name} {predicate} {nested_var}."])
+                    triples.extend(filter_value.to_triples(nested_var))
+
+                elif isinstance(filter_value, str):
+                    formatted_filter_value = format_value(filter_value)
+                    triples.extend(
+                        [f"{var_name} {predicate} {formatted_filter_value}."]
+                    )
         return triples
 
 
@@ -115,8 +111,8 @@ class PhenotypicSession(SPARQLSerializable):
 
 
 class ImagingSession(SPARQLSerializable):
-    hasAcquisition: Acquisition
-    hasCompletedPipeline: Pipeline
+    hasAcquisition: list[Acquisition]
+    hasCompletedPipeline: list[Pipeline]
     # This field is included as part of ImagingSession so that to_triples() knows to
     # add the type triple for ImagingSession when this field is set
     min_num_imaging_sessions: int | None = None

@@ -600,14 +600,20 @@ def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
 
 def create_imaging_sparql_query_for_datasets(query: QueryModel):
     """Create a SPARQL query string for imaging parameters from a query to the POST /datasets endpoint."""
-    acquisition = sparql_models.Acquisition(hasContrastType=query.image_modal)
-    pipeline = sparql_models.Pipeline(
-        hasPipelineVersion=query.pipeline_version,
-        hasPipelineName=query.pipeline_name,
-    )
+    acquisitions = [
+        sparql_models.Acquisition(hasContrastType=image_modal)
+        for image_modal in query.image_modal
+    ]
+    pipelines = [
+        sparql_models.Pipeline(
+            hasPipelineVersion=pipeline.version,
+            hasPipelineName=pipeline.name,
+        )
+        for pipeline in query.pipeline
+    ]
     imaging_session = sparql_models.ImagingSession(
-        hasAcquisition=acquisition,
-        hasCompletedPipeline=pipeline,
+        hasAcquisition=acquisitions,
+        hasCompletedPipeline=pipelines,
         min_num_imaging_sessions=query.min_num_imaging_sessions,
     )
     subject = sparql_models.Subject(hasSession=imaging_session)
