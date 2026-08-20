@@ -56,7 +56,7 @@ def test_get_select_variables():
             ],
         ),
         (
-            {"image_modal": "nidm:T1Weighted"},
+            {"image_modal": ["nidm:T1Weighted"]},
             [
                 "SELECT ?dataset ?subject",
                 "WHERE {",
@@ -65,16 +65,15 @@ def test_get_select_variables():
                 "    ?subject a nb:Subject.",
                 "    ?subject nb:hasSession ?imaging_session.",
                 "    ?imaging_session a nb:ImagingSession.",
-                "    ?imaging_session nb:hasAcquisition ?acquisition.",
-                "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition1.",
+                "    ?acquisition1 nb:hasContrastType nidm:T1Weighted.",
                 "}",
             ],
         ),
         (
             {
-                "image_modal": "nidm:T1Weighted",
-                "pipeline_name": "np:fmriprep",
-                "pipeline_version": "23.2.0",
+                "image_modal": ["nidm:T1Weighted"],
+                "pipeline": [{"name": "np:fmriprep", "version": "23.2.0"}],
                 "min_num_imaging_sessions": 2,
             },
             [
@@ -85,11 +84,11 @@ def test_get_select_variables():
                 "    ?subject a nb:Subject.",
                 "    ?subject nb:hasSession ?imaging_session.",
                 "    ?imaging_session a nb:ImagingSession.",
-                "    ?imaging_session nb:hasAcquisition ?acquisition.",
-                "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
-                "    ?imaging_session nb:hasCompletedPipeline ?pipeline.",
-                "    ?pipeline nb:hasPipelineName np:fmriprep.",
-                '    ?pipeline nb:hasPipelineVersion "23.2.0".',
+                "    ?imaging_session nb:hasAcquisition ?acquisition1.",
+                "    ?acquisition1 nb:hasContrastType nidm:T1Weighted.",
+                "    ?imaging_session nb:hasCompletedPipeline ?pipeline1.",
+                "    ?pipeline1 nb:hasPipelineName np:fmriprep.",
+                '    ?pipeline1 nb:hasPipelineVersion "23.2.0".',
                 "}",
                 "GROUP BY ?dataset ?subject",
                 "HAVING (COUNT(DISTINCT ?imaging_session) >= 2)",
@@ -209,7 +208,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
         (
             {
                 "diagnosis": ["snomed:12345"],
-                "image_modal": "nidm:T1Weighted",
+                "image_modal": ["nidm:T1Weighted"],
                 "min_num_phenotypic_sessions": 2,
                 "min_num_imaging_sessions": 2,
             },
@@ -234,8 +233,8 @@ def test_create_phenotypic_sparql_query_for_datasets(
                 "    ?subject a nb:Subject.",
                 "    ?subject nb:hasSession ?imaging_session.",
                 "    ?imaging_session a nb:ImagingSession.",
-                "    ?imaging_session nb:hasAcquisition ?acquisition.",
-                "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition1.",
+                "    ?acquisition1 nb:hasContrastType nidm:T1Weighted.",
                 "}",
                 "GROUP BY ?dataset ?subject",
                 "HAVING (COUNT(DISTINCT ?imaging_session) >= 2)",
@@ -257,7 +256,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
             [""],
         ),
         (
-            {"image_modal": "nidm:T1Weighted"},
+            {"image_modal": ["nidm:T1Weighted"]},
             [""],
             [
                 "SELECT ?dataset ?subject",
@@ -267,8 +266,8 @@ def test_create_phenotypic_sparql_query_for_datasets(
                 "    ?subject a nb:Subject.",
                 "    ?subject nb:hasSession ?imaging_session.",
                 "    ?imaging_session a nb:ImagingSession.",
-                "    ?imaging_session nb:hasAcquisition ?acquisition.",
-                "    ?acquisition nb:hasContrastType nidm:T1Weighted.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition1.",
+                "    ?acquisition1 nb:hasContrastType nidm:T1Weighted.",
                 "}",
             ],
         ),
@@ -356,16 +355,107 @@ def test_create_sparql_queries_for_datasets(
         ),
     ],
 )
-def test_phenotypic_and_sparql_queries(
+def test_phenotypic_and_type_sparql_queries(
     datasets_request_body, sparql_query_statements
 ):
     """
-    Test that an AND-style SPARQL query string is correctly created from a POST /datasets request body
+    Test that a correct AND-style SPARQL query string is created from a POST /datasets request body
     with multiple filters for the same phenotypic field.
     """
     query = QueryModel(**datasets_request_body)
     expected_sparql_query = "\n".join(sparql_query_statements)
     assert (
         util.create_phenotypic_sparql_query_for_datasets(query)
+        == expected_sparql_query
+    )
+
+
+@pytest.mark.parametrize(
+    "datasets_request_body, sparql_query_statements",
+    [
+        (
+            {"image_modal": ["nidm:T1Weighted", "nidm:T2Weighted"]},
+            [
+                "SELECT ?dataset ?subject",
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
+                "    ?imaging_session a nb:ImagingSession.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition1.",
+                "    ?acquisition1 nb:hasContrastType nidm:T1Weighted.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition2.",
+                "    ?acquisition2 nb:hasContrastType nidm:T2Weighted.",
+                "}",
+            ],
+        ),
+        (
+            {
+                "pipeline": [
+                    {"name": "np:fmriprep", "version": "24.0.0"},
+                    {"name": "np:fmriprep", "version": "25.0.0"},
+                    {"name": "np:freesurfer"},
+                ]
+            },
+            [
+                "SELECT ?dataset ?subject",
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
+                "    ?imaging_session a nb:ImagingSession.",
+                "    ?imaging_session nb:hasCompletedPipeline ?pipeline1.",
+                "    ?pipeline1 nb:hasPipelineName np:fmriprep.",
+                '    ?pipeline1 nb:hasPipelineVersion "24.0.0".',
+                "    ?imaging_session nb:hasCompletedPipeline ?pipeline2.",
+                "    ?pipeline2 nb:hasPipelineName np:fmriprep.",
+                '    ?pipeline2 nb:hasPipelineVersion "25.0.0".',
+                "    ?imaging_session nb:hasCompletedPipeline ?pipeline3.",
+                "    ?pipeline3 nb:hasPipelineName np:freesurfer.",
+                "}",
+            ],
+        ),
+        (
+            {
+                "image_modal": ["nidm:T1Weighted", "nidm:T2Weighted"],
+                "pipeline": [
+                    {"name": "np:fmriprep"},
+                    {"name": "np:freesurfer"},
+                ],
+            },
+            [
+                "SELECT ?dataset ?subject",
+                "WHERE {",
+                "    ?dataset a nb:Dataset.",
+                "    ?dataset nb:hasSamples ?subject.",
+                "    ?subject a nb:Subject.",
+                "    ?subject nb:hasSession ?imaging_session.",
+                "    ?imaging_session a nb:ImagingSession.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition1.",
+                "    ?acquisition1 nb:hasContrastType nidm:T1Weighted.",
+                "    ?imaging_session nb:hasAcquisition ?acquisition2.",
+                "    ?acquisition2 nb:hasContrastType nidm:T2Weighted.",
+                "    ?imaging_session nb:hasCompletedPipeline ?pipeline1.",
+                "    ?pipeline1 nb:hasPipelineName np:fmriprep.",
+                "    ?imaging_session nb:hasCompletedPipeline ?pipeline2.",
+                "    ?pipeline2 nb:hasPipelineName np:freesurfer.",
+                "}",
+            ],
+        ),
+    ],
+)
+def test_imaging_and_type_sparql_queries(
+    datasets_request_body, sparql_query_statements
+):
+    """
+    Test that a correct AND-style SPARQL query string is created from a POST /datasets request body
+    with multiple filters for the same imaging field.
+    """
+    query = QueryModel(**datasets_request_body)
+    expected_sparql_query = "\n".join(sparql_query_statements)
+    assert (
+        util.create_imaging_sparql_query_for_datasets(query)
         == expected_sparql_query
     )

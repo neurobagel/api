@@ -1,12 +1,18 @@
-from typing import Literal
+import re
+from typing import ClassVar, Literal
 
 from pydantic import BaseModel
-from pydantic.alias_generators import to_snake
 
+CAMEL_TO_SNAKE_PATTERN = re.compile(r"(?<!^)(?=[A-Z])")
 SPARQL_SELECTED_VARS = [
     "dataset",
     "subject",
 ]
+
+
+def to_snake(name: str) -> str:
+    """Convert a PascalCase class name to a snake_case SPARQL variable without separating digits."""
+    return CAMEL_TO_SNAKE_PATTERN.sub("_", name).lower()
 
 
 def format_value(value):
@@ -24,6 +30,10 @@ def get_select_variables(variables: list[str]) -> str:
 
 
 class SPARQLSerializable(BaseModel):
+    # Whether to use numbered variables for nested objects of this class in the SPARQL query.
+    # If True, the first object will be represented as ?class_name1, the second as ?class_name2, etc.
+    use_numbered_var: ClassVar[bool] = False
+
     def to_triples(self, var_name: str) -> list[str]:
         """
         Recursively flatten a model instance into SPARQL triples,
@@ -46,6 +56,7 @@ class SPARQLSerializable(BaseModel):
 
             values = value if isinstance(value, list) else [value]
 
+            var_count = 0
             for filter_value in values:
                 if isinstance(filter_value, SPARQLSerializable):
                     # If the field contains a nested object, skip adding triples if the nested object is empty
@@ -59,9 +70,15 @@ class SPARQLSerializable(BaseModel):
                     # TODO: If we wanted to skip running the name conversion for each nested object,
                     # or be able to customize the variable name,
                     # we could add a var_name field to SPARQLSerializable and set it per class
-                    nested_var = (
-                        f"?{to_snake(filter_value.__class__.__name__)}"
+                    snake_class_name = to_snake(
+                        filter_value.__class__.__name__
                     )
+                    if filter_value.use_numbered_var:
+                        var_count += 1
+                        nested_var = f"?{snake_class_name}{var_count}"
+                    else:
+                        nested_var = f"?{snake_class_name}"
+
                     triples.extend([f"{var_name} {predicate} {nested_var}."])
                     triples.extend(filter_value.to_triples(nested_var))
 
@@ -74,10 +91,14 @@ class SPARQLSerializable(BaseModel):
 
 
 class Acquisition(SPARQLSerializable):
+    use_numbered_var: ClassVar[bool] = True
+
     hasContrastType: str | None
 
 
 class Pipeline(SPARQLSerializable):
+    use_numbered_var: ClassVar[bool] = True
+
     hasPipelineName: str | None
     hasPipelineVersion: str | None
 
