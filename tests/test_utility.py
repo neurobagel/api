@@ -173,8 +173,8 @@ def test_sparql_context_correctly_added_to_query_body(mock_context):
 @pytest.mark.parametrize(
     "assessment_filter, expected_match_result",
     [
-        ("snomed:11111", True),
-        ("snomed:NOTFOUND", False),
+        (["snomed:11111"], True),
+        (["snomed:NOTFOUND"], False),
         (
             None,
             True,
@@ -197,10 +197,10 @@ def test_term_in_catalog_dataset_attributes(
         "age_range": {"minimum": 21.0, "maximum": 42.0},
     }
     assert (
-        util.catalog_dataset_has_term(
+        util.catalog_dataset_matches_categorical_filter(
             dataset=mock_catalog_dataset_info,
             terms_field="available_assessments",
-            query_term=assessment_filter,
+            field_filter=assessment_filter,
         )
         == expected_match_result
     )
@@ -271,11 +271,11 @@ def test_dataset_with_no_age_range_matches_query_without_age_filters():
 @pytest.mark.parametrize(
     "query_fields,expected_match_result",
     [
-        ({"assessment": "snomed:11111", "min_age": 20}, True),
+        ({"assessment": ["snomed:11111"], "min_age": 20}, True),
         (
             {
-                "assessment": "snomed:11111",
-                "diagnosis": "snomed:otherdiagnosis",
+                "assessment": ["snomed:11111"],
+                "diagnosis": ["snomed:otherdiagnosis"],
             },
             False,
         ),

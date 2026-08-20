@@ -255,7 +255,7 @@ def test_datasets_query_response_shape_is_correct_in_catalog_mode(
     )
 
     response = test_app.post(
-        ROUTE, json={"assessment": "snomed:342061000000106"}
+        ROUTE, json={"assessment": ["snomed:342061000000106"]}
     )
     response = response.json()
 
@@ -285,9 +285,9 @@ def test_datasets_query_response_shape_is_correct_in_catalog_mode(
 @pytest.mark.parametrize(
     "query_body",
     [
-        {"min_age": 20, "image_modal": "nidm:T1Weighted"},
-        {"pipeline_name": "np:fmriprep"},
-        {"pipeline_name": "np:fmriprep", "pipeline_version": "23.2.0"},
+        {"min_age": 20, "image_modal": ["nidm:T1Weighted"]},
+        {"pipeline": [{"name": "np:fmriprep"}]},
+        {"pipeline": [{"name": "np:fmriprep", "version": "23.2.0"}]},
     ],
 )
 def test_imaging_query_parameters_return_no_results_in_catalog_mode(
