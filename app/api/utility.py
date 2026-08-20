@@ -12,7 +12,12 @@ import pandas as pd
 
 from . import env_settings, sparql_models
 from .logger import get_logger, log_and_raise_error
-from .models import IMAGING_FILTERS, PHENOTYPIC_FILTERS, QueryModel
+from .models import (
+    IMAGING_FILTERS,
+    PHENOTYPIC_FILTERS,
+    PipelineQuery,
+    QueryModel,
+)
 
 logger = get_logger(__name__)
 
@@ -125,17 +130,17 @@ def create_bound_filter(var: str) -> str:
     return f"FILTER (BOUND(?{var})"
 
 
+# TODO: Check type hints
 def create_query(
     return_agg: bool,
     age: tuple[float | None, float | None] = (None, None),
     sex: str | None = None,
-    diagnosis: str | None = None,
+    diagnosis: list[str] | None = None,
     min_num_imaging_sessions: int | None = None,
     min_num_phenotypic_sessions: int | None = None,
-    assessment: str | None = None,
-    image_modal: str | None = None,
-    pipeline_name: str | None = None,
-    pipeline_version: str | None = None,
+    assessment: list[str] | None = None,
+    image_modal: list[str] | None = None,
+    pipeline: list[PipelineQuery] | None = None,
     dataset_uuids: list[str] | None = None,
 ) -> str:
     """
@@ -157,12 +162,12 @@ def create_query(
         Subject minimum number of imaging sessions, by default None.
     min_num_phenotypic_sessions : int, optional
         Subject minimum number of phenotypic sessions, by default None.
-    assessment : str, optional
+    assessment : list[str], optional
         Non-imaging assessment completed by subjects, by default None.
-    image_modal : str, optional
+    image_modal : list[str], optional
         Imaging modality of subject scans, by default None.
-    pipeline_name : str, optional
-        Name of pipeline run on subject scans, by default None.
+    pipeline : list[dict[str, str]], optional
+        Pipeline run on subject scans, by default None.
     pipeline_version : str, optional
         Version of pipeline run on subject scans, by default None.
     dataset_uuids : list[str], optional
@@ -232,18 +237,19 @@ def create_query(
             + f"{create_bound_filter(IMAGE_MODAL.var)} && ?{IMAGE_MODAL.var} = {image_modal})."
         )
 
-    if pipeline_name is not None:
-        imaging_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(PIPELINE_NAME.var)} && ?{PIPELINE_NAME.var} = {pipeline_name})."
-        )
+    # TODO: UPDATE
+    # if pipeline_name is not None:
+    #     imaging_session_level_filters += (
+    #         "\n"
+    #         + f"{create_bound_filter(PIPELINE_NAME.var)} && ?{PIPELINE_NAME.var} = {pipeline_name})."
+    #     )
 
-    # In case a user specified the pipeline version but not the name
-    if pipeline_version is not None:
-        imaging_session_level_filters += (
-            "\n"
-            + f'{create_bound_filter(PIPELINE_VERSION.var)} && ?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes to avoid workaround implicit conversion
-        )
+    # # In case a user specified the pipeline version but not the name
+    # if pipeline_version is not None:
+    #     imaging_session_level_filters += (
+    #         "\n"
+    #         + f'{create_bound_filter(PIPELINE_VERSION.var)} && ?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes to avoid workaround implicit conversion
+    #     )
 
     query_string = textwrap.dedent(f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
@@ -695,18 +701,22 @@ WHERE {{
     return query_string
 
 
-def catalog_dataset_has_term(
-    dataset: dict, terms_field: str, query_term: str | None
+def catalog_dataset_matches_categorical_filter(
+    dataset: dict, terms_field: str, field_filter: str | list | None
 ) -> bool:
     """
-    Return True if a given filter term exists in the specified dataset metadata field,
-    or if a filter term has not been specified.
+    Return True if a given filter term or list of terms exists in the specified
+    categorical dataset metadata field, or if a filter has not been specified.
     """
-    if not query_term:
+    if not field_filter:
         return True
 
     dataset_terms = dataset.get(terms_field, [])
-    return query_term in dataset_terms
+
+    field_filter = (
+        [field_filter] if isinstance(field_filter, str) else field_filter
+    )
+    return all(value in dataset_terms for value in field_filter)
 
 
 def age_filters_include_catalog_dataset_age_range(
@@ -749,7 +759,7 @@ def catalog_dataset_metadata_matches_query(
     Return True if a dataset's catalog metadata matches the filters specified in the query, and False otherwise.
     """
     term_filters_match = all(
-        catalog_dataset_has_term(
+        catalog_dataset_matches_categorical_filter(
             dataset,
             fields["catalog_field"],
             getattr(query, fields["query_field"]),

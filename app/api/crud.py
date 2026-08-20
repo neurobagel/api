@@ -16,6 +16,7 @@ from .logger import get_logger
 from .models import (
     DataElementURI,
     DatasetQueryResponse,
+    PipelineQuery,
     QueryModel,
     SessionResponse,
     SubjectsQueryModel,
@@ -176,13 +177,12 @@ async def query_records(
     min_age: float,
     max_age: float,
     sex: str,
-    diagnosis: str,
+    diagnosis: list[str],
     min_num_imaging_sessions: int,
     min_num_phenotypic_sessions: int,
-    assessment: str,
-    image_modal: str,
-    pipeline_name: str,
-    pipeline_version: str,
+    assessment: list[str],
+    image_modal: list[str],
+    pipeline: list[PipelineQuery],
 ) -> list[dict]:
     """
     Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
@@ -206,10 +206,8 @@ async def query_records(
         Non-imaging assessment completed by subjects.
     image_modal : str
         Imaging modality of subject scans.
-    pipeline_name : str
-        Name of pipeline run on subject scans.
-    pipeline_version : str
-        Version of pipeline run on subject scans.
+    pipeline:
+        Pipeline run on subject scans.
 
     Returns
     -------
@@ -226,8 +224,7 @@ async def query_records(
             min_num_imaging_sessions=min_num_imaging_sessions,
             assessment=assessment,
             image_modal=image_modal,
-            pipeline_version=pipeline_version,
-            pipeline_name=pipeline_name,
+            pipeline=pipeline,
         )
     )
 
@@ -335,8 +332,7 @@ async def post_subjects(query: SubjectsQueryModel):
             min_num_imaging_sessions=query.min_num_imaging_sessions,
             assessment=query.assessment,
             image_modal=query.image_modal,
-            pipeline_version=query.pipeline_version,
-            pipeline_name=query.pipeline_name,
+            pipeline=query.pipeline,
             dataset_uuids=query.dataset_uuids,
         )
     )
@@ -490,8 +486,7 @@ async def query_dataset_catalog_attributes(
         query,
         [
             "image_modal",
-            "pipeline_name",
-            "pipeline_version",
+            "pipeline",
             "min_num_imaging_sessions",
             "min_num_phenotypic_sessions",
         ],
