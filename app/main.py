@@ -7,7 +7,7 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
-from fastapi.responses import HTMLResponse, ORJSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 from .api import env_settings
 from .api import utility as util
@@ -220,7 +220,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     root_path=settings.root_path,
     lifespan=lifespan,
-    default_response_class=ORJSONResponse,
     docs_url=None,
     redoc_url=None,
     redirect_slashes=False,
