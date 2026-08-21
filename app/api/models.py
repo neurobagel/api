@@ -40,6 +40,20 @@ class PipelineQuery(BaseModel):
         default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
     )
 
+    model_config = ConfigDict(extra="forbid")
+
+    @model_validator(mode="after")
+    def check_pipeline_has_name(self) -> Self:
+        """
+        If a pipeline version is specified, ensure that a pipeline name is also provided.
+        """
+        if self.version is not None and self.name is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Pipeline 'version' is missing a corresponding 'name'.",
+            )
+        return self
+
 
 # TODO: Consider renaming to DatasetsQueryModel once we deprecate the /query endpoint
 class QueryModel(BaseModel):
