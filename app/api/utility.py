@@ -43,6 +43,7 @@ CATALOG_DATASET_TERM_FILTER_FIELDS = {
     },
 }
 
+# TODO: Consider removing these namedtuples - they don't necessarily increase readability of query templates
 # Store domains in named tuples
 Domain = namedtuple("Domain", ["var", "pred"])
 # Core domains
@@ -130,18 +131,17 @@ def create_bound_filter(var: str) -> str:
     return f"FILTER (BOUND(?{var})"
 
 
-# TODO: Check type hints
 def create_query(
     return_agg: bool,
-    age: tuple[float | None, float | None] = (None, None),
-    sex: str | None = None,
-    diagnosis: list[str] | None = None,
-    min_num_imaging_sessions: int | None = None,
-    min_num_phenotypic_sessions: int | None = None,
-    assessment: list[str] | None = None,
-    image_modal: list[str] | None = None,
-    pipeline: list[PipelineQuery] | None = None,
-    dataset_uuids: list[str] | None = None,
+    age: tuple[float | None, float | None],
+    sex: str | None,
+    diagnosis: list[str] | None,
+    min_num_imaging_sessions: int | None,
+    min_num_phenotypic_sessions: int | None,
+    assessment: list[str],
+    image_modal: list[str],
+    pipeline: list[PipelineQuery],
+    dataset_uuids: list[str],
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
@@ -150,27 +150,23 @@ def create_query(
     ----------
     return_agg : bool
         Whether to return only aggregate query results (and not subject-level attributes besides file paths).
-    age : tuple[float | None, float | None], optional
+    age : tuple[float | None, float | None
         Minimum and maximum age of subject, by default (None, None).
-    sex : str, optional
+    sex : str
         Subject sex, by default None.
-    diagnosis : str, optional
+    diagnosis : list[str]
         Subject diagnosis, by default None.
-        If True, return only healthy control subjects.
-        If None (default), return all matching subjects.
-    min_num_imaging_sessions : int, optional
+    min_num_imaging_sessions : int
         Subject minimum number of imaging sessions, by default None.
-    min_num_phenotypic_sessions : int, optional
+    min_num_phenotypic_sessions : int
         Subject minimum number of phenotypic sessions, by default None.
-    assessment : list[str], optional
+    assessment : list[str]
         Non-imaging assessment completed by subjects, by default None.
-    image_modal : list[str], optional
+    image_modal : list[str]
         Imaging modality of subject scans, by default None.
-    pipeline : list[dict[str, str]], optional
+    pipeline : list[dict[str, str]]
         Pipeline run on subject scans, by default None.
-    pipeline_version : str, optional
-        Version of pipeline run on subject scans, by default None.
-    dataset_uuids : list[str], optional
+    dataset_uuids : list[str]
         List of datasets to restrict the query to, by default None (all datasets).
 
     Returns
@@ -218,38 +214,39 @@ def create_query(
             "\n" + f"{create_bound_filter(SEX.var)} && ?{SEX.var} = {sex})."
         )
 
-    if diagnosis is not None:
-        phenotypic_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(DIAGNOSIS.var)} && ?{DIAGNOSIS.var} = {diagnosis})."
+    if diagnosis:
+        phenotypic_session_level_filters += "".join(
+            f"\n?phenotypic_session nb:hasDiagnosis {diagnosis_value}."
+            for diagnosis_value in diagnosis
         )
 
-    if assessment is not None:
-        phenotypic_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(ASSESSMENT.var)} && ?{ASSESSMENT.var} = {assessment})."
+    if assessment:
+        phenotypic_session_level_filters += "".join(
+            f"\n?phenotypic_session nb:hasAssessment {assessment_value}."
+            for assessment_value in assessment
         )
 
     imaging_session_level_filters = ""
-    if image_modal is not None:
-        imaging_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(IMAGE_MODAL.var)} && ?{IMAGE_MODAL.var} = {image_modal})."
+    if image_modal:
+        imaging_session_level_filters += "".join(
+            f"\n?imaging_session nb:hasAcquisition/nb:hasContrastType {image_modal_value}."
+            for image_modal_value in image_modal
         )
 
-    # TODO: UPDATE
-    # if pipeline_name is not None:
-    #     imaging_session_level_filters += (
-    #         "\n"
-    #         + f"{create_bound_filter(PIPELINE_NAME.var)} && ?{PIPELINE_NAME.var} = {pipeline_name})."
-    #     )
+    if pipeline:
+        for pipeline_count, pipeline_info in enumerate(pipeline, start=1):
+            pipeline_name = pipeline_info.name
+            pipeline_version = pipeline_info.version
 
-    # # In case a user specified the pipeline version but not the name
-    # if pipeline_version is not None:
-    #     imaging_session_level_filters += (
-    #         "\n"
-    #         + f'{create_bound_filter(PIPELINE_VERSION.var)} && ?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes to avoid workaround implicit conversion
-    #     )
+            # TODO: check conditionals
+            # cannot specify pipeline version without specifying pipeline name
+            if pipeline_name is not None:
+                imaging_session_level_filters += (
+                    f"\n?imaging_session nb:hasCompletedPipeline ?pipeline{pipeline_count}."
+                    f"\n?pipeline{pipeline_count} nb:hasPipelineName {pipeline_name}."
+                )
+                if pipeline_version is not None:
+                    imaging_session_level_filters += f'\n?pipeline{pipeline_count} nb:hasPipelineVersion "{pipeline_version}".'
 
     query_string = textwrap.dedent(f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
