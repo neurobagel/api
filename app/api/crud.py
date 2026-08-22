@@ -225,6 +225,7 @@ async def query_records(
             assessment=assessment,
             image_modal=image_modal,
             pipeline=pipeline,
+            dataset_uuids=None,
         )
     )
 

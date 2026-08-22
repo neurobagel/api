@@ -141,7 +141,7 @@ def create_query(
     assessment: list[str],
     image_modal: list[str],
     pipeline: list[PipelineQuery],
-    dataset_uuids: list[str],
+    dataset_uuids: list[str] | None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
@@ -626,9 +626,16 @@ def create_imaging_sparql_query_for_datasets(query: QueryModel):
     return query_string
 
 
+def is_field_set(value: Any) -> bool:
+    """Check if a field has been set (i.e., not an empty list, dict, or None)."""
+    if isinstance(value, list):
+        return any(value)
+    return value is not None
+
+
 def contains_filters(query: QueryModel, filters: list[str]) -> bool:
     """Check if certain filter fields have been set in a given query."""
-    return any(getattr(query, filter) for filter in filters)
+    return any(is_field_set(getattr(query, filter)) for filter in filters)
 
 
 def create_sparql_queries_for_datasets(query: QueryModel) -> tuple[str, str]:
