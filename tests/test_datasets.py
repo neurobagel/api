@@ -332,3 +332,33 @@ def test_imaging_query_parameters_return_no_results_in_catalog_mode(
 
     response = test_app.post(ROUTE, json=query_body)
     assert response.json() == []
+
+
+def test_query_with_pipeline_version_but_no_name_returns_informative_error(
+    test_app, disable_auth
+):
+    """
+    Test that a query with a pipeline version but no name returns an error.
+    """
+    response = test_app.post(ROUTE, json={"pipeline": [{"version": "23.2.0"}]})
+
+    assert response.status_code == 422
+    assert "missing a corresponding 'name'" in response.json()["detail"]
+
+
+@pytest.mark.parametrize(
+    "pipeline_filter",
+    [
+        [{"version": ["23.2.0", "22.0.6"]}],
+        [{"invalidfield1": "np:fmriprep", "invalidfield2": "23.2.0"}],
+    ],
+)
+def test_query_with_invalid_pipeline_field_returns_error(
+    test_app, disable_auth, pipeline_filter
+):
+    """
+    Test that a query with an invalid pipeline filter returns an error.
+    """
+    response = test_app.post(ROUTE, json={"pipeline": pipeline_filter})
+
+    assert response.status_code == 422
