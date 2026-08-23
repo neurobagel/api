@@ -334,6 +334,58 @@ def test_imaging_query_parameters_return_no_results_in_catalog_mode(
     assert response.json() == []
 
 
+def test_phenotypic_and_type_query_returns_correct_results_in_catalog_mode(
+    test_app,
+    mock_context,
+    disable_auth,
+    monkeypatch,
+):
+    """
+    Test that an AND query correctly matches datasets with all specified filter terms in catalog mode.
+    """
+    mock_datasets_metadata = {
+        "nb:18532368-82dc-42ac-b4fb-fbb187ad6ae1": {
+            "dataset_name": "BIDS synthetic",
+            "participant_count": 5,
+            "repository_url": "https://github.com/bids-standard/bids-examples.git",
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": [
+                "snomed:859351000000102",
+                "snomed:342061000000106",
+            ],
+            "age_range": {"minimum": 21.0, "maximum": 42.0},
+        },
+        "nb:80af4d30-0447-4f13-9eaf-98ae8065895a": {
+            "dataset_name": "Rhyme judgment",
+            "access_link": "https://github.com/OpenNeuroDatasets-JSONLD/ds000003.git",
+            "participant_count": 10,
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": ["snomed:859351000000102"],
+            "age_range": {"minimum": 60.0, "maximum": 80.0},
+        },
+    }
+
+    monkeypatch.setattr(settings, "catalog_mode", True)
+    monkeypatch.setattr(
+        env_settings, "DATASETS_METADATA", mock_datasets_metadata
+    )
+
+    response = test_app.post(
+        ROUTE,
+        json={
+            "assessment": ["snomed:859351000000102", "snomed:342061000000106"]
+        },
+    )
+    response = response.json()
+
+    assert len(response) == 1
+    matching_dataset = response[0]
+
+    assert matching_dataset["dataset_name"] == "BIDS synthetic"
+
+
 def test_query_with_pipeline_version_but_no_name_returns_informative_error(
     test_app, disable_auth
 ):
