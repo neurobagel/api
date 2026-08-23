@@ -9,6 +9,7 @@ from typing import Any
 import httpx
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel
 
 from . import env_settings, sparql_models
 from .logger import get_logger, log_and_raise_error
@@ -131,6 +132,7 @@ def create_bound_filter(var: str) -> str:
     return f"FILTER (BOUND(?{var})"
 
 
+# TODO: update defaults in docstring
 def create_query(
     return_agg: bool,
     age: tuple[float | None, float | None],
@@ -238,8 +240,6 @@ def create_query(
             pipeline_name = pipeline_info.name
             pipeline_version = pipeline_info.version
 
-            # TODO: check conditionals
-            # cannot specify pipeline version without specifying pipeline name
             if pipeline_name is not None:
                 imaging_session_level_filters += (
                     f"\n?imaging_session nb:hasCompletedPipeline ?pipeline{pipeline_count}."
@@ -627,15 +627,22 @@ def create_imaging_sparql_query_for_datasets(query: QueryModel):
 
 
 def is_field_set(value: Any) -> bool:
-    """Check if a field has been set (i.e., not an empty list, dict, or None)."""
+    """Check if a field has been set (i.e., not an empty list, model instance, or None)."""
     if isinstance(value, list):
-        return any(value)
+        return any(is_field_set(item) for item in value)
+    if isinstance(value, BaseModel):
+        nested_values = value.model_dump().values()
+        return any(
+            is_field_set(nested_value) for nested_value in nested_values
+        )
     return value is not None
 
 
 def contains_filters(query: QueryModel, filters: list[str]) -> bool:
     """Check if certain filter fields have been set in a given query."""
-    return any(is_field_set(getattr(query, filter)) for filter in filters)
+    return any(
+        is_field_set(getattr(query, filter_name)) for filter_name in filters
+    )
 
 
 def create_sparql_queries_for_datasets(query: QueryModel) -> tuple[str, str]:
