@@ -5,7 +5,7 @@ import pandas.testing as pdt
 import pytest
 
 from app.api import utility as util
-from app.api.models import QueryModel
+from app.api.models import IMAGING_FILTERS, PHENOTYPIC_FILTERS, QueryModel
 
 
 def test_unpack_graph_response_json_to_dicts():
@@ -375,4 +375,59 @@ def test_find_matching_term_in_vocab(
             has_prefix=has_prefix,
         )
         == expected_result
+    )
+
+
+@pytest.mark.parametrize(
+    "request_body,expected_contains_phenotypic_filters,expected_contains_imaging_filters",
+    [
+        (
+            {
+                "diagnosis": ["snomed:67890"],
+                "assessment": ["snomed:11111"],
+            },
+            True,
+            False,
+        ),
+        (
+            {
+                "image_modal": ["nidm:T1Weighted", "nidm:T2Weighted"],
+            },
+            False,
+            True,
+        ),
+        (
+            {
+                "min_age": 18,
+                "max_age": 25,
+                "image_modal": ["nidm:T1Weighted", "nidm:T2Weighted"],
+            },
+            True,
+            True,
+        ),
+        (
+            {
+                "diagnosis": [],
+                "assessment": [],
+                "image_modal": [],
+                "pipeline": [{}],
+            },
+            False,
+            False,
+        ),
+    ],
+)
+def test_contains_filters(
+    request_body,
+    expected_contains_phenotypic_filters,
+    expected_contains_imaging_filters,
+):
+    query = QueryModel(**request_body)
+    assert (
+        util.contains_filters(query, PHENOTYPIC_FILTERS)
+        is expected_contains_phenotypic_filters
+    )
+    assert (
+        util.contains_filters(query, IMAGING_FILTERS)
+        is expected_contains_imaging_filters
     )

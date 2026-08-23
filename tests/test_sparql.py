@@ -459,3 +459,31 @@ def test_imaging_and_type_sparql_queries(
         util.create_imaging_sparql_query_for_datasets(query)
         == expected_sparql_query
     )
+
+
+def test_empty_list_fields_ignored_in_query():
+    request_body = {
+        "diagnosis": [],
+        "assessment": [],
+        "image_modal": [],
+        "pipeline": [{}],
+    }
+    expected_phenotypic_query = "\n".join(
+        [
+            "SELECT ?dataset ?subject",
+            "WHERE {",
+            "    ?dataset a nb:Dataset.",
+            "    ?dataset nb:hasSamples ?subject.",
+            "    ?subject a nb:Subject.",
+            "}",
+        ],
+    )
+    expected_imaging_query = ""
+
+    query = QueryModel(**request_body)
+    phenotypic_query, imaging_query = util.create_sparql_queries_for_datasets(
+        query
+    )
+
+    assert phenotypic_query == expected_phenotypic_query
+    assert imaging_query == expected_imaging_query
