@@ -132,7 +132,6 @@ def create_bound_filter(var: str) -> str:
     return f"FILTER (BOUND(?{var})"
 
 
-# TODO: update defaults in docstring
 def create_query(
     return_agg: bool,
     age: tuple[float | None, float | None],
