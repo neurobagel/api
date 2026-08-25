@@ -111,22 +111,6 @@ class SessionResponse(BaseModel):
     completed_pipelines: dict
 
 
-class CohortQueryResponse(BaseModel):
-    """
-    Data model for legacy GET /query endpoint response, for backwards-compatibility only.
-    """
-
-    dataset_uuid: str
-    dataset_name: str
-    dataset_portal_uri: str | None
-    dataset_total_subjects: int
-    records_protected: bool
-    num_matching_subjects: int
-    image_modals: list
-    available_pipelines: dict
-    subject_data: list[SessionResponse] | str
-
-
 class DatasetQueryResponse(BaseModel):
     """Data model for metadata of a single dataset matching a query."""
 
