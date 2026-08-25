@@ -16,7 +16,7 @@ from .logger import get_logger
 from .models import (
     DataElementURI,
     DatasetQueryResponse,
-    QueryModel,
+    DatasetsQueryModel,
     SessionResponse,
     SubjectsQueryModel,
     SubjectsQueryResponse,
@@ -242,7 +242,9 @@ async def post_subjects(query: SubjectsQueryModel):
     return response
 
 
-async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
+async def post_datasets(
+    query: DatasetsQueryModel,
+) -> list[DatasetQueryResponse]:
     """
     When a POST request is sent to the /datasets path, return list of dicts corresponding to metadata for datasets matching the query.
 
@@ -338,7 +340,7 @@ async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
 
 
 async def query_dataset_catalog_attributes(
-    query: QueryModel,
+    query: DatasetsQueryModel,
 ) -> list[DatasetQueryResponse]:
     """
     When a POST request is sent to /datasets and catalog mode is enabled for the node,

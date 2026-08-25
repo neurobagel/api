@@ -12,7 +12,7 @@ import pandas as pd
 
 from . import env_settings, sparql_models
 from .logger import get_logger, log_and_raise_error
-from .models import IMAGING_FILTERS, PHENOTYPIC_FILTERS, QueryModel
+from .models import IMAGING_FILTERS, PHENOTYPIC_FILTERS, DatasetsQueryModel
 
 logger = get_logger(__name__)
 
@@ -579,7 +579,7 @@ def create_pipeline_versions_query(pipeline: str) -> str:
     return query_string
 
 
-def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
+def create_phenotypic_sparql_query_for_datasets(query: DatasetsQueryModel):
     """Create a SPARQL query string for phenotypic parameters from a query to the POST /datasets endpoint."""
     age_bounds = sparql_models.Age(
         min_age=query.min_age, max_age=query.max_age
@@ -598,7 +598,7 @@ def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
     return query_string
 
 
-def create_imaging_sparql_query_for_datasets(query: QueryModel):
+def create_imaging_sparql_query_for_datasets(query: DatasetsQueryModel):
     """Create a SPARQL query string for imaging parameters from a query to the POST /datasets endpoint."""
     acquisition = sparql_models.Acquisition(hasContrastType=query.image_modal)
     pipeline = sparql_models.Pipeline(
@@ -617,12 +617,14 @@ def create_imaging_sparql_query_for_datasets(query: QueryModel):
     return query_string
 
 
-def contains_filters(query: QueryModel, filters: list[str]) -> bool:
+def contains_filters(query: DatasetsQueryModel, filters: list[str]) -> bool:
     """Check if certain filter fields have been set in a given query."""
     return any(getattr(query, filter) is not None for filter in filters)
 
 
-def create_sparql_queries_for_datasets(query: QueryModel) -> tuple[str, str]:
+def create_sparql_queries_for_datasets(
+    query: DatasetsQueryModel,
+) -> tuple[str, str]:
     """
     Create SPARQL queries based on the phenotypic and/or imaging filters specified in the request payload.
     """
@@ -737,7 +739,7 @@ def age_filters_include_catalog_dataset_age_range(
 
 def catalog_dataset_metadata_matches_query(
     dataset: dict,
-    query: QueryModel,
+    query: DatasetsQueryModel,
 ) -> bool:
     """
     Return True if a dataset's catalog metadata matches the filters specified in the query, and False otherwise.

@@ -2,7 +2,7 @@ import pytest
 
 from app.api import sparql_models
 from app.api import utility as util
-from app.api.models import QueryModel
+from app.api.models import DatasetsQueryModel
 
 
 @pytest.mark.parametrize(
@@ -104,7 +104,7 @@ def test_create_imaging_sparql_query_for_datasets(
     Test that a SPARQL query string is correctly created from a POST /datasets request body
     with imaging filters.
     """
-    query = QueryModel(**datasets_request_body)
+    query = DatasetsQueryModel(**datasets_request_body)
     expected_sparql_query = "\n".join(sparql_query_statements)
     assert (
         util.create_imaging_sparql_query_for_datasets(query)
@@ -195,7 +195,7 @@ def test_create_phenotypic_sparql_query_for_datasets(
     Test that a SPARQL query string is correctly created from a POST /datasets request body
     with phenotypic filters.
     """
-    query = QueryModel(**datasets_request_body)
+    query = DatasetsQueryModel(**datasets_request_body)
     expected_sparql_query = "\n".join(sparql_query_statements)
     assert (
         util.create_phenotypic_sparql_query_for_datasets(query)
@@ -295,7 +295,7 @@ def test_create_sparql_queries_for_datasets(
     Test that phenotypic and imaging query filters from a request are correctly extracted into
     separate SPARQL queries and that for an unfiltered query, only one SPARQL query is created.
     """
-    query = QueryModel(**datasets_request_body)
+    query = DatasetsQueryModel(**datasets_request_body)
     expected_phenotypic_query = "\n".join(expected_phenotypic_query_statements)
     expected_imaging_query = "\n".join(expected_imaging_query_statements)
     phenotypic_query, imaging_query = util.create_sparql_queries_for_datasets(
