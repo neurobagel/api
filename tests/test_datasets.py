@@ -6,6 +6,34 @@ from app.api.env_settings import settings
 ROUTE = "/datasets"
 
 
+async def test_query_matching_dataset_sizes(monkeypatch):
+    """Test that graph results for dataset size queries are correctly parsed into a dictionary."""
+
+    async def mock_post_query_to_graph(query, timeout=5.0):
+        return [
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/ds1234",
+                "total_subjects": "70",
+            },
+            {
+                "dataset_uuid": "http://neurobagel.org/vocab/ds2345",
+                "total_subjects": "40",
+            },
+        ]
+
+    monkeypatch.setattr(crud, "post_query_to_graph", mock_post_query_to_graph)
+    dataset_sizes = await crud.query_matching_dataset_sizes(
+        [
+            "http://neurobagel.org/vocab/ds1234",
+            "http://neurobagel.org/vocab/ds2345",
+        ]
+    )
+    assert dataset_sizes == {
+        "http://neurobagel.org/vocab/ds1234": 70,
+        "http://neurobagel.org/vocab/ds2345": 40,
+    }
+
+
 async def test_response_includes_attributes_from_dataset_metadata_file(
     test_app,
     mock_context,  # needed because dataset lookup in the datasets metadata dict uses the prefixed namespace
