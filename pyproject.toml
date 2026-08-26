@@ -36,8 +36,7 @@ dependencies = [
     "pandas",
     "numpy",
     "PyJWT",
-    "typing-extensions",
-    "orjson"
+    "typing-extensions"
 ]
 
 [dependency-groups]
