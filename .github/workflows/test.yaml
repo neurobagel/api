@@ -31,10 +31,10 @@ jobs:
         timeout=120
         elapsed=0
 
-        until docker compose logs api-test_graph-1 2>&1 | grep -q "FINISHED UPLOADING DATA"; do
+        until docker logs api-test_graph-1 2>&1 | grep -q "FINISHED UPLOADING DATA"; do
           if [ "$elapsed" -ge "$timeout" ]; then
             echo "Timed out waiting for graph setup"
-            docker compose logs api-test_graph-1
+            docker logs api-test_graph-1
             exit 1
           fi
 
