@@ -360,3 +360,27 @@ def test_imaging_query_parameters_return_no_results_in_catalog_mode(
 
     response = test_app.post(ROUTE, json=query_body)
     assert response.json() == []
+
+
+@pytest.mark.integration
+def test_fetched_context_used_during_sparql_query(
+    test_app,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
+    set_temp_datasets_metadata_file,
+):
+    """
+    Test that a filtered query using a compact URI is correctly expanded in the SPARQL query
+    (using the context fetched on startup), resulting in at least 1 matching subject.
+    """
+    modality_with_prefix = "nidm:T1Weighted"
+
+    with test_app:
+        response = test_app.post(
+            url=ROUTE, json={"image_modal": modality_with_prefix}
+        )
+
+    matching_ds = response.json()[0]
+
+    assert response.status_code == 200
+    assert matching_ds["num_matching_subjects"] > 0
