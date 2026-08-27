@@ -18,13 +18,7 @@ jobs:
         submodules: recursive
 
     - name: Launch test graph
-      run: docker compose up -d test_graph
-
-    # # TODO: Check if this is necessary, since the Python dependencies setup also takes some time
-    # - name: Sleep to allow graph setup
-    #   uses: jakejarvis/wait-action@master
-    #   with:
-    #     time: '20s'
+      run: docker compose up -d test_graph export_datasets_metadata
 
     - name: Wait for graph setup
       run: |
