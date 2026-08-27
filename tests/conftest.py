@@ -74,12 +74,14 @@ def set_graph_url_vars_for_integration_tests(monkeypatch):
     """
     Set the graph URL to the default value for integration tests.
 
-    NOTE: These should correspond to the default configuration values, but are set explicitly here for clarity and
+    NOTE: Some variables correspond to the default configuration values, but are set explicitly here for clarity and
     to override any environment defined in pytest.ini.
     """
     monkeypatch.setattr(settings, "graph_address", "localhost")
     monkeypatch.setattr(settings, "graph_port", 7200)
     monkeypatch.setattr(settings, "graph_db", "repositories/my_db")
+    # Integration tests rely on a local copy of the datasets metadata file created by init_data on the host
+    # (See .github/workflows/test.yaml)
     monkeypatch.setattr(
         settings,
         "datasets_metadata_path",

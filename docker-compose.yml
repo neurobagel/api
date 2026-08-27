@@ -24,6 +24,7 @@ services:
       - db_admin_password
       - db_user_password
 
+  # Ensure that the datasets metadata file is accessible on the host for use in integration tests
   export_datasets_metadata:
     image: alpine
     depends_on:

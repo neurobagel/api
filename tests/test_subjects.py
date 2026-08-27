@@ -80,7 +80,6 @@ def test_app_with_invalid_environment_vars(
     monkeypatch,
     disable_auth,
     set_graph_url_vars_for_integration_tests,
-    # set_temp_datasets_metadata_file,
 ):
     """Given invalid credentials for the graph, returns a 401 status code."""
     monkeypatch.setattr(settings, "graph_username", "wrong_username")
@@ -96,7 +95,6 @@ def test_integration_query_without_auth_succeeds(
     test_app,
     disable_auth,
     set_graph_url_vars_for_integration_tests,
-    # set_temp_datasets_metadata_file,
 ):
     """
     Running a test against a real local test graph
@@ -140,7 +138,6 @@ def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
     monkeypatch,
     disable_auth,
     set_graph_url_vars_for_integration_tests,
-    # set_temp_datasets_metadata_file,
 ):
     """
     Test that only sessions of type PhenotypicSession and ImagingSession are returned in an unaggregated query response.
@@ -174,7 +171,6 @@ def test_min_cell_size_removes_results(
     monkeypatch,
     disable_auth,
     set_graph_url_vars_for_integration_tests,
-    # set_temp_datasets_metadata_file,
 ):
     """
     If the minimum cell size is large enough, all results should be filtered out

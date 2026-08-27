@@ -36,14 +36,15 @@ jobs:
           elapsed=$((elapsed + 1))
         done
 
-    - name: Check all running and stopped containers
-      run: docker ps -a
-
-    - name: Check test graph logs
-      run: docker logs api-test_graph-1
-
-    - name: Check that data from graph setup was exported
+    - name: Debug containers and test graph
       run: |
+        echo "=== All running and stopped containers ==="
+        docker ps -a
+
+        echo "=== Test graph logs ==="
+        docker logs api-test_graph-1
+
+        echo "=== Test graph data directory contents ==="
         ls -l ./test_graph_data
 
     - name: Set up Python 3.10 with uv
