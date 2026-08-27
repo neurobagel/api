@@ -24,7 +24,7 @@ jobs:
     - name: Sleep to allow graph setup
       uses: jakejarvis/wait-action@master
       with:
-        time: '10s'
+        time: '20s'
 
     - name: Check all running and stopped containers
       run: docker ps -a
