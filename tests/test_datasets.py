@@ -364,10 +364,7 @@ def test_imaging_query_parameters_return_no_results_in_catalog_mode(
 
 @pytest.mark.integration
 def test_fetched_context_used_during_sparql_query(
-    test_app,
-    disable_auth,
-    set_graph_url_vars_for_integration_tests,
-    set_temp_datasets_metadata_file,
+    test_app, disable_auth, set_graph_url_vars_for_integration_tests
 ):
     """
     Test that a filtered query using a compact URI is correctly expanded in the SPARQL query
