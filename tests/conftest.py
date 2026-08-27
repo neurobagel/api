@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 from starlette.testclient import TestClient
@@ -79,6 +80,11 @@ def set_graph_url_vars_for_integration_tests(monkeypatch):
     monkeypatch.setattr(settings, "graph_address", "localhost")
     monkeypatch.setattr(settings, "graph_port", 7200)
     monkeypatch.setattr(settings, "graph_db", "repositories/my_db")
+    monkeypatch.setattr(
+        settings,
+        "datasets_metadata_path",
+        Path("./test_graph_data/datasets_metadata.json"),
+    )
 
 
 @pytest.fixture()

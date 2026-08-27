@@ -24,6 +24,16 @@ services:
       - db_admin_password
       - db_user_password
 
+  export_datasets_metadata:
+    image: alpine
+    depends_on:
+      init_data:
+        condition: service_completed_successfully
+    volumes:
+      - "neurobagel_data:/data"
+      - ".:/workspace"
+    command: >
+      sh -c "mkdir -p /workspace/test_graph_data && cp -r /data/. /workspace/test_graph_data/"
 
 secrets:
   db_admin_password:
