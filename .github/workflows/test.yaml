@@ -26,8 +26,11 @@ jobs:
       with:
         time: '5s'
 
-    - name: Check running containers
-      run: docker ps
+    - name: Check all running and stopped containers
+      run: docker ps -a
+
+    - name: Check test graph logs
+      run: docker logs test_graph
 
     - name: Set up Python 3.10 with uv
       uses: astral-sh/setup-uv@v7
