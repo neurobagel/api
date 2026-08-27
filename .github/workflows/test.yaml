@@ -30,7 +30,7 @@ jobs:
       run: docker ps -a
 
     - name: Check test graph logs
-      run: docker logs test_graph
+      run: docker logs api-test_graph-1
 
     - name: Set up Python 3.10 with uv
       uses: astral-sh/setup-uv@v7
