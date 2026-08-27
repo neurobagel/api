@@ -42,6 +42,10 @@ jobs:
     - name: Check test graph logs
       run: docker logs api-test_graph-1
 
+    - name: Check that data from graph setup was exported
+      run: |
+        ls -l ./test_graph_data
+
     - name: Set up Python 3.10 with uv
       uses: astral-sh/setup-uv@v7
       with:
@@ -59,5 +63,3 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-
-
