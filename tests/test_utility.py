@@ -5,7 +5,7 @@ import pandas.testing as pdt
 import pytest
 
 from app.api import utility as util
-from app.api.models import QueryModel
+from app.api.models import DatasetsQueryModel
 
 
 def test_unpack_graph_response_json_to_dicts():
@@ -288,7 +288,7 @@ def test_query_filters_correctly_match_catalog_datasets(
     """
     Test that the function correctly identifies whether a catalog dataset matches all provided query filters.
     """
-    query = QueryModel(**query_fields)
+    query = DatasetsQueryModel(**query_fields)
 
     mock_catalog_dataset_info = {
         "dataset_name": "BIDS synthetic",

@@ -22,28 +22,21 @@ def test_root(test_app, root_path, monkeypatch):
     assert f'<a href="{root_path}/docs">API documentation</a>' in response.text
 
 
-@pytest.mark.parametrize(
-    "valid_route",
-    ["/query", "/query?min_age=20"],
-)
 def test_request_without_trailing_slash_not_redirected(
     test_app,
     monkeypatch,
-    mock_successful_query_records,
+    mock_successful_post_subjects,
     disable_auth,
-    valid_route,
 ):
     """Test that a request to a route without a / is not redirected to have a trailing slash."""
-    monkeypatch.setattr(crud, "query_records", mock_successful_query_records)
-    response = test_app.get(valid_route, follow_redirects=False)
+    monkeypatch.setattr(crud, "post_subjects", mock_successful_post_subjects)
+    response = test_app.post(url="/subjects", json={}, follow_redirects=False)
     assert response.status_code == 200
 
 
 @pytest.mark.parametrize(
     "invalid_route",
     [
-        "/query/",
-        "/query/?min_age=20",
         "/attributes/",
         "/assessments/",
         "/assessments/vocab/",

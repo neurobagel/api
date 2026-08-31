@@ -6,6 +6,20 @@ from app.main import settings
 ROUTE = "/subjects"
 
 
+def test_empty_post_query_is_successful(
+    test_app,
+    mock_successful_post_subjects,
+    monkeypatch,
+    disable_auth,
+):
+    """Given no input for any query parameters, returns a 200 status code and a non-empty list of results (should correspond to all subjects in graph)."""
+
+    monkeypatch.setattr(crud, "post_subjects", mock_successful_post_subjects)
+    response = test_app.post(url=ROUTE, json={})
+    assert response.status_code == 200
+    assert response.json() != []
+
+
 @pytest.mark.parametrize(
     "valid_dataset_uuids",
     [
@@ -38,7 +52,139 @@ def test_post_valid_dataset_uuids_does_not_error(
     assert response.json() != []
 
 
-@pytest.mark.parametrize("mock_query_records", [None], indirect=True)
+def test_aggregate_query_response_structure(
+    test_app,
+    mock_post_agg_query_to_graph,
+    mock_query_matching_dataset_sizes,
+    monkeypatch,
+    disable_auth,
+):
+    """Test that when aggregate results are enabled, a cohort query response has the expected structure."""
+    monkeypatch.setattr(settings, "return_agg", True)
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_agg_query_to_graph
+    )
+    monkeypatch.setattr(
+        crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
+    )
+
+    response = test_app.post(url=ROUTE, json={})
+    assert all(
+        dataset["subject_data"] == "protected" for dataset in response.json()
+    )
+
+
+@pytest.mark.integration
+def test_app_with_invalid_environment_vars(
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
+):
+    """Given invalid credentials for the graph, returns a 401 status code."""
+    monkeypatch.setattr(settings, "graph_username", "wrong_username")
+    monkeypatch.setattr(settings, "graph_password", "wrong_password")
+
+    with test_app:
+        response = test_app.post(url=ROUTE, json={})
+    assert response.status_code == 401
+
+
+@pytest.mark.integration
+def test_integration_query_without_auth_succeeds(
+    test_app,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
+):
+    """
+    Running a test against a real local test graph
+    should succeed when authentication is disabled.
+    """
+    with test_app:
+        response = test_app.post(url=ROUTE, json={})
+    assert response.status_code == 200
+
+
+def test_missing_derivatives_info_handled_by_nonagg_api_response(
+    test_app,
+    mock_post_nonagg_query_to_graph,
+    mock_query_matching_dataset_sizes,
+    monkeypatch,
+    disable_auth,
+):
+    """
+    Test that in the non-aggregated API mode, when all matching subjects lack pipeline information,
+    the API does not error out and pipeline variables in the API response still have the expected structure.
+    """
+    monkeypatch.setattr(settings, "return_agg", False)
+    monkeypatch.setattr(
+        crud, "post_query_to_graph", mock_post_nonagg_query_to_graph
+    )
+    monkeypatch.setattr(
+        crud, "query_matching_dataset_sizes", mock_query_matching_dataset_sizes
+    )
+
+    response = test_app.post(url=ROUTE, json={})
+    assert response.status_code == 200
+
+    matching_ds = response.json()[0]
+    for session in matching_ds["subject_data"]:
+        assert session["completed_pipelines"] == {}
+
+
+@pytest.mark.integration
+def test_only_imaging_and_phenotypic_sessions_returned_in_query_response(
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
+):
+    """
+    Test that only sessions of type PhenotypicSession and ImagingSession are returned in an unaggregated query response.
+    """
+    monkeypatch.setattr(settings, "return_agg", False)
+
+    with test_app:
+        response = test_app.post(url=ROUTE, json={})
+
+    assert response.status_code == 200
+
+    matching_ds = response.json()[0]
+
+    sub01_sessions = [
+        ses_instance
+        for ses_instance in matching_ds["subject_data"]
+        if ses_instance["sub_id"] == "sub-01"
+    ]
+    assert len(sub01_sessions) == 4
+
+    for ses_instance in matching_ds["subject_data"]:
+        assert ses_instance["session_type"] in [
+            "http://neurobagel.org/vocab/ImagingSession",
+            "http://neurobagel.org/vocab/PhenotypicSession",
+        ], f'{ses_instance["sub_id"]}, {ses_instance["session_id"]} is of type {ses_instance["session_type"]}'
+
+
+@pytest.mark.integration
+def test_min_cell_size_removes_results(
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
+):
+    """
+    If the minimum cell size is large enough, all results should be filtered out
+    """
+    monkeypatch.setattr(settings, "min_cell_size", 100)
+
+    with test_app:
+        response = test_app.post(url=ROUTE, json={})
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+@pytest.mark.parametrize("mock_post_subjects", [None], indirect=True)
 @pytest.mark.parametrize(
     "invalid_dataset_uuids",
     [
@@ -50,7 +196,7 @@ def test_post_valid_dataset_uuids_does_not_error(
 )
 def test_post_invalid_dataset_uuids_raises_error(
     test_app,
-    mock_query_records,
+    mock_post_subjects,
     invalid_dataset_uuids,
     disable_auth,
     monkeypatch,
@@ -58,7 +204,7 @@ def test_post_invalid_dataset_uuids_raises_error(
     """
     Ensure that invalid 'dataset_uuids' request body values are rejected with a 422 error.
     """
-    monkeypatch.setattr(crud, "post_subjects", mock_query_records)
+    monkeypatch.setattr(crud, "post_subjects", mock_post_subjects)
     response = test_app.post(
         ROUTE, json={"dataset_uuids": invalid_dataset_uuids}
     )

@@ -16,7 +16,7 @@ from .logger import get_logger
 from .models import (
     DataElementURI,
     DatasetQueryResponse,
-    QueryModel,
+    DatasetsQueryModel,
     SessionResponse,
     SubjectsQueryModel,
     SubjectsQueryResponse,
@@ -172,144 +172,6 @@ async def query_available_modalities_and_pipelines(
     return dataset_imaging_modals_and_pipelines
 
 
-async def query_records(
-    min_age: float,
-    max_age: float,
-    sex: str,
-    diagnosis: str,
-    min_num_imaging_sessions: int,
-    min_num_phenotypic_sessions: int,
-    assessment: str,
-    image_modal: str,
-    pipeline_name: str,
-    pipeline_version: str,
-) -> list[dict]:
-    """
-    Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
-    matching the given query parameters, as well as the total number of subjects in each matching dataset.
-
-    Parameters
-    ----------
-    min_age : float
-        Minimum age of subject.
-    max_age : float
-        Maximum age of subject.
-    sex : str
-        Sex of subject.
-    diagnosis : str
-        Subject diagnosis.
-    min_num_imaging_sessions : int
-        Subject minimum number of imaging sessions.
-    min_num_phenotypic_sessions : int
-        Subject minimum number of phenotypic sessions.
-    assessment : str
-        Non-imaging assessment completed by subjects.
-    image_modal : str
-        Imaging modality of subject scans.
-    pipeline_name : str
-        Name of pipeline run on subject scans.
-    pipeline_version : str
-        Version of pipeline run on subject scans.
-
-    Returns
-    -------
-    list
-        List of CohortQueryResponse objects, where each object corresponds to a dataset matching the query.
-    """
-    db_results = await post_query_to_graph(
-        util.create_query(
-            return_agg=settings.return_agg,
-            age=(min_age, max_age),
-            sex=sex,
-            diagnosis=diagnosis,
-            min_num_phenotypic_sessions=min_num_phenotypic_sessions,
-            min_num_imaging_sessions=min_num_imaging_sessions,
-            assessment=assessment,
-            image_modal=image_modal,
-            pipeline_version=pipeline_version,
-            pipeline_name=pipeline_name,
-        )
-    )
-
-    # Reindexing is needed here because when a certain attribute is missing from all matching sessions,
-    # the attribute does not end up in the graph API response or the below resulting processed dataframe.
-    # Conforming the columns to a list of expected attributes ensures every subject-session has the same response shape from the node API.
-    formatted_results = pd.DataFrame(db_results).reindex(
-        columns=ALL_SUBJECT_ATTRIBUTES
-    )
-
-    matching_dataset_sizes = await query_matching_dataset_sizes(
-        dataset_uuids=formatted_results["dataset_uuid"].unique()
-    )
-
-    response = []
-    dataset_cols = ["dataset_uuid", "dataset_name"]
-    if not formatted_results.empty:
-        for (
-            dataset_uuid,
-            dataset_name,
-        ), dataset_matching_records in formatted_results.groupby(
-            by=dataset_cols
-        ):
-            num_matching_subjects = dataset_matching_records[
-                "sub_id"
-            ].nunique()
-            # TODO: The current implementation is valid in that we do not return
-            # results for datasets with fewer than min_cell_size subjects. But
-            # ideally we would handle this directly inside SPARQL so we don't even
-            # get the results in the first place. See #267 for a solution.
-            if num_matching_subjects <= settings.min_cell_size:
-                continue
-
-            dataset_available_pipelines = (
-                dataset_matching_records.groupby("pipeline_name", dropna=True)[
-                    "pipeline_version"
-                ]
-                .agg(lambda x: list(x.dropna().unique()))
-                .to_dict()
-            )
-
-            matching_dataset_info = {
-                "dataset_uuid": dataset_uuid,
-                "dataset_name": dataset_name,
-                "dataset_total_subjects": matching_dataset_sizes[dataset_uuid],
-                "dataset_portal_uri": (
-                    dataset_matching_records["dataset_portal_uri"].iloc[0]
-                    if not dataset_matching_records["dataset_portal_uri"]
-                    .isna()
-                    .any()
-                    else None
-                ),
-                "num_matching_subjects": num_matching_subjects,
-                "records_protected": settings.return_agg,
-                "image_modals": list(
-                    dataset_matching_records["image_modal"][
-                        dataset_matching_records["image_modal"].notna()
-                    ].unique()
-                ),
-                "available_pipelines": dataset_available_pipelines,
-            }
-
-            if settings.return_agg:
-                subject_data: str | list = "protected"
-            else:
-                dataset_matching_records = dataset_matching_records.drop(
-                    dataset_cols, axis=1
-                )
-                subject_data = util.construct_matching_sub_results_for_dataset(
-                    dataset_matching_records
-                )
-
-            dataset_result = {
-                **matching_dataset_info,
-                "subject_data": subject_data,
-            }
-            # TODO: need to append as response model instance?
-            response.append(dataset_result)
-
-    return response
-
-
 async def post_subjects(query: SubjectsQueryModel):
     """
     When a POST request is sent to the /subjects path, return a list of dicts where each dict corresponds to
@@ -380,7 +242,9 @@ async def post_subjects(query: SubjectsQueryModel):
     return response
 
 
-async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
+async def post_datasets(
+    query: DatasetsQueryModel,
+) -> list[DatasetQueryResponse]:
     """
     When a POST request is sent to the /datasets path, return list of dicts corresponding to metadata for datasets matching the query.
 
@@ -476,7 +340,7 @@ async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
 
 
 async def query_dataset_catalog_attributes(
-    query: QueryModel,
+    query: DatasetsQueryModel,
 ) -> list[DatasetQueryResponse]:
     """
     When a POST request is sent to /datasets and catalog mode is enabled for the node,

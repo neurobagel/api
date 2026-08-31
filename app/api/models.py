@@ -30,8 +30,7 @@ IMAGING_FILTERS = [
 ]
 
 
-# TODO: Consider renaming to DatasetsQueryModel once we deprecate the /query endpoint
-class QueryModel(BaseModel):
+class DatasetsQueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
     # NOTE: extra query parameters are just ignored/have no effect
@@ -84,7 +83,7 @@ class QueryModel(BaseModel):
         return self
 
 
-class SubjectsQueryModel(QueryModel):
+class SubjectsQueryModel(DatasetsQueryModel):
     # TODO: At the moment datasets always appears as the last field, after all other query parameters.
     # Revisit if we want to modify the order.
     # TODO: If we want to restrict the format of UUIDs further, we could use AnyURL or AnyHttpUrl
@@ -109,22 +108,6 @@ class SessionResponse(BaseModel):
     image_modal: list
     session_file_path: str | None
     completed_pipelines: dict
-
-
-class CohortQueryResponse(BaseModel):
-    """
-    Data model for legacy GET /query endpoint response, for backwards-compatibility only.
-    """
-
-    dataset_uuid: str
-    dataset_name: str
-    dataset_portal_uri: str | None
-    dataset_total_subjects: int
-    records_protected: bool
-    num_matching_subjects: int
-    image_modals: list
-    available_pipelines: dict
-    subject_data: list[SessionResponse] | str
 
 
 class DatasetQueryResponse(BaseModel):
