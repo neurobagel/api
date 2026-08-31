@@ -363,7 +363,7 @@ def test_imaging_query_parameters_return_no_results_in_catalog_mode(
 
 
 @pytest.mark.integration
-def test_fetched_context_used_during_sparql_query(
+def test_compact_uri_query_succeeds(
     test_app, disable_auth, set_graph_url_vars_for_integration_tests
 ):
     """
