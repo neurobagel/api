@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import pytest
 from starlette.testclient import TestClient
@@ -58,7 +59,7 @@ def mock_verify_token():
 def set_mock_verify_token(monkeypatch, mock_verify_token):
     """Set the verify_token function to a mock that does not raise any exceptions."""
     monkeypatch.setattr(
-        "app.api.routers.query.verify_token", mock_verify_token
+        "app.api.routers.subjects.verify_token", mock_verify_token
     )
 
 
@@ -73,12 +74,19 @@ def set_graph_url_vars_for_integration_tests(monkeypatch):
     """
     Set the graph URL to the default value for integration tests.
 
-    NOTE: These should correspond to the default configuration values, but are set explicitly here for clarity and
+    NOTE: Some variables correspond to the default configuration values, but are set explicitly here for clarity and
     to override any environment defined in pytest.ini.
     """
     monkeypatch.setattr(settings, "graph_address", "localhost")
     monkeypatch.setattr(settings, "graph_port", 7200)
     monkeypatch.setattr(settings, "graph_db", "repositories/my_db")
+    # Integration tests rely on a local copy of the datasets metadata file created by init_data on the host
+    # (See .github/workflows/test.yaml)
+    monkeypatch.setattr(
+        settings,
+        "datasets_metadata_path",
+        Path("./test_graph_data/datasets_metadata.json"),
+    )
 
 
 @pytest.fixture()
@@ -337,53 +345,40 @@ def mock_query_matching_dataset_sizes():
     return _mock_query_matching_dataset_sizes
 
 
-# TODO: Consider renaming fixture once /query endpoint is removed
 @pytest.fixture
-def mock_get_with_exception(request):
+def mock_post_with_exception(request):
     """
-    Mock get function that raises a specified exception.
+    Mock POST CRUD function that raises a specified exception.
 
     A parameter passed to this fixture via indirect parametrization is received by the internal factory function before it is passed to a test.
 
     Example usage in test function:
-        @pytest.mark.parametrize("mock_get_with_exception", [HTTPException(500)], indirect=True)
-        (this tells mock_get_with_exception to raise an HTTPException)
+        @pytest.mark.parametrize("mock_post_with_exception", [HTTPException(500)], indirect=True)
+        (this tells mock_post_with_exception to raise an HTTPException)
     """
 
-    async def _mock_get_with_exception(**kwargs):
+    async def _mock_post_with_exception(query):
         raise request.param
 
-    return _mock_get_with_exception
+    return _mock_post_with_exception
 
 
 @pytest.fixture
-def mock_query_records(request):
+def mock_post_subjects(request):
     """
-    Mock get function that returns an arbitrary response or value (can be None). Can be used to testing error handling of bad requests.
+    Mock POST function that returns an arbitrary response or value (can be None). Can be used to testing error handling of bad requests.
 
     A parameter passed to this fixture via indirect parametrization is received by the internal factory function before it is passed to a test.
 
     Example usage in test function:
-        @pytest.mark.parametrize("mock_query_records", [None], indirect=True)
-        (this tells mock_query_records to return None)
-
-    TODO: Currently also used to test error handling for POST /subjects. Consider renaming once the /query endpoint is deprecated.
+        @pytest.mark.parametrize("mock_post_subjects", [None], indirect=True)
+        (this tells mock_post_subjects to return None)
     """
 
-    async def _mock_query_records(**kwargs):
+    async def _mock_post_subjects(query):
         return request.param
 
-    return _mock_query_records
-
-
-@pytest.fixture
-def mock_successful_query_records(test_data):
-    """Mock CRUD function that returns non-empty, valid aggregate query result data for /query endpoint."""
-
-    async def _mock_successful_query_records(**kwargs):
-        return test_data
-
-    return _mock_successful_query_records
+    return _mock_post_subjects
 
 
 @pytest.fixture

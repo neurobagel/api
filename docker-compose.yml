@@ -1,4 +1,13 @@
 services:
+
+  init_data:
+    extends:
+      file: recipes/docker-compose.yml
+      service: init_data
+    volumes:
+      - "./neurobagel_examples/data-upload/pheno-bids-derivatives-output:/input_data"
+      - "neurobagel_data:/data"
+
   test_graph:
     extends:
       file: recipes/docker-compose.yml
@@ -7,13 +16,25 @@ services:
       - "graphdb_home:/opt/graphdb/home"
       - "./recipes/scripts:/usr/src/neurobagel/scripts"
       - "./recipes/vocab:/usr/src/neurobagel/vocab"
-      - "./neurobagel_examples/data-upload/pheno-bids-derivatives-output:/data"
+      - "neurobagel_data:/data"
     environment:
       NB_GRAPH_USERNAME: "DBUSER"
       NB_GRAPH_DB: "repositories/my_db"
     secrets:
       - db_admin_password
       - db_user_password
+
+  # Ensure that the datasets metadata file is accessible on the host for use in integration tests
+  export_datasets_metadata:
+    image: alpine
+    depends_on:
+      init_data:
+        condition: service_completed_successfully
+    volumes:
+      - "neurobagel_data:/data"
+      - ".:/workspace"
+    command: >
+      sh -c "mkdir -p /workspace/test_graph_data && cp -r /data/. /workspace/test_graph_data/"
 
 secrets:
   db_admin_password:
@@ -23,3 +44,4 @@ secrets:
 
 volumes:
   graphdb_home:
+  neurobagel_data:

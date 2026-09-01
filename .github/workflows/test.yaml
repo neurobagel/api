@@ -18,16 +18,34 @@ jobs:
         submodules: recursive
 
     - name: Launch test graph
-      run: docker compose up -d test_graph
+      run: docker compose up -d test_graph export_datasets_metadata
 
-    # TODO: Check if this is necessary, since the Python dependencies setup also takes some time
-    - name: Sleep to allow graph setup
-      uses: jakejarvis/wait-action@master
-      with:
-        time: '5s'
+    - name: Wait for graph setup
+      run: |
+        timeout=120
+        elapsed=0
 
-    - name: Check running containers
-      run: docker ps
+        until docker logs api-test_graph-1 2>&1 | grep -q "FINISHED UPLOADING DATA"; do
+          if [ "$elapsed" -ge "$timeout" ]; then
+            echo "Timed out waiting for graph setup"
+            docker logs api-test_graph-1
+            exit 1
+          fi
+
+          sleep 1
+          elapsed=$((elapsed + 1))
+        done
+
+    - name: Debug containers and test graph
+      run: |
+        echo "=== All running and stopped containers ==="
+        docker ps -a
+
+        echo "=== Test graph logs ==="
+        docker logs api-test_graph-1
+
+        echo "=== Test graph data directory contents ==="
+        ls -l ./test_graph_data
 
     - name: Set up Python 3.10 with uv
       uses: astral-sh/setup-uv@v7
@@ -46,5 +64,3 @@ jobs:
       uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-
-
