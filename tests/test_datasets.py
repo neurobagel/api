@@ -374,7 +374,7 @@ def test_compact_uri_query_succeeds(
 
     with test_app:
         response = test_app.post(
-            url=ROUTE, json={"image_modal": modality_with_prefix}
+            url=ROUTE, json={"image_modal": [modality_with_prefix]}
         )
 
     matching_ds = response.json()[0]
