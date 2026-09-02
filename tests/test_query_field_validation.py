@@ -121,7 +121,7 @@ def test_query_valid_diagnosis(
     """Given a valid diagnosis, returns a 200 status code and a non-empty list of results."""
 
     monkeypatch.setattr(crud, "post_subjects", mock_successful_post_subjects)
-    response = test_app.post(url=ROUTE, json={"diagnosis": valid_diagnosis})
+    response = test_app.post(url=ROUTE, json={"diagnosis": [valid_diagnosis]})
     assert response.status_code == 200
     assert response.json() != []
 
@@ -140,7 +140,9 @@ def test_query_invalid_diagnosis(
     """Given an invalid diagnosis, returns a 422 status code."""
 
     monkeypatch.setattr(crud, "post_subjects", mock_post_subjects)
-    response = test_app.post(url=ROUTE, json={"diagnosis": invalid_diagnosis})
+    response = test_app.post(
+        url=ROUTE, json={"diagnosis": [invalid_diagnosis]}
+    )
     assert response.status_code == 422
 
 
@@ -203,7 +205,7 @@ def test_query_valid_assessment(
 
     monkeypatch.setattr(crud, "post_subjects", mock_successful_post_subjects)
     response = test_app.post(
-        url=ROUTE, json={"assessment": "nb:cogAtlas-1234"}
+        url=ROUTE, json={"assessment": ["nb:cogAtlas-1234"]}
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -220,7 +222,7 @@ def test_query_invalid_assessment(
 
     monkeypatch.setattr(crud, "post_subjects", mock_post_subjects)
     response = test_app.post(
-        url=ROUTE, json={"assessment": invalid_assessment}
+        url=ROUTE, json={"assessment": [invalid_assessment]}
     )
     assert response.status_code == 422
 
@@ -246,7 +248,7 @@ def test_query_valid_available_image_modal(
 
     monkeypatch.setattr(crud, "post_subjects", mock_successful_post_subjects)
     response = test_app.post(
-        url=ROUTE, json={"image_modal": valid_available_image_modal}
+        url=ROUTE, json={"image_modal": [valid_available_image_modal]}
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -269,7 +271,7 @@ def test_query_valid_unavailable_image_modal(
     monkeypatch.setattr(crud, "post_subjects", mock_post_subjects)
     response = test_app.post(
         url=ROUTE,
-        json={"image_modal": valid_unavailable_image_modal},
+        json={"image_modal": [valid_unavailable_image_modal]},
     )
 
     assert response.status_code == 200
@@ -291,7 +293,7 @@ def test_query_invalid_image_modal(
 
     monkeypatch.setattr(crud, "post_subjects", mock_post_subjects)
     response = test_app.post(
-        url=ROUTE, json={"image_modal": invalid_image_modal}
+        url=ROUTE, json={"image_modal": [invalid_image_modal]}
     )
     assert response.status_code == 422
 
@@ -314,7 +316,7 @@ def test_query_undefined_prefix_image_modal(
 
     monkeypatch.setattr(crud, "post_subjects", mock_post_with_exception)
     response = test_app.post(
-        url=ROUTE, json={"image_modal": undefined_prefix_image_modal}
+        url=ROUTE, json={"image_modal": [undefined_prefix_image_modal]}
     )
     assert response.status_code == 500
 
@@ -334,7 +336,11 @@ def test_query_valid_pipeline_version(
     monkeypatch.setattr(crud, "post_subjects", mock_successful_post_subjects)
     response = test_app.post(
         url=ROUTE,
-        json={"pipeline_version": valid_pipeline_version},
+        json={
+            "pipeline": [
+                {"name": "np:freesurfer", "version": valid_pipeline_version}
+            ]
+        },
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -349,12 +355,21 @@ def test_query_invalid_pipeline_version(
     disable_auth,
     invalid_pipeline_version,
 ):
-    """Given an invalid pipeline version, returns a 422 status code."""
+    """
+    Given a pipeline version that does not match the expected format X.X.X,
+    returns a 422 status code.
+
+    TODO: Revisit if the current regex is too strict. See VERSION_REGEX in app/api/models.py.
+    """
 
     monkeypatch.setattr(crud, "post_subjects", mock_post_subjects)
     response = test_app.post(
         url=ROUTE,
-        json={"pipeline_version": invalid_pipeline_version},
+        json={
+            "pipeline": [
+                {"name": "np:freesurfer", "version": invalid_pipeline_version}
+            ]
+        },
     )
     assert response.status_code == 422
 
@@ -373,7 +388,7 @@ def test_query_valid_pipeline_name(
 
     monkeypatch.setattr(crud, "post_subjects", mock_successful_post_subjects)
     response = test_app.post(
-        url=ROUTE, json={"pipeline_name": valid_pipeline_name}
+        url=ROUTE, json={"pipeline": [{"name": valid_pipeline_name}]}
     )
     assert response.status_code == 200
     assert response.json() != []
@@ -395,18 +410,18 @@ def test_query_invalid_pipeline_name(
     monkeypatch.setattr(crud, "post_subjects", mock_post_subjects)
     response = test_app.post(
         url=ROUTE,
-        json={"pipeline_name": invalid_pipeline_name},
+        json={"pipeline": [{"name": invalid_pipeline_name}]},
     )
     assert response.status_code == 422
 
 
 @pytest.mark.parametrize(
-    "valid_pipeline_name, valid_pipeline_version",
+    "valid_pipeline",
     [
-        ("np:fmriprep", "v2.0.1"),
-        ("np:fmriprep", "23.1.3"),
-        ("np:freesurfer", "7.3.2"),
-        ("np:freesurfer", "8.7.0-rc"),
+        {"name": "np:fmriprep", "version": "v2.0.1"},
+        {"name": "np:fmriprep", "version": "23.1.3"},
+        {"name": "np:freesurfer", "version": "7.3.2"},
+        {"name": "np:freesurfer", "version": "8.7.0-rc"},
     ],
 )
 def test_query_valid_pipeline_name_version(
@@ -414,18 +429,14 @@ def test_query_valid_pipeline_name_version(
     mock_successful_post_subjects,
     monkeypatch,
     disable_auth,
-    valid_pipeline_name,
-    valid_pipeline_version,
+    valid_pipeline,
 ):
     """Given a valid pipeline name and version, returns a 200 status code and a non-empty list of results."""
 
     monkeypatch.setattr(crud, "post_subjects", mock_successful_post_subjects)
     response = test_app.post(
         url=ROUTE,
-        json={
-            "pipeline_name": valid_pipeline_name,
-            "pipeline_version": valid_pipeline_version,
-        },
+        json={"pipeline": [valid_pipeline]},
     )
     assert response.status_code == 200
     assert response.json() != []
