@@ -1,12 +1,18 @@
-from typing import Literal
+import re
+from typing import ClassVar, Literal
 
 from pydantic import BaseModel
-from pydantic.alias_generators import to_snake
 
+CAMEL_TO_SNAKE_PATTERN = re.compile(r"(?<!^)(?=[A-Z])")
 SPARQL_SELECTED_VARS = [
     "dataset",
     "subject",
 ]
+
+
+def to_snake(name: str) -> str:
+    """Convert a PascalCase class name to a snake_case SPARQL variable without separating digits."""
+    return CAMEL_TO_SNAKE_PATTERN.sub("_", name).lower()
 
 
 def format_value(value):
@@ -24,6 +30,10 @@ def get_select_variables(variables: list[str]) -> str:
 
 
 class SPARQLSerializable(BaseModel):
+    # Whether to use numbered variables for nested objects of this class in the SPARQL query.
+    # If True, the first object will be represented as ?class_name1, the second as ?class_name2, etc.
+    use_numbered_var: ClassVar[bool] = False
+
     def to_triples(self, var_name: str) -> list[str]:
         """
         Recursively flatten a model instance into SPARQL triples,
@@ -33,42 +43,62 @@ class SPARQLSerializable(BaseModel):
         """
         var_name = to_snake(var_name)
         triples = []
-        schema_key = getattr(self, "schemaKey", None)
-        if schema_key:
+
+        if schema_key := getattr(self, "schemaKey", None):
             triples.extend([f"{var_name} a nb:{schema_key}."])
 
         for field in type(self).model_fields:
-            value = getattr(self, field)
             if field == "schemaKey":
                 continue
 
+            value = getattr(self, field)
             predicate = f"nb:{field}"
-            if isinstance(value, SPARQLSerializable):
-                # If the field contains a nested object, skip adding triples if the nested object is empty
-                # (from https://github.com/pydantic/pydantic/discussions/4613)
-                if not any(
-                    value.model_dump(
-                        exclude_none=True, exclude_defaults=True
-                    ).values()
-                ):
-                    continue
-                # TODO: If we wanted to skip running the name conversion for each nested object,
-                # or be able to customize the variable name,
-                # we could add a var_name field to SPARQLSerializable and set it per class
-                nested_var = f"?{to_snake(value.__class__.__name__)}"
-                triples.extend([f"{var_name} {predicate} {nested_var}."])
-                triples.extend(value.to_triples(nested_var))
-            elif isinstance(value, str):
-                formatted_value = format_value(value)
-                triples.extend([f"{var_name} {predicate} {formatted_value}."])
+
+            values = value if isinstance(value, list) else [value]
+
+            var_count = 0
+            for filter_value in values:
+                if isinstance(filter_value, SPARQLSerializable):
+                    # If the field contains a nested object, skip adding triples if the nested object is empty
+                    # (from https://github.com/pydantic/pydantic/discussions/4613)
+                    if not any(
+                        filter_value.model_dump(
+                            exclude_none=True, exclude_defaults=True
+                        ).values()
+                    ):
+                        continue
+                    # TODO: If we wanted to skip running the name conversion for each nested object,
+                    # or be able to customize the variable name,
+                    # we could add a var_name field to SPARQLSerializable and set it per class
+                    snake_class_name = to_snake(
+                        filter_value.__class__.__name__
+                    )
+                    if filter_value.use_numbered_var:
+                        var_count += 1
+                        nested_var = f"?{snake_class_name}{var_count}"
+                    else:
+                        nested_var = f"?{snake_class_name}"
+
+                    triples.extend([f"{var_name} {predicate} {nested_var}."])
+                    triples.extend(filter_value.to_triples(nested_var))
+
+                elif isinstance(filter_value, str):
+                    formatted_filter_value = format_value(filter_value)
+                    triples.extend(
+                        [f"{var_name} {predicate} {formatted_filter_value}."]
+                    )
         return triples
 
 
 class Acquisition(SPARQLSerializable):
+    use_numbered_var: ClassVar[bool] = True
+
     hasContrastType: str | None
 
 
 class Pipeline(SPARQLSerializable):
+    use_numbered_var: ClassVar[bool] = True
+
     hasPipelineName: str | None
     hasPipelineVersion: str | None
 
@@ -92,8 +122,8 @@ class Age(SPARQLSerializable):
 
 class PhenotypicSession(SPARQLSerializable):
     hasSex: str | None
-    hasDiagnosis: str | None
-    hasAssessment: str | None
+    hasDiagnosis: list[str]
+    hasAssessment: list[str]
     hasAge: Age
     # This field is included as part of PhenotypicSession so that to_triples() knows to
     # add the type triple for PhenotypicSession when this field is set
@@ -102,8 +132,8 @@ class PhenotypicSession(SPARQLSerializable):
 
 
 class ImagingSession(SPARQLSerializable):
-    hasAcquisition: Acquisition
-    hasCompletedPipeline: Pipeline
+    hasAcquisition: list[Acquisition]
+    hasCompletedPipeline: list[Pipeline]
     # This field is included as part of ImagingSession so that to_triples() knows to
     # add the type triple for ImagingSession when this field is set
     min_num_imaging_sessions: int | None = None

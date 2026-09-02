@@ -283,7 +283,7 @@ def test_datasets_query_response_shape_is_correct_in_catalog_mode(
     )
 
     response = test_app.post(
-        ROUTE, json={"assessment": "snomed:342061000000106"}
+        ROUTE, json={"assessment": ["snomed:342061000000106"]}
     )
     response = response.json()
 
@@ -313,9 +313,9 @@ def test_datasets_query_response_shape_is_correct_in_catalog_mode(
 @pytest.mark.parametrize(
     "query_body",
     [
-        {"min_age": 20, "image_modal": "nidm:T1Weighted"},
-        {"pipeline_name": "np:fmriprep"},
-        {"pipeline_name": "np:fmriprep", "pipeline_version": "23.2.0"},
+        {"min_age": 20, "image_modal": ["nidm:T1Weighted"]},
+        {"pipeline": [{"name": "np:fmriprep"}]},
+        {"pipeline": [{"name": "np:fmriprep", "version": "23.2.0"}]},
     ],
 )
 def test_imaging_query_parameters_return_no_results_in_catalog_mode(
@@ -374,10 +374,92 @@ def test_compact_uri_query_succeeds(
 
     with test_app:
         response = test_app.post(
-            url=ROUTE, json={"image_modal": modality_with_prefix}
+            url=ROUTE, json={"image_modal": [modality_with_prefix]}
         )
 
     matching_ds = response.json()[0]
 
     assert response.status_code == 200
     assert matching_ds["num_matching_subjects"] > 0
+
+
+def test_phenotypic_and_type_query_returns_correct_results_in_catalog_mode(
+    test_app,
+    mock_context,
+    disable_auth,
+    monkeypatch,
+):
+    """
+    Test that an AND query correctly matches datasets with all specified filter terms in catalog mode.
+    """
+    mock_datasets_metadata = {
+        "nb:18532368-82dc-42ac-b4fb-fbb187ad6ae1": {
+            "dataset_name": "BIDS synthetic",
+            "participant_count": 5,
+            "repository_url": "https://github.com/bids-standard/bids-examples.git",
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": [
+                "snomed:859351000000102",
+                "snomed:342061000000106",
+            ],
+            "age_range": {"minimum": 21.0, "maximum": 42.0},
+        },
+        "nb:80af4d30-0447-4f13-9eaf-98ae8065895a": {
+            "dataset_name": "Rhyme judgment",
+            "access_link": "https://github.com/OpenNeuroDatasets-JSONLD/ds000003.git",
+            "participant_count": 10,
+            "available_sex": ["snomed:248153007", "snomed:248152002"],
+            "available_diagnoses": ["snomed:406506008", "ncit:C94342"],
+            "available_assessments": ["snomed:859351000000102"],
+            "age_range": {"minimum": 60.0, "maximum": 80.0},
+        },
+    }
+
+    monkeypatch.setattr(settings, "catalog_mode", True)
+    monkeypatch.setattr(
+        env_settings, "DATASETS_METADATA", mock_datasets_metadata
+    )
+
+    response = test_app.post(
+        ROUTE,
+        json={
+            "assessment": ["snomed:859351000000102", "snomed:342061000000106"]
+        },
+    )
+    response = response.json()
+
+    assert len(response) == 1
+    matching_dataset = response[0]
+
+    assert matching_dataset["dataset_name"] == "BIDS synthetic"
+
+
+def test_query_with_pipeline_version_but_no_name_returns_informative_error(
+    test_app, disable_auth
+):
+    """
+    Test that a query with a pipeline version but no name returns an error.
+    """
+    response = test_app.post(ROUTE, json={"pipeline": [{"version": "23.2.0"}]})
+
+    assert response.status_code == 422
+    assert "missing a corresponding 'name'" in response.json()["detail"]
+
+
+@pytest.mark.parametrize(
+    "pipeline_filter",
+    [
+        [{"version": ["23.2.0", "22.0.6"]}],
+        [{"invalidfield1": "np:fmriprep", "invalidfield2": "23.2.0"}],
+    ],
+)
+def test_query_with_invalid_pipeline_field_returns_error(
+    test_app, disable_auth, pipeline_filter
+):
+    """
+    Test that a query with an invalid pipeline filter returns an error.
+    """
+    response = test_app.post(ROUTE, json={"pipeline": pipeline_filter})
+
+    assert response.status_code == 422
