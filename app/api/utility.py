@@ -132,6 +132,31 @@ def create_bound_filter(var: str) -> str:
     return f"FILTER (BOUND(?{var})"
 
 
+def create_filter_exists_clause(filters: str) -> str:
+    """
+    Wrap a SPARQL filter string in a FILTER EXISTS clause if filters are present.
+    """
+    if filters:
+        return "\nFILTER EXISTS {" + filters + "\n}"
+    return filters
+
+
+def create_imaging_session_clause(imaging_filters: str) -> str:
+    """
+    Construct a SPARQL clause for imaging sessions, including filters if present.
+    """
+    imaging_session_clause = """
+?subject nb:hasSession ?imaging_session.
+?imaging_session a nb:ImagingSession.
+"""
+    imaging_filters_clause = create_filter_exists_clause(imaging_filters)
+
+    if not imaging_filters_clause:
+        return "\nOPTIONAL {" + imaging_session_clause + "\n}"
+
+    return imaging_session_clause + imaging_filters_clause
+
+
 def create_query(
     return_agg: bool,
     age: tuple[float | None, float | None],
@@ -199,20 +224,22 @@ def create_query(
 
     phenotypic_session_level_filters = ""
 
+    if age[0] is not None or age[1] is not None:
+        phenotypic_session_level_filters += (
+            f"\n?phenotypic_session nb:hasAge ?{AGE.var}."
+        )
     if age[0] is not None:
         phenotypic_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(AGE.var)} && ?{AGE.var} >= {age[0]})."
+            f"\nFILTER (?{AGE.var} >= {age[0]})."
         )
     if age[1] is not None:
         phenotypic_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(AGE.var)} && ?{AGE.var} <= {age[1]})."
+            f"\nFILTER (?{AGE.var} <= {age[1]})."
         )
 
     if sex is not None:
         phenotypic_session_level_filters += (
-            "\n" + f"{create_bound_filter(SEX.var)} && ?{SEX.var} = {sex})."
+            f"\n?phenotypic_session nb:hasSex {sex}."
         )
 
     if diagnosis:
@@ -278,13 +305,7 @@ def create_query(
                     ?subject nb:hasSession ?phenotypic_session.
                     ?phenotypic_session a nb:PhenotypicSession.
 
-                    OPTIONAL {{?phenotypic_session nb:hasAge ?age.}}
-                    OPTIONAL {{?phenotypic_session nb:hasSex ?sex.}}
-                    OPTIONAL {{?phenotypic_session nb:hasDiagnosis ?diagnosis.}}
-                    OPTIONAL {{?phenotypic_session nb:isSubjectGroup ?subject_group.}}
-                    OPTIONAL {{?phenotypic_session nb:hasAssessment ?assessment.}}
-
-                    {phenotypic_session_level_filters}
+                    {create_filter_exists_clause(phenotypic_session_level_filters)}
                 }} GROUP BY ?subject
             }}
 
@@ -297,22 +318,8 @@ def create_query(
                 SELECT ?subject (count(distinct ?imaging_session) as ?num_matching_imaging_sessions)
                 WHERE {{
                     ?subject a nb:Subject.
-                    OPTIONAL {{
-                        ?subject nb:hasSession ?imaging_session.
-                        ?imaging_session a nb:ImagingSession.
 
-                        OPTIONAL {{
-                            ?imaging_session nb:hasAcquisition ?acquisition.
-                            ?acquisition nb:hasContrastType ?image_modal.
-                        }}
-
-                        OPTIONAL {{
-                            ?imaging_session nb:hasCompletedPipeline ?pipeline.
-                            ?pipeline nb:hasPipelineName ?pipeline_name;
-                            nb:hasPipelineVersion ?pipeline_version.
-                        }}
-                    }}
-                    {imaging_session_level_filters}
+                    {create_imaging_session_clause(imaging_session_level_filters)}
                 }} GROUP BY ?subject
             }}
             {subject_level_filters}
