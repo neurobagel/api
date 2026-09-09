@@ -72,12 +72,6 @@ def test_unpack_graph_response_json_to_dicts():
     ]
 
 
-def test_bound_filter_created_correctly():
-    """Test that the function creates a valid SPARQL filter substring given a variable name."""
-    var = "subject_group"
-    assert util.create_bound_filter(var) == "FILTER (BOUND(?subject_group)"
-
-
 def test_combine_sparql_query_results():
     """
     Test that combine_sparql_query_results correctly returns rows common to multiple query result tables

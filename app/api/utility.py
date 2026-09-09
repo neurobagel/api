@@ -124,14 +124,6 @@ def unpack_graph_response_json_to_dicts(response: dict) -> list[dict]:
     ]
 
 
-def create_bound_filter(var: str) -> str:
-    """
-    Create a SPARQL filter substring for checking if a variable is bound
-    (meaning the variable actually has a corresponding value, e.g., the property exists).
-    """
-    return f"FILTER (BOUND(?{var})"
-
-
 def create_filter_exists_clause(filters: str) -> str:
     """
     Wrap a SPARQL filter string in a FILTER EXISTS clause if filters are present.
