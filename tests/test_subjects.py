@@ -305,6 +305,6 @@ def test_and_query_returns_correct_matching_subjects(
     for matching_ses in matching_ds["subject_data"]:
         assert matching_ses["sub_id"] in expected_matching_subjects
         assert (
-            len(matching_ses["num_matching_imaging_sessions"])
+            matching_ses["num_matching_imaging_sessions"]
             == expected_num_matching_imaging_sessions
         )
