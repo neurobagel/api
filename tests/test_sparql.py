@@ -355,7 +355,7 @@ def test_create_sparql_queries_for_datasets(
         ),
     ],
 )
-def test_phenotypic_and_type_sparql_queries(
+def test_and_queries_sparql_for_phenotypic_variables(
     datasets_request_body, sparql_query_statements
 ):
     """
@@ -446,7 +446,7 @@ def test_phenotypic_and_type_sparql_queries(
         ),
     ],
 )
-def test_imaging_and_type_sparql_queries(
+def test_and_queries_sparql_for_imaging_variables(
     datasets_request_body, sparql_query_statements
 ):
     """

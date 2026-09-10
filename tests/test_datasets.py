@@ -435,7 +435,7 @@ def test_phenotypic_and_type_query_returns_correct_results_in_catalog_mode(
     assert matching_dataset["dataset_name"] == "BIDS synthetic"
 
 
-def test_query_with_pipeline_version_but_no_name_returns_informative_error(
+def test_pipeline_query_with_version_but_without_name_returns_informative_error(
     test_app, disable_auth
 ):
     """
