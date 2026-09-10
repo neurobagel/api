@@ -218,38 +218,39 @@ def create_query(
 
     if age[0] is not None or age[1] is not None:
         phenotypic_session_level_filters += (
-            f"\n?phenotypic_session nb:hasAge ?{AGE.var}."
+            "\n" + f"?phenotypic_session nb:hasAge ?{AGE.var}."
         )
     if age[0] is not None:
         phenotypic_session_level_filters += (
-            f"\nFILTER (?{AGE.var} >= {age[0]})."
+            "\n" + f"FILTER (?{AGE.var} >= {age[0]})."
         )
     if age[1] is not None:
         phenotypic_session_level_filters += (
-            f"\nFILTER (?{AGE.var} <= {age[1]})."
+            "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
         )
 
     if sex is not None:
         phenotypic_session_level_filters += (
-            f"\n?phenotypic_session nb:hasSex {sex}."
+            "\n" + f"?phenotypic_session nb:hasSex {sex}."
         )
 
     if diagnosis:
         phenotypic_session_level_filters += "".join(
-            f"\n?phenotypic_session nb:hasDiagnosis {diagnosis_value}."
+            "\n" + f"?phenotypic_session nb:hasDiagnosis {diagnosis_value}."
             for diagnosis_value in diagnosis
         )
 
     if assessment:
         phenotypic_session_level_filters += "".join(
-            f"\n?phenotypic_session nb:hasAssessment {assessment_value}."
+            "\n" + f"?phenotypic_session nb:hasAssessment {assessment_value}."
             for assessment_value in assessment
         )
 
     imaging_session_level_filters = ""
     if image_modal:
         imaging_session_level_filters += "".join(
-            f"\n?imaging_session nb:hasAcquisition/nb:hasContrastType {image_modal_value}."
+            "\n"
+            + f"?imaging_session nb:hasAcquisition/nb:hasContrastType {image_modal_value}."
             for image_modal_value in image_modal
         )
 
@@ -260,11 +261,16 @@ def create_query(
 
             if pipeline_name is not None:
                 imaging_session_level_filters += (
-                    f"\n?imaging_session nb:hasCompletedPipeline ?pipeline{pipeline_count}."
-                    f"\n?pipeline{pipeline_count} nb:hasPipelineName {pipeline_name}."
+                    "\n"
+                    + f"?imaging_session nb:hasCompletedPipeline ?pipeline{pipeline_count}."
+                    "\n"
+                    + f"?pipeline{pipeline_count} nb:hasPipelineName {pipeline_name}."
                 )
                 if pipeline_version is not None:
-                    imaging_session_level_filters += f'\n?pipeline{pipeline_count} nb:hasPipelineVersion "{pipeline_version}".'
+                    imaging_session_level_filters += (
+                        "\n"
+                        + f'?pipeline{pipeline_count} nb:hasPipelineVersion "{pipeline_version}".'
+                    )
 
     query_string = textwrap.dedent(f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
@@ -725,7 +731,7 @@ def catalog_dataset_matches_categorical_filter(
     dataset_terms = dataset.get(terms_field, [])
 
     field_filter = (
-        [field_filter] if isinstance(field_filter, str) else field_filter
+        field_filter if isinstance(field_filter, list) else [field_filter]
     )
     return all(value in dataset_terms for value in field_filter)
 
