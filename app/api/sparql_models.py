@@ -11,7 +11,10 @@ SPARQL_SELECTED_VARS = [
 
 
 def to_snake(name: str) -> str:
-    """Convert a PascalCase class name to a snake_case SPARQL variable without separating digits."""
+    """
+    Convert a PascalCase class name to a snake_case SPARQL variable without separating digits
+    (unlike the to_snake utility from pydantic)
+    """
     return CAMEL_TO_SNAKE_PATTERN.sub("_", name).lower()
 
 
@@ -31,6 +34,7 @@ def get_select_variables(variables: list[str]) -> str:
 
 class SPARQLSerializable(BaseModel):
     # Whether to use numbered variables for nested objects of this class in the SPARQL query.
+    # This is needed for classes that can have multiple instances per session (e.g., pipeline, acquisition).
     # If True, the first object will be represented as ?class_name1, the second as ?class_name2, etc.
     use_numbered_var: ClassVar[bool] = False
 
