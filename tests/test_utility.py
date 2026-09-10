@@ -488,3 +488,41 @@ def test_create_query_with_multiple_filters_for_same_field():
             "?pipeline2 nb:hasPipelineName np:freesurfer.",
         ]
     )
+
+
+@pytest.mark.parametrize(
+    "imaging_filters,expected_sparql_clause",
+    [
+        (
+            "",
+            [
+                "OPTIONAL {",
+                "?subject nb:hasSession ?imaging_session.",
+                "?imaging_session a nb:ImagingSession.",
+                "}",
+            ],
+        ),
+        (
+            "?imaging_session nb:hasAcquisition/nb:hasContrastType nidm:T1Weighted.",
+            [
+                "?subject nb:hasSession ?imaging_session.",
+                "?imaging_session a nb:ImagingSession.",
+                "FILTER EXISTS {",
+                "?imaging_session nb:hasAcquisition/nb:hasContrastType nidm:T1Weighted.",
+                "}",
+            ],
+        ),
+    ],
+)
+def test_create_imaging_session_clause(
+    imaging_filters, expected_sparql_clause
+):
+    """
+    Test that a correctly structured SPARQL clause is created for imaging sessions
+    when imaging filters are present vs absent in the query request.
+    """
+    imaging_session_sparql_clause = util.create_imaging_session_clause(
+        imaging_filters
+    )
+    for expected_statement in expected_sparql_clause:
+        assert expected_statement in imaging_session_sparql_clause
