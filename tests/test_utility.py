@@ -416,7 +416,7 @@ def test_find_matching_term_in_vocab(
         ),
     ],
 )
-def test_contains_filters(
+def test_contains_filters_correctly_identifies_filter_types(
     request_body,
     expected_contains_phenotypic_filters,
     expected_contains_imaging_filters,
