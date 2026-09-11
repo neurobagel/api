@@ -33,7 +33,7 @@ dependencies = [
     "fastapi[standard]",
     "pydantic>=2.10,<3",
     "pydantic-settings",
-    "pandas",
+    "pandas<3",
     "numpy",
     "PyJWT",
     "typing-extensions"
