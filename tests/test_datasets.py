@@ -383,7 +383,7 @@ def test_compact_uri_query_succeeds(
     assert matching_ds["num_matching_subjects"] > 0
 
 
-def test_phenotypic_and_type_query_returns_correct_results_in_catalog_mode(
+def test_and_query_works_for_phenotypic_variables_in_catalog_mode(
     test_app,
     mock_context,
     disable_auth,
@@ -447,11 +447,14 @@ def test_pipeline_query_with_version_but_without_name_returns_informative_error(
     assert "missing a corresponding 'name'" in response.json()["detail"]
 
 
+# TODO: Once https://github.com/neurobagel/api/issues/492 is addressed,
+# we can add a test case for the legacy pipeline filter format with "pipeline_name" and "pipeline_version"
+# keys, which should be rejected with an error.
 @pytest.mark.parametrize(
     "pipeline_filter",
     [
-        [{"version": ["23.2.0", "22.0.6"]}],
-        [{"invalidfield1": "np:fmriprep", "invalidfield2": "23.2.0"}],
+        {"name": "np:fmriprep", "version": ["23.2.0", "22.0.6"]},
+        {"invalidfield1": "np:fmriprep", "invalidfield2": "23.2.0"},
     ],
 )
 def test_query_with_invalid_pipeline_field_returns_error(
@@ -460,6 +463,6 @@ def test_query_with_invalid_pipeline_field_returns_error(
     """
     Test that a query with an invalid pipeline filter returns an error.
     """
-    response = test_app.post(ROUTE, json={"pipeline": pipeline_filter})
+    response = test_app.post(ROUTE, json={"pipeline": [pipeline_filter]})
 
     assert response.status_code == 422
