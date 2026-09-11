@@ -153,7 +153,7 @@ def create_query(
     return_agg: bool,
     age: tuple[float | None, float | None],
     sex: str | None,
-    diagnosis: list[str] | None,
+    diagnosis: list[str],
     min_num_imaging_sessions: int | None,
     min_num_phenotypic_sessions: int | None,
     assessment: list[str],
@@ -168,23 +168,23 @@ def create_query(
     ----------
     return_agg : bool
         Whether to return only aggregate query results (and not subject-level attributes besides file paths).
-    age : tuple[float | None, float | None
+    age : tuple[float | None, float | None]
         Minimum and maximum age of subject, by default (None, None).
-    sex : str
+    sex : str | None
         Subject sex, by default None.
     diagnosis : list[str]
-        Subject diagnosis, by default None.
-    min_num_imaging_sessions : int
+        Subject diagnosis.
+    min_num_imaging_sessions : int | None
         Subject minimum number of imaging sessions, by default None.
-    min_num_phenotypic_sessions : int
+    min_num_phenotypic_sessions : int | None
         Subject minimum number of phenotypic sessions, by default None.
     assessment : list[str]
-        Non-imaging assessment completed by subjects, by default None.
+        Non-imaging assessment completed by subjects.
     image_modal : list[str]
-        Imaging modality of subject scans, by default None.
+        Imaging modality of subject scans.
     pipeline : list[dict[str, str]]
-        Pipeline run on subject scans, by default None.
-    dataset_uuids : list[str]
+        Pipeline run on subject scans.
+    dataset_uuids : list[str] | None
         List of datasets to restrict the query to, by default None (all datasets).
 
     Returns
