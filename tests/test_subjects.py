@@ -277,7 +277,8 @@ def test_and_query_returns_correct_matching_subjects(
     set_graph_url_vars_for_integration_tests,
 ):
     """
-    Test that the /subjects endpoint returns the correct matching subjects for an AND query.
+    Test that the /subjects endpoint returns the correct matching subjects for an AND query,
+    in this case containing imaging variable filters.
     """
     monkeypatch.setattr(settings, "return_agg", False)
 
