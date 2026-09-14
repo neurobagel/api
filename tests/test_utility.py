@@ -5,7 +5,12 @@ import pandas.testing as pdt
 import pytest
 
 from app.api import utility as util
-from app.api.models import DatasetsQueryModel
+from app.api.models import (
+    IMAGING_FILTERS,
+    PHENOTYPIC_FILTERS,
+    DatasetsQueryModel,
+    PipelineQuery,
+)
 
 
 def test_unpack_graph_response_json_to_dicts():
@@ -65,12 +70,6 @@ def test_unpack_graph_response_json_to_dicts():
             "total_subjects": "84",
         },
     ]
-
-
-def test_bound_filter_created_correctly():
-    """Test that the function creates a valid SPARQL filter substring given a variable name."""
-    var = "subject_group"
-    assert util.create_bound_filter(var) == "FILTER (BOUND(?subject_group)"
 
 
 def test_combine_sparql_query_results():
@@ -173,8 +172,8 @@ def test_sparql_context_correctly_added_to_query_body(mock_context):
 @pytest.mark.parametrize(
     "assessment_filter, expected_match_result",
     [
-        ("snomed:11111", True),
-        ("snomed:NOTFOUND", False),
+        (["snomed:11111"], True),
+        (["snomed:NOTFOUND"], False),
         (
             None,
             True,
@@ -197,10 +196,10 @@ def test_term_in_catalog_dataset_attributes(
         "age_range": {"minimum": 21.0, "maximum": 42.0},
     }
     assert (
-        util.catalog_dataset_has_term(
+        util.catalog_dataset_matches_categorical_filter(
             dataset=mock_catalog_dataset_info,
             terms_field="available_assessments",
-            query_term=assessment_filter,
+            field_filter=assessment_filter,
         )
         == expected_match_result
     )
@@ -271,11 +270,11 @@ def test_dataset_with_no_age_range_matches_query_without_age_filters():
 @pytest.mark.parametrize(
     "query_fields,expected_match_result",
     [
-        ({"assessment": "snomed:11111", "min_age": 20}, True),
+        ({"assessment": ["snomed:11111"], "min_age": 20}, True),
         (
             {
-                "assessment": "snomed:11111",
-                "diagnosis": "snomed:otherdiagnosis",
+                "assessment": ["snomed:11111"],
+                "diagnosis": ["snomed:otherdiagnosis"],
             },
             False,
         ),
@@ -376,3 +375,154 @@ def test_find_matching_term_in_vocab(
         )
         == expected_result
     )
+
+
+@pytest.mark.parametrize(
+    "request_body,expected_contains_phenotypic_filters,expected_contains_imaging_filters",
+    [
+        (
+            {
+                "diagnosis": ["snomed:67890"],
+                "assessment": ["snomed:11111"],
+            },
+            True,
+            False,
+        ),
+        (
+            {
+                "image_modal": ["nidm:T1Weighted", "nidm:T2Weighted"],
+            },
+            False,
+            True,
+        ),
+        (
+            {
+                "min_age": 18,
+                "max_age": 25,
+                "image_modal": ["nidm:T1Weighted", "nidm:T2Weighted"],
+            },
+            True,
+            True,
+        ),
+        (
+            {
+                "diagnosis": [],
+                "assessment": [],
+                "image_modal": [],
+                "pipeline": [{}],
+            },
+            False,
+            False,
+        ),
+    ],
+)
+def test_contains_filters_correctly_identifies_filter_types(
+    request_body,
+    expected_contains_phenotypic_filters,
+    expected_contains_imaging_filters,
+):
+    query = DatasetsQueryModel(**request_body)
+    assert (
+        util.contains_filters(query, PHENOTYPIC_FILTERS)
+        is expected_contains_phenotypic_filters
+    )
+    assert (
+        util.contains_filters(query, IMAGING_FILTERS)
+        is expected_contains_imaging_filters
+    )
+
+
+def test_create_query_with_multiple_filters_for_same_field():
+    """
+    Test that create_query creates correct AND query SPARQL statements from a query request
+    containing multiple filters for the same phenotypic field.
+    """
+
+    sparql_query = util.create_query(
+        return_agg=True,
+        age=(None, None),
+        sex=None,
+        diagnosis=["snomed:12345", "snomed:67890"],
+        min_num_imaging_sessions=None,
+        min_num_phenotypic_sessions=None,
+        assessment=["snomed:11111", "snomed:22222"],
+        image_modal=["nidm:T1Weighted", "nidm:T2Weighted"],
+        pipeline=[
+            PipelineQuery(name="np:fmriprep", version="21.0.0"),
+            PipelineQuery(name="np:freesurfer"),
+        ],
+        dataset_uuids=None,
+    )
+
+    assert all(
+        diagnosis_filter_statement in sparql_query
+        for diagnosis_filter_statement in [
+            "?phenotypic_session nb:hasDiagnosis snomed:12345.",
+            "?phenotypic_session nb:hasDiagnosis snomed:67890.",
+        ]
+    )
+
+    assert all(
+        assessment_filter_statement in sparql_query
+        for assessment_filter_statement in [
+            "?phenotypic_session nb:hasAssessment snomed:11111.",
+            "?phenotypic_session nb:hasAssessment snomed:22222.",
+        ]
+    )
+
+    assert all(
+        image_modal_filter_statement in sparql_query
+        for image_modal_filter_statement in [
+            "?imaging_session nb:hasAcquisition/nb:hasContrastType nidm:T1Weighted.",
+            "?imaging_session nb:hasAcquisition/nb:hasContrastType nidm:T2Weighted.",
+        ]
+    )
+
+    assert all(
+        pipeline_filter_statement in sparql_query
+        for pipeline_filter_statement in [
+            "?imaging_session nb:hasCompletedPipeline ?pipeline1.",
+            "?pipeline1 nb:hasPipelineName np:fmriprep.",
+            '?pipeline1 nb:hasPipelineVersion "21.0.0".',
+            "?imaging_session nb:hasCompletedPipeline ?pipeline2.",
+            "?pipeline2 nb:hasPipelineName np:freesurfer.",
+        ]
+    )
+
+
+@pytest.mark.parametrize(
+    "imaging_filters,expected_sparql_clause",
+    [
+        (
+            "",
+            [
+                "OPTIONAL {",
+                "?subject nb:hasSession ?imaging_session.",
+                "?imaging_session a nb:ImagingSession.",
+                "}",
+            ],
+        ),
+        (
+            "?imaging_session nb:hasAcquisition/nb:hasContrastType nidm:T1Weighted.",
+            [
+                "?subject nb:hasSession ?imaging_session.",
+                "?imaging_session a nb:ImagingSession.",
+                "FILTER EXISTS {",
+                "?imaging_session nb:hasAcquisition/nb:hasContrastType nidm:T1Weighted.",
+                "}",
+            ],
+        ),
+    ],
+)
+def test_create_imaging_session_clause(
+    imaging_filters, expected_sparql_clause
+):
+    """
+    Test that a correctly structured SPARQL clause is created for imaging sessions
+    when imaging filters are present vs absent in the query request.
+    """
+    imaging_session_sparql_clause = util.create_imaging_session_clause(
+        imaging_filters
+    )
+    for expected_statement in expected_sparql_clause:
+        assert expected_statement in imaging_session_sparql_clause

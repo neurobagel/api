@@ -1,6 +1,7 @@
 """Data models."""
 
 from enum import Enum
+from typing import Annotated
 
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, ConfigDict, Field, RootModel, model_validator
@@ -24,10 +25,34 @@ PHENOTYPIC_FILTERS = [
 ]
 IMAGING_FILTERS = [
     "image_modal",
-    "pipeline_name",
-    "pipeline_version",
+    "pipeline",
     "min_num_imaging_sessions",
 ]
+
+
+class PipelineQuery(BaseModel):
+    """Data model for a pipeline query filter."""
+
+    name: str | None = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    version: str | None = Field(
+        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+    @model_validator(mode="after")
+    def check_pipeline_has_name(self) -> Self:
+        """
+        If a pipeline version is specified, ensure that a pipeline name is also provided.
+        """
+        if self.version is not None and self.name is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Pipeline 'version' is missing a corresponding 'name'.",
+            )
+        return self
 
 
 class DatasetsQueryModel(BaseModel):
@@ -42,22 +67,20 @@ class DatasetsQueryModel(BaseModel):
     sex: str | None = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    diagnosis: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    diagnosis: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
+        Field(default_factory=list, examples=[["vocab:12345"]])
     )
     min_num_imaging_sessions: int | None = Field(default=None, ge=0)
     min_num_phenotypic_sessions: int | None = Field(default=None, ge=0)
-    assessment: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    assessment: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
+        Field(default_factory=list, examples=[["vocab:12345"]])
     )
-    image_modal: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    image_modal: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
+        Field(default_factory=list, examples=[["vocab:12345"]])
     )
-    pipeline_name: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
-    )
-    pipeline_version: str | None = Field(
-        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
+    pipeline: list[PipelineQuery] = Field(
+        default_factory=list,
+        examples=[{"name": "vocab:12345", "version": "1.0.0"}],
     )
 
     @model_validator(mode="after")

@@ -267,3 +267,45 @@ def test_post_subjects_returns_no_matching_subjects_in_catalog_mode(
     response = test_app.post(ROUTE, json={})
     assert response.status_code == 200
     assert response.json() == []
+
+
+@pytest.mark.integration
+def test_and_query_returns_correct_matching_subjects(
+    test_app,
+    monkeypatch,
+    disable_auth,
+    set_graph_url_vars_for_integration_tests,
+):
+    """
+    Test that the /subjects endpoint returns the correct matching subjects for an AND query,
+    in this case containing imaging variable filters.
+    """
+    monkeypatch.setattr(settings, "return_agg", False)
+
+    # The Neurobagel example dataset has 5 subjects with 2 sessions each,
+    # but only 2 subjects have pipeline info and match the query below
+    expected_matching_subjects = ["sub-01", "sub-02"]
+    # Each matching subject should have 1/2 of their imaging sessions matching the query filters
+    expected_num_matching_imaging_sessions = 1
+
+    with test_app:
+        response = test_app.post(
+            url=ROUTE,
+            json={
+                "pipeline": [
+                    {"name": "np:fmriprep", "version": "23.1.3"},
+                    {"name": "np:freesurfer", "version": "7.3.2"},
+                ]
+            },
+        )
+
+    assert response.status_code == 200
+
+    matching_ds = response.json()[0]
+
+    for matching_ses in matching_ds["subject_data"]:
+        assert matching_ses["sub_id"] in expected_matching_subjects
+        assert (
+            matching_ses["num_matching_imaging_sessions"]
+            == expected_num_matching_imaging_sessions
+        )

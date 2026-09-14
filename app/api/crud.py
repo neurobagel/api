@@ -197,8 +197,7 @@ async def post_subjects(query: SubjectsQueryModel):
             min_num_imaging_sessions=query.min_num_imaging_sessions,
             assessment=query.assessment,
             image_modal=query.image_modal,
-            pipeline_version=query.pipeline_version,
-            pipeline_name=query.pipeline_name,
+            pipeline=query.pipeline,
             dataset_uuids=query.dataset_uuids,
         )
     )
@@ -354,8 +353,7 @@ async def query_dataset_catalog_attributes(
         query,
         [
             "image_modal",
-            "pipeline_name",
-            "pipeline_version",
+            "pipeline",
             "min_num_imaging_sessions",
             "min_num_phenotypic_sessions",
         ],
