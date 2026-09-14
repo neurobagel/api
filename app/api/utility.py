@@ -126,7 +126,8 @@ def unpack_graph_response_json_to_dicts(response: dict) -> list[dict]:
 
 def create_filter_exists_clause(filters: str) -> str:
     """
-    Wrap a SPARQL filter string in a FILTER EXISTS clause if filters are present.
+    If filters are present, wrap them in a SPARQL FILTER EXISTS clause to apply them as
+    boolean checks (i.e., checking for matching triples) on the session as an already-bound variable.
     """
     if filters:
         return "\nFILTER EXISTS {" + filters + "\n}"
@@ -135,7 +136,8 @@ def create_filter_exists_clause(filters: str) -> str:
 
 def create_imaging_session_clause(imaging_filters: str) -> str:
     """
-    Construct a SPARQL clause for imaging sessions, including filters if present.
+    Construct an optional SPARQL clause for imaging sessions.
+    If filters are defined that depend on the imaging session triples, make these triples required.
     """
     imaging_session_clause = """
 ?subject nb:hasSession ?imaging_session.
