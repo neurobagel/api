@@ -1,6 +1,9 @@
 ---
 name: validate citation.cff
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: ['*']
