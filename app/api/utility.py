@@ -450,14 +450,14 @@ def construct_matching_sub_results_for_dataset(
     return subject_data
 
 
-def create_terms_query(data_element_URI: str) -> str:
+def create_terms_query(std_var_uri: str) -> str:
     """
-    Creates a SPARQL query using a simple query template to retrieve term URLS for a given data element.
+    Creates a SPARQL query using a simple query template to retrieve term URLS for a given standardized variable.
 
     Parameters
     ----------
-    data_element_URI : str
-        The URI of the data element for which to retrieve the URIs of all connected term.
+    std_var_uri : str
+        The URI of the standardized variable for which to retrieve the URIs of all connected terms.
 
     Returns
     -------
@@ -468,8 +468,8 @@ def create_terms_query(data_element_URI: str) -> str:
     query_string = f"""
     SELECT DISTINCT ?termURL
     WHERE {{
-        ?termURL a {data_element_URI} .
-        {data_element_URI} rdfs:subClassOf nb:ControlledTerm .
+        ?termURL a {std_var_uri} .
+        {std_var_uri} rdfs:subClassOf nb:ControlledTerm .
     }}
     """
 
@@ -485,7 +485,7 @@ def is_term_namespace_in_context(
     Parameters
     ----------
     term_url : str
-        A controlled term URI.
+        A standardized term URI.
 
     has_prefix : bool, optional
         Whether the term URI includes a namespace prefix (as opposed to the full namespace URL).
@@ -512,7 +512,7 @@ def split_namespace_from_term_uri(
     Parameters
     ----------
     term : str
-        A controlled term URI.
+        A standardized term URI.
     has_prefix : bool, optional
         Whether the term URI includes a namespace prefix (as opposed to the full namespace URL), by default False.
 
@@ -540,7 +540,7 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
     Parameters
     ----------
     url : str
-        A controlled term URL.
+        A standardized term URL.
 
     Returns
     -------
@@ -562,7 +562,7 @@ def replace_namespace_prefix_with_uri(term: str) -> str:
     Parameters
     ----------
     term : str
-        A controlled term URI with a namespace prefix.
+        A standardized term URI with a namespace prefix.
 
     Returns
     -------
@@ -801,9 +801,9 @@ def find_matching_term_in_vocab(
     Parameters
     ----------
     term_url : str
-        The URL of the controlled term to find.
+        The URL of the standardized term to find.
     std_trm_vocab : list[dict]
-        The standardized term vocabulary containing metadata for controlled terms.
+        The standardized term vocabulary containing metadata for standardized terms.
 
     Returns
     -------
@@ -813,7 +813,7 @@ def find_matching_term_in_vocab(
     # First, check whether the instance of the standardized variable contains a recognized namespace
     if not is_term_namespace_in_context(term_url, has_prefix):
         logger.warning(
-            f"The controlled term {term_url} was found in a dataset but "
+            f"The standardized term {term_url} was found in a dataset but "
             "does not come from a vocabulary recognized by Neurobagel. "
             "This term will be ignored."
         )

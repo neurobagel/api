@@ -14,7 +14,7 @@ router = APIRouter(prefix="/pipelines", tags=["pipelines"])
 router.add_api_route(
     path="",
     endpoint=route_factory.create_get_instances_handler(
-        data_element_uri="nb:Pipeline"
+        std_var_uri="nb:Pipeline"
     ),
     methods=["GET"],
 )

@@ -167,8 +167,8 @@ class SubjectsQueryResponse(BaseModel):
     subject_data: list[SessionResponse] | str
 
 
-class DataElementURI(str, Enum):
-    """Data model for data element URIs that have available vocabularies."""
+class StandardizedVariableURI(str, Enum):
+    """Data model for standardized variable URIs that have available vocabularies."""
 
     assessment = "nb:Assessment"
     diagnosis = "nb:Diagnosis"
