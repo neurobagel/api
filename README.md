@@ -9,6 +9,7 @@
 [![License](https://img.shields.io/github/license/neurobagel/api?style=flat-square&color=purple&link=LICENSE)](LICENSE)
 [![Docker Image Version (tag)](https://img.shields.io/docker/v/neurobagel/api/latest?style=flat-square&logo=docker&link=https%3A%2F%2Fhub.docker.com%2Fr%2Fneurobagel%2Fapi%2Ftags)](https://hub.docker.com/r/neurobagel/api/tags)
 [![Docker Pulls](https://img.shields.io/docker/pulls/neurobagel/api?style=flat-square&logo=docker&link=https%3A%2F%2Fhub.docker.com%2Fr%2Fneurobagel%2Fapi%2Ftags)](https://hub.docker.com/r/neurobagel/api/tags)
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/neurobagel/api?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/neurobagel/api)
 
 </div>
 
