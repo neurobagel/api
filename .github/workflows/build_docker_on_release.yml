@@ -1,5 +1,8 @@
 name: build Docker image on release
 
+permissions:
+  contents: read
+
 on:
   release:
     types: [published]
@@ -7,8 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       -
