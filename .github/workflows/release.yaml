@@ -1,5 +1,8 @@
 name: auto release
 
+# Mainly setting permissions here to appease CodeQL and OSSF Scorecard
+# Actual job permissions come from the dedicated Token we generate in
+# generate-token (which also has privileges for more scopes)
 permissions:
   contents: read
 
