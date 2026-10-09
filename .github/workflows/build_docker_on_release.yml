@@ -1,5 +1,8 @@
 name: build Docker image on release
 
+permissions:
+  contents: read
+
 on:
   release:
     types: [published]
@@ -7,13 +10,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         # Some repos have submodules that need to be part of the Docker image
         with:
           submodules: recursive
