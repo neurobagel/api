@@ -39,7 +39,7 @@ Please refer to our [**official documentation**](https://neurobagel.org/user_gui
 The API is hosted at https://api.neurobagel.org/ and interfaces with Neurobagel's graph database. Queries of the graph can be run using the `/query` route.
 
 Example: **I want to query for only female participants in the graph.** 
-The URL for such a query would be https://api.neurobagel.org/query?sex=snomed:248152002, where `snomed:248152002` is a [controlled term from the SNOMED CT database](http://purl.bioontology.org/ontology/SNOMEDCT/248152002) corresponding to female sex.
+The URL for such a query would be https://api.neurobagel.org/query?sex=snomed:248152002, where `snomed:248152002` is a [standardized term from the SNOMED CT database](http://purl.bioontology.org/ontology/SNOMEDCT/248152002) corresponding to female sex.
 
 Interactive documentation for the API is available at https://api.neurobagel.org/docs.
 
