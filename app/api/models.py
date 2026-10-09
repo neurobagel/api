@@ -1,15 +1,10 @@
 """Data models."""
 
 from enum import Enum
-from typing import Optional, Union
+from typing import Annotated
 
 from fastapi.exceptions import HTTPException
-from pydantic import (
-    BaseModel,
-    Field,
-    RootModel,
-    model_validator,
-)
+from pydantic import BaseModel, ConfigDict, Field, RootModel, model_validator
 from typing_extensions import Self
 
 CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
@@ -30,41 +25,62 @@ PHENOTYPIC_FILTERS = [
 ]
 IMAGING_FILTERS = [
     "image_modal",
-    "pipeline_name",
-    "pipeline_version",
+    "pipeline",
     "min_num_imaging_sessions",
 ]
 
 
-# TODO: Consider renaming to DatasetsQueryModel once we deprecate the /query endpoint
-class QueryModel(BaseModel):
+class PipelineQuery(BaseModel):
+    """Data model for a pipeline query filter."""
+
+    name: str | None = Field(
+        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    )
+    version: str | None = Field(
+        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+    @model_validator(mode="after")
+    def check_pipeline_has_name(self) -> Self:
+        """
+        If a pipeline version is specified, ensure that a pipeline name is also provided.
+        """
+        if self.version is not None and self.name is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Pipeline 'version' is missing a corresponding 'name'.",
+            )
+        return self
+
+
+class DatasetsQueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
     # NOTE: extra query parameters are just ignored/have no effect
     # NOTE: Explicit examples are needed for fields requiring a URI to avoid random-string examples being generated
     # for the example request body in the interactive docs
 
-    min_age: float = Field(default=None, ge=0)
-    max_age: float = Field(default=None, ge=0)
-    sex: str = Field(
+    min_age: float | None = Field(default=None, ge=0)
+    max_age: float | None = Field(default=None, ge=0)
+    sex: str | None = Field(
         default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
     )
-    diagnosis: str = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    diagnosis: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
+        Field(default_factory=list, examples=[["vocab:12345"]])
     )
-    min_num_imaging_sessions: int = Field(default=None, ge=0)
-    min_num_phenotypic_sessions: int = Field(default=None, ge=0)
-    assessment: str = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    min_num_imaging_sessions: int | None = Field(default=None, ge=0)
+    min_num_phenotypic_sessions: int | None = Field(default=None, ge=0)
+    assessment: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
+        Field(default_factory=list, examples=[["vocab:12345"]])
     )
-    image_modal: str = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+    image_modal: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
+        Field(default_factory=list, examples=[["vocab:12345"]])
     )
-    pipeline_name: str = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
-    )
-    pipeline_version: str = Field(
-        default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
+    pipeline: list[PipelineQuery] = Field(
+        default_factory=list,
+        examples=[{"name": "vocab:12345", "version": "1.0.0"}],
     )
 
     @model_validator(mode="after")
@@ -90,7 +106,7 @@ class QueryModel(BaseModel):
         return self
 
 
-class SubjectsQueryModel(QueryModel):
+class SubjectsQueryModel(DatasetsQueryModel):
     # TODO: At the moment datasets always appears as the last field, after all other query parameters.
     # Revisit if we want to modify the order.
     # TODO: If we want to restrict the format of UUIDs further, we could use AnyURL or AnyHttpUrl
@@ -107,30 +123,14 @@ class SessionResponse(BaseModel):
     num_matching_phenotypic_sessions: int
     num_matching_imaging_sessions: int
     session_type: str
-    age: Optional[float]
-    sex: Optional[str]
+    age: float | None
+    sex: str | None
     diagnosis: list
-    subject_group: Optional[str]
+    subject_group: str | None
     assessment: list
     image_modal: list
-    session_file_path: Optional[str]
+    session_file_path: str | None
     completed_pipelines: dict
-
-
-class CohortQueryResponse(BaseModel):
-    """
-    Data model for legacy GET /query endpoint response, for backwards-compatibility only.
-    """
-
-    dataset_uuid: str
-    dataset_name: str
-    dataset_portal_uri: Optional[str]
-    dataset_total_subjects: int
-    records_protected: bool
-    num_matching_subjects: int
-    image_modals: list
-    available_pipelines: dict
-    subject_data: Union[list[SessionResponse], str]
 
 
 class DatasetQueryResponse(BaseModel):
@@ -140,26 +140,31 @@ class DatasetQueryResponse(BaseModel):
     # dataset_file_path: str  # TODO: Revisit this field once we have datasets without imaging info/sessions.
     dataset_name: str
     authors: list[str] = Field(default_factory=list)
-    homepage: Optional[str] = None
+    homepage: str | None = None
     references_and_links: list[str] = Field(default_factory=list)
     keywords: list[str] = Field(default_factory=list)
-    repository_url: Optional[str] = None
-    access_instructions: Optional[str] = None
-    access_type: Optional[str] = None
-    access_email: Optional[str] = None
-    access_link: Optional[str] = None
+    repository_url: str | None = None
+    access_instructions: str | None = None
+    access_type: str | None = None
+    access_email: str | None = None
+    access_link: str | None = None
     dataset_total_subjects: int
     records_protected: bool
-    num_matching_subjects: int
+    num_matching_subjects: int | None
     image_modals: list[str] = Field(default_factory=list)
     available_pipelines: dict = Field(default_factory=dict)
+
+    # By default, Pydantic models will ignore extra fields,
+    # but we make this explicit since in catalog mode, datasets will have additional attributes
+    # that will not be returned in the API response.
+    model_config = ConfigDict(extra="ignore")
 
 
 class SubjectsQueryResponse(BaseModel):
     """Data model for subject data matching a query."""
 
     dataset_uuid: str
-    subject_data: Union[list[SessionResponse], str]
+    subject_data: list[SessionResponse] | str
 
 
 class DataElementURI(str, Enum):
@@ -179,7 +184,7 @@ class StandardizedTermVocabularyNamespace(BaseModel):
     vocabulary_name: str
     namespace_url: str
     namespace_prefix: str
-    version: Optional[str]  # TODO: Make version mandatory?
+    version: str | None  # TODO: Make version mandatory?
     terms: list[dict]
 
 

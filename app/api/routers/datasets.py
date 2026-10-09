@@ -5,7 +5,7 @@ from fastapi.security import OAuth2
 
 from .. import crud
 from ..env_settings import settings
-from ..models import DatasetQueryResponse, QueryModel
+from ..models import DatasetQueryResponse, DatasetsQueryModel
 from ..security import verify_token
 
 router = APIRouter(prefix="/datasets", tags=["datasets"])
@@ -23,7 +23,7 @@ oauth2_scheme = OAuth2(
 
 @router.post("", response_model=List[DatasetQueryResponse])
 async def post_datasets_query(
-    query: QueryModel,
+    query: DatasetsQueryModel,
     token: str | None = Depends(oauth2_scheme),
 ):
     """When a POST request is sent, return list of dicts corresponding to metadata for datasets matching the query."""
@@ -35,6 +35,9 @@ async def post_datasets_query(
             )
         verify_token(token)
 
-    response = await crud.post_datasets(query)
+    if settings.catalog_mode:
+        response = await crud.query_dataset_catalog_attributes(query)
+    else:
+        response = await crud.post_datasets(query)
 
     return response

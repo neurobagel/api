@@ -2,6 +2,8 @@
 
 import asyncio
 from collections import defaultdict
+from copy import deepcopy
+from typing import Optional
 
 import httpx
 import pandas as pd
@@ -14,7 +16,7 @@ from .logger import get_logger
 from .models import (
     DataElementURI,
     DatasetQueryResponse,
-    QueryModel,
+    DatasetsQueryModel,
     SessionResponse,
     SubjectsQueryModel,
     SubjectsQueryResponse,
@@ -32,7 +34,9 @@ ALL_SUBJECT_ATTRIBUTES = list(SessionResponse.model_fields.keys()) + [
 ]
 
 
-async def post_query_to_graph(query: str, timeout: float = None) -> dict:
+async def post_query_to_graph(
+    query: str, timeout: Optional[float] = None
+) -> list[dict]:
     """
     Makes a post request to the graph API to perform a query, using parameters from the environment.
 
@@ -150,7 +154,7 @@ async def query_available_modalities_and_pipelines(
             lambda pipeline_versions: list(pipeline_versions.dropna().unique())
         )
     )
-    dataset_pipelines = defaultdict(dict)
+    dataset_pipelines: dict[str, dict] = defaultdict(dict)
     for (dataset_uuid, pipeline_name), versions in pipeline_versions.items():
         dataset_pipelines[dataset_uuid][pipeline_name] = versions
     # Cast back to regular dict to avoid unpredictable defaultdict behavior downstream
@@ -166,144 +170,6 @@ async def query_available_modalities_and_pipelines(
     }
 
     return dataset_imaging_modals_and_pipelines
-
-
-async def query_records(
-    min_age: float,
-    max_age: float,
-    sex: str,
-    diagnosis: str,
-    min_num_imaging_sessions: int,
-    min_num_phenotypic_sessions: int,
-    assessment: str,
-    image_modal: str,
-    pipeline_name: str,
-    pipeline_version: str,
-) -> list[dict]:
-    """
-    Sends SPARQL queries to the graph API via httpx POST requests for subject-session or dataset metadata
-    matching the given query parameters, as well as the total number of subjects in each matching dataset.
-
-    Parameters
-    ----------
-    min_age : float
-        Minimum age of subject.
-    max_age : float
-        Maximum age of subject.
-    sex : str
-        Sex of subject.
-    diagnosis : str
-        Subject diagnosis.
-    min_num_imaging_sessions : int
-        Subject minimum number of imaging sessions.
-    min_num_phenotypic_sessions : int
-        Subject minimum number of phenotypic sessions.
-    assessment : str
-        Non-imaging assessment completed by subjects.
-    image_modal : str
-        Imaging modality of subject scans.
-    pipeline_name : str
-        Name of pipeline run on subject scans.
-    pipeline_version : str
-        Version of pipeline run on subject scans.
-
-    Returns
-    -------
-    list
-        List of CohortQueryResponse objects, where each object corresponds to a dataset matching the query.
-    """
-    db_results = await post_query_to_graph(
-        util.create_query(
-            return_agg=settings.return_agg,
-            age=(min_age, max_age),
-            sex=sex,
-            diagnosis=diagnosis,
-            min_num_phenotypic_sessions=min_num_phenotypic_sessions,
-            min_num_imaging_sessions=min_num_imaging_sessions,
-            assessment=assessment,
-            image_modal=image_modal,
-            pipeline_version=pipeline_version,
-            pipeline_name=pipeline_name,
-        )
-    )
-
-    # Reindexing is needed here because when a certain attribute is missing from all matching sessions,
-    # the attribute does not end up in the graph API response or the below resulting processed dataframe.
-    # Conforming the columns to a list of expected attributes ensures every subject-session has the same response shape from the node API.
-    formatted_results = pd.DataFrame(db_results).reindex(
-        columns=ALL_SUBJECT_ATTRIBUTES
-    )
-
-    matching_dataset_sizes = await query_matching_dataset_sizes(
-        dataset_uuids=formatted_results["dataset_uuid"].unique()
-    )
-
-    response = []
-    dataset_cols = ["dataset_uuid", "dataset_name"]
-    if not formatted_results.empty:
-        for (
-            dataset_uuid,
-            dataset_name,
-        ), dataset_matching_records in formatted_results.groupby(
-            by=dataset_cols
-        ):
-            num_matching_subjects = dataset_matching_records[
-                "sub_id"
-            ].nunique()
-            # TODO: The current implementation is valid in that we do not return
-            # results for datasets with fewer than min_cell_size subjects. But
-            # ideally we would handle this directly inside SPARQL so we don't even
-            # get the results in the first place. See #267 for a solution.
-            if num_matching_subjects <= settings.min_cell_size:
-                continue
-
-            dataset_available_pipelines = (
-                dataset_matching_records.groupby("pipeline_name", dropna=True)[
-                    "pipeline_version"
-                ]
-                .agg(lambda x: list(x.dropna().unique()))
-                .to_dict()
-            )
-
-            matching_dataset_info = {
-                "dataset_uuid": dataset_uuid,
-                "dataset_name": dataset_name,
-                "dataset_total_subjects": matching_dataset_sizes[dataset_uuid],
-                "dataset_portal_uri": (
-                    dataset_matching_records["dataset_portal_uri"].iloc[0]
-                    if not dataset_matching_records["dataset_portal_uri"]
-                    .isna()
-                    .any()
-                    else None
-                ),
-                "num_matching_subjects": num_matching_subjects,
-                "records_protected": settings.return_agg,
-                "image_modals": list(
-                    dataset_matching_records["image_modal"][
-                        dataset_matching_records["image_modal"].notna()
-                    ].unique()
-                ),
-                "available_pipelines": dataset_available_pipelines,
-            }
-
-            if settings.return_agg:
-                subject_data = "protected"
-            else:
-                dataset_matching_records = dataset_matching_records.drop(
-                    dataset_cols, axis=1
-                )
-                subject_data = util.construct_matching_sub_results_for_dataset(
-                    dataset_matching_records
-                )
-
-            dataset_result = {
-                **matching_dataset_info,
-                "subject_data": subject_data,
-            }
-            # TODO: need to append as response model instance?
-            response.append(dataset_result)
-
-    return response
 
 
 async def post_subjects(query: SubjectsQueryModel):
@@ -331,8 +197,7 @@ async def post_subjects(query: SubjectsQueryModel):
             min_num_imaging_sessions=query.min_num_imaging_sessions,
             assessment=query.assessment,
             image_modal=query.image_modal,
-            pipeline_version=query.pipeline_version,
-            pipeline_name=query.pipeline_name,
+            pipeline=query.pipeline,
             dataset_uuids=query.dataset_uuids,
         )
     )
@@ -361,7 +226,7 @@ async def post_subjects(query: SubjectsQueryModel):
                 continue
 
             if settings.return_agg:
-                subject_data = "protected"
+                subject_data: str | list = "protected"
             else:
                 subject_data = util.construct_matching_sub_results_for_dataset(
                     dataset_matching_records
@@ -376,7 +241,9 @@ async def post_subjects(query: SubjectsQueryModel):
     return response
 
 
-async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
+async def post_datasets(
+    query: DatasetsQueryModel,
+) -> list[DatasetQueryResponse]:
     """
     When a POST request is sent to the /datasets path, return list of dicts corresponding to metadata for datasets matching the query.
 
@@ -471,82 +338,161 @@ async def post_datasets(query: QueryModel) -> list[DatasetQueryResponse]:
     return response
 
 
+async def query_dataset_catalog_attributes(
+    query: DatasetsQueryModel,
+) -> list[DatasetQueryResponse]:
+    """
+    When a POST request is sent to /datasets and catalog mode is enabled for the node,
+    return a list of dicts corresponding to the metadata for datasets matching the query,
+    based on the datasets metadata JSON file rather than graph store queries.
+    """
+    # NOTE: We currently do not support any of these filters in catalog mode because
+    # we don't have the dataset-level information to answer the query.
+    # This may change in a future release.
+    if util.contains_filters(
+        query,
+        [
+            "image_modal",
+            "pipeline",
+            "min_num_imaging_sessions",
+            "min_num_phenotypic_sessions",
+        ],
+    ):
+        return []
+
+    response = []
+    for (
+        dataset_uuid,
+        catalog_dataset_metadata,
+    ) in env_settings.DATASETS_METADATA.items():
+        if util.catalog_dataset_metadata_matches_query(
+            catalog_dataset_metadata, query
+        ):
+            dataset_annotated_metadata = deepcopy(catalog_dataset_metadata)
+            # Rename field to comply with expected response structure
+            dataset_annotated_metadata["dataset_total_subjects"] = (
+                dataset_annotated_metadata.pop("participant_count")
+            )
+            dataset_result = DatasetQueryResponse(
+                dataset_uuid=util.replace_namespace_prefix_with_uri(
+                    dataset_uuid
+                ),
+                # NOTE: This will override any local setting for NB_RETURN_AGG
+                records_protected=True,
+                num_matching_subjects=None,
+                **dataset_annotated_metadata,
+            )
+            response.append(dataset_result)
+
+    return response
+
+
 async def get_terms(
-    data_element_URI: str, std_trm_vocab: list[dict] | None
-) -> dict:
+    data_element_uri: str, std_trm_vocab: list[dict]
+) -> dict[str, list[dict]]:
     """
     Makes a POST request to the graph API for all used standardized terms that represent instances of the given data element URI.
     The payload is a SPARQL query generated by the create_terms_query function.
 
     Parameters
     ----------
-    data_element_URI : str
+    data_element_uri : str
         Controlled term of neurobagel class for which all the available terms should be retrieved.
-    std_trm_vocab : list[dict] | None
+    std_trm_vocab : list[dict]
         List of dictionaries representing the vocabulary for the data element URI, where each dictionary corresponds to a vocabulary namespace and
         contains the namespace metadata and a list of standardized terms. Corresponds to the contents of the terms file for a specific standardized variable.
 
     Returns
     -------
-    dict
+    dict[str, list[dict]]
         Dictionary where the key is the Neurobagel class and the value is a list of dictionaries
         corresponding to the available (i.e. used) instances of that class in the graph. Each instance dictionary
         contains the 'TermURL' and the human-readable 'Label' for the term, and may include additional
         metadata fields (e.g., 'abbreviation', 'data_type' for imaging modalities) when available.
     """
     db_results = await post_query_to_graph(
-        util.create_terms_query(data_element_URI)
+        util.create_terms_query(data_element_uri)
     )
-
-    if std_trm_vocab is None:
-        std_trm_vocab = []
 
     term_metadata = []
     for result in db_results:
         term_url = result["termURL"]
-        # First, check whether the found instance of the standardized variable contains a recognized namespace
-        if util.is_term_namespace_in_context(term_url):
-            # Then, get the namespace and ID for the term
-            term_namespace_url, term_id = util.split_namespace_from_term_uri(
-                term_url
-            )
-            # Since the term vocabulary for a standardized variable can contain terms from several namespaces,
-            # we first have to locate the namespace used in the term we are looking up
-            namespace_terms = next(
-                (
-                    namespace["terms"]
-                    for namespace in std_trm_vocab
-                    if namespace["namespace_url"] == term_namespace_url
-                ),
-                [],
-            )
-            matched_term = next(
-                (term for term in namespace_terms if term["id"] == term_id),
-                None,
-            )
-            term_entry = {
-                "TermURL": util.replace_namespace_uri_with_prefix(term_url),
-                "Label": matched_term.get("name") if matched_term else None,
-            }
-            if data_element_URI == DataElementURI.image.value:
-                term_entry["Abbreviation"] = (
-                    matched_term.get("abbreviation", None)
-                    if matched_term
-                    else None
-                )
-                term_entry["DataType"] = (
-                    matched_term.get("data_type") if matched_term else None
-                )
-            term_metadata.append(term_entry)
-        else:
-            logger.warning(
-                f"The controlled term {term_url} was found in the graph but does not come from a vocabulary recognized by Neurobagel."
-                "This term will be ignored."
-            )
+        matched_term = util.find_matching_term_in_vocab(
+            term_url, std_trm_vocab, has_prefix=False
+        )
 
-    term_instances = {data_element_URI: term_metadata}
+        if matched_term is None:
+            continue
 
-    return term_instances
+        term_entry = {
+            "TermURL": util.replace_namespace_uri_with_prefix(term_url),
+            "Label": matched_term.get("name", None),
+        }
+        if data_element_uri == DataElementURI.image.value:
+            term_entry["Abbreviation"] = matched_term.get("abbreviation", None)
+            term_entry["DataType"] = matched_term.get("data_type", None)
+        term_metadata.append(term_entry)
+
+    return {data_element_uri: term_metadata}
+
+
+async def fetch_available_terms_from_catalog_datasets(
+    data_element_uri: str, std_trm_vocab: list[dict]
+) -> dict[str, list[dict]]:
+    """
+    Fetch term instances corresponding to a given standardized variable from all catalog datasets.
+
+    Parameters
+    ----------
+    data_element_uri : str
+        Prefixed term URI of standardized variable for which all term instances should be retrieved.
+    std_trm_vocab : list[dict]
+        The vocabulary for the standardized variable, where each dictionary in the list corresponds to
+        a vocabulary namespace and contains the namespace metadata and a list of standardized terms.
+        Corresponds to the contents of the terms file for a specific standardized variable.
+
+    Returns
+    -------
+    dict[str, list[dict]]
+        Dictionary where the key is the Neurobagel class and the value is a list of dictionaries
+        corresponding to the available (i.e. used) instances of that class in the catalog datasets.
+    """
+    catalog_dataset_field = util.CATALOG_DATASET_TERM_FILTER_FIELDS.get(
+        data_element_uri, {}
+    ).get("catalog_field")
+
+    # For variables we do not represent in catalog datasets (e.g., imaging metadata),
+    # return an empty list since we have no record of used terms
+    if not catalog_dataset_field:
+        return {data_element_uri: []}
+
+    all_available_instances = set()
+    for catalog_dataset_metadata in env_settings.DATASETS_METADATA.values():
+        # The default value here is a safeguard so that if the catalog dataset metadata is missing
+        # the target variable field for some reason (e.g., if the variable wasn't annotated),
+        # we don't error out
+        dataset_instances = catalog_dataset_metadata.get(
+            catalog_dataset_field, []
+        )
+        all_available_instances.update(dataset_instances)
+    unique_instances = sorted(all_available_instances)
+
+    term_metadata = []
+    for prefixed_term in unique_instances:
+        matched_term = util.find_matching_term_in_vocab(
+            prefixed_term, std_trm_vocab, has_prefix=True
+        )
+
+        if matched_term is None:
+            continue
+
+        term_entry = {
+            "TermURL": prefixed_term,
+            "Label": matched_term.get("name", None),
+        }
+        term_metadata.append(term_entry)
+
+    return {data_element_uri: term_metadata}
 
 
 async def get_controlled_term_attributes() -> list:

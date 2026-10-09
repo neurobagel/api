@@ -4,15 +4,21 @@ import json
 import textwrap
 from collections import namedtuple
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel
 
 from . import env_settings, sparql_models
 from .logger import get_logger, log_and_raise_error
-from .models import IMAGING_FILTERS, PHENOTYPIC_FILTERS, QueryModel
+from .models import (
+    IMAGING_FILTERS,
+    PHENOTYPIC_FILTERS,
+    DatasetsQueryModel,
+    PipelineQuery,
+)
 
 logger = get_logger(__name__)
 
@@ -21,6 +27,24 @@ QUERY_HEADER = {
     "Accept": "application/sparql-results+json",
 }
 
+# Mapping of categorical standardized variables to catalog dataset metadata fields and
+# corresponding query fields
+CATALOG_DATASET_TERM_FILTER_FIELDS = {
+    "nb:Assessment": {
+        "query_field": "assessment",
+        "catalog_field": "available_assessments",
+    },
+    "nb:Diagnosis": {
+        "query_field": "diagnosis",
+        "catalog_field": "available_diagnoses",
+    },
+    "nb:Sex": {
+        "query_field": "sex",
+        "catalog_field": "available_sex",
+    },
+}
+
+# TODO: Consider removing these namedtuples - they don't necessarily increase readability of query templates
 # Store domains in named tuples
 Domain = namedtuple("Domain", ["var", "pred"])
 # Core domains
@@ -95,26 +119,44 @@ def unpack_graph_response_json_to_dicts(response: dict) -> list[dict]:
     ]
 
 
-def create_bound_filter(var: str) -> str:
+def create_filter_exists_clause(filters: str) -> str:
     """
-    Create a SPARQL filter substring for checking if a variable is bound
-    (meaning the variable actually has a corresponding value, e.g., the property exists).
+    If filters are present, wrap them in a SPARQL FILTER EXISTS clause to apply them as
+    boolean checks (i.e., checking for matching triples) on the session as an already-bound variable.
     """
-    return f"FILTER (BOUND(?{var})"
+    if filters:
+        return "\nFILTER EXISTS {" + filters + "\n}"
+    return filters
+
+
+def create_imaging_session_clause(imaging_filters: str) -> str:
+    """
+    Construct an optional SPARQL clause for imaging sessions.
+    If filters are defined that depend on the imaging session triples, make these triples required.
+    """
+    imaging_session_clause = """
+?subject nb:hasSession ?imaging_session.
+?imaging_session a nb:ImagingSession.
+"""
+    imaging_filters_clause = create_filter_exists_clause(imaging_filters)
+
+    if not imaging_filters_clause:
+        return "\nOPTIONAL {" + imaging_session_clause + "\n}"
+
+    return imaging_session_clause + imaging_filters_clause
 
 
 def create_query(
     return_agg: bool,
-    age: Optional[tuple] = (None, None),
-    sex: Optional[str] = None,
-    diagnosis: Optional[str] = None,
-    min_num_imaging_sessions: Optional[int] = None,
-    min_num_phenotypic_sessions: Optional[int] = None,
-    assessment: Optional[str] = None,
-    image_modal: Optional[str] = None,
-    pipeline_name: Optional[str] = None,
-    pipeline_version: Optional[str] = None,
-    dataset_uuids: Optional[list] = None,
+    age: tuple[float | None, float | None],
+    sex: str | None,
+    diagnosis: list[str],
+    min_num_imaging_sessions: int | None,
+    min_num_phenotypic_sessions: int | None,
+    assessment: list[str],
+    image_modal: list[str],
+    pipeline: list[PipelineQuery],
+    dataset_uuids: list[str] | None,
 ) -> str:
     """
     Creates a SPARQL query using a query template and filters it using the input parameters.
@@ -123,27 +165,23 @@ def create_query(
     ----------
     return_agg : bool
         Whether to return only aggregate query results (and not subject-level attributes besides file paths).
-    age : tuple, optional
+    age : tuple[float | None, float | None]
         Minimum and maximum age of subject, by default (None, None).
-    sex : str, optional
+    sex : str | None
         Subject sex, by default None.
-    diagnosis : str, optional
-        Subject diagnosis, by default None.
-        If True, return only healthy control subjects.
-        If None (default), return all matching subjects.
-    min_num_imaging_sessions : int, optional
+    diagnosis : list[str]
+        Subject diagnosis.
+    min_num_imaging_sessions : int | None
         Subject minimum number of imaging sessions, by default None.
-    min_num_phenotypic_sessions : int, optional
+    min_num_phenotypic_sessions : int | None
         Subject minimum number of phenotypic sessions, by default None.
-    assessment : str, optional
-        Non-imaging assessment completed by subjects, by default None.
-    image_modal : str, optional
-        Imaging modality of subject scans, by default None.
-    pipeline_name : str, optional
-        Name of pipeline run on subject scans, by default None.
-    pipeline_version : str, optional
-        Version of pipeline run on subject scans, by default None.
-    dataset_uuids : list[str], optional
+    assessment : list[str]
+        Non-imaging assessment completed by subjects.
+    image_modal : list[str]
+        Imaging modality of subject scans.
+    pipeline : list[dict[str, str]]
+        Pipeline run on subject scans.
+    dataset_uuids : list[str] | None
         List of datasets to restrict the query to, by default None (all datasets).
 
     Returns
@@ -175,53 +213,61 @@ def create_query(
 
     phenotypic_session_level_filters = ""
 
+    if age[0] is not None or age[1] is not None:
+        phenotypic_session_level_filters += (
+            "\n" + f"?phenotypic_session nb:hasAge ?{AGE.var}."
+        )
     if age[0] is not None:
         phenotypic_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(AGE.var)} && ?{AGE.var} >= {age[0]})."
+            "\n" + f"FILTER (?{AGE.var} >= {age[0]})."
         )
     if age[1] is not None:
         phenotypic_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(AGE.var)} && ?{AGE.var} <= {age[1]})."
+            "\n" + f"FILTER (?{AGE.var} <= {age[1]})."
         )
 
     if sex is not None:
         phenotypic_session_level_filters += (
-            "\n" + f"{create_bound_filter(SEX.var)} && ?{SEX.var} = {sex})."
+            "\n" + f"?phenotypic_session nb:hasSex {sex}."
         )
 
-    if diagnosis is not None:
-        phenotypic_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(DIAGNOSIS.var)} && ?{DIAGNOSIS.var} = {diagnosis})."
+    if diagnosis:
+        phenotypic_session_level_filters += "".join(
+            "\n" + f"?phenotypic_session nb:hasDiagnosis {diagnosis_value}."
+            for diagnosis_value in diagnosis
         )
 
-    if assessment is not None:
-        phenotypic_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(ASSESSMENT.var)} && ?{ASSESSMENT.var} = {assessment})."
+    if assessment:
+        phenotypic_session_level_filters += "".join(
+            "\n" + f"?phenotypic_session nb:hasAssessment {assessment_value}."
+            for assessment_value in assessment
         )
 
     imaging_session_level_filters = ""
-    if image_modal is not None:
-        imaging_session_level_filters += (
+    if image_modal:
+        imaging_session_level_filters += "".join(
             "\n"
-            + f"{create_bound_filter(IMAGE_MODAL.var)} && ?{IMAGE_MODAL.var} = {image_modal})."
+            + f"?imaging_session nb:hasAcquisition/nb:hasContrastType {image_modal_value}."
+            for image_modal_value in image_modal
         )
 
-    if pipeline_name is not None:
-        imaging_session_level_filters += (
-            "\n"
-            + f"{create_bound_filter(PIPELINE_NAME.var)} && ?{PIPELINE_NAME.var} = {pipeline_name})."
-        )
+    if pipeline:
+        for pipeline_count, pipeline_info in enumerate(pipeline, start=1):
+            pipeline_name = pipeline_info.name
+            pipeline_version = pipeline_info.version
 
-    # In case a user specified the pipeline version but not the name
-    if pipeline_version is not None:
-        imaging_session_level_filters += (
-            "\n"
-            + f'{create_bound_filter(PIPELINE_VERSION.var)} && ?{PIPELINE_VERSION.var} = "{pipeline_version}").'  # Wrap with quotes to avoid workaround implicit conversion
-        )
+            if pipeline_name is not None:
+                imaging_session_level_filters += (
+                    "\n"
+                    + f"?imaging_session nb:hasCompletedPipeline ?pipeline{pipeline_count}."
+                    "\n"
+                    + f"?pipeline{pipeline_count} nb:hasPipelineName {pipeline_name}."
+                )
+                if pipeline_version is not None:
+                    imaging_session_level_filters += (
+                        "\n"
+                        + f'?pipeline{pipeline_count} nb:hasPipelineVersion "{pipeline_version}".'
+                    )
 
     query_string = textwrap.dedent(f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
@@ -254,13 +300,7 @@ def create_query(
                     ?subject nb:hasSession ?phenotypic_session.
                     ?phenotypic_session a nb:PhenotypicSession.
 
-                    OPTIONAL {{?phenotypic_session nb:hasAge ?age.}}
-                    OPTIONAL {{?phenotypic_session nb:hasSex ?sex.}}
-                    OPTIONAL {{?phenotypic_session nb:hasDiagnosis ?diagnosis.}}
-                    OPTIONAL {{?phenotypic_session nb:isSubjectGroup ?subject_group.}}
-                    OPTIONAL {{?phenotypic_session nb:hasAssessment ?assessment.}}
-
-                    {phenotypic_session_level_filters}
+                    {create_filter_exists_clause(phenotypic_session_level_filters)}
                 }} GROUP BY ?subject
             }}
 
@@ -273,22 +313,8 @@ def create_query(
                 SELECT ?subject (count(distinct ?imaging_session) as ?num_matching_imaging_sessions)
                 WHERE {{
                     ?subject a nb:Subject.
-                    OPTIONAL {{
-                        ?subject nb:hasSession ?imaging_session.
-                        ?imaging_session a nb:ImagingSession.
 
-                        OPTIONAL {{
-                            ?imaging_session nb:hasAcquisition ?acquisition.
-                            ?acquisition nb:hasContrastType ?image_modal.
-                        }}
-
-                        OPTIONAL {{
-                            ?imaging_session nb:hasCompletedPipeline ?pipeline.
-                            ?pipeline nb:hasPipelineName ?pipeline_name;
-                            nb:hasPipelineVersion ?pipeline_version.
-                        }}
-                    }}
-                    {imaging_session_level_filters}
+                    {create_imaging_session_clause(imaging_session_level_filters)}
                 }} GROUP BY ?subject
             }}
             {subject_level_filters}
@@ -309,7 +335,7 @@ def create_query(
     return query_string
 
 
-def create_multidataset_size_query(dataset_uuids: list) -> str:
+def create_multidataset_size_query(dataset_uuids: list[str]) -> str:
     """Construct a SPARQL query to retrieve the number of subjects in each dataset in a list of dataset UUIDs."""
     dataset_uuids_string = "\n".join([f"<{uuid}>" for uuid in dataset_uuids])
     query_string = f"""
@@ -445,7 +471,9 @@ def create_terms_query(data_element_URI: str) -> str:
     return query_string
 
 
-def is_term_namespace_in_context(term_url: str) -> bool:
+def is_term_namespace_in_context(
+    term_url: str, has_prefix: bool = False
+) -> bool:
     """
     Performs basic check for if a term URL contains a namespace URI from the context.
 
@@ -454,15 +482,20 @@ def is_term_namespace_in_context(term_url: str) -> bool:
     term_url : str
         A controlled term URI.
 
+    has_prefix : bool, optional
+        Whether the term URI includes a namespace prefix (as opposed to the full namespace URL).
+
     Returns
     -------
     bool
         True if the term URL contains a namespace URI from the context, False otherwise.
     """
-    for uri in env_settings.CONTEXT.values():
-        if uri in term_url:
-            return True
-    return False
+    namespaces = (
+        [f"{prefix}:" for prefix in env_settings.CONTEXT]
+        if has_prefix
+        else list(env_settings.CONTEXT.values())
+    )
+    return any(term_url.startswith(namespace) for namespace in namespaces)
 
 
 def split_namespace_from_term_uri(
@@ -480,7 +513,7 @@ def split_namespace_from_term_uri(
 
     Returns
     -------
-    tuple[str, str]
+    tuple[str | None, str]
         The stripped namespace URL/prefix and the term ID.
     """
     if has_prefix:
@@ -517,6 +550,27 @@ def replace_namespace_uri_with_prefix(url: str) -> str:
     return url
 
 
+def replace_namespace_prefix_with_uri(term: str) -> str:
+    """
+    Replace the namespace prefix in a prefixed term URIs with corresponding full namespace URI from the context.
+
+    Parameters
+    ----------
+    term : str
+        A controlled term URI with a namespace prefix.
+
+    Returns
+    -------
+    str
+        The term with namespace prefix replaced with full URI if found in the context, or the original term.
+    """
+    for prefix, uri in env_settings.CONTEXT.items():
+        if term.startswith(f"{prefix}:"):
+            return term.replace(f"{prefix}:", uri)
+
+    return term
+
+
 def create_pipeline_versions_query(pipeline: str) -> str:
     """Create a SPARQL query for all versions of a pipeline available in a graph."""
     query_string = textwrap.dedent(f"""\
@@ -529,7 +583,7 @@ def create_pipeline_versions_query(pipeline: str) -> str:
     return query_string
 
 
-def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
+def create_phenotypic_sparql_query_for_datasets(query: DatasetsQueryModel):
     """Create a SPARQL query string for phenotypic parameters from a query to the POST /datasets endpoint."""
     age_bounds = sparql_models.Age(
         min_age=query.min_age, max_age=query.max_age
@@ -548,16 +602,22 @@ def create_phenotypic_sparql_query_for_datasets(query: QueryModel):
     return query_string
 
 
-def create_imaging_sparql_query_for_datasets(query: QueryModel):
+def create_imaging_sparql_query_for_datasets(query: DatasetsQueryModel):
     """Create a SPARQL query string for imaging parameters from a query to the POST /datasets endpoint."""
-    acquisition = sparql_models.Acquisition(hasContrastType=query.image_modal)
-    pipeline = sparql_models.Pipeline(
-        hasPipelineVersion=query.pipeline_version,
-        hasPipelineName=query.pipeline_name,
-    )
+    acquisitions = [
+        sparql_models.Acquisition(hasContrastType=image_modal)
+        for image_modal in query.image_modal
+    ]
+    pipelines = [
+        sparql_models.Pipeline(
+            hasPipelineVersion=pipeline.version,
+            hasPipelineName=pipeline.name,
+        )
+        for pipeline in query.pipeline
+    ]
     imaging_session = sparql_models.ImagingSession(
-        hasAcquisition=acquisition,
-        hasCompletedPipeline=pipeline,
+        hasAcquisition=acquisitions,
+        hasCompletedPipeline=pipelines,
         min_num_imaging_sessions=query.min_num_imaging_sessions,
     )
     subject = sparql_models.Subject(hasSession=imaging_session)
@@ -567,12 +627,28 @@ def create_imaging_sparql_query_for_datasets(query: QueryModel):
     return query_string
 
 
-def contains_filters(query: QueryModel, filters: list[str]) -> bool:
+def is_field_set(value: Any) -> bool:
+    """Check if a field has been set (i.e., not an empty list, model instance, or None)."""
+    if isinstance(value, list):
+        return any(is_field_set(item) for item in value)
+    if isinstance(value, BaseModel):
+        nested_values = value.model_dump().values()
+        return any(
+            is_field_set(nested_value) for nested_value in nested_values
+        )
+    return value is not None
+
+
+def contains_filters(query: DatasetsQueryModel, filters: list[str]) -> bool:
     """Check if certain filter fields have been set in a given query."""
-    return any(getattr(query, filter) is not None for filter in filters)
+    return any(
+        is_field_set(getattr(query, filter_name)) for filter_name in filters
+    )
 
 
-def create_sparql_queries_for_datasets(query: QueryModel) -> tuple[str, str]:
+def create_sparql_queries_for_datasets(
+    query: DatasetsQueryModel,
+) -> tuple[str, str]:
     """
     Create SPARQL queries based on the phenotypic and/or imaging filters specified in the request payload.
     """
@@ -637,3 +713,131 @@ WHERE {{
 """
 
     return query_string
+
+
+def catalog_dataset_matches_categorical_filter(
+    dataset: dict, terms_field: str, field_filter: str | list | None
+) -> bool:
+    """
+    Return True if a given filter term or list of terms exists in the specified
+    categorical dataset metadata field, or if a filter has not been specified.
+    """
+    if not field_filter:
+        return True
+
+    dataset_terms = dataset.get(terms_field, [])
+
+    field_filter = (
+        field_filter if isinstance(field_filter, list) else [field_filter]
+    )
+    return all(value in dataset_terms for value in field_filter)
+
+
+def age_filters_include_catalog_dataset_age_range(
+    dataset: dict,
+    query_min_age: float | None,
+    query_max_age: float | None,
+) -> bool:
+    """
+    Return True if a dataset's age range overlaps with the age range specified in the query,
+    or if no age filters have been specified in the query.
+    """
+    if query_min_age is None and query_max_age is None:
+        return True
+
+    dataset_age_range = dataset.get("age_range")
+    if not isinstance(dataset_age_range, dict):
+        return False
+
+    dataset_min_age = dataset_age_range.get("minimum")
+    dataset_max_age = dataset_age_range.get("maximum")
+
+    # This should theoretically never happen because of the schema validation for catalog dataset files,
+    # but we include this check as a safeguard to avoid errors.
+    if dataset_min_age is None or dataset_max_age is None:
+        return False
+
+    if query_min_age is not None and dataset_max_age < query_min_age:
+        return False
+    if query_max_age is not None and dataset_min_age > query_max_age:
+        return False
+
+    return True
+
+
+def catalog_dataset_metadata_matches_query(
+    dataset: dict,
+    query: DatasetsQueryModel,
+) -> bool:
+    """
+    Return True if a dataset's catalog metadata matches the filters specified in the query, and False otherwise.
+    """
+    term_filters_match = all(
+        catalog_dataset_matches_categorical_filter(
+            dataset,
+            fields["catalog_field"],
+            getattr(query, fields["query_field"]),
+        )
+        for fields in CATALOG_DATASET_TERM_FILTER_FIELDS.values()
+    )
+    age_filters_match = age_filters_include_catalog_dataset_age_range(
+        dataset, query.min_age, query.max_age
+    )
+
+    return term_filters_match and age_filters_match
+
+
+def find_matching_term_in_vocab(
+    term_url: str, std_trm_vocab: list[dict], has_prefix: bool = False
+) -> dict | None:
+    """
+    Finds the matching term from the standardized vocabulary based on the provided term URL.
+
+    Parameters
+    ----------
+    term_url : str
+        The URL of the controlled term to find.
+    std_trm_vocab : list[dict]
+        The standardized term vocabulary containing metadata for controlled terms.
+
+    Returns
+    -------
+    dict | None
+        The dictionary representing the matching term from the vocabulary, or None if no match is found.
+    """
+    # First, check whether the instance of the standardized variable contains a recognized namespace
+    if not is_term_namespace_in_context(term_url, has_prefix):
+        logger.warning(
+            f"The controlled term {term_url} was found in a dataset but "
+            "does not come from a vocabulary recognized by Neurobagel. "
+            "This term will be ignored."
+        )
+        return None
+
+    # Then, get the namespace and ID for the term
+    term_namespace, term_id = split_namespace_from_term_uri(
+        term_url, has_prefix=has_prefix
+    )
+
+    if has_prefix:
+        namespace_key = "namespace_prefix"
+    else:
+        namespace_key = "namespace_url"
+
+    # Since the term vocabulary for a standardized variable can contain terms from several namespaces,
+    # we first have to locate the namespace used in the term we are looking up
+    namespace_terms: list = next(
+        (
+            namespace["terms"]
+            for namespace in std_trm_vocab
+            if namespace[namespace_key] == term_namespace
+        ),
+        [],
+    )
+    # If the term has a recognized namespace but is not found in the vocabulary,
+    # we return an empty dictionary to indicate that no term metadata is available.
+    matched_term: dict = next(
+        (term for term in namespace_terms if term["id"] == term_id),
+        {},
+    )
+    return matched_term

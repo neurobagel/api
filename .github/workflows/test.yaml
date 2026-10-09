@@ -1,5 +1,8 @@
 name: Test
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -10,51 +13,61 @@ jobs:
   test:
 
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7.0.1
       with:
         submodules: recursive
 
     - name: Launch test graph
-      run: docker compose up -d test_graph
+      run: docker compose up -d test_graph export_datasets_metadata
 
-    # TODO: Check if this is necessary, since the Python dependencies setup also takes some time
-    - name: Sleep to allow graph setup
-      uses: jakejarvis/wait-action@master
+    - name: Wait for graph setup
+      run: |
+        timeout=120
+        elapsed=0
+
+        until docker logs api-test_graph-1 2>&1 | grep -q "FINISHED UPLOADING DATA"; do
+          if [ "$elapsed" -ge "$timeout" ]; then
+            echo "Timed out waiting for graph setup"
+            docker logs api-test_graph-1
+            exit 1
+          fi
+
+          sleep 1
+          elapsed=$((elapsed + 1))
+        done
+
+    - name: Debug containers and test graph
+      run: |
+        echo "=== All running and stopped containers ==="
+        docker ps -a
+
+        echo "=== Test graph logs ==="
+        docker logs api-test_graph-1
+
+        echo "=== Test graph data directory contents ==="
+        ls -l ./test_graph_data
+
+    - name: Set up Python ${{ matrix.python-version }} with uv
+      uses: astral-sh/setup-uv@v7
       with:
-        time: '5s'
-
-    - name: Check running containers
-      run: docker ps
-
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.10"
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install flake8 
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        uv sync --group dev
 
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --per-file-ignores=./app/api/models.py:F722
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    
     - name: Test with pytest
       run: |
-        coverage run -m pytest -m "integration or not integration"
-        coverage lcov -o ./coverage/lcov.info
+        uv run pytest -m "integration or not integration" --cov --cov-branch --cov-report=xml
 
     - name: Upload results to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-
-

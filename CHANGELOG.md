@@ -1,3 +1,58 @@
+# v0.11.0 (Mon Sep 14 2026)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, CHANDAN YADAV ([@NobleCoder69](https://github.com/NobleCoder69)), for all your work!
+
+#### 💥 Breaking Changes
+
+- [ENH] Support AND queries for categorical variables other than sex [#594](https://github.com/neurobagel/api/pull/594) ([@alyssadai](https://github.com/alyssadai))
+- [REF] Remove cohort `/query` endpoint in favour of `/subjects` [#595](https://github.com/neurobagel/api/pull/595) ([@alyssadai](https://github.com/alyssadai))
+
+#### 🏠 Internal
+
+- [MNT] Switch to Python 3.9+ type annotation syntax everywhere [#539](https://github.com/neurobagel/api/pull/539) ([@NobleCoder69](https://github.com/NobleCoder69) [@alyssadai](https://github.com/alyssadai))
+
+####  🧪 Tests
+
+- [TST] Add test runners for Python 3.11-3.13 [#598](https://github.com/neurobagel/api/pull/598) ([@alyssadai](https://github.com/alyssadai))
+
+#### 🔩 Dependency Updates
+
+- [MNT] Remove deprecated `orjson` dependency [#593](https://github.com/neurobagel/api/pull/593) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 2
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+- CHANDAN YADAV ([@NobleCoder69](https://github.com/NobleCoder69))
+
+---
+
+# v0.10.0 (Thu Jun 04 2026)
+
+#### 🚀 Enhancements
+
+- [ENH] Support catalog mode for only dataset-level metadata queries [#576](https://github.com/neurobagel/api/pull/576) ([@alyssadai](https://github.com/alyssadai))
+
+#### 🐛 Bug Fixes
+
+- [FIX] distroless uv requirements export [#558](https://github.com/neurobagel/api/pull/558) ([@surchs](https://github.com/surchs))
+
+#### 🏠 Internal
+
+- [REF] remove stale python setup step [#559](https://github.com/neurobagel/api/pull/559) ([@surchs](https://github.com/surchs))
+
+#### 🔩 Dependency Updates
+
+- [MNT] Setup uv [#529](https://github.com/neurobagel/api/pull/529) ([@surchs](https://github.com/surchs))
+
+#### Authors: 2
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+- Sebastian Urchs ([@surchs](https://github.com/surchs))
+
+---
+
 # v0.9.2 (Tue Mar 03 2026)
 
 :tada: This release contains work from a new contributor! :tada:
