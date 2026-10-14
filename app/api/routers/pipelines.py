@@ -6,7 +6,7 @@ from pydantic.types import StringConstraints
 from .. import crud
 from .. import utility as util
 from ..env_settings import settings
-from ..models import CONTROLLED_TERM_REGEX
+from ..models import STANDARDIZED_IDENTIFIER_REGEX
 from . import route_factory
 
 router = APIRouter(prefix="/pipelines", tags=["pipelines"])
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/pipelines", tags=["pipelines"])
 router.add_api_route(
     path="",
     endpoint=route_factory.create_get_instances_handler(
-        data_element_uri="nb:Pipeline"
+        std_var_uri="nb:Pipeline"
     ),
     methods=["GET"],
 )
@@ -23,7 +23,7 @@ router.add_api_route(
 @router.get("/{pipeline_term}/versions")
 async def get_pipeline_versions(
     pipeline_term: Annotated[
-        str, StringConstraints(pattern=CONTROLLED_TERM_REGEX)
+        str, StringConstraints(pattern=STANDARDIZED_IDENTIFIER_REGEX)
     ],
 ):
     """

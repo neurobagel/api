@@ -1,10 +1,10 @@
-"""Test API endpoint for querying controlled term attributes modeled by Neurobagel."""
+"""Test API endpoint for querying standardized variables modeled by Neurobagel."""
 
 import httpx
 
 
 def test_get_attributes(test_app, monkeypatch, mock_context):
-    """Given a GET request to the /attributes endpoint, successfully returns controlled term attributes with namespaces abbrieviated and as a list."""
+    """Given a GET request to the /attributes endpoint, successfully returns standardized variable URIs with namespaces abbrieviated and as a list."""
     mock_response_json = {
         "head": {"vars": ["attribute"]},
         "results": {
@@ -12,19 +12,19 @@ def test_get_attributes(test_app, monkeypatch, mock_context):
                 {
                     "attribute": {
                         "type": "uri",
-                        "value": "http://neurobagel.org/vocab/ControlledTerm1",
+                        "value": "http://neurobagel.org/vocab/StandardizedVariable1",
                     }
                 },
                 {
                     "attribute": {
                         "type": "uri",
-                        "value": "http://neurobagel.org/vocab/ControlledTerm2",
+                        "value": "http://neurobagel.org/vocab/StandardizedVariable2",
                     }
                 },
                 {
                     "attribute": {
                         "type": "uri",
-                        "value": "http://neurobagel.org/vocab/ControlledTerm3",
+                        "value": "http://neurobagel.org/vocab/StandardizedVariable3",
                     }
                 },
             ]
@@ -38,7 +38,7 @@ def test_get_attributes(test_app, monkeypatch, mock_context):
     response = test_app.get("/attributes")
 
     assert response.json() == [
-        "nb:ControlledTerm1",
-        "nb:ControlledTerm2",
-        "nb:ControlledTerm3",
+        "nb:StandardizedVariable1",
+        "nb:StandardizedVariable2",
+        "nb:StandardizedVariable3",
     ]

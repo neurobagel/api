@@ -5,7 +5,7 @@ import pytest
 
 from app.api import env_settings
 from app.api.env_settings import settings
-from app.api.models import DataElementURI
+from app.api.models import StandardizedVariableURI
 
 
 def test_get_instances_endpoint_with_vocab_lookup(
@@ -116,7 +116,7 @@ def test_get_imaging_modalities_with_vocab_lookup(
         env_settings,
         "ALL_VOCABS",
         {
-            DataElementURI.image.value: [
+            StandardizedVariableURI.image.value: [
                 {
                     "namespace_prefix": "nidm",
                     "namespace_url": "http://purl.org/nidash/nidm#",
