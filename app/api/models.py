@@ -7,7 +7,7 @@ from fastapi.exceptions import HTTPException
 from pydantic import BaseModel, ConfigDict, Field, RootModel, model_validator
 from typing_extensions import Self
 
-CONTROLLED_TERM_REGEX = r"^[a-zA-Z]+[:]\S+$"
+STANDARDIZED_IDENTIFIER_REGEX = r"^[a-zA-Z]+[:]\S+$"
 
 # TODO: Check if version regex is too restrictive
 # Constrain version numbers to be in the following format:
@@ -34,7 +34,9 @@ class PipelineQuery(BaseModel):
     """Data model for a pipeline query filter."""
 
     name: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+        default=None,
+        pattern=STANDARDIZED_IDENTIFIER_REGEX,
+        examples=["vocab:12345"],
     )
     version: str | None = Field(
         default=None, pattern=VERSION_REGEX, examples=["1.0.0"]
@@ -65,19 +67,21 @@ class DatasetsQueryModel(BaseModel):
     min_age: float | None = Field(default=None, ge=0)
     max_age: float | None = Field(default=None, ge=0)
     sex: str | None = Field(
-        default=None, pattern=CONTROLLED_TERM_REGEX, examples=["vocab:12345"]
+        default=None,
+        pattern=STANDARDIZED_IDENTIFIER_REGEX,
+        examples=["vocab:12345"],
     )
-    diagnosis: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
-        Field(default_factory=list, examples=[["vocab:12345"]])
-    )
+    diagnosis: list[
+        Annotated[str, Field(pattern=STANDARDIZED_IDENTIFIER_REGEX)]
+    ] = Field(default_factory=list, examples=[["vocab:12345"]])
     min_num_imaging_sessions: int | None = Field(default=None, ge=0)
     min_num_phenotypic_sessions: int | None = Field(default=None, ge=0)
-    assessment: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
-        Field(default_factory=list, examples=[["vocab:12345"]])
-    )
-    image_modal: list[Annotated[str, Field(pattern=CONTROLLED_TERM_REGEX)]] = (
-        Field(default_factory=list, examples=[["vocab:12345"]])
-    )
+    assessment: list[
+        Annotated[str, Field(pattern=STANDARDIZED_IDENTIFIER_REGEX)]
+    ] = Field(default_factory=list, examples=[["vocab:12345"]])
+    image_modal: list[
+        Annotated[str, Field(pattern=STANDARDIZED_IDENTIFIER_REGEX)]
+    ] = Field(default_factory=list, examples=[["vocab:12345"]])
     pipeline: list[PipelineQuery] = Field(
         default_factory=list,
         examples=[{"name": "vocab:12345", "version": "1.0.0"}],
@@ -167,8 +171,8 @@ class SubjectsQueryResponse(BaseModel):
     subject_data: list[SessionResponse] | str
 
 
-class DataElementURI(str, Enum):
-    """Data model for data element URIs that have available vocabularies."""
+class StandardizedVariableURI(str, Enum):
+    """Data model for standardized variable URIs that have available vocabularies."""
 
     assessment = "nb:Assessment"
     diagnosis = "nb:Diagnosis"
