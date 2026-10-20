@@ -60,7 +60,6 @@ class PipelineQuery(BaseModel):
 class DatasetsQueryModel(BaseModel):
     """Data model and dependency for API that stores the query parameters to be accepted and validated."""
 
-    # NOTE: extra query parameters are just ignored/have no effect
     # NOTE: Explicit examples are needed for fields requiring a URI to avoid random-string examples being generated
     # for the example request body in the interactive docs
 
@@ -86,6 +85,8 @@ class DatasetsQueryModel(BaseModel):
         default_factory=list,
         examples=[{"name": "vocab:12345", "version": "1.0.0"}],
     )
+
+    model_config = ConfigDict(extra="forbid")
 
     @model_validator(mode="after")
     def check_maxage_ge_minage(self) -> Self:
