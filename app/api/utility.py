@@ -269,6 +269,9 @@ def create_query(
                         + f'?pipeline{pipeline_count} nb:hasPipelineVersion "{pipeline_version}".'
                     )
 
+    # NOTE: We need OPTIONAL {} wrappers around subject variable triples in the top-level query (for age, sex, diagnosis, etc.)
+    # because not all properties/edges will exist for every subject-session.
+    # However, we still want to return information about all *available* properties for each subject-session that matches a query.
     query_string = textwrap.dedent(f"""
         SELECT DISTINCT ?dataset_uuid ?dataset_name ?dataset_portal_uri ?sub_id ?age ?sex
         ?diagnosis ?subject_group ?num_matching_phenotypic_sessions ?num_matching_imaging_sessions
