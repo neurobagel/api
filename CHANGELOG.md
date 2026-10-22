@@ -1,3 +1,30 @@
+# v0.12.0 (Thu Oct 22 2026)
+
+:tada: This release contains work from a new contributor! :tada:
+
+Thank you, Ravi Ranjan ([@AviJxn](https://github.com/AviJxn)), for all your work!
+
+#### 💥 Breaking Changes
+
+- [MNT] Forbid extra fields in cohort query request bodies [#630](https://github.com/neurobagel/api/pull/630) ([@alyssadai](https://github.com/alyssadai))
+
+#### 🚀 Enhancements
+
+- [MNT] Update outdated Neurobagel terminology in variables, function names, and logs [#607](https://github.com/neurobagel/api/pull/607) ([@alyssadai](https://github.com/alyssadai))
+- MNT: Remove deprecated NB_API_ALLOWED_ORIGINS variable #410 [#540](https://github.com/neurobagel/api/pull/540) ([@AviJxn](https://github.com/AviJxn) [@rmanaem](https://github.com/rmanaem))
+
+#### 🏠 Internal
+
+- [MNT] Add workflow to run OSSF Scorecard [#609](https://github.com/neurobagel/api/pull/609) ([@alyssadai](https://github.com/alyssadai))
+
+#### Authors: 3
+
+- Alyssa Dai ([@alyssadai](https://github.com/alyssadai))
+- Arman Jahanpour ([@rmanaem](https://github.com/rmanaem))
+- Ravi Ranjan ([@AviJxn](https://github.com/AviJxn))
+
+---
+
 # v0.11.0 (Mon Sep 14 2026)
 
 :tada: This release contains work from a new contributor! :tada:
