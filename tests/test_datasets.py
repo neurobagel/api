@@ -447,9 +447,6 @@ def test_pipeline_query_with_version_but_without_name_returns_informative_error(
     assert "missing a corresponding 'name'" in response.json()["detail"]
 
 
-# TODO: Once https://github.com/neurobagel/api/issues/492 is addressed,
-# we can add a test case for the legacy pipeline filter format with "pipeline_name" and "pipeline_version"
-# keys, which should be rejected with an error.
 @pytest.mark.parametrize(
     "pipeline_filter",
     [
@@ -466,3 +463,29 @@ def test_query_with_invalid_pipeline_field_returns_error(
     response = test_app.post(ROUTE, json={"pipeline": [pipeline_filter]})
 
     assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    "extra_fields_query",
+    [
+        {
+            "dataset_uuids": ["nb:dataset1"]
+        },  # dataset_uuids only supported by /subjects endpoint
+        {
+            "pipeline_name": "np:fmriprep",
+            "pipeline_version": "23.2.0",
+        },  # legacy pipeline filter format
+    ],
+)
+def test_query_with_extra_fields_returns_error(
+    test_app, disable_auth, extra_fields_query
+):
+    """
+    Test that a cohort query containing unrecognized fields returns an error.
+    """
+    response = test_app.post(ROUTE, json=extra_fields_query)
+
+    assert response.status_code == 422
+    assert (
+        "Extra inputs are not permitted" in response.json()["detail"][0]["msg"]
+    )
