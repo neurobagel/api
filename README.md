@@ -256,6 +256,40 @@ you must also [update the lockfile](https://docs.astral.sh/uv/concepts/projects/
 uv lock
 ```
 
+## Working in the monorepo
+
+This tool lives in `packages/api` of the Neurobagel monorepo ([neurobagel/neurobagel](https://github.com/neurobagel/neurobagel)). Clone the monorepo, not the old `neurobagel/api` repository, which is a read-only mirror of this folder:
+
+```bash
+git clone --recurse-submodules https://github.com/neurobagel/neurobagel.git
+cd neurobagel
+```
+
+Differences from the instructions above:
+
+- `recipes` and `neurobagel_examples` are no longer submodules. They are symlinks to the monorepo's `deploy/` and `testdata/` folders, so no `git submodule update` is needed.
+- Pin the Python version (CI tests 3.12 and 3.13), and run the commands from `packages/api`.
+
+From the monorepo root:
+
+```bash
+cd packages/api
+uv sync --python 3.12 --group dev
+uv run --python 3.12 pytest
+```
+
+The integration tests (marked `integration`, skipped by default and in CI) need the test graph:
+
+```bash
+cd packages/api
+docker compose up -d test_graph export_datasets_metadata
+until docker compose logs test_graph | grep "FINISHED UPLOADING DATA" >/dev/null; do sleep 2; done
+uv run --python 3.12 pytest -m "integration or not integration"
+docker compose down -v
+```
+
+Code style checks run through the monorepo's root pre-commit configuration (`pre-commit install` at the repository root). Pull request titles must be conventional commits, and releases (tags `api-v<version>`) are made from the monorepo; see [DEVELOPING.md](https://github.com/neurobagel/neurobagel/blob/main/DEVELOPING.md).
+
 ## License
 
 Neurobagel API is released under the terms of the [MIT License](LICENSE)
