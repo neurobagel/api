@@ -256,6 +256,40 @@ you must also [update the lockfile](https://docs.astral.sh/uv/concepts/projects/
 uv lock
 ```
 
+## Working in the monorepo
+
+Development happens in the Neurobagel monorepo ([neurobagel/neurobagel](https://github.com/neurobagel/neurobagel)), in `tools/api`; [neurobagel/api](https://github.com/neurobagel/api) is a read-only mirror of that folder. Clone the monorepo to make changes:
+
+```bash
+git clone https://github.com/neurobagel/neurobagel.git
+cd neurobagel
+```
+
+Differences from the instructions above:
+
+- `recipes` and `neurobagel_examples` are no longer submodules. They are symlinks to the monorepo's `recipes/` and `examples/` folders, so no `git submodule update` is needed.
+- The Python versions CI tests are listed in `.github/workflows/test.yaml` (in this folder); pin one of them, because uv otherwise picks whatever Python it finds. Run the commands from `tools/api`.
+
+From the monorepo root:
+
+```bash
+cd tools/api
+uv sync --python 3.12 --group dev
+uv run --python 3.12 pytest
+```
+
+The integration tests (marked `integration`, skipped by default and in CI) need the test graph:
+
+```bash
+cd tools/api
+docker compose up -d test_graph export_datasets_metadata
+until docker compose logs test_graph | grep "FINISHED UPLOADING DATA" >/dev/null; do sleep 2; done
+uv run --python 3.12 pytest -m "integration or not integration"
+docker compose down -v
+```
+
+Commit hooks: run `pre-commit install` once at the monorepo root; the root `.pre-commit-config.yaml` has this tool's hooks, with this folder's config files. Pull request titles must be conventional commits, and releases (tags `api-v<version>`) are made from the monorepo; see [DEVELOPING.md](https://github.com/neurobagel/neurobagel/blob/main/DEVELOPING.md).
+
 ## License
 
 Neurobagel API is released under the terms of the [MIT License](LICENSE)
