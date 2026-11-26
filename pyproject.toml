@@ -35,7 +35,7 @@ dependencies = [
     "pydantic-settings",
     "pandas<3",
     "numpy",
-    "PyJWT",
+    "pyjwt[crypto]",
     "typing-extensions"
 ]
 
